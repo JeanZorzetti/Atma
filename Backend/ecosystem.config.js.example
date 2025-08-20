@@ -1,0 +1,52 @@
+// Configuração PM2 para produção
+module.exports = {
+  apps: [{
+    name: 'atma-aligner-backend',
+    script: 'src/server.js',
+    instances: 'max', // Usar todos os cores disponíveis
+    exec_mode: 'cluster',
+    
+    // Environment variables
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3001
+    },
+    
+    // Logs
+    log_file: './logs/pm2-combined.log',
+    out_file: './logs/pm2-out.log',
+    error_file: './logs/pm2-error.log',
+    log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    
+    // Auto restart configuration
+    watch: false,
+    max_memory_restart: '500M',
+    restart_delay: 4000,
+    max_restarts: 10,
+    min_uptime: '10s',
+    
+    // Advanced settings
+    kill_timeout: 5000,
+    listen_timeout: 8000,
+    
+    // Health monitoring
+    health_check: {
+      http: {
+        url: 'http://localhost:3001/health',
+        timeout: 5000
+      }
+    }
+  }],
+  
+  // Deployment configuration
+  deploy: {
+    production: {
+      user: 'deploy',
+      host: 'your-server.com',
+      ref: 'origin/main',
+      repo: 'git@github.com:your-repo/atma-aligner-backend.git',
+      path: '/var/www/atma-aligner-backend',
+      'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production'
+    }
+  }
+};
