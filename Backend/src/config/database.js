@@ -7,16 +7,13 @@ const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'atma_align',
+  database: process.env.DB_NAME || 'atma_aligner',
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  acquireTimeout: 60000,
-  timeout: 60000,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-  charset: 'utf8mb4'
+  charset: 'utf8mb4',
+  timezone: '+00:00'
 };
 
 const connectDB = async () => {
@@ -31,13 +28,16 @@ const connectDB = async () => {
     return pool;
   } catch (error) {
     logger.error('❌ Erro ao conectar com o banco de dados:', error.message);
-    process.exit(1);
+    logger.warn('⚠️ Aplicação continuará sem banco de dados - usando dados mock');
+    // Não mata o processo - permite rodar sem banco
+    return null;
   }
 };
 
 const getDB = () => {
   if (!pool) {
-    throw new Error('Database não foi inicializado. Chame connectDB() primeiro.');
+    logger.warn('Database não disponível - retornando null');
+    return null;
   }
   return pool;
 };
@@ -53,6 +53,9 @@ const closeDB = async () => {
 const executeQuery = async (query, params = []) => {
   try {
     const db = getDB();
+    if (!db) {
+      throw new Error('Database não disponível');
+    }
     const [results] = await db.execute(query, params);
     return results;
   } catch (error) {

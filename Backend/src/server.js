@@ -8,7 +8,7 @@ require('dotenv').config();
 const { logger } = require('./utils/logger');
 const { connectDB } = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
-const rateLimiter = require('./middleware/rateLimiter');
+const { generalLimiter } = require('./middleware/rateLimiter');
 
 // Import routes
 const patientRoutes = require('./routes/patientRoutes');
@@ -35,7 +35,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Rate limiting
-app.use(rateLimiter);
+app.use(generalLimiter);
 
 // Logging
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));

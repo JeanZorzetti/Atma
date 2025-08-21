@@ -14,10 +14,16 @@ class EmailService {
 
   async init() {
     try {
+      // Verificar se tem configuração de email
+      if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
+        logger.warn('⚠️ Configuração SMTP não encontrada - serviço de email desabilitado');
+        return;
+      }
+
       // Configurar transporter
       this.transporter = nodemailer.createTransporter({
         host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
+        port: process.env.SMTP_PORT || 587,
         secure: process.env.SMTP_SECURE === 'true',
         auth: {
           user: process.env.SMTP_USER,
@@ -28,15 +34,24 @@ class EmailService {
         maxMessages: 100,
       });
 
-      // Verificar conexão
-      await this.transporter.verify();
-      logger.info('✅ Serviço de email configurado com sucesso');
+      // Verificar conexão (sem bloquear o startup)
+      try {
+        await this.transporter.verify();
+        logger.info('✅ Serviço de email configurado com sucesso');
+      } catch (verifyError) {
+        logger.warn('⚠️ Não foi possível verificar SMTP - email pode não funcionar:', verifyError.message);
+      }
       
-      // Carregar templates
-      await this.loadTemplates();
+      // Carregar templates (não bloqueia se banco não disponível)
+      try {
+        await this.loadTemplates();
+      } catch (templateError) {
+        logger.warn('⚠️ Não foi possível carregar templates de email:', templateError.message);
+      }
       
     } catch (error) {
       logger.error('❌ Erro ao configurar serviço de email:', error.message);
+      logger.warn('⚠️ Aplicação continuará sem serviço de email');
     }
   }
 
