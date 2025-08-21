@@ -10,7 +10,6 @@ import {
   Users, 
   DollarSign, 
   Download,
-  Calendar,
   Target,
   Award
 } from 'lucide-react'
@@ -114,7 +113,7 @@ export default function RelatoriosPage() {
               </CardHeader>
               <CardContent>
                 <div className="h-64 flex items-end justify-between gap-2 p-4">
-                  {monthlyData.map((data, index) => (
+                  {monthlyData.map((data) => (
                     <div key={data.month} className="flex flex-col items-center gap-2">
                       <div 
                         className="w-8 bg-blue-500 rounded-t transition-all hover:bg-blue-600"
@@ -145,7 +144,7 @@ export default function RelatoriosPage() {
               </CardHeader>
               <CardContent>
                 <div className="h-64 flex items-end justify-between gap-2 p-4">
-                  {monthlyData.map((data, index) => (
+                  {monthlyData.map((data) => (
                     <div key={data.month} className="flex flex-col items-center gap-2">
                       <div 
                         className="w-8 bg-green-500 rounded-t transition-all hover:bg-green-600"
@@ -175,11 +174,11 @@ export default function RelatoriosPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {topOrthodontists.map((orthodontist, index) => (
+                {topOrthodontists.map((orthodontist, idx) => (
                   <div key={orthodontist.name} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-4">
                       <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full">
-                        {index + 1}
+                        {idx + 1}
                       </div>
                       <div>
                         <h3 className="font-medium">{orthodontist.name}</h3>

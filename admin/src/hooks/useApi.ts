@@ -3,7 +3,7 @@ import { apiService } from '@/lib/api'
 
 export function useApi<T>(
   apiCall: () => Promise<T>,
-  dependencies: any[] = []
+  dependencies: unknown[] = []
 ) {
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoading] = useState(true)
@@ -38,7 +38,7 @@ export function useApi<T>(
     return () => {
       mounted = false
     }
-  }, dependencies)
+  }, [apiCall, ...dependencies])
 
   const refetch = async () => {
     try {

@@ -44,14 +44,14 @@ class ApiService {
     return this.request(`/patients/${id}`)
   }
 
-  async createPatient(data: any) {
+  async createPatient(data: Record<string, unknown>) {
     return this.request('/patients', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
-  async updatePatient(id: string, data: any) {
+  async updatePatient(id: string, data: Record<string, unknown>) {
     return this.request(`/patients/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -73,14 +73,14 @@ class ApiService {
     return this.request(`/orthodontists/${id}`)
   }
 
-  async createOrthodontist(data: any) {
+  async createOrthodontist(data: Record<string, unknown>) {
     return this.request('/orthodontists', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
-  async updateOrthodontist(id: string, data: any) {
+  async updateOrthodontist(id: string, data: Record<string, unknown>) {
     return this.request(`/orthodontists/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -104,7 +104,7 @@ class ApiService {
   }
 
   // Email methods
-  async sendEmail(data: any) {
+  async sendEmail(data: Record<string, unknown>) {
     return this.request('/emails/send', {
       method: 'POST',
       body: JSON.stringify(data),

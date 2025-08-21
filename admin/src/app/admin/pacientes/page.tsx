@@ -50,13 +50,22 @@ const mockPatients = [
   }
 ]
 
+interface Patient {
+  id: number
+  name: string
+  email: string
+  cpf?: string
+  status: string
+  treatmentStage?: string
+  orthodontist?: string
+}
+
 export default function PacientesPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedPatient, setSelectedPatient] = useState(null)
   const { data: patientsData, loading, error } = usePatients()
 
   const patients = patientsData?.patients || mockPatients
-  const filteredPatients = patients.filter((patient: any) =>
+  const filteredPatients = patients.filter((patient: Patient) =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (patient.cpf && patient.cpf.includes(searchTerm))
@@ -186,7 +195,7 @@ export default function PacientesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPatients.map((patient: any) => (
+                {filteredPatients.map((patient: Patient) => (
                   <TableRow key={patient.id}>
                     <TableCell className="font-medium">{patient.name}</TableCell>
                     <TableCell>{patient.email}</TableCell>
