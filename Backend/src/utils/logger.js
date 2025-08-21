@@ -1,5 +1,6 @@
 const winston = require('winston');
 const path = require('path');
+const fs = require('fs');
 
 // Define o formato dos logs
 const logFormat = winston.format.combine(
@@ -17,45 +18,78 @@ const consoleFormat = winston.format.combine(
   })
 );
 
+// Criar pasta de logs se não existir e tiver permissão
+const logsDir = path.join(process.cwd(), 'logs');
+let useFileLogging = true;
+
+try {
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+} catch (error) {
+  console.warn('Warning: Cannot create logs directory, file logging disabled:', error.message);
+  useFileLogging = false;
+}
+
+// Transports básicos (sempre inclui console)
+const transports = [
+  new winston.transports.Console({
+    format: consoleFormat
+  })
+];
+
+// Adicionar file transports apenas se tiver permissão
+if (useFileLogging) {
+  transports.push(
+    new winston.transports.File({
+      filename: path.join(logsDir, 'app.log'),
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    }),
+    new winston.transports.File({
+      filename: path.join(logsDir, 'error.log'),
+      level: 'error',
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    })
+  );
+}
+
+// Configurar exception handlers
+const exceptionHandlers = [
+  new winston.transports.Console({
+    format: consoleFormat
+  })
+];
+
+const rejectionHandlers = [
+  new winston.transports.Console({
+    format: consoleFormat
+  })
+];
+
+if (useFileLogging) {
+  exceptionHandlers.push(
+    new winston.transports.File({
+      filename: path.join(logsDir, 'exceptions.log')
+    })
+  );
+  
+  rejectionHandlers.push(
+    new winston.transports.File({
+      filename: path.join(logsDir, 'rejections.log')
+    })
+  );
+}
+
 // Cria o logger
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: logFormat,
   defaultMeta: { service: 'atma-aligner-backend' },
-  transports: [
-    // Console transport
-    new winston.transports.Console({
-      format: consoleFormat
-    }),
-    
-    // File transport para logs gerais
-    new winston.transports.File({
-      filename: path.join('logs', 'app.log'),
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-    
-    // File transport para erros
-    new winston.transports.File({
-      filename: path.join('logs', 'error.log'),
-      level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    })
-  ],
-  
-  // Handle exceptions and rejections
-  exceptionHandlers: [
-    new winston.transports.File({
-      filename: path.join('logs', 'exceptions.log')
-    })
-  ],
-  
-  rejectionHandlers: [
-    new winston.transports.File({
-      filename: path.join('logs', 'rejections.log')
-    })
-  ]
+  transports,
+  exceptionHandlers,
+  rejectionHandlers
 });
 
 // Função auxiliar para log de requisições HTTP
