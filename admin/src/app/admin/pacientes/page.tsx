@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Search, Plus, Edit, Eye, Filter } from 'lucide-react'
+import { Search, Plus, Edit, Eye, Filter, Loader2, AlertCircle } from 'lucide-react'
+import { usePatients } from '@/hooks/useApi'
 
 const mockPatients = [
   {
@@ -52,11 +53,13 @@ const mockPatients = [
 export default function PacientesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedPatient, setSelectedPatient] = useState(null)
+  const { data: patientsData, loading, error } = usePatients()
 
-  const filteredPatients = mockPatients.filter(patient =>
+  const patients = patientsData?.patients || mockPatients
+  const filteredPatients = patients.filter((patient: any) =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.cpf.includes(searchTerm)
+    (patient.cpf && patient.cpf.includes(searchTerm))
   )
 
   const getStatusBadge = (status: string) => {
@@ -123,6 +126,17 @@ export default function PacientesPage() {
         </Dialog>
       </div>
 
+      {/* Connection Status */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="flex items-center gap-3 py-4">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            <span className="text-red-800">Erro ao carregar pacientes: {error}</span>
+            <span className="text-sm text-red-600 ml-auto">Usando dados locais</span>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Search and Filters */}
       <Card>
         <CardContent className="p-6">
@@ -153,41 +167,48 @@ export default function PacientesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>CPF</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Etapa do Tratamento</TableHead>
-                <TableHead>Ortodontista</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredPatients.map((patient) => (
-                <TableRow key={patient.id}>
-                  <TableCell className="font-medium">{patient.name}</TableCell>
-                  <TableCell>{patient.email}</TableCell>
-                  <TableCell>{patient.cpf}</TableCell>
-                  <TableCell>{getStatusBadge(patient.status)}</TableCell>
-                  <TableCell>{patient.treatmentStage}</TableCell>
-                  <TableCell>{patient.orthodontist}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <span className="ml-2 text-gray-600">Carregando pacientes...</span>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>CPF</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Etapa do Tratamento</TableHead>
+                  <TableHead>Ortodontista</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredPatients.map((patient: any) => (
+                  <TableRow key={patient.id}>
+                    <TableCell className="font-medium">{patient.name}</TableCell>
+                    <TableCell>{patient.email}</TableCell>
+                    <TableCell>{patient.cpf || 'N/A'}</TableCell>
+                    <TableCell>{getStatusBadge(patient.status)}</TableCell>
+                    <TableCell>{patient.treatmentStage || 'N/A'}</TableCell>
+                    <TableCell>{patient.orthodontist || 'N/A'}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

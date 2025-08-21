@@ -2,77 +2,99 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Users, UserCheck, Calendar, TrendingUp, Activity, AlertCircle } from 'lucide-react'
-
-const statsCards = [
-  {
-    title: 'Total de Pacientes',
-    value: '1,234',
-    change: '+12% este mês',
-    icon: Users,
-    color: 'text-blue-600'
-  },
-  {
-    title: 'Ortodontistas Ativos',
-    value: '56',
-    change: '+3 novos',
-    icon: UserCheck,
-    color: 'text-green-600'
-  },
-  {
-    title: 'Consultas Hoje',
-    value: '28',
-    change: '18 confirmadas',
-    icon: Calendar,
-    color: 'text-orange-600'
-  },
-  {
-    title: 'Receita Mensal',
-    value: 'R$ 45.890',
-    change: '+8.2% vs mês anterior',
-    icon: TrendingUp,
-    color: 'text-purple-600'
-  }
-]
-
-const recentActivities = [
-  {
-    id: 1,
-    type: 'new_patient',
-    message: 'Novo paciente cadastrado: Maria Silva',
-    time: '2 min atrás',
-    status: 'success'
-  },
-  {
-    id: 2,
-    type: 'appointment',
-    message: 'Consulta agendada com Dr. João Santos',
-    time: '15 min atrás',
-    status: 'info'
-  },
-  {
-    id: 3,
-    type: 'payment',
-    message: 'Pagamento recebido: R$ 2.500,00',
-    time: '1h atrás',
-    status: 'success'
-  },
-  {
-    id: 4,
-    type: 'alert',
-    message: 'Consulta cancelada - necessário reagendar',
-    time: '2h atrás',
-    status: 'warning'
-  }
-]
+import { Users, UserCheck, Calendar, TrendingUp, Activity, AlertCircle, Loader2 } from 'lucide-react'
+import { useSystemStats, useSystemHealth } from '@/hooks/useApi'
 
 export default function AdminDashboard() {
+  const { data: stats, loading: statsLoading, error: statsError } = useSystemStats()
+  const { data: health, loading: healthLoading } = useSystemHealth()
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value)
+  }
+
+  const statsCards = [
+    {
+      title: 'Total de Pacientes',
+      value: stats?.totalPatients?.toString() || '0',
+      change: stats?.patientsGrowth || 'Sem dados',
+      icon: Users,
+      color: 'text-blue-600'
+    },
+    {
+      title: 'Ortodontistas Ativos',
+      value: stats?.totalOrthodontists?.toString() || '0',
+      change: stats?.orthodontistsGrowth || 'Sem dados',
+      icon: UserCheck,
+      color: 'text-green-600'
+    },
+    {
+      title: 'Consultas Hoje',
+      value: stats?.todayAppointments?.toString() || '0',
+      change: stats?.appointmentsConfirmed || 'Sem dados',
+      icon: Calendar,
+      color: 'text-orange-600'
+    },
+    {
+      title: 'Receita Mensal',
+      value: stats?.monthlyRevenue ? formatCurrency(stats.monthlyRevenue) : 'R$ 0',
+      change: stats?.revenueGrowth || 'Sem dados',
+      icon: TrendingUp,
+      color: 'text-purple-600'
+    }
+  ]
+
+  const recentActivities = stats?.recentActivities || [
+    {
+      id: 1,
+      type: 'info',
+      message: 'Sistema iniciado - conectando ao backend...',
+      time: 'agora',
+      status: 'info'
+    }
+  ]
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mt-2">Bem-vindo ao painel administrativo da Atma Aligner</p>
       </div>
+
+      {/* Connection Status */}
+      {(statsLoading || healthLoading) && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="flex items-center gap-3 py-4">
+            <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+            <span className="text-blue-800">Conectando ao backend...</span>
+          </CardContent>
+        </Card>
+      )}
+
+      {statsError && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="flex items-center gap-3 py-4">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            <span className="text-red-800">Erro ao conectar com o backend: {statsError}</span>
+          </CardContent>
+        </Card>
+      )}
+
+      {health && (
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-green-800">Backend conectado - {health.environment}</span>
+            </div>
+            <Badge variant="outline" className="text-green-700 border-green-300">
+              {health.status}
+            </Badge>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -87,7 +109,16 @@ export default function AdminDashboard() {
                 <Icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {statsLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="text-sm">Carregando...</span>
+                    </div>
+                  ) : (
+                    stat.value
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 mt-1">{stat.change}</p>
               </CardContent>
             </Card>
