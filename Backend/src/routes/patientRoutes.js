@@ -7,8 +7,8 @@ const patientController = require('../controllers/patientController');
 // POST /api/patients/leads - Criar novo lead de paciente
 router.post('/leads', contactLimiter, validatePatientLead, patientController.createPatientLead);
 
-// GET /api/patients/leads - Listar leads de pacientes (para admin)
-router.get('/leads', patientController.getPatientLeads);
+// GET /api/patients/leads - Listar leads de pacientes (para admin) - compatível com frontend
+router.get('/leads', patientController.getPatientLeadsForAdmin);
 
 // GET /api/patients/leads/:id - Buscar lead específico
 router.get('/leads/:id', validateId, patientController.getPatientLeadById);
