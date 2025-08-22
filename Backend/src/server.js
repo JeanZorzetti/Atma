@@ -22,17 +22,57 @@ const PORT = process.env.PORT || 3001;
 // Connect to database
 connectDB();
 
-// Security middleware
-app.use(helmet());
-app.use(compression());
+// Log das origins permitidas
+logger.info('🔗 CORS Origins permitidas:', { 
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
+  parsed: process.env.ALLOWED_ORIGINS ? 
+    process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()) : 
+    ['http://localhost:3000', 'https://atmaadmin.roilabs.com.br', 'https://roilabs.com.br']
+});
 
-// CORS configuration
+// CORS configuration - ANTES de outros middlewares
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
+  process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()) : 
+  ['http://localhost:3000', 'https://atmaadmin.roilabs.com.br', 'https://roilabs.com.br'];
+
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'],
+  origin: function (origin, callback) {
+    // Permitir requests sem origin (mobile apps, postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      logger.warn(`CORS blocked origin: ${origin}`, { allowedOrigins });
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
   optionsSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
+
+// Debug middleware para CORS
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  logger.info(`📡 Request recebido:`, {
+    method: req.method,
+    url: req.url,
+    origin: origin,
+    userAgent: req.headers['user-agent']
+  });
+  next();
+});
+
+// Security middleware - APÓS CORS
+app.use(helmet({
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: false,
+}));
+app.use(compression());
 
 // Rate limiting
 app.use(generalLimiter);
