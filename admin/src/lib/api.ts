@@ -67,42 +67,62 @@ class ApiService {
     }
   }
 
-  // Patient methods
+  // Patient methods (corrigido para usar /patients/leads)
   async getPatients(page = 1, limit = 10): Promise<PatientsResponse> {
-    return this.request<PatientsResponse>(`/patients?page=${page}&limit=${limit}`)
+    return this.request<PatientsResponse>(`/patients/leads?page=${page}&limit=${limit}`)
   }
 
   async getPatient(id: string) {
-    return this.request(`/patients/${id}`)
+    return this.request(`/patients/leads/${id}`)
   }
 
   async createPatient(data: Record<string, unknown>) {
-    return this.request('/patients', {
+    return this.request('/patients/leads', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
   async updatePatient(id: string, data: Record<string, unknown>) {
-    return this.request(`/patients/${id}`, {
+    return this.request(`/patients/leads/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   }
 
   async deletePatient(id: string) {
-    return this.request(`/patients/${id}`, {
+    return this.request(`/patients/leads/${id}`, {
       method: 'DELETE',
     })
   }
 
-  // Orthodontist methods
+  // Orthodontist methods (corrigido para usar endpoints corretos do backend)
   async getOrthodontists(page = 1, limit = 10) {
-    return this.request(`/orthodontists?page=${page}&limit=${limit}`)
+    return this.request(`/orthodontists/partnerships?page=${page}&limit=${limit}`)
+  }
+
+  async getActiveOrthodontists() {
+    return this.request('/orthodontists/active')
+  }
+
+  async getOrthodontistStats() {
+    return this.request('/orthodontists/stats')
+  }
+
+  async searchOrthodontists(params: Record<string, unknown>) {
+    const queryString = new URLSearchParams(params as any).toString()
+    return this.request(`/orthodontists/search?${queryString}`)
   }
 
   async getOrthodontist(id: string) {
-    return this.request(`/orthodontists/${id}`)
+    return this.request(`/orthodontists/partnerships/${id}`)
+  }
+
+  async createPartnershipRequest(data: Record<string, unknown>) {
+    return this.request('/orthodontists/partnerships', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
   }
 
   async createOrthodontist(data: Record<string, unknown>) {
@@ -119,8 +139,15 @@ class ApiService {
     })
   }
 
-  async deleteOrthodontist(id: string) {
-    return this.request(`/orthodontists/${id}`, {
+  async updatePartnershipStatus(id: string, status: string) {
+    return this.request(`/orthodontists/partnerships/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    })
+  }
+
+  async deletePartnershipRequest(id: string) {
+    return this.request(`/orthodontists/partnerships/${id}`, {
       method: 'DELETE',
     })
   }
