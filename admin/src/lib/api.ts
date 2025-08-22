@@ -34,6 +34,11 @@ export interface SystemStatsResponse {
 
 class ApiService {
   private baseUrl: string
+  private requestCache: Map<string, { data: any; timestamp: number }> = new Map()
+  private pendingRequests: Map<string, Promise<any>> = new Map()
+  private rateLimitCache: Map<string, number> = new Map()
+  private readonly CACHE_TTL = 30000 // 30 seconds
+  private readonly RATE_LIMIT_DELAY = 60000 // 1 minute delay after 429
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl
@@ -43,6 +48,30 @@ class ApiService {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    const cacheKey = `${endpoint}:${JSON.stringify(options)}`
+    const now = Date.now()
+
+    // Check rate limiting
+    const rateLimitEnd = this.rateLimitCache.get(endpoint)
+    if (rateLimitEnd && now < rateLimitEnd) {
+      const waitTime = Math.ceil((rateLimitEnd - now) / 1000)
+      throw new Error(`Rate limited. Try again in ${waitTime} seconds.`)
+    }
+
+    // Check cache for GET requests
+    if (!options.method || options.method === 'GET') {
+      const cached = this.requestCache.get(cacheKey)
+      if (cached && (now - cached.timestamp) < this.CACHE_TTL) {
+        return cached.data
+      }
+
+      // Check for pending request to avoid duplicate calls
+      const pending = this.pendingRequests.get(cacheKey)
+      if (pending) {
+        return pending
+      }
+    }
+
     const url = `${this.baseUrl}${endpoint}`
     
     const config: RequestInit = {
@@ -53,14 +82,53 @@ class ApiService {
       ...options,
     }
 
+    const requestPromise = this.executeRequest<T>(url, config, endpoint, cacheKey)
+    
+    // Store pending request for GET requests
+    if (!options.method || options.method === 'GET') {
+      this.pendingRequests.set(cacheKey, requestPromise)
+    }
+
+    try {
+      const result = await requestPromise
+      return result
+    } finally {
+      this.pendingRequests.delete(cacheKey)
+    }
+  }
+
+  private async executeRequest<T>(
+    url: string,
+    config: RequestInit,
+    endpoint: string,
+    cacheKey: string
+  ): Promise<T> {
     try {
       const response = await fetch(url, config)
+      
+      if (response.status === 429) {
+        // Rate limited - set rate limit cache
+        const retryAfter = response.headers.get('Retry-After')
+        const delay = retryAfter ? parseInt(retryAfter) * 1000 : this.RATE_LIMIT_DELAY
+        this.rateLimitCache.set(endpoint, Date.now() + delay)
+        throw new Error(`Rate limited. Server is busy. Please try again later.`)
+      }
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      return await response.json()
+      const data = await response.json()
+      
+      // Cache successful GET requests
+      if ((!config.method || config.method === 'GET') && response.ok) {
+        this.requestCache.set(cacheKey, {
+          data,
+          timestamp: Date.now()
+        })
+      }
+
+      return data
     } catch (error) {
       console.error(`API request failed: ${endpoint}`, error)
       throw error
@@ -159,7 +227,45 @@ class ApiService {
 
   async getSystemHealth() {
     const healthUrl = this.baseUrl.replace('/api', '/health')
-    return fetch(healthUrl).then(res => res.json())
+    const cacheKey = 'health'
+    const now = Date.now()
+
+    // Check rate limiting
+    const rateLimitEnd = this.rateLimitCache.get('health')
+    if (rateLimitEnd && now < rateLimitEnd) {
+      const waitTime = Math.ceil((rateLimitEnd - now) / 1000)
+      throw new Error(`Rate limited. Try again in ${waitTime} seconds.`)
+    }
+
+    // Check cache
+    const cached = this.requestCache.get(cacheKey)
+    if (cached && (now - cached.timestamp) < this.CACHE_TTL) {
+      return cached.data
+    }
+
+    try {
+      const response = await fetch(healthUrl)
+      
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After')
+        const delay = retryAfter ? parseInt(retryAfter) * 1000 : this.RATE_LIMIT_DELAY
+        this.rateLimitCache.set('health', Date.now() + delay)
+        throw new Error(`Rate limited. Server is busy. Please try again later.`)
+      }
+      
+      const data = await response.json()
+      
+      // Cache successful response
+      this.requestCache.set(cacheKey, {
+        data,
+        timestamp: Date.now()
+      })
+      
+      return data
+    } catch (error) {
+      console.error('Health check failed:', error)
+      throw error
+    }
   }
 
   // Email methods

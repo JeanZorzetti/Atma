@@ -1,32 +1,53 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { apiService, PatientsResponse, SystemStatsResponse } from '@/lib/api'
 
 export function useApi<T>(
-  apiCall: () => Promise<T>
+  apiCall: () => Promise<T>,
+  dependencies: any[] = []
 ) {
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const mountedRef = useRef(true)
+
+  const stableApiCall = useCallback(apiCall, dependencies)
 
   useEffect(() => {
-    let mounted = true
+    mountedRef.current = true
+    let retryTimeout: NodeJS.Timeout
 
     const fetchData = async () => {
       try {
+        if (!mountedRef.current) return
+        
         setLoading(true)
         setError(null)
-        const result = await apiCall()
+        const result = await stableApiCall()
         
-        if (mounted) {
+        if (mountedRef.current) {
           setData(result)
         }
       } catch (err) {
-        if (mounted) {
-          setError(err instanceof Error ? err.message : 'Erro desconhecido')
+        if (mountedRef.current) {
+          const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
+          setError(errorMessage)
+          
+          // If rate limited, schedule a retry
+          if (errorMessage.includes('Rate limited')) {
+            const match = errorMessage.match(/(\d+) seconds/)
+            const retryDelay = match ? parseInt(match[1]) * 1000 + 1000 : 60000 // Add 1s buffer
+            
+            retryTimeout = setTimeout(() => {
+              if (mountedRef.current) {
+                fetchData()
+              }
+            }, retryDelay)
+          }
+          
           console.error('API Error:', err)
         }
       } finally {
-        if (mounted) {
+        if (mountedRef.current) {
           setLoading(false)
         }
       }
@@ -35,39 +56,52 @@ export function useApi<T>(
     fetchData()
 
     return () => {
-      mounted = false
+      mountedRef.current = false
+      if (retryTimeout) {
+        clearTimeout(retryTimeout)
+      }
     }
-  }, [apiCall])
+  }, [stableApiCall])
 
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
-      const result = await apiCall()
-      setData(result)
+      const result = await stableApiCall()
+      if (mountedRef.current) {
+        setData(result)
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Erro desconhecido')
+      }
     } finally {
-      setLoading(false)
+      if (mountedRef.current) {
+        setLoading(false)
+      }
     }
-  }
+  }, [stableApiCall])
 
   return { data, loading, error, refetch }
 }
 
-// Hooks específicos
+// Hooks específicos with stable API calls
 export function usePatients() {
-  return useApi<PatientsResponse>(() => apiService.getPatients())
+  const getPatients = useCallback(() => apiService.getPatients(), [])
+  return useApi<PatientsResponse>(getPatients, [])
 }
 
 export function useOrthodontists() {
-  return useApi(() => apiService.getOrthodontists())
+  const getOrthodontists = useCallback(() => apiService.getOrthodontists(), [])
+  return useApi(getOrthodontists, [])
 }
 
 export function useSystemStats() {
-  return useApi<SystemStatsResponse>(() => apiService.getSystemStats())
+  const getSystemStats = useCallback(() => apiService.getSystemStats(), [])
+  return useApi<SystemStatsResponse>(getSystemStats, [])
 }
 
 export function useSystemHealth() {
-  return useApi(() => apiService.getSystemHealth())
+  const getSystemHealth = useCallback(() => apiService.getSystemHealth(), [])
+  return useApi(getSystemHealth, [])
 }
