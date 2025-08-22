@@ -3,13 +3,14 @@ import { apiService, PatientsResponse, SystemStatsResponse } from '@/lib/api'
 
 export function useApi<T>(
   apiCall: () => Promise<T>,
-  dependencies: any[] = []
+  dependencies: unknown[] = []
 ) {
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const mountedRef = useRef(true)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const stableApiCall = useCallback(apiCall, dependencies)
 
   useEffect(() => {
