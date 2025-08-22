@@ -34,8 +34,8 @@ export interface SystemStatsResponse {
 
 class ApiService {
   private baseUrl: string
-  private requestCache: Map<string, { data: any; timestamp: number }> = new Map()
-  private pendingRequests: Map<string, Promise<any>> = new Map()
+  private requestCache: Map<string, { data: unknown; timestamp: number }> = new Map()
+  private pendingRequests: Map<string, Promise<unknown>> = new Map()
   private rateLimitCache: Map<string, number> = new Map()
   private readonly CACHE_TTL = 30000 // 30 seconds
   private readonly RATE_LIMIT_DELAY = 60000 // 1 minute delay after 429
