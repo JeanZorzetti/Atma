@@ -37,7 +37,7 @@ export function useApi<T>(
     return () => {
       mounted = false
     }
-  }, [])
+  }, [apiCall])
 
   const refetch = async () => {
     try {

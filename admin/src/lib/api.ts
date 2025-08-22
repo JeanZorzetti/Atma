@@ -109,8 +109,8 @@ class ApiService {
     return this.request('/orthodontists/stats')
   }
 
-  async searchOrthodontists(params: Record<string, unknown>) {
-    const queryString = new URLSearchParams(params as any).toString()
+  async searchOrthodontists(params: Record<string, string>) {
+    const queryString = new URLSearchParams(params).toString()
     return this.request(`/orthodontists/search?${queryString}`)
   }
 
