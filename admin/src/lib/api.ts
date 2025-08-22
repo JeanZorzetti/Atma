@@ -1,5 +1,37 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
+// Tipos de resposta da API
+export interface PatientsResponse {
+  patients: Array<{
+    id: number
+    name: string
+    email: string
+    cpf?: string
+    status: string
+    treatmentStage?: string
+    orthodontist?: string
+  }>
+  total: number
+}
+
+export interface SystemStatsResponse {
+  totalPatients: number
+  patientsGrowth: string
+  totalOrthodontists: number
+  orthodontistsGrowth: string
+  todayAppointments: number
+  appointmentsConfirmed: string
+  monthlyRevenue: number
+  revenueGrowth: string
+  recentActivities: Array<{
+    id: number
+    type: string
+    message: string
+    time: string
+    status: string
+  }>
+}
+
 class ApiService {
   private baseUrl: string
 
@@ -36,8 +68,8 @@ class ApiService {
   }
 
   // Patient methods
-  async getPatients(page = 1, limit = 10) {
-    return this.request(`/patients?page=${page}&limit=${limit}`)
+  async getPatients(page = 1, limit = 10): Promise<PatientsResponse> {
+    return this.request<PatientsResponse>(`/patients?page=${page}&limit=${limit}`)
   }
 
   async getPatient(id: string) {
@@ -94,8 +126,8 @@ class ApiService {
   }
 
   // System/Stats methods
-  async getSystemStats() {
-    return this.request('/system/stats')
+  async getSystemStats(): Promise<SystemStatsResponse> {
+    return this.request<SystemStatsResponse>('/system/stats')
   }
 
   async getSystemHealth() {
