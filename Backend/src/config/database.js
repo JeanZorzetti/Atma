@@ -1,4 +1,5 @@
 const mysql = require('mysql2/promise');
+const pRetry = require('p-retry');
 const { logger } = require('../utils/logger');
 
 let pool = null;
@@ -18,25 +19,37 @@ const dbConfig = {
 
 const connectDB = async () => {
   try {
-    pool = mysql.createPool(dbConfig);
-    
-    // Test connection
-    const connection = await pool.getConnection();
-    logger.info('✅ Conectado ao banco de dados MySQL');
-    connection.release();
-    
+    await pRetry(async () => {
+      logger.info('Tentando conectar ao banco de dados...');
+      pool = mysql.createPool(dbConfig);
+      const connection = await pool.getConnection();
+      await connection.ping(); // Test the connection to ensure it's live
+      connection.release();
+      logger.info('✅ Conexão com o banco de dados estabelecida com sucesso.');
+    }, {
+      retries: 5,
+      factor: 2,
+      minTimeout: 2000, // Start with a 2-second wait
+      onFailedAttempt: error => {
+        logger.warn(`Tentativa ${error.attemptNumber} de conectar ao banco falhou. Restam ${error.retriesLeft} tentativas. Erro: ${error.message}`);
+        // Clean up the broken pool
+        if (pool) {
+          pool.end().catch(err => logger.error('Erro ao fechar pool quebrado:', err));
+        }
+      },
+    });
     return pool;
   } catch (error) {
-    logger.error('❌ Erro ao conectar com o banco de dados:', error.message);
-    logger.warn('⚠️ Aplicação continuará sem banco de dados - usando dados mock');
-    // Não mata o processo - permite rodar sem banco
-    return null;
+    logger.error('❌ Não foi possível conectar ao banco de dados após várias tentativas. Encerrando aplicação.');
+    process.exit(1);
   }
 };
 
 const getDB = () => {
   if (!pool) {
-    logger.warn('Database não disponível - retornando null');
+    // This case should ideally not be hit if connectDB is called on startup
+    // and exits on failure. But as a safeguard:
+    logger.warn('Pool de conexão não está disponível.');
     return null;
   }
   return pool;
@@ -51,11 +64,12 @@ const closeDB = async () => {
 
 // Utility function para executar queries
 const executeQuery = async (query, params = []) => {
+  const db = getDB();
+  if (!db) {
+    logger.error('Query falhou: Database não disponível');
+    throw new Error('Database não disponível');
+  }
   try {
-    const db = getDB();
-    if (!db) {
-      throw new Error('Database não disponível');
-    }
     const [results] = await db.execute(query, params);
     return results;
   } catch (error) {
@@ -66,7 +80,12 @@ const executeQuery = async (query, params = []) => {
 
 // Utility function para transações
 const executeTransaction = async (queries) => {
-  const connection = await getDB().getConnection();
+  const db = getDB();
+  if (!db) {
+    logger.error('Transação falhou: Database não disponível');
+    throw new Error('Database não disponível');
+  }
+  const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
     
