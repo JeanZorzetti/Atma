@@ -8,7 +8,11 @@
     "dev": "nodemon src/server.js",
     "test": "jest",
     "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix"
+    "lint:fix": "eslint src/ --fix",
+    "db:migrate": "node database/migrate.js migrate",
+    "db:seed": "node database/migrate.js seed",
+    "db:test": "node database/migrate.js test",
+    "db:reset": "node database/migrate.js reset"
   },
   "keywords": ["ortodontia", "api", "backend", "express", "mysql"],
   "author": "Atma Aligner",
