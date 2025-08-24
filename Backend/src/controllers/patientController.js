@@ -464,25 +464,22 @@ const getPatientStats = async (req, res, next) => {
 
 // Endpoint específico para o frontend admin
 const getPatientLeadsForAdmin = async (req, res, next) => {
+  const startTime = Date.now();
+  
   try {
-    // Verificar se a conexão com banco está disponível
-    const { getDB } = require('../config/database');
-    const db = getDB();
-    if (!db) {
-      logger.error('Database não disponível para buscar leads');
-      return res.status(503).json({
-        success: false,
-        error: {
-          message: 'Serviço temporariamente indisponível - problemas de conectividade com banco de dados',
-          suggestion: 'Tente novamente em alguns minutos'
-        },
-        timestamp: new Date().toISOString()
-      });
-    }
-
     const { page = 1, limit = 10 } = req.query;
     
-    const offset = (page - 1) * limit;
+    // Validar parâmetros de paginação
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit) || 10), 100); // Max 100 items per page
+    const offset = (pageNum - 1) * limitNum;
+    
+    logger.info('Buscando leads para admin', { 
+      page: pageNum, 
+      limit: limitNum, 
+      offset 
+    });
+
     const query = `
       SELECT 
         pl.id,
@@ -505,39 +502,95 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
     let total = 0;
 
     try {
+      logger.info('Executando queries do admin...');
       const [patientsResult, totalResult] = await Promise.all([
-        executeQuery(query, [parseInt(limit), parseInt(offset)]),
+        executeQuery(query, [limitNum, offset]),
         executeQuery(countQuery)
       ]);
       
       patients = patientsResult;
       total = totalResult[0].total;
-    } catch (queryError) {
-      logger.error('Erro nas queries do admin:', queryError);
       
-      // Se a tabela não existe ou banco não disponível, retorna dados vazios
-      if (queryError.code === 'ER_NO_SUCH_TABLE' ||
+      logger.info('Queries executadas com sucesso', { 
+        patientsCount: patients.length, 
+        total,
+        executionTime: Date.now() - startTime
+      });
+    } catch (queryError) {
+      logger.error('Erro nas queries do admin:', {
+        error: queryError.message,
+        code: queryError.code,
+        query: query.substring(0, 200) + '...',
+        params: [limitNum, offset],
+        executionTime: Date.now() - startTime
+      });
+      
+      // Determinar se é erro de conectividade ou estrutural
+      const isConnectionError = queryError.code === 'DB_CONNECTION_ERROR' ||
           queryError.message.includes('Pool is closed') ||
           queryError.message.includes('Database não disponível') ||
           queryError.message.includes('ECONNREFUSED') ||
-          queryError.message.includes('ENOTFOUND')) {
-        logger.warn('Banco de dados indisponível ou tabela não existe, retornando dados vazios');
-        patients = [];
-        total = 0;
-      } else {
-        throw queryError;
+          queryError.message.includes('ENOTFOUND') ||
+          queryError.message.includes('ETIMEDOUT') ||
+          queryError.message.includes('Connection lost');
+
+      const isStructuralError = queryError.code === 'ER_NO_SUCH_TABLE' ||
+          queryError.code === 'ER_BAD_TABLE_ERROR';
+
+      if (isConnectionError) {
+        logger.warn('Erro de conectividade detectado - retornando resposta de serviço indisponível');
+        return res.status(503).json({
+          success: false,
+          error: {
+            message: 'Serviço temporariamente indisponível',
+            suggestion: 'Tente novamente em alguns minutos',
+            code: 'SERVICE_UNAVAILABLE'
+          },
+          patients: [],
+          total: 0,
+          timestamp: new Date().toISOString()
+        });
       }
+
+      if (isStructuralError) {
+        logger.warn('Erro estrutural do banco de dados - tabelas podem não existir');
+        return res.status(200).json({
+          success: true,
+          patients: [],
+          total: 0,
+          warning: 'Sistema em inicialização - dados podem não estar disponível ainda',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Para outros tipos de erro, propagar para o error handler
+      throw queryError;
     }
+    
+    // Calcular informações de paginação
+    const totalPages = Math.ceil(total / limitNum);
     
     res.json({
       success: true,
       patients,
       total,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
+        itemsPerPage: limitNum
+      },
       timestamp: new Date().toISOString()
     });
     
   } catch (error) {
-    logger.error('Erro no endpoint admin de pacientes:', error);
+    logger.error('Erro no endpoint admin de pacientes:', {
+      error: error.message,
+      stack: error.stack,
+      executionTime: Date.now() - startTime,
+      params: req.query
+    });
     next(error);
   }
 };

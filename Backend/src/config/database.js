@@ -17,8 +17,26 @@ const dbConfig = {
   timezone: '+00:00'
 };
 
-const connectDB = async () => {
+const connectDB = async (forceReconnect = false) => {
   try {
+    // Se já existe uma conexão ativa e não é para forçar reconexão, retorna a pool existente
+    if (pool && !forceReconnect) {
+      try {
+        const connection = await pool.getConnection();
+        await connection.ping();
+        connection.release();
+        logger.info('✅ Conexão existente com banco de dados ainda ativa.');
+        return pool;
+      } catch (error) {
+        logger.warn('Conexão existente falhou, criando nova:', error.message);
+        // Fechar pool quebrada
+        if (pool) {
+          await pool.end().catch(err => logger.error('Erro ao fechar pool quebrada:', err));
+          pool = null;
+        }
+      }
+    }
+
     logger.info('Iniciando conexão com banco de dados...', { 
       host: dbConfig.host, 
       database: dbConfig.database, 
@@ -45,7 +63,8 @@ const connectDB = async () => {
         });
         // Clean up the broken pool
         if (pool) {
-          pool.end().catch(err => logger.error('Erro ao fechar pool quebrado:', err));
+          pool.end().catch(err => logger.error('Erro ao fechar pool quebrada:', err));
+          pool = null;
         }
       },
     });
@@ -96,28 +115,73 @@ const closeDB = async () => {
 };
 
 // Utility function para executar queries
-const executeQuery = async (query, params = []) => {
-  const db = getDB();
-  if (!db) {
-    logger.error('Query falhou: Database não disponível');
-    throw new Error('Database não disponível');
-  }
+const executeQuery = async (query, params = [], retryCount = 0) => {
+  const maxRetries = 2;
+
   try {
+    let db = getDB();
+    if (!db) {
+      logger.warn('Pool não disponível, tentando reconectar...');
+      await connectDB(true); // Força reconexão
+      db = getDB();
+      if (!db) {
+        logger.error('Query falhou: Database não disponível após tentativa de reconexão');
+        throw new Error('Database não disponível');
+      }
+    }
+
     // Teste de conexão antes da execução
     const connection = await db.getConnection();
     const [results] = await connection.execute(query, params);
     connection.release();
     return results;
   } catch (error) {
-    logger.error('Erro ao executar query:', { query, params, error: error.message, code: error.code });
+    logger.error('Erro ao executar query:', { query, params, error: error.message, code: error.code, retryCount });
     
-    // Tratamento específico para erros de conexão
-    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT') {
+    // Erros que indicam pool fechada ou problemas de conectividade
+    const connectionErrors = [
+      'Pool is closed',
+      'ECONNREFUSED', 
+      'ENOTFOUND', 
+      'ETIMEDOUT',
+      'ER_ACCESS_DENIED_ERROR',
+      'Connection lost',
+      'Cannot enqueue'
+    ];
+
+    const isConnectionError = connectionErrors.some(errorType => 
+      error.message.includes(errorType) || error.code === errorType
+    );
+
+    // Se é erro de conexão e ainda temos tentativas, reconectar e tentar novamente
+    if (isConnectionError && retryCount < maxRetries) {
+      logger.warn(`Tentando reconectar e executar query novamente (tentativa ${retryCount + 1}/${maxRetries})`);
+      
+      // Fechar pool quebrada se existir
+      if (pool) {
+        await pool.end().catch(err => logger.error('Erro ao fechar pool quebrada:', err));
+        pool = null;
+      }
+
+      // Tentar reconectar
+      try {
+        await connectDB(true);
+        // Tentativa recursiva com contador incrementado
+        return executeQuery(query, params, retryCount + 1);
+      } catch (reconnectError) {
+        logger.error('Erro ao tentar reconectar:', reconnectError.message);
+      }
+    }
+    
+    // Tratamento específico para erros de conexão quando não conseguimos mais reconectar
+    if (isConnectionError) {
       logger.error('Erro de conectividade com banco de dados:', {
         code: error.code,
+        message: error.message,
         host: dbConfig.host,
         port: dbConfig.port,
-        database: dbConfig.database
+        database: dbConfig.database,
+        retriesAttempted: retryCount
       });
       const dbError = new Error('Falha na conexão com banco de dados');
       dbError.code = 'DB_CONNECTION_ERROR';
