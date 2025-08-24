@@ -2,6 +2,7 @@ const { executeQuery } = require('../config/database');
 const { logger, logDBOperation } = require('../utils/logger');
 const emailService = require('../services/emailService');
 const orthodontistService = require('../services/orthodontistService');
+const { withDbErrorHandling } = require('../middleware/dbErrorHandler');
 
 // Criar novo lead de paciente
 const createPatientLead = async (req, res, next) => {
@@ -462,8 +463,18 @@ const getPatientStats = async (req, res, next) => {
   }
 };
 
-// Endpoint específico para o frontend admin
-const getPatientLeadsForAdmin = async (req, res, next) => {
+// Endpoint específico para o frontend admin with enhanced error handling
+const getPatientLeadsForAdmin = withDbErrorHandling('PatientController.getPatientLeadsForAdmin', {
+  patients: [],
+  total: 0,
+  pagination: {
+    currentPage: 1,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false,
+    itemsPerPage: 10
+  }
+})(async (req, res, next) => {
   const startTime = Date.now();
   
   try {
@@ -479,6 +490,27 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
       limit: limitNum, 
       offset 
     });
+
+    // Check database availability first
+    const { getDB } = require('../config/database');
+    const db = getDB();
+    if (!db) {
+      logger.warn('Database não disponível - retornando dados vazios');
+      return res.status(200).json({
+        success: true,
+        patients: [],
+        total: 0,
+        pagination: {
+          currentPage: pageNum,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+          itemsPerPage: limitNum
+        },
+        warning: 'Sistema temporariamente com conectividade limitada',
+        timestamp: new Date().toISOString()
+      });
+    }
 
     const query = `
       SELECT 
@@ -498,74 +530,37 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
     
     const countQuery = 'SELECT COUNT(*) as total FROM patient_leads';
     
+    logger.info('Executando queries do admin...');
+    
+    // Execute queries with timeout and error handling
+    const [patientsResult, totalResult] = await Promise.allSettled([
+      executeQuery(query, [limitNum, offset]),
+      executeQuery(countQuery)
+    ]);
+    
+    // Handle query results with graceful fallbacks
     let patients = [];
     let total = 0;
-
-    try {
-      logger.info('Executando queries do admin...');
-      const [patientsResult, totalResult] = await Promise.all([
-        executeQuery(query, [limitNum, offset]),
-        executeQuery(countQuery)
-      ]);
-      
-      patients = patientsResult;
-      total = totalResult[0].total;
-      
-      logger.info('Queries executadas com sucesso', { 
-        patientsCount: patients.length, 
-        total,
-        executionTime: Date.now() - startTime
-      });
-    } catch (queryError) {
-      logger.error('Erro nas queries do admin:', {
-        error: queryError.message,
-        code: queryError.code,
-        query: query.substring(0, 200) + '...',
-        params: [limitNum, offset],
-        executionTime: Date.now() - startTime
-      });
-      
-      // Determinar se é erro de conectividade ou estrutural
-      const isConnectionError = queryError.code === 'DB_CONNECTION_ERROR' ||
-          queryError.message.includes('Pool is closed') ||
-          queryError.message.includes('Database não disponível') ||
-          queryError.message.includes('ECONNREFUSED') ||
-          queryError.message.includes('ENOTFOUND') ||
-          queryError.message.includes('ETIMEDOUT') ||
-          queryError.message.includes('Connection lost');
-
-      const isStructuralError = queryError.code === 'ER_NO_SUCH_TABLE' ||
-          queryError.code === 'ER_BAD_TABLE_ERROR';
-
-      if (isConnectionError) {
-        logger.warn('Erro de conectividade detectado - retornando resposta de serviço indisponível');
-        return res.status(503).json({
-          success: false,
-          error: {
-            message: 'Serviço temporariamente indisponível',
-            suggestion: 'Tente novamente em alguns minutos',
-            code: 'SERVICE_UNAVAILABLE'
-          },
-          patients: [],
-          total: 0,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      if (isStructuralError) {
-        logger.warn('Erro estrutural do banco de dados - tabelas podem não existir');
-        return res.status(200).json({
-          success: true,
-          patients: [],
-          total: 0,
-          warning: 'Sistema em inicialização - dados podem não estar disponível ainda',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Para outros tipos de erro, propagar para o error handler
-      throw queryError;
+    
+    if (patientsResult.status === 'fulfilled') {
+      patients = patientsResult.value || [];
+    } else {
+      logger.error('Falha na query de pacientes:', patientsResult.reason?.message);
+      throw patientsResult.reason;
     }
+    
+    if (totalResult.status === 'fulfilled') {
+      total = totalResult.value?.[0]?.total || 0;
+    } else {
+      logger.warn('Falha na query de total - usando valor padrão:', totalResult.reason?.message);
+      total = patients.length; // Use current page count as fallback
+    }
+    
+    logger.info('Queries executadas com sucesso', { 
+      patientsCount: patients.length, 
+      total,
+      executionTime: Date.now() - startTime
+    });
     
     // Calcular informações de paginação
     const totalPages = Math.ceil(total / limitNum);
@@ -591,9 +586,11 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
       executionTime: Date.now() - startTime,
       params: req.query
     });
-    next(error);
+    
+    // This will be caught by withDbErrorHandling wrapper
+    throw error;
   }
-};
+});
 
 module.exports = {
   createPatientLead,

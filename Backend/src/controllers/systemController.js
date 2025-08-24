@@ -3,6 +3,7 @@ const { logger } = require('../utils/logger');
 const orthodontistService = require('../services/orthodontistService');
 const cepService = require('../services/cepService');
 const emailService = require('../services/emailService');
+const { withDbErrorHandling } = require('../middleware/dbErrorHandler');
 
 // Listar configurações do sistema
 const getSystemSettings = async (req, res, next) => {
@@ -163,19 +164,41 @@ const getSystemHealth = async (req, res, next) => {
   }
 };
 
-// Estatísticas gerais do sistema
-const getSystemStats = async (req, res, next) => {
+// Estatísticas gerais do sistema with enhanced error handling
+const getSystemStats = withDbErrorHandling('SystemController.getSystemStats', {
+  totalPatients: 0,
+  patientsGrowth: '0% este mês',
+  totalOrthodontists: 0,
+  orthodontistsGrowth: '0 ativos',
+  todayAppointments: 0,
+  appointmentsConfirmed: '0 confirmadas',
+  monthlyRevenue: 0,
+  revenueGrowth: 'N/A - dados indisponíveis',
+  recentActivities: []
+})(async (req, res, next) => {
+  const startTime = Date.now();
+  
   try {
+    logger.info('Iniciando busca de estatísticas do sistema');
+    
     // Verificar se a conexão com banco está disponível
     const db = getDB();
     if (!db) {
-      logger.error('Database não disponível para estatísticas');
-      return res.status(503).json({
-        success: false,
-        error: {
-          message: 'Serviço temporariamente indisponível - problemas de conectividade com banco de dados',
-          suggestion: 'Tente novamente em alguns minutos'
+      logger.warn('Database não disponível para estatísticas - retornando valores padrão');
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalPatients: 0,
+          patientsGrowth: '0% este mês',
+          totalOrthodontists: 0,
+          orthodontistsGrowth: '0 ativos',
+          todayAppointments: 0,
+          appointmentsConfirmed: '0 confirmadas',
+          monthlyRevenue: 0,
+          revenueGrowth: 'N/A - sistema iniciando',
+          recentActivities: []
         },
+        warning: 'Sistema temporariamente com conectividade limitada',
         timestamp: new Date().toISOString()
       });
     }
@@ -188,23 +211,41 @@ const getSystemStats = async (req, res, next) => {
       'SELECT SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as current_month, SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 60 DAY) AND created_at < DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as previous_month FROM patient_leads'
     ];
     
-    const results = [];
-    for (const query of queries) {
+    // Execute all queries with Promise.allSettled for better error handling
+    const queryPromises = queries.map(async (query, index) => {
       try {
         const result = await executeQuery(query);
-        results.push(result);
+        logger.debug(`Query ${index + 1} executada com sucesso`, { 
+          query: query.substring(0, 50) + '...',
+          resultCount: result?.length || 0
+        });
+        return { success: true, data: result };
       } catch (queryError) {
-        logger.error(`Erro em query específica: ${query}`, queryError);
-        // Se a tabela não existe ou banco não disponível, retorna 0
-        if (queryError.code === 'ER_NO_SUCH_TABLE' || 
-            queryError.message.includes('Pool is closed') ||
-            queryError.message.includes('Database não disponível')) {
-          results.push([{ total: 0, confirmed: 0, current_month: 0, previous_month: 1 }]);
-        } else {
-          throw queryError;
+        logger.error(`Erro em query ${index + 1}: ${query.substring(0, 50)}...`, {
+          error: queryError.message,
+          code: queryError.code
+        });
+        
+        // Provide fallback data for different types of queries
+        if (query.includes('COUNT(*)')) {
+          return { success: false, data: [{ total: 0, confirmed: 0, current_month: 0, previous_month: 1 }] };
         }
+        
+        throw queryError;
       }
-    }
+    });
+    
+    const queryResults = await Promise.allSettled(queryPromises);
+    
+    // Extract results with fallbacks
+    const results = queryResults.map((result, index) => {
+      if (result.status === 'fulfilled' && result.value.success) {
+        return result.value.data;
+      } else {
+        logger.warn(`Usando fallback para query ${index + 1}:`, result.reason?.message || 'Unknown error');
+        return [{ total: 0, confirmed: 0, current_month: 0, previous_month: 1 }];
+      }
+    });
     
     const [
       totalPatientsResult,
@@ -214,30 +255,43 @@ const getSystemStats = async (req, res, next) => {
       growthResult
     ] = results;
     
-    const totalPatients = totalPatientsResult[0].total || 0;
-    const totalOrthodontists = totalOrthodontistsResult[0].total || 0;
-    const todayAppointments = todayAppointmentsResult[0].total || 0;
-    const confirmedAppointments = confirmedAppointmentsResult[0].confirmed || 0;
+    const totalPatients = totalPatientsResult[0]?.total || 0;
+    const totalOrthodontists = totalOrthodontistsResult[0]?.total || 0;
+    const todayAppointments = todayAppointmentsResult[0]?.total || 0;
+    const confirmedAppointments = confirmedAppointmentsResult[0]?.confirmed || 0;
     
     // Calcular crescimento percentual
-    const currentMonth = growthResult[0].current_month || 0;
-    const previousMonth = growthResult[0].previous_month || 1;
+    const currentMonth = growthResult[0]?.current_month || 0;
+    const previousMonth = growthResult[0]?.previous_month || 1;
     const growthPercent = previousMonth > 0 ? ((currentMonth - previousMonth) / previousMonth * 100).toFixed(1) : '0';
     
-    // Buscar atividades recentes do log
-    const recentActivitiesQuery = `
-      SELECT 
-        'new_patient' as type,
-        CONCAT('Novo lead: ', nome) as message,
-        created_at as time,
-        'success' as status
-      FROM patient_leads 
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-      ORDER BY created_at DESC 
-      LIMIT 5
-    `;
-    
-    const recentActivities = await executeQuery(recentActivitiesQuery);
+    // Buscar atividades recentes (com fallback em caso de erro)
+    let recentActivities = [];
+    try {
+      const recentActivitiesQuery = `
+        SELECT 
+          'new_patient' as type,
+          CONCAT('Novo lead: ', nome) as message,
+          created_at as time,
+          'success' as status
+        FROM patient_leads 
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        ORDER BY created_at DESC 
+        LIMIT 5
+      `;
+      
+      const activitiesResult = await executeQuery(recentActivitiesQuery);
+      recentActivities = activitiesResult.map((activity, index) => ({
+        id: index + 1,
+        type: activity.type,
+        message: activity.message,
+        time: new Date(activity.time).toLocaleString('pt-BR'),
+        status: activity.status
+      }));
+    } catch (error) {
+      logger.warn('Erro ao buscar atividades recentes - usando lista vazia:', error.message);
+      recentActivities = [];
+    }
     
     const stats = {
       totalPatients,
@@ -248,14 +302,15 @@ const getSystemStats = async (req, res, next) => {
       appointmentsConfirmed: `${confirmedAppointments} confirmadas`,
       monthlyRevenue: 0, // Implementar quando houver tabela de receita
       revenueGrowth: 'N/A - implementar futuramente',
-      recentActivities: recentActivities.map((activity, index) => ({
-        id: index + 1,
-        type: activity.type,
-        message: activity.message,
-        time: new Date(activity.time).toLocaleString('pt-BR'),
-        status: activity.status
-      }))
+      recentActivities
     };
+    
+    logger.info('Estatísticas do sistema obtidas com sucesso', {
+      executionTime: Date.now() - startTime,
+      totalPatients,
+      totalOrthodontists,
+      activitiesCount: recentActivities.length
+    });
     
     res.json({
       success: true,
@@ -264,10 +319,16 @@ const getSystemStats = async (req, res, next) => {
     });
     
   } catch (error) {
-    logger.error('Erro ao buscar estatísticas do sistema:', error);
-    next(error);
+    logger.error('Erro ao buscar estatísticas do sistema:', {
+      error: error.message,
+      stack: error.stack,
+      executionTime: Date.now() - startTime
+    });
+    
+    // This will be caught by withDbErrorHandling wrapper
+    throw error;
   }
-};
+});
 
 // Executar tarefas de manutenção
 const runMaintenance = async (req, res, next) => {

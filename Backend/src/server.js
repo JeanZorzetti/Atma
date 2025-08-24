@@ -10,6 +10,7 @@ const { connectDB } = require('./config/database');
 const { performHealthCheck } = require('./utils/databaseHealth');
 const errorHandler = require('./middleware/errorHandler');
 const { generalLimiter } = require('./middleware/rateLimiter');
+const serviceMonitor = require('./utils/serviceMonitor');
 
 // Import routes
 const patientRoutes = require('./routes/patientRoutes');
@@ -80,6 +81,22 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Request tracking middleware
+app.use((req, res, next) => {
+  serviceMonitor.recordRequest();
+  
+  // Track response to record errors
+  const originalSend = res.send;
+  res.send = function(data) {
+    if (res.statusCode >= 400) {
+      serviceMonitor.recordError();
+    }
+    originalSend.call(this, data);
+  };
+  
+  next();
+});
+
 // Debug middleware para CORS
 app.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -145,12 +162,14 @@ app.options('*', (req, res) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Health check endpoint
+// Health check endpoint with service monitoring
 app.get('/health', async (req, res) => {
   try {
     const { performHealthCheck } = require('./utils/databaseHealth');
     const dbHealth = await performHealthCheck();
-    const overallStatus = dbHealth.status === 'ERROR' ? 'ERROR' : 'OK';
+    const serviceHealth = serviceMonitor.getHealthStatus();
+    
+    const overallStatus = dbHealth.status === 'ERROR' || !serviceHealth.isHealthy ? 'ERROR' : 'OK';
     
     res.status(overallStatus === 'ERROR' ? 503 : 200).json({
       status: overallStatus,
@@ -158,10 +177,20 @@ app.get('/health', async (req, res) => {
       version: process.env.npm_package_version || '1.0.0',
       environment: process.env.NODE_ENV || 'development',
       database: dbHealth,
+      service: {
+        uptime: Math.floor(serviceHealth.uptime / 1000), // in seconds
+        requestCount: serviceHealth.requestCount,
+        errorCount: serviceHealth.errorCount,
+        errorRate: serviceHealth.errorRate + '%',
+        consecutiveFailures: serviceHealth.consecutiveFailures,
+        memory: serviceHealth.memory,
+        lastHealthCheck: serviceHealth.lastHealthCheck ? new Date(serviceHealth.lastHealthCheck).toISOString() : null
+      },
       uptime: process.uptime()
     });
   } catch (error) {
     logger.error('Erro no health check:', error);
+    serviceMonitor.recordError();
     res.status(503).json({
       status: 'ERROR',
       timestamp: new Date().toISOString(),
@@ -199,16 +228,67 @@ app.use('*', (req, res) => {
 // Error handling middleware (deve ser o último)
 app.use(errorHandler);
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully');
-  process.exit(0);
+// Global error handlers to prevent crashes
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception - Server will restart:', {
+    error: error.message,
+    stack: error.stack,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Give the logger time to flush
+  setTimeout(() => {
+    process.exit(1);
+  }, 1000);
 });
 
-process.on('SIGINT', () => {
-  logger.info('SIGINT received, shutting down gracefully');
-  process.exit(0);
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Promise Rejection:', {
+    reason: reason instanceof Error ? reason.message : reason,
+    stack: reason instanceof Error ? reason.stack : null,
+    promise: promise.toString(),
+    timestamp: new Date().toISOString()
+  });
+  
+  // Don't exit for unhandled promise rejections, just log them
+  // The application can continue running
 });
+
+// Handle warnings
+process.on('warning', (warning) => {
+  logger.warn('Process Warning:', {
+    name: warning.name,
+    message: warning.message,
+    stack: warning.stack,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Graceful shutdown with cleanup
+const gracefulShutdown = async (signal) => {
+  logger.info(`${signal} received, shutting down gracefully`);
+  
+  try {
+    // Stop service monitoring
+    serviceMonitor.stop();
+    
+    // Close database connections
+    const { closeDB } = require('./config/database');
+    await closeDB();
+    
+    // Give time for ongoing requests to complete
+    setTimeout(() => {
+      logger.info('Shutdown complete');
+      process.exit(0);
+    }, 5000);
+  } catch (error) {
+    logger.error('Error during shutdown:', error.message);
+    process.exit(1);
+  }
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Start server
 app.listen(PORT, () => {
