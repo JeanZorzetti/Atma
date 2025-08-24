@@ -19,6 +19,12 @@ const dbConfig = {
 
 const connectDB = async () => {
   try {
+    logger.info('Iniciando conexão com banco de dados...', { 
+      host: dbConfig.host, 
+      database: dbConfig.database, 
+      port: dbConfig.port 
+    });
+    
     await pRetry(async () => {
       logger.info('Tentando conectar ao banco de dados...');
       pool = mysql.createPool(dbConfig);
@@ -27,11 +33,16 @@ const connectDB = async () => {
       connection.release();
       logger.info('✅ Conexão com o banco de dados estabelecida com sucesso.');
     }, {
-      retries: 5,
+      retries: 3,
       factor: 2,
       minTimeout: 2000, // Start with a 2-second wait
       onFailedAttempt: error => {
-        logger.warn(`Tentativa ${error.attemptNumber} de conectar ao banco falhou. Restam ${error.retriesLeft} tentativas. Erro: ${error.message}`);
+        logger.warn(`Tentativa ${error.attemptNumber} de conectar ao banco falhou. Restam ${error.retriesLeft} tentativas.`, {
+          error: error.message,
+          code: error.code,
+          host: dbConfig.host,
+          database: dbConfig.database
+        });
         // Clean up the broken pool
         if (pool) {
           pool.end().catch(err => logger.error('Erro ao fechar pool quebrado:', err));
@@ -40,7 +51,23 @@ const connectDB = async () => {
     });
     return pool;
   } catch (error) {
-    logger.error('❌ Não foi possível conectar ao banco de dados após várias tentativas. Encerrando aplicação.');
+    logger.error('❌ Não foi possível conectar ao banco de dados após várias tentativas.', {
+      error: error.message,
+      code: error.code,
+      config: {
+        host: dbConfig.host,
+        database: dbConfig.database,
+        port: dbConfig.port,
+        user: dbConfig.user
+      }
+    });
+    
+    // Em ambiente de desenvolvimento, não sair do processo
+    if (process.env.NODE_ENV === 'development') {
+      logger.warn('Modo desenvolvimento: continuando sem banco de dados');
+      return null;
+    }
+    
     process.exit(1);
   }
 };
@@ -49,7 +76,13 @@ const getDB = () => {
   if (!pool) {
     // This case should ideally not be hit if connectDB is called on startup
     // and exits on failure. But as a safeguard:
-    logger.warn('Pool de conexão não está disponível.');
+    logger.warn('Pool de conexão não está disponível.', {
+      dbConfig: {
+        host: dbConfig.host,
+        database: dbConfig.database,
+        port: dbConfig.port
+      }
+    });
     return null;
   }
   return pool;
@@ -70,10 +103,27 @@ const executeQuery = async (query, params = []) => {
     throw new Error('Database não disponível');
   }
   try {
-    const [results] = await db.execute(query, params);
+    // Teste de conexão antes da execução
+    const connection = await db.getConnection();
+    const [results] = await connection.execute(query, params);
+    connection.release();
     return results;
   } catch (error) {
-    logger.error('Erro ao executar query:', { query, params, error: error.message });
+    logger.error('Erro ao executar query:', { query, params, error: error.message, code: error.code });
+    
+    // Tratamento específico para erros de conexão
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT') {
+      logger.error('Erro de conectividade com banco de dados:', {
+        code: error.code,
+        host: dbConfig.host,
+        port: dbConfig.port,
+        database: dbConfig.database
+      });
+      const dbError = new Error('Falha na conexão com banco de dados');
+      dbError.code = 'DB_CONNECTION_ERROR';
+      throw dbError;
+    }
+    
     throw error;
   }
 };

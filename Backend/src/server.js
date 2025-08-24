@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const { logger } = require('./utils/logger');
 const { connectDB } = require('./config/database');
+const { performHealthCheck } = require('./utils/databaseHealth');
 const errorHandler = require('./middleware/errorHandler');
 const { generalLimiter } = require('./middleware/rateLimiter');
 
@@ -19,8 +20,22 @@ const systemRoutes = require('./routes/systemRoutes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Connect to database
-connectDB();
+// Connect to database and perform health check
+const initializeDatabase = async () => {
+  try {
+    await connectDB();
+    const healthCheck = await performHealthCheck();
+    logger.info('🏥 Status do banco de dados:', healthCheck);
+    
+    if (healthCheck.status === 'ERROR') {
+      logger.warn('⚠️ Sistema iniciando com problemas no banco de dados');
+    }
+  } catch (error) {
+    logger.error('❌ Erro durante inicialização do banco:', error.message);
+  }
+};
+
+initializeDatabase();
 
 // Log das origins permitidas
 logger.info('🔗 CORS Origins permitidas:', { 
@@ -85,13 +100,29 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version || '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
-  });
+app.get('/health', async (req, res) => {
+  try {
+    const { performHealthCheck } = require('./utils/databaseHealth');
+    const dbHealth = await performHealthCheck();
+    const overallStatus = dbHealth.status === 'ERROR' ? 'ERROR' : 'OK';
+    
+    res.status(overallStatus === 'ERROR' ? 503 : 200).json({
+      status: overallStatus,
+      timestamp: new Date().toISOString(),
+      version: process.env.npm_package_version || '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      database: dbHealth,
+      uptime: process.uptime()
+    });
+  } catch (error) {
+    logger.error('Erro no health check:', error);
+    res.status(503).json({
+      status: 'ERROR',
+      timestamp: new Date().toISOString(),
+      error: 'Falha no health check',
+      message: error.message
+    });
+  }
 });
 
 // API routes

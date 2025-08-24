@@ -115,6 +115,21 @@ const getPatientLeads = async (req, res, next) => {
   const startTime = Date.now();
   
   try {
+    // Verificar se a conexão com banco está disponível
+    const { getDB } = require('../config/database');
+    const db = getDB();
+    if (!db) {
+      logger.error('Database não disponível para buscar leads');
+      return res.status(503).json({
+        success: false,
+        error: {
+          message: 'Serviço temporariamente indisponível - problemas de conectividade com banco de dados',
+          suggestion: 'Tente novamente em alguns minutos'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
     const {
       page = 1,
       limit = 20,
@@ -450,6 +465,21 @@ const getPatientStats = async (req, res, next) => {
 // Endpoint específico para o frontend admin
 const getPatientLeadsForAdmin = async (req, res, next) => {
   try {
+    // Verificar se a conexão com banco está disponível
+    const { getDB } = require('../config/database');
+    const db = getDB();
+    if (!db) {
+      logger.error('Database não disponível para buscar leads');
+      return res.status(503).json({
+        success: false,
+        error: {
+          message: 'Serviço temporariamente indisponível - problemas de conectividade com banco de dados',
+          suggestion: 'Tente novamente em alguns minutos'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
     const { page = 1, limit = 10 } = req.query;
     
     const offset = (page - 1) * limit;
@@ -461,7 +491,8 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
         pl.telefone as cpf,
         pl.status,
         'Avaliação Inicial' as treatmentStage,
-        COALESCE(o.nome, 'Não atribuído') as orthodontist
+        COALESCE(o.nome, 'Não atribuído') as orthodontist,
+        pl.created_at
       FROM patient_leads pl
       LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
       ORDER BY pl.created_at DESC
@@ -470,17 +501,39 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
     
     const countQuery = 'SELECT COUNT(*) as total FROM patient_leads';
     
-    const [patientsResult, totalResult] = await Promise.all([
-      executeQuery(query, [parseInt(limit), parseInt(offset)]),
-      executeQuery(countQuery)
-    ]);
-    
-    const patients = patientsResult;
-    const total = totalResult[0].total;
+    let patients = [];
+    let total = 0;
+
+    try {
+      const [patientsResult, totalResult] = await Promise.all([
+        executeQuery(query, [parseInt(limit), parseInt(offset)]),
+        executeQuery(countQuery)
+      ]);
+      
+      patients = patientsResult;
+      total = totalResult[0].total;
+    } catch (queryError) {
+      logger.error('Erro nas queries do admin:', queryError);
+      
+      // Se a tabela não existe ou banco não disponível, retorna dados vazios
+      if (queryError.code === 'ER_NO_SUCH_TABLE' ||
+          queryError.message.includes('Pool is closed') ||
+          queryError.message.includes('Database não disponível') ||
+          queryError.message.includes('ECONNREFUSED') ||
+          queryError.message.includes('ENOTFOUND')) {
+        logger.warn('Banco de dados indisponível ou tabela não existe, retornando dados vazios');
+        patients = [];
+        total = 0;
+      } else {
+        throw queryError;
+      }
+    }
     
     res.json({
+      success: true,
       patients,
-      total
+      total,
+      timestamp: new Date().toISOString()
     });
     
   } catch (error) {

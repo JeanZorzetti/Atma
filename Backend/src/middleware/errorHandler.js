@@ -35,12 +35,48 @@ const errorHandler = (err, req, res, next) => {
       case 'ER_PARSE_ERROR':
         error = { message: 'Erro de sintaxe na consulta', statusCode: 500 };
         break;
+      case 'ER_NO_SUCH_TABLE':
+        error = { message: 'Tabela não encontrada no banco de dados', statusCode: 503 };
+        break;
       case 'ECONNREFUSED':
-        error = { message: 'Falha na conexão com banco de dados', statusCode: 503 };
+      case 'ENOTFOUND':
+      case 'ETIMEDOUT':
+      case 'DB_CONNECTION_ERROR':
+      case 'POOL_CLOSED':
+        error = { 
+          message: 'Serviço temporariamente indisponível - problemas de conectividade com banco de dados', 
+          statusCode: 503,
+          suggestion: 'Tente novamente em alguns minutos'
+        };
+        break;
+      case 'ER_ACCESS_DENIED_ERROR':
+        error = { 
+          message: 'Serviço temporariamente indisponível - problemas de autenticação com banco de dados', 
+          statusCode: 503,
+          suggestion: 'Aguarde alguns minutos e tente novamente'
+        };
         break;
       default:
         error = { message: 'Erro interno do servidor', statusCode: 500 };
     }
+  }
+  
+  // Erro específico de database não disponível
+  if (err.message && err.message.includes('Database não disponível')) {
+    error = { 
+      message: 'Serviço temporariamente indisponível - problemas de conectividade com banco de dados', 
+      statusCode: 503,
+      suggestion: 'Tente novamente em alguns minutos'
+    };
+  }
+  
+  // Erro de pool fechado
+  if (err.message && err.message.includes('Pool is closed')) {
+    error = { 
+      message: 'Serviço temporariamente indisponível - problemas de conectividade com banco de dados', 
+      statusCode: 503,
+      suggestion: 'Tente novamente em alguns minutos'
+    };
   }
 
   // Erro de JSON malformado
@@ -70,7 +106,12 @@ const errorHandler = (err, req, res, next) => {
     success: false,
     error: {
       message,
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+      ...(error.suggestion && { suggestion: error.suggestion }),
+      ...(process.env.NODE_ENV === 'development' && { 
+        stack: err.stack,
+        originalMessage: err.message,
+        code: err.code
+      })
     },
     timestamp: new Date().toISOString()
   });

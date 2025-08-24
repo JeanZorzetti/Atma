@@ -166,13 +166,45 @@ const getSystemHealth = async (req, res, next) => {
 // Estatísticas gerais do sistema
 const getSystemStats = async (req, res, next) => {
   try {
+    // Verificar se a conexão com banco está disponível
+    const db = getDB();
+    if (!db) {
+      logger.error('Database não disponível para estatísticas');
+      return res.status(503).json({
+        success: false,
+        error: {
+          message: 'Serviço temporariamente indisponível - problemas de conectividade com banco de dados',
+          suggestion: 'Tente novamente em alguns minutos'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
     const queries = [
       'SELECT COUNT(*) as total FROM patient_leads',
-      'SELECT COUNT(*) as total FROM orthodontist_partnerships WHERE status = "ativo"',
+      'SELECT COUNT(*) as total FROM orthodontists WHERE status = "ativo"',
       'SELECT COUNT(*) as total FROM patient_leads WHERE DATE(created_at) = CURDATE()',
       'SELECT COUNT(*) as confirmed FROM patient_leads WHERE status IN ("agendado", "contatado")',
       'SELECT SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as current_month, SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 60 DAY) AND created_at < DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as previous_month FROM patient_leads'
     ];
+    
+    const results = [];
+    for (const query of queries) {
+      try {
+        const result = await executeQuery(query);
+        results.push(result);
+      } catch (queryError) {
+        logger.error(`Erro em query específica: ${query}`, queryError);
+        // Se a tabela não existe ou banco não disponível, retorna 0
+        if (queryError.code === 'ER_NO_SUCH_TABLE' || 
+            queryError.message.includes('Pool is closed') ||
+            queryError.message.includes('Database não disponível')) {
+          results.push([{ total: 0, confirmed: 0, current_month: 0, previous_month: 1 }]);
+        } else {
+          throw queryError;
+        }
+      }
+    }
     
     const [
       totalPatientsResult,
@@ -180,7 +212,7 @@ const getSystemStats = async (req, res, next) => {
       todayAppointmentsResult,
       confirmedAppointmentsResult,
       growthResult
-    ] = await Promise.all(queries.map(query => executeQuery(query)));
+    ] = results;
     
     const totalPatients = totalPatientsResult[0].total || 0;
     const totalOrthodontists = totalOrthodontistsResult[0].total || 0;
