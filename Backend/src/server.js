@@ -107,21 +107,28 @@ app.use((req, res, next) => {
     userAgent: req.headers['user-agent']
   });
   
-  // Add explicit CORS headers for debugging
+  // Add explicit CORS headers and Vary header to fix cache issues
   if (origin && allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With,Accept');
+    res.header('Vary', 'Origin'); // Critical for caching with CORS
     logger.info(`✅ CORS headers adicionados para origin: ${origin}`);
   } else if (origin && origin.endsWith('.vercel.app') && allowedOrigins.includes('https://*.vercel.app')) {
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With,Accept');
+    res.header('Vary', 'Origin'); // Critical for caching with CORS
     logger.info(`✅ CORS headers adicionados para Vercel app: ${origin}`);
   } else if (origin) {
     logger.warn(`❌ CORS rejeitado para origin: ${origin}`, { allowedOrigins });
+  }
+  
+  // Always add Vary: Origin for proper CORS caching
+  if (!res.getHeader('Vary')) {
+    res.header('Vary', 'Origin');
   }
   
   next();
@@ -150,9 +157,11 @@ app.options('*', (req, res) => {
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With,Accept');
+    res.header('Vary', 'Origin'); // Critical for caching with CORS
     res.status(200).end();
     logger.info(`✅ OPTIONS response sent for: ${origin}`);
   } else {
+    res.header('Vary', 'Origin'); // Always add Vary header
     res.status(403).end();
     logger.warn(`❌ OPTIONS request rejected for: ${origin}`);
   }
