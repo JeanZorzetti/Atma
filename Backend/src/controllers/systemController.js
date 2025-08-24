@@ -166,64 +166,68 @@ const getSystemHealth = async (req, res, next) => {
 // Estatísticas gerais do sistema
 const getSystemStats = async (req, res, next) => {
   try {
-    // Dados mock para demonstração até que as tabelas sejam criadas
-    const mockStats = {
-      totalPatients: 147,
-      patientsGrowth: '+12% este mês',
-      totalOrthodontists: 23,
-      orthodontistsGrowth: '+3 novos',
-      todayAppointments: 8,
-      appointmentsConfirmed: '6 confirmadas',
-      monthlyRevenue: 45890.50,
-      revenueGrowth: '+8.2% vs mês anterior',
-      recentActivities: [
-        {
-          id: 1,
-          type: 'new_patient',
-          message: 'Novo lead de paciente recebido',
-          time: '5 min atrás',
-          status: 'success'
-        },
-        {
-          id: 2,
-          type: 'partnership',
-          message: 'Ortodontista solicitou parceria',
-          time: '20 min atrás',
-          status: 'info'
-        },
-        {
-          id: 3,
-          type: 'system',
-          message: 'Sistema iniciado com sucesso',
-          time: '1h atrás',
-          status: 'success'
-        }
-      ]
+    const queries = [
+      'SELECT COUNT(*) as total FROM patient_leads',
+      'SELECT COUNT(*) as total FROM orthodontist_partnerships WHERE status = "ativo"',
+      'SELECT COUNT(*) as total FROM patient_leads WHERE DATE(created_at) = CURDATE()',
+      'SELECT COUNT(*) as confirmed FROM patient_leads WHERE status IN ("agendado", "contatado")',
+      'SELECT SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as current_month, SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 60 DAY) AND created_at < DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as previous_month FROM patient_leads'
+    ];
+    
+    const [
+      totalPatientsResult,
+      totalOrthodontistsResult, 
+      todayAppointmentsResult,
+      confirmedAppointmentsResult,
+      growthResult
+    ] = await Promise.all(queries.map(query => executeQuery(query)));
+    
+    const totalPatients = totalPatientsResult[0].total || 0;
+    const totalOrthodontists = totalOrthodontistsResult[0].total || 0;
+    const todayAppointments = todayAppointmentsResult[0].total || 0;
+    const confirmedAppointments = confirmedAppointmentsResult[0].confirmed || 0;
+    
+    // Calcular crescimento percentual
+    const currentMonth = growthResult[0].current_month || 0;
+    const previousMonth = growthResult[0].previous_month || 1;
+    const growthPercent = previousMonth > 0 ? ((currentMonth - previousMonth) / previousMonth * 100).toFixed(1) : '0';
+    
+    // Buscar atividades recentes do log
+    const recentActivitiesQuery = `
+      SELECT 
+        'new_patient' as type,
+        CONCAT('Novo lead: ', nome) as message,
+        created_at as time,
+        'success' as status
+      FROM patient_leads 
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+      ORDER BY created_at DESC 
+      LIMIT 5
+    `;
+    
+    const recentActivities = await executeQuery(recentActivitiesQuery);
+    
+    const stats = {
+      totalPatients,
+      patientsGrowth: `${growthPercent > 0 ? '+' : ''}${growthPercent}% este mês`,
+      totalOrthodontists,
+      orthodontistsGrowth: `${totalOrthodontists} ativos`,
+      todayAppointments,
+      appointmentsConfirmed: `${confirmedAppointments} confirmadas`,
+      monthlyRevenue: 0, // Implementar quando houver tabela de receita
+      revenueGrowth: 'N/A - implementar futuramente',
+      recentActivities: recentActivities.map((activity, index) => ({
+        id: index + 1,
+        type: activity.type,
+        message: activity.message,
+        time: new Date(activity.time).toLocaleString('pt-BR'),
+        status: activity.status
+      }))
     };
-
-    // Tentar buscar dados reais do banco se possível
-    try {
-      const queries = [
-        'SELECT COUNT(*) as total FROM patient_leads',
-        'SELECT COUNT(*) as total FROM orthodontist_partnerships WHERE status = "ativo"'
-      ];
-      
-      const results = await Promise.allSettled(queries.map(query => executeQuery(query)));
-      
-      // Se conseguiu executar as queries, usar dados reais
-      if (results[0].status === 'fulfilled' && results[0].value[0]) {
-        mockStats.totalPatients = results[0].value[0].total || 0;
-      }
-      if (results[1].status === 'fulfilled' && results[1].value[0]) {
-        mockStats.totalOrthodontists = results[1].value[0].total || 0;
-      }
-    } catch (dbError) {
-      logger.warn('Usando dados mock - banco não disponível:', dbError.message);
-    }
     
     res.json({
       success: true,
-      data: mockStats,
+      data: stats,
       timestamp: new Date().toISOString()
     });
     

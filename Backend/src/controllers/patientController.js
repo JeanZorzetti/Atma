@@ -109,55 +109,6 @@ const createPatientLead = async (req, res, next) => {
   }
 };
 
-// Dados mock para quando o banco não estiver disponível
-const getMockPatientLeads = (page = 1, limit = 20) => {
-  const mockLeads = [
-    {
-      id: 1,
-      nome: 'Ana Silva',
-      email: 'ana.silva@email.com',
-      telefone: '(11) 99999-1111',
-      cep: '01310-100',
-      status: 'novo',
-      ortodontista_nome: null,
-      ortodontista_clinica: null,
-      created_at: new Date().toISOString()
-    },
-    {
-      id: 2,
-      nome: 'Carlos Santos',
-      email: 'carlos.santos@email.com',
-      telefone: '(11) 99999-2222',
-      cep: '04567-890',
-      status: 'contatado',
-      ortodontista_nome: 'Dr. João Oliveira',
-      ortodontista_clinica: 'Clínica Sorriso',
-      created_at: new Date(Date.now() - 86400000).toISOString()
-    },
-    {
-      id: 3,
-      nome: 'Maria Oliveira',
-      email: 'maria.oliveira@email.com',
-      telefone: '(11) 99999-3333',
-      cep: '02456-789',
-      status: 'agendado',
-      ortodontista_nome: 'Dr. Pedro Silva',
-      ortodontista_clinica: 'OrtoCenter',
-      created_at: new Date(Date.now() - 172800000).toISOString()
-    }
-  ];
-  
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + parseInt(limit);
-  const paginatedLeads = mockLeads.slice(startIndex, endIndex);
-  
-  return {
-    leads: paginatedLeads,
-    total: mockLeads.length,
-    page: parseInt(page),
-    limit: parseInt(limit)
-  };
-};
 
 // Listar leads de pacientes
 const getPatientLeads = async (req, res, next) => {
@@ -235,28 +186,16 @@ const getPatientLeads = async (req, res, next) => {
     queryParams.push(parseInt(limit), parseInt(offset));
     const countParams = queryParams.slice(0, -2); // Remove limit e offset
     
-    let leads, total, totalPages;
+    const [leadsResult, totalResult] = await Promise.all([
+      executeQuery(query, queryParams),
+      executeQuery(countQuery, countParams)
+    ]);
     
-    try {
-      const [leadsResult, totalResult] = await Promise.all([
-        executeQuery(query, queryParams),
-        executeQuery(countQuery, countParams)
-      ]);
-      
-      leads = leadsResult;
-      total = totalResult[0].total;
-      totalPages = Math.ceil(total / limit);
-      
-      logDBOperation('SELECT', 'patient_leads', leads, Date.now() - startTime);
-    } catch (dbError) {
-      logger.warn('Banco de dados indisponível, usando dados mock:', dbError.message);
-      
-      // Usar dados mock quando banco não disponível
-      const mockData = getMockPatientLeads(page, limit);
-      leads = mockData.leads;
-      total = mockData.total;
-      totalPages = Math.ceil(total / limit);
-    }
+    const leads = leadsResult;
+    const total = totalResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+    
+    logDBOperation('SELECT', 'patient_leads', leads, Date.now() - startTime);
     
     res.json({
       success: true,
@@ -513,93 +452,31 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
   try {
     const { page = 1, limit = 10 } = req.query;
     
-    let patients, total;
+    const offset = (page - 1) * limit;
+    const query = `
+      SELECT 
+        pl.id,
+        pl.nome as name,
+        pl.email,
+        pl.telefone as cpf,
+        pl.status,
+        'Avaliação Inicial' as treatmentStage,
+        COALESCE(o.nome, 'Não atribuído') as orthodontist
+      FROM patient_leads pl
+      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      ORDER BY pl.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
     
-    try {
-      // Tentar buscar do banco
-      const offset = (page - 1) * limit;
-      const query = `
-        SELECT 
-          pl.id,
-          pl.nome as name,
-          pl.email,
-          pl.telefone as cpf,
-          pl.status,
-          'Avaliação Inicial' as treatmentStage,
-          COALESCE(o.nome, 'Não atribuído') as orthodontist
-        FROM patient_leads pl
-        LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
-        ORDER BY pl.created_at DESC
-        LIMIT ? OFFSET ?
-      `;
-      
-      const countQuery = 'SELECT COUNT(*) as total FROM patient_leads';
-      
-      const [patientsResult, totalResult] = await Promise.all([
-        executeQuery(query, [parseInt(limit), parseInt(offset)]),
-        executeQuery(countQuery)
-      ]);
-      
-      patients = patientsResult;
-      total = totalResult[0].total;
-      
-    } catch (dbError) {
-      logger.warn('Banco indisponível para admin, usando mock:', dbError.message);
-      
-      // Dados mock para o admin
-      const mockPatients = [
-        {
-          id: 1,
-          name: 'Ana Silva Santos',
-          email: 'ana.silva@email.com',
-          cpf: '(11) 99999-1111',
-          status: 'Ativo',
-          treatmentStage: 'Avaliação Inicial',
-          orthodontist: 'Dr. João Oliveira'
-        },
-        {
-          id: 2,
-          name: 'Carlos Eduardo Lima',
-          email: 'carlos.lima@email.com', 
-          cpf: '(11) 99999-2222',
-          status: 'Em Tratamento',
-          treatmentStage: 'Alinhadores 5/20',
-          orthodontist: 'Dra. Maria Santos'
-        },
-        {
-          id: 3,
-          name: 'Fernanda Costa',
-          email: 'fernanda.costa@email.com',
-          cpf: '(11) 99999-3333', 
-          status: 'Aguardando',
-          treatmentStage: 'Aguardando Consulta',
-          orthodontist: 'Dr. Pedro Souza'
-        },
-        {
-          id: 4,
-          name: 'Roberto Almeida',
-          email: 'roberto.almeida@email.com',
-          cpf: '(11) 99999-4444',
-          status: 'Finalizado',
-          treatmentStage: 'Tratamento Concluído',
-          orthodontist: 'Dra. Ana Paula'
-        },
-        {
-          id: 5,
-          name: 'Juliana Ferreira',
-          email: 'juliana.ferreira@email.com',
-          cpf: '(11) 99999-5555',
-          status: 'Ativo',
-          treatmentStage: 'Planejamento 3D',
-          orthodontist: 'Dr. Lucas Martins'
-        }
-      ];
-      
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + parseInt(limit);
-      patients = mockPatients.slice(startIndex, endIndex);
-      total = mockPatients.length;
-    }
+    const countQuery = 'SELECT COUNT(*) as total FROM patient_leads';
+    
+    const [patientsResult, totalResult] = await Promise.all([
+      executeQuery(query, [parseInt(limit), parseInt(offset)]),
+      executeQuery(countQuery)
+    ]);
+    
+    const patients = patientsResult;
+    const total = totalResult[0].total;
     
     res.json({
       patients,
