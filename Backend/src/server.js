@@ -89,6 +89,24 @@ app.use((req, res, next) => {
     origin: origin,
     userAgent: req.headers['user-agent']
   });
+  
+  // Add explicit CORS headers for debugging
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With,Accept');
+    logger.info(`✅ CORS headers adicionados para origin: ${origin}`);
+  } else if (origin && origin.endsWith('.vercel.app') && allowedOrigins.includes('https://*.vercel.app')) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With,Accept');
+    logger.info(`✅ CORS headers adicionados para Vercel app: ${origin}`);
+  } else if (origin) {
+    logger.warn(`❌ CORS rejeitado para origin: ${origin}`, { allowedOrigins });
+  }
+  
   next();
 });
 
@@ -104,6 +122,24 @@ app.use(generalLimiter);
 
 // Logging
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
+
+// Handle preflight requests explicitly
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  logger.info(`🔍 OPTIONS request from: ${origin}`);
+  
+  if (origin && (allowedOrigins.includes(origin) || (origin.endsWith('.vercel.app') && allowedOrigins.includes('https://*.vercel.app')))) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With,Accept');
+    res.status(200).end();
+    logger.info(`✅ OPTIONS response sent for: ${origin}`);
+  } else {
+    res.status(403).end();
+    logger.warn(`❌ OPTIONS request rejected for: ${origin}`);
+  }
+});
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
