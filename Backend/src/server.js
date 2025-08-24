@@ -55,12 +55,22 @@ const corsOptions = {
     // Permitir requests sem origin (mobile apps, postman, etc.)
     if (!origin) return callback(null, true);
     
+    // Verificar origins exatas primeiro
     if (allowedOrigins.indexOf(origin) !== -1) {
       return callback(null, true);
-    } else {
-      logger.warn(`CORS blocked origin: ${origin}`, { allowedOrigins });
-      return callback(new Error('Not allowed by CORS'));
     }
+    
+    // Verificar patterns com wildcard (especificamente *.vercel.app)
+    const isVercelApp = origin && origin.endsWith('.vercel.app') && 
+                       allowedOrigins.some(allowed => allowed === 'https://*.vercel.app');
+    
+    if (isVercelApp) {
+      logger.info(`CORS permitido para Vercel app: ${origin}`);
+      return callback(null, true);
+    }
+    
+    logger.warn(`CORS blocked origin: ${origin}`, { allowedOrigins, isVercelApp });
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
