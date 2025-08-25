@@ -106,3 +106,8 @@ export function useSystemHealth() {
   const getSystemHealth = useCallback(() => apiService.getSystemHealth(), [])
   return useApi(getSystemHealth, [])
 }
+
+export function useQuickActions() {
+  const getQuickActions = useCallback(() => apiService.getQuickActions(), [])
+  return useApi(getQuickActions, [])
+}

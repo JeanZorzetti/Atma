@@ -15,6 +15,9 @@ router.get('/health', systemController.getSystemHealth);
 // GET /api/system/stats - Estatísticas gerais do sistema
 router.get('/stats', systemController.getSystemStats);
 
+// GET /api/system/quick-actions - Ações rápidas para o dashboard
+router.get('/quick-actions', systemController.getQuickActions);
+
 // POST /api/system/maintenance - Executar tarefas de manutenção
 router.post('/maintenance', systemController.runMaintenance);
 

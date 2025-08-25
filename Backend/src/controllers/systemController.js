@@ -449,10 +449,129 @@ const runMaintenance = async (req, res, next) => {
   }
 };
 
+// Buscar ações rápidas (dados para a seção de ações rápidas do dashboard)
+const getQuickActions = withDbErrorHandling('SystemController.getQuickActions', [])(async (req, res, next) => {
+  const startTime = Date.now();
+  
+  try {
+    logger.info('Iniciando busca de ações rápidas');
+    
+    const db = getDB();
+    if (!db) {
+      logger.warn('Database não disponível para ações rápidas - retornando lista vazia');
+      return res.status(200).json({
+        success: true,
+        data: [],
+        warning: 'Sistema temporariamente com conectividade limitada',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const actions = [];
+    
+    try {
+      // 1. Verificar leads de pacientes pendentes (status = 'pendente')
+      const pendingPatientsQuery = `
+        SELECT COUNT(*) as count
+        FROM patient_leads 
+        WHERE status = 'pendente' AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+      `;
+      const pendingPatients = await executeQuery(pendingPatientsQuery);
+      const pendingCount = pendingPatients[0]?.count || 0;
+      
+      if (pendingCount > 0) {
+        actions.push({
+          id: 1,
+          type: 'patients',
+          priority: 'urgent',
+          title: `${pendingCount} lead${pendingCount > 1 ? 's' : ''} de paciente${pendingCount > 1 ? 's' : ''} pendente${pendingCount > 1 ? 's' : ''}`,
+          description: 'Necessário fazer contato inicial',
+          count: pendingCount,
+          color: 'red',
+          badge: 'Urgente',
+          badgeVariant: 'destructive'
+        });
+      }
+      
+      // 2. Verificar solicitações de parceria pendentes
+      const pendingPartnershipsQuery = `
+        SELECT COUNT(*) as count
+        FROM orthodontist_partnerships 
+        WHERE status = 'pendente'
+      `;
+      const pendingPartnerships = await executeQuery(pendingPartnershipsQuery);
+      const partnershipCount = pendingPartnerships[0]?.count || 0;
+      
+      if (partnershipCount > 0) {
+        actions.push({
+          id: 2,
+          type: 'partnerships',
+          priority: 'normal',
+          title: `${partnershipCount} nova${partnershipCount > 1 ? 's' : ''} solicitaç${partnershipCount > 1 ? 'ões' : 'ão'} de parceria`,
+          description: 'Aguardando aprovação de cadastro',
+          count: partnershipCount,
+          color: 'blue',
+          badge: 'Novo',
+          badgeVariant: 'outline'
+        });
+      }
+      
+      // 3. Verificar leads que precisam de follow-up (contatados há mais de 3 dias sem resposta)
+      const followUpQuery = `
+        SELECT COUNT(*) as count
+        FROM patient_leads 
+        WHERE status = 'contatado' 
+        AND updated_at < DATE_SUB(NOW(), INTERVAL 3 DAY)
+      `;
+      const followUpNeeded = await executeQuery(followUpQuery);
+      const followUpCount = followUpNeeded[0]?.count || 0;
+      
+      if (followUpCount > 0) {
+        actions.push({
+          id: 3,
+          type: 'followup',
+          priority: 'attention',
+          title: `${followUpCount} lead${followUpCount > 1 ? 's' : ''} precisam de follow-up`,
+          description: 'Sem resposta há mais de 3 dias',
+          count: followUpCount,
+          color: 'yellow',
+          badge: 'Atenção',
+          badgeVariant: 'secondary'
+        });
+      }
+      
+    } catch (queryError) {
+      logger.error('Erro ao executar queries para ações rápidas:', queryError);
+      // Continue sem quebrar a resposta
+    }
+    
+    logger.info('Ações rápidas obtidas com sucesso', {
+      executionTime: Date.now() - startTime,
+      actionsCount: actions.length
+    });
+    
+    res.json({
+      success: true,
+      data: actions,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    logger.error('Erro ao buscar ações rápidas:', {
+      error: error.message,
+      stack: error.stack,
+      executionTime: Date.now() - startTime
+    });
+    
+    throw error;
+  }
+});
+
 module.exports = {
   getSystemSettings,
   updateSystemSetting,
   getSystemHealth,
   getSystemStats,
+  getQuickActions,
   runMaintenance
 };

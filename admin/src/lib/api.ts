@@ -225,6 +225,10 @@ class ApiService {
     return this.request<SystemStatsResponse>('/system/stats')
   }
 
+  async getQuickActions() {
+    return this.request('/system/quick-actions')
+  }
+
   async getSystemHealth() {
     const healthUrl = this.baseUrl.replace('/api', '/health')
     const cacheKey = 'health'

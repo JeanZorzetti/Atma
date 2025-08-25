@@ -3,11 +3,36 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Users, UserCheck, Calendar, TrendingUp, Activity, AlertCircle, Loader2 } from 'lucide-react'
-import { useSystemStats, useSystemHealth } from '@/hooks/useApi'
+import { useSystemStats, useSystemHealth, useQuickActions } from '@/hooks/useApi'
 
 export default function AdminDashboard() {
   const { data: stats, loading: statsLoading, error: statsError } = useSystemStats()
   const { data: health, loading: healthLoading } = useSystemHealth()
+  const { data: quickActions, loading: actionsLoading } = useQuickActions()
+
+  // Mapeamento de cores para classes CSS válidas do Tailwind
+  const colorClasses = {
+    red: {
+      bg: 'bg-red-50',
+      text: 'text-red-900',
+      textSecondary: 'text-red-700'
+    },
+    yellow: {
+      bg: 'bg-yellow-50', 
+      text: 'text-yellow-900',
+      textSecondary: 'text-yellow-700'
+    },
+    blue: {
+      bg: 'bg-blue-50',
+      text: 'text-blue-900', 
+      textSecondary: 'text-blue-700'
+    },
+    green: {
+      bg: 'bg-green-50',
+      text: 'text-green-900',
+      textSecondary: 'text-green-700'
+    }
+  }
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -171,29 +196,33 @@ export default function AdminDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-              <div>
-                <p className="font-medium text-red-900">5 consultas pendentes</p>
-                <p className="text-sm text-red-700">Necessário confirmar agendamentos</p>
+            {actionsLoading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Carregando ações...</span>
               </div>
-              <Badge variant="destructive">Urgente</Badge>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-              <div>
-                <p className="font-medium text-yellow-900">12 pagamentos atrasados</p>
-                <p className="text-sm text-yellow-700">Total: R$ 8.450,00</p>
+            ) : quickActions?.length > 0 ? (
+              quickActions.map((action: any) => {
+                const colors = colorClasses[action.color as keyof typeof colorClasses] || colorClasses.blue
+                return (
+                  <div key={action.id} className={`flex items-center justify-between p-3 ${colors.bg} rounded-lg`}>
+                    <div>
+                      <p className={`font-medium ${colors.text}`}>{action.title}</p>
+                      <p className={`text-sm ${colors.textSecondary}`}>{action.description}</p>
+                    </div>
+                    <Badge variant={action.badgeVariant}>{action.badge}</Badge>
+                  </div>
+                )
+              })
+            ) : (
+              <div className="flex items-center justify-center p-8 text-gray-500">
+                <div className="text-center">
+                  <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Nenhuma ação requer atenção no momento</p>
+                  <p className="text-xs text-gray-400 mt-1">Tudo está em dia! 🎉</p>
+                </div>
               </div>
-              <Badge variant="secondary">Atenção</Badge>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-              <div>
-                <p className="font-medium text-blue-900">3 novos ortodontistas</p>
-                <p className="text-sm text-blue-700">Aguardando aprovação de cadastro</p>
-              </div>
-              <Badge variant="outline">Novo</Badge>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
