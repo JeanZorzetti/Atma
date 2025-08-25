@@ -35,7 +35,8 @@
       "WebSearch",
       "Bash(cmd /c:*)",
       "Read(/C:\\c\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site/**)",
-      "Read(/C:\\c\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site/**)"
+      "Read(/C:\\c\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site/**)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []
