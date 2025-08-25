@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Users, UserCheck, Calendar, TrendingUp, Activity, AlertCircle, Loader2 } from 'lucide-react'
 import { useSystemStats, useSystemHealth, useQuickActions } from '@/hooks/useApi'
+import { QuickAction } from '@/lib/api'
 
 export default function AdminDashboard() {
   const { data: stats, loading: statsLoading, error: statsError } = useSystemStats()
@@ -201,9 +202,9 @@ export default function AdminDashboard() {
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="text-sm">Carregando ações...</span>
               </div>
-            ) : quickActions?.length > 0 ? (
-              quickActions.map((action: any) => {
-                const colors = colorClasses[action.color as keyof typeof colorClasses] || colorClasses.blue
+            ) : quickActions?.data && quickActions.data.length > 0 ? (
+              quickActions.data.map((action: QuickAction) => {
+                const colors = colorClasses[action.color] || colorClasses.blue
                 return (
                   <div key={action.id} className={`flex items-center justify-between p-3 ${colors.bg} rounded-lg`}>
                     <div>

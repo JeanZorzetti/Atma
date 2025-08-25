@@ -32,6 +32,25 @@ export interface SystemStatsResponse {
   }>
 }
 
+export interface QuickAction {
+  id: number
+  type: string
+  priority: string
+  title: string
+  description: string
+  count: number
+  color: 'red' | 'yellow' | 'blue' | 'green'
+  badge: string
+  badgeVariant: 'destructive' | 'secondary' | 'outline'
+}
+
+export interface QuickActionsResponse {
+  success: boolean
+  data: QuickAction[]
+  warning?: string
+  timestamp: string
+}
+
 class ApiService {
   private baseUrl: string
   private requestCache: Map<string, { data: unknown; timestamp: number }> = new Map()
@@ -225,8 +244,8 @@ class ApiService {
     return this.request<SystemStatsResponse>('/system/stats')
   }
 
-  async getQuickActions() {
-    return this.request('/system/quick-actions')
+  async getQuickActions(): Promise<QuickActionsResponse> {
+    return this.request<QuickActionsResponse>('/system/quick-actions')
   }
 
   async getSystemHealth() {

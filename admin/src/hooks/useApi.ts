@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { apiService, PatientsResponse, SystemStatsResponse } from '@/lib/api'
+import { apiService, PatientsResponse, SystemStatsResponse, QuickActionsResponse } from '@/lib/api'
 
 export function useApi<T>(
   apiCall: () => Promise<T>,
@@ -109,5 +109,5 @@ export function useSystemHealth() {
 
 export function useQuickActions() {
   const getQuickActions = useCallback(() => apiService.getQuickActions(), [])
-  return useApi(getQuickActions, [])
+  return useApi<QuickActionsResponse>(getQuickActions, [])
 }
