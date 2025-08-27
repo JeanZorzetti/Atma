@@ -336,6 +336,67 @@ const runMaintenance = async (req, res, next) => {
     const { tasks } = req.body;
     const results = {};
     
+    // Se tasks contém "migrate", executar migrações
+    if (tasks && tasks.includes && tasks.includes('migrate')) {
+      logger.info('🚀 Executando migrações via maintenance endpoint');
+      
+      const fs = require('fs');
+      const path = require('path');
+      const mysql = require('mysql2/promise');
+      
+      try {
+        const dbConfig = {
+          host: process.env.DB_HOST || 'localhost',
+          user: process.env.DB_USER || 'root', 
+          password: process.env.DB_PASSWORD || '',
+          database: process.env.DB_NAME || 'atma_aligner',
+          port: process.env.DB_PORT || 3306,
+          charset: 'utf8mb4',
+          timezone: '+00:00'
+        };
+        
+        // Conectar e executar schema
+        const connection = await mysql.createConnection(dbConfig);
+        const schemaPath = path.join(__dirname, '../../database/schema.sql');
+        const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
+        
+        // Executar statements SQL
+        const statements = schemaSQL.split(';').filter(stmt => stmt.trim().length > 0);
+        
+        for (let statement of statements) {
+          try {
+            await connection.execute(statement);
+          } catch (err) {
+            if (!err.message.includes('already exists')) {
+              throw err;
+            }
+          }
+        }
+        
+        await connection.end();
+        
+        results.migrate = {
+          success: true,
+          message: 'Migrações executadas com sucesso'
+        };
+        
+        logger.info('✅ Migrações via maintenance executadas com sucesso');
+        
+      } catch (error) {
+        logger.error('❌ Erro nas migrações via maintenance:', error.message);
+        results.migrate = {
+          success: false,
+          error: error.message
+        };
+      }
+      
+      return res.json({
+        success: results.migrate.success,
+        results,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     // Lista de tarefas disponíveis
     const availableTasks = [
       'clean_expired_cache',
