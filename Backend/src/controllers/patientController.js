@@ -491,26 +491,8 @@ const getPatientLeadsForAdmin = withDbErrorHandling('PatientController.getPatien
       offset 
     });
 
-    // Check database availability first
-    const { getDB } = require('../config/database');
-    const db = getDB();
-    if (!db) {
-      logger.warn('Database não disponível - retornando dados vazios');
-      return res.status(200).json({
-        success: true,
-        patients: [],
-        total: 0,
-        pagination: {
-          currentPage: pageNum,
-          totalPages: 0,
-          hasNext: false,
-          hasPrev: false,
-          itemsPerPage: limitNum
-        },
-        warning: 'Sistema temporariamente com conectividade limitada',
-        timestamp: new Date().toISOString()
-      });
-    }
+    // Database availability is checked by executeQuery internally
+    logger.debug('Iniciando busca de leads para admin...');
 
     const query = `
       SELECT 
