@@ -708,6 +708,40 @@ const runDatabaseMigrations = async (req, res, next) => {
   }
 };
 
+// Testar query simples no banco (debug)
+const testDatabaseQuery = async (req, res, next) => {
+  try {
+    logger.info('🔍 Testando query simples no patient_leads');
+    
+    const { executeQuery } = require('../config/database');
+    
+    // Testar query simples
+    const result = await executeQuery('SELECT COUNT(*) as total FROM patient_leads');
+    
+    logger.info('✅ Query de teste executada com sucesso:', result);
+    
+    res.json({
+      success: true,
+      message: 'Query de teste executada com sucesso',
+      result: result,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    logger.error('❌ Erro na query de teste:', error);
+    
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Erro na query de teste',
+        details: error.message,
+        stack: error.stack?.substring(0, 500)
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   getSystemSettings,
   updateSystemSetting,
@@ -715,5 +749,6 @@ module.exports = {
   getSystemStats,
   getQuickActions,
   runMaintenance,
-  runDatabaseMigrations
+  runDatabaseMigrations,
+  testDatabaseQuery
 };
