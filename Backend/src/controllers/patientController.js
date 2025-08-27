@@ -517,7 +517,8 @@ const getPatientLeadsForAdmin = withDbErrorHandling('PatientController.getPatien
         pl.id,
         pl.nome as name,
         pl.email,
-        pl.telefone as cpf,
+        pl.telefone as phone,
+        '' as cpf,
         pl.status,
         'Avaliação Inicial' as treatmentStage,
         COALESCE(o.nome, 'Não atribuído') as orthodontist,
@@ -546,6 +547,27 @@ const getPatientLeadsForAdmin = withDbErrorHandling('PatientController.getPatien
       patients = patientsResult.value || [];
     } else {
       logger.error('Falha na query de pacientes:', patientsResult.reason?.message);
+      
+      // Check if it's a table doesn't exist error
+      const errorMessage = patientsResult.reason?.message || '';
+      if (errorMessage.includes("doesn't exist") || errorMessage.includes("Table") || errorMessage.includes("1146")) {
+        logger.warn('Tabela patient_leads não existe - retornando dados vazios');
+        return res.status(200).json({
+          success: true,
+          patients: [],
+          total: 0,
+          pagination: {
+            currentPage: pageNum,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+            itemsPerPage: limitNum
+          },
+          warning: 'Tabelas do banco não foram criadas ainda. Execute as migrações.',
+          timestamp: new Date().toISOString()
+        });
+      }
+      
       throw patientsResult.reason;
     }
     
