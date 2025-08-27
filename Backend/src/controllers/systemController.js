@@ -737,6 +737,8 @@ const testPatientsEndpoint = async (req, res, next) => {
     
     const countQuery = 'SELECT COUNT(*) as total FROM patient_leads';
     
+    logger.info('Executando queries com parâmetros:', { limitNum, offset });
+    
     const [patientsResult, totalResult] = await Promise.allSettled([
       executeQuery(query, [limitNum, offset]),
       executeQuery(countQuery)
@@ -747,6 +749,7 @@ const testPatientsEndpoint = async (req, res, next) => {
     
     if (patientsResult.status === 'fulfilled') {
       patients = patientsResult.value || [];
+      logger.info('Query de pacientes executada com sucesso:', { count: patients.length, patients: patients.slice(0, 2) });
     } else {
       logger.error('Erro na query de pacientes:', patientsResult.reason?.message);
     }
