@@ -732,7 +732,7 @@ const testPatientsEndpoint = async (req, res, next) => {
       FROM patient_leads pl
       LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
       ORDER BY pl.created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT 10 OFFSET 0
     `;
     
     const countQuery = 'SELECT COUNT(*) as total FROM patient_leads';
@@ -740,7 +740,7 @@ const testPatientsEndpoint = async (req, res, next) => {
     logger.info('Executando queries com parâmetros:', { limitNum, offset });
     
     const [patientsResult, totalResult] = await Promise.allSettled([
-      executeQuery(query, [limitNum, offset]),
+      executeQuery(query),  // Sem parâmetros agora
       executeQuery(countQuery)
     ]);
     
