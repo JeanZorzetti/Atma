@@ -718,17 +718,13 @@ const testPatientsEndpoint = async (req, res, next) => {
     
     const { executeQuery } = require('../config/database');
     
+    // Usar a query que sabemos que funciona no debug
     const query = `
       SELECT 
-        pl.id,
-        pl.nome as name,
-        pl.email,
-        pl.telefone as phone,
-        '' as cpf,
-        pl.status,
-        'Avaliação Inicial' as treatmentStage,
-        COALESCE(o.nome, 'Não atribuído') as orthodontist,
-        pl.created_at
+        pl.*,
+        o.nome as ortodontista_nome,
+        o.clinica as ortodontista_clinica,
+        o.telefone as ortodontista_telefone
       FROM patient_leads pl
       LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
       ORDER BY pl.created_at DESC
