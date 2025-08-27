@@ -493,7 +493,7 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
         '' as cpf,
         pl.status,
         'Avaliação Inicial' as treatmentStage,
-        COALESCE(o.nome, 'Não atribuído') as orthodontist,
+        IFNULL(o.nome, 'Não atribuído') as orthodontist,
         pl.created_at
       FROM patient_leads pl
       LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
