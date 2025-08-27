@@ -711,19 +711,40 @@ const runDatabaseMigrations = async (req, res, next) => {
 // Testar query simples no banco (debug)
 const testDatabaseQuery = async (req, res, next) => {
   try {
-    logger.info('🔍 Testando query simples no patient_leads');
+    logger.info('🔍 Testando queries do patient_leads');
     
     const { executeQuery } = require('../config/database');
     
-    // Testar query simples
-    const result = await executeQuery('SELECT COUNT(*) as total FROM patient_leads');
+    // Testar query simples primeiro
+    const simpleResult = await executeQuery('SELECT COUNT(*) as total FROM patient_leads');
+    logger.info('✅ Query COUNT executada com sucesso:', simpleResult);
     
-    logger.info('✅ Query de teste executada com sucesso:', result);
+    // Testar query complexa do getPatientLeads
+    const complexQuery = `
+      SELECT 
+        pl.*,
+        o.nome as ortodontista_nome,
+        o.clinica as ortodontista_clinica,
+        o.telefone as ortodontista_telefone,
+        poa.status as atribuicao_status,
+        poa.data_atribuicao
+      FROM patient_leads pl
+      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      LEFT JOIN patient_orthodontist_assignments poa ON pl.id = poa.patient_lead_id
+      ORDER BY pl.created_at DESC
+      LIMIT 10 OFFSET 0
+    `;
+    
+    const complexResult = await executeQuery(complexQuery);
+    logger.info('✅ Query complexa executada com sucesso:', complexResult);
     
     res.json({
       success: true,
-      message: 'Query de teste executada com sucesso',
-      result: result,
+      message: 'Queries de teste executadas com sucesso',
+      results: {
+        simple: simpleResult,
+        complex: complexResult
+      },
       timestamp: new Date().toISOString()
     });
     
