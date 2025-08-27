@@ -21,4 +21,7 @@ router.get('/quick-actions', systemController.getQuickActions);
 // POST /api/system/maintenance - Executar tarefas de manutenção
 router.post('/maintenance', systemController.runMaintenance);
 
+// POST /api/system/migrate - Executar migrações do banco (temporário para setup)
+router.post('/migrate', systemController.runDatabaseMigrations);
+
 module.exports = router;

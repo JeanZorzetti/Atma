@@ -567,11 +567,92 @@ const getQuickActions = withDbErrorHandling('SystemController.getQuickActions', 
   }
 });
 
+// Executar migrações do banco de dados (temporário para setup)
+const runDatabaseMigrations = async (req, res, next) => {
+  try {
+    logger.info('🚀 Iniciando execução de migrações do banco de dados');
+    
+    // Import dinamico para evitar problemas de dependência circular
+    const { spawn } = require('child_process');
+    const path = require('path');
+    
+    const migrationScript = path.join(__dirname, '../../database/migrate.js');
+    
+    // Executar script de migração
+    const migration = spawn('node', [migrationScript, 'migrate'], {
+      cwd: path.join(__dirname, '../../'),
+      env: process.env
+    });
+    
+    let output = '';
+    let errorOutput = '';
+    
+    migration.stdout.on('data', (data) => {
+      output += data.toString();
+      logger.info('Migration output:', data.toString().trim());
+    });
+    
+    migration.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+      logger.error('Migration error:', data.toString().trim());
+    });
+    
+    migration.on('close', (code) => {
+      if (code === 0) {
+        logger.info('✅ Migrações executadas com sucesso');
+        res.json({
+          success: true,
+          message: 'Migrações do banco de dados executadas com sucesso',
+          output: output.trim(),
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        logger.error('❌ Erro ao executar migrações, código:', code);
+        res.status(500).json({
+          success: false,
+          error: {
+            message: 'Erro ao executar migrações do banco de dados',
+            details: errorOutput.trim() || output.trim(),
+            code
+          },
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+    
+    // Timeout para evitar travamento
+    setTimeout(() => {
+      migration.kill();
+      if (!res.headersSent) {
+        res.status(408).json({
+          success: false,
+          error: {
+            message: 'Timeout ao executar migrações - processo cancelado'
+          },
+          timestamp: new Date().toISOString()
+        });
+      }
+    }, 30000); // 30 segundos de timeout
+    
+  } catch (error) {
+    logger.error('Erro ao iniciar migrações:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Erro interno ao executar migrações',
+        details: error.message
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   getSystemSettings,
   updateSystemSetting,
   getSystemHealth,
   getSystemStats,
   getQuickActions,
-  runMaintenance
+  runMaintenance,
+  runDatabaseMigrations
 };
