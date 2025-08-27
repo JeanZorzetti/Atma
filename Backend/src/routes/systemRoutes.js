@@ -27,4 +27,7 @@ router.post('/migrate', systemController.runDatabaseMigrations);
 // GET /api/system/test-db - Testar query simples (debug)
 router.get('/test-db', systemController.testDatabaseQuery);
 
+// GET /api/system/test-patients - Testar endpoint de pacientes sem middleware (debug)
+router.get('/test-patients', systemController.testPatientsEndpoint);
+
 module.exports = router;

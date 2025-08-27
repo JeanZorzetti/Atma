@@ -708,6 +708,84 @@ const runDatabaseMigrations = async (req, res, next) => {
   }
 };
 
+// Endpoint temporário para testar pacientes sem middleware
+const testPatientsEndpoint = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit) || 10), 100);
+    const offset = (pageNum - 1) * limitNum;
+    
+    const { executeQuery } = require('../config/database');
+    
+    const query = `
+      SELECT 
+        pl.id,
+        pl.nome as name,
+        pl.email,
+        pl.telefone as phone,
+        '' as cpf,
+        pl.status,
+        'Avaliação Inicial' as treatmentStage,
+        COALESCE(o.nome, 'Não atribuído') as orthodontist,
+        pl.created_at
+      FROM patient_leads pl
+      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      ORDER BY pl.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+    
+    const countQuery = 'SELECT COUNT(*) as total FROM patient_leads';
+    
+    const [patientsResult, totalResult] = await Promise.allSettled([
+      executeQuery(query, [limitNum, offset]),
+      executeQuery(countQuery)
+    ]);
+    
+    let patients = [];
+    let total = 0;
+    
+    if (patientsResult.status === 'fulfilled') {
+      patients = patientsResult.value || [];
+    } else {
+      logger.error('Erro na query de pacientes:', patientsResult.reason?.message);
+    }
+    
+    if (totalResult.status === 'fulfilled') {
+      total = totalResult.value?.[0]?.total || 0;
+    } else {
+      logger.error('Erro na query de total:', totalResult.reason?.message);
+    }
+    
+    const totalPages = Math.ceil(total / limitNum);
+    
+    res.json({
+      success: true,
+      patients,
+      total,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
+        itemsPerPage: limitNum
+      },
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    logger.error('Erro no endpoint temporário de pacientes:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Erro interno do servidor',
+        details: error.message
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 // Testar query simples no banco (debug)
 const testDatabaseQuery = async (req, res, next) => {
   try {
@@ -833,5 +911,6 @@ module.exports = {
   getQuickActions,
   runMaintenance,
   runDatabaseMigrations,
-  testDatabaseQuery
+  testDatabaseQuery,
+  testPatientsEndpoint
 };
