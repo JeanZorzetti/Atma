@@ -738,12 +738,34 @@ const testDatabaseQuery = async (req, res, next) => {
     const complexResult = await executeQuery(complexQuery);
     logger.info('✅ Query complexa executada com sucesso:', complexResult);
     
+    // Testar query específica do admin
+    const adminQuery = `
+      SELECT 
+        pl.id,
+        pl.nome as name,
+        pl.email,
+        pl.telefone as phone,
+        '' as cpf,
+        pl.status,
+        'Avaliação Inicial' as treatmentStage,
+        COALESCE(o.nome, 'Não atribuído') as orthodontist,
+        pl.created_at
+      FROM patient_leads pl
+      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      ORDER BY pl.created_at DESC
+      LIMIT 10 OFFSET 0
+    `;
+    
+    const adminResult = await executeQuery(adminQuery);
+    logger.info('✅ Query admin executada com sucesso:', adminResult);
+    
     res.json({
       success: true,
       message: 'Queries de teste executadas com sucesso',
       results: {
         simple: simpleResult,
-        complex: complexResult
+        complex: complexResult,
+        admin: adminResult
       },
       timestamp: new Date().toISOString()
     });
