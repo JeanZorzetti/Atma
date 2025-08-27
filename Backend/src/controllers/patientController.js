@@ -463,18 +463,8 @@ const getPatientStats = async (req, res, next) => {
   }
 };
 
-// Endpoint específico para o frontend admin with enhanced error handling
-const getPatientLeadsForAdmin = withDbErrorHandling('PatientController.getPatientLeadsForAdmin', {
-  patients: [],
-  total: 0,
-  pagination: {
-    currentPage: 1,
-    totalPages: 0,
-    hasNext: false,
-    hasPrev: false,
-    itemsPerPage: 10
-  }
-})(async (req, res, next) => {
+// Endpoint específico para o frontend admin (sem middleware temporariamente para debug)
+const getPatientLeadsForAdmin = async (req, res, next) => {
   const startTime = Date.now();
   
   try {
@@ -591,10 +581,16 @@ const getPatientLeadsForAdmin = withDbErrorHandling('PatientController.getPatien
       params: req.query
     });
     
-    // This will be caught by withDbErrorHandling wrapper
-    throw error;
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Erro interno do servidor',
+        details: error.message
+      },
+      timestamp: new Date().toISOString()
+    });
   }
-});
+};
 
 module.exports = {
   createPatientLead,
