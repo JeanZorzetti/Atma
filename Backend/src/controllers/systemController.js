@@ -759,13 +759,53 @@ const testDatabaseQuery = async (req, res, next) => {
     const adminResult = await executeQuery(adminQuery);
     logger.info('✅ Query admin executada com sucesso:', adminResult);
     
+    // Testar simulação completa do getPatientLeadsForAdmin
+    const { page = 1, limit = 10 } = { page: 1, limit: 10 }; // Simular parâmetros
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit) || 10), 100);
+    const offset = (pageNum - 1) * limitNum;
+    
+    const countQuery = 'SELECT COUNT(*) as total FROM patient_leads';
+    const [patientsResult, totalResult] = await Promise.allSettled([
+      executeQuery(adminQuery, []),
+      executeQuery(countQuery)
+    ]);
+    
+    let patients = [];
+    let total = 0;
+    
+    if (patientsResult.status === 'fulfilled') {
+      patients = patientsResult.value || [];
+    }
+    
+    if (totalResult.status === 'fulfilled') {
+      total = totalResult.value?.[0]?.total || 0;
+    }
+    
+    const totalPages = Math.ceil(total / limitNum);
+    const adminSimulation = {
+      success: true,
+      patients,
+      total,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
+        itemsPerPage: limitNum
+      }
+    };
+    
+    logger.info('✅ Simulação admin executada com sucesso:', adminSimulation);
+    
     res.json({
       success: true,
       message: 'Queries de teste executadas com sucesso',
       results: {
         simple: simpleResult,
         complex: complexResult,
-        admin: adminResult
+        admin: adminResult,
+        adminSimulation: adminSimulation
       },
       timestamp: new Date().toISOString()
     });
