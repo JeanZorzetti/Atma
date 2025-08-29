@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -64,7 +64,13 @@ export default function OrtodontistasPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const { data: orthodontistsData, loading, error } = useOrthodontists()
 
-  const orthodontists = orthodontistsData?.orthodontists || mockOrthodontists
+  useEffect(() => {
+    console.log('Orthodontists Data:', orthodontistsData);
+    console.log('Loading:', loading);
+    console.log('Error:', error);
+  }, [orthodontistsData, loading, error]);
+
+  const orthodontists = orthodontistsData?.orthodontists || []
 
   const filteredOrthodontists = orthodontists.filter(orthodontist =>
     (orthodontist.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
