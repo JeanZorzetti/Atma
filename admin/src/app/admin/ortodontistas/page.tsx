@@ -249,7 +249,7 @@ export default function OrtodontistasPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredOrthodontists.map((orthodontist) => (
+                {filteredOrthodontists.map((orthodontist: Orthodontist) => (
                   <TableRow key={orthodontist.id}>
                     <TableCell>
                       <div>
