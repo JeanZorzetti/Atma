@@ -62,10 +62,10 @@ export default function OrtodontistasPage() {
   const [searchTerm, setSearchTerm] = useState('')
 
   const filteredOrthodontists = mockOrthodontists.filter(orthodontist =>
-    orthodontist.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    orthodontist.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    orthodontist.cro.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    orthodontist.city.toLowerCase().includes(searchTerm.toLowerCase())
+    (orthodontist.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (orthodontist.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (orthodontist.cro?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (orthodontist.city?.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   const getStatusBadge = (status: string) => {

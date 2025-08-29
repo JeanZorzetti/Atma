@@ -66,8 +66,8 @@ export default function PacientesPage() {
 
   const patients = patientsData?.patients || mockPatients
   const filteredPatients = patients.filter((patient: Patient) =>
-    patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (patient.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (patient.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (patient.cpf && patient.cpf.includes(searchTerm))
   )
 
