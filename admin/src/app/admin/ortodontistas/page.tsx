@@ -99,7 +99,7 @@ export default function OrtodontistasPage() {
 
   const activeOrthodontists = orthodontists.filter((o: Orthodontist) => o.status === 'Ativo').length
   const averageRating = orthodontists.length > 0
-    ? (orthodontists.reduce((acc, o: Orthodontist) => acc + o.rating, 0) / orthodontists.length).toFixed(1)
+    ? (orthodontists.reduce((acc: number, o: Orthodontist) => acc + o.rating, 0) / orthodontists.length).toFixed(1)
     : '0.0'
 
   return (
