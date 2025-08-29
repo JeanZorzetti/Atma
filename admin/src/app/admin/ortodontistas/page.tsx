@@ -72,7 +72,7 @@ export default function OrtodontistasPage() {
 
   const orthodontists = orthodontistsData?.orthodontists || []
 
-  const filteredOrthodontists = orthodontists.filter(orthodontist =>
+  const filteredOrthodontists = orthodontists.filter((orthodontist: Orthodontist) =>
     (orthodontist.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (orthodontist.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (orthodontist.cro?.toLowerCase().includes(searchTerm.toLowerCase())) ||
