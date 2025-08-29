@@ -206,7 +206,36 @@ class ApiService {
 
   // Orthodontist methods (corrigido para usar endpoints corretos do backend)
   async getOrthodontists(page = 1, limit = 10): Promise<OrthodontistsResponse> {
-    return this.request<OrthodontistsResponse>(`/orthodontists/partnerships?page=${page}&limit=${limit}`)
+    console.log('Fetching orthodontists from API...');
+    // MOCK RESPONSE FOR TESTING
+    const dummyOrthodontist: Orthodontist = {
+      id: 999,
+      name: 'Dr. Teste de Conexão',
+      email: 'teste@conexao.com',
+      phone: '(00) 00000-0000',
+      cro: 'CRO-TS 99999',
+      specialty: 'Teste',
+      city: 'Testelândia',
+      state: 'TS',
+      status: 'Ativo',
+      patientsCount: 123,
+      rating: 5.0,
+      registrationDate: '2025-08-29',
+      partnershipModel: 'Premium'
+    };
+
+    const dummyResponse: OrthodontistsResponse = {
+      orthodontists: [dummyOrthodontist],
+      total: 1
+    };
+
+    return new Promise(resolve => {
+      setTimeout(() => {
+        console.log('Returning dummy orthodontist data.');
+        resolve(dummyResponse);
+      }, 1500);
+    });
+    // return this.request<OrthodontistsResponse>(`/orthodontists/partnerships?page=${page}&limit=${limit}`)
   }
 
   async getActiveOrthodontists() {
