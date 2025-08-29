@@ -12,8 +12,9 @@ const orthodontistController = require('../controllers/orthodontistController');
 // POST /api/orthodontists/partnerships - Criar solicitação de parceria
 router.post('/partnerships', contactLimiter, validateOrthodontistPartnership, orthodontistController.createPartnershipRequest);
 
-// GET /api/orthodontists/partnerships - Listar solicitações de parceria
-router.get('/partnerships', orthodontistController.getPartnershipRequests);
+// GET /api/orthodontists/partnerships - Listar solicitações de parceria (usando endpoint que funciona temporariamente)
+const systemController = require('../controllers/systemController');
+router.get('/partnerships', systemController.testOrthodontistsEndpoint);
 
 // GET /api/orthodontists/partnerships/:id - Buscar solicitação específica
 router.get('/partnerships/:id', validateId, orthodontistController.getPartnershipRequestById);

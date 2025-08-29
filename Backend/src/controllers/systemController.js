@@ -902,6 +902,119 @@ const testDatabaseQuery = async (req, res, next) => {
   }
 };
 
+// Endpoint temporário para testar ortodontistas sem middleware - baseado no mesmo padrão dos pacientes
+const testOrthodontistsEndpoint = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit) || 10), 100);
+    const offset = (pageNum - 1) * limitNum;
+    
+    const { executeQuery } = require('../config/database');
+    
+    // Query baseada na tabela orthodontist_partnerships (como estava no controller original)
+    const query = `
+      SELECT 
+        op.id,
+        op.nome as name,
+        op.email,
+        op.telefone as phone,
+        op.cro,
+        'Ortodontia' as specialty,
+        'A definir' as city,
+        'SP' as state,
+        CASE 
+          WHEN op.status = 'fechado' THEN 'Ativo'
+          WHEN op.status = 'rejeitado' THEN 'Inativo'
+          ELSE 'Pendente'
+        END as status,
+        0 as patientsCount,
+        0 as rating,
+        DATE(op.created_at) as registrationDate,
+        CASE 
+          WHEN op.interesse = 'atma-aligner' THEN 'Standard'
+          WHEN op.interesse = 'atma-labs' THEN 'Premium'
+          ELSE 'Standard'
+        END as partnershipModel
+      FROM orthodontist_partnerships op
+      ORDER BY op.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+    
+    const countQuery = 'SELECT COUNT(*) as total FROM orthodontist_partnerships';
+    
+    logger.info('Executando queries de ortodontistas com parâmetros:', { limitNum, offset });
+    
+    const [orthodontistsResult, totalResult] = await Promise.allSettled([
+      executeQuery(query, [limitNum, offset]),
+      executeQuery(countQuery)
+    ]);
+    
+    let orthodontists = [];
+    let total = 0;
+    
+    if (orthodontistsResult.status === 'fulfilled') {
+      orthodontists = orthodontistsResult.value || [];
+      logger.info('Query de ortodontistas executada com sucesso:', { count: orthodontists.length });
+    } else {
+      logger.error('Erro na query de ortodontistas:', orthodontistsResult.reason?.message);
+      
+      // Se a tabela não existir, retornar dados vazios
+      const errorMessage = orthodontistsResult.reason?.message || '';
+      if (errorMessage.includes("doesn't exist") || errorMessage.includes("Table") || errorMessage.includes("1146")) {
+        return res.status(200).json({
+          success: true,
+          orthodontists: [],
+          total: 0,
+          pagination: {
+            currentPage: pageNum,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+            itemsPerPage: limitNum
+          },
+          warning: 'Tabela orthodontist_partnerships não foi criada ainda. Execute as migrações.',
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+    
+    if (totalResult.status === 'fulfilled') {
+      total = totalResult.value?.[0]?.total || 0;
+    } else {
+      logger.error('Erro na query de total:', totalResult.reason?.message);
+      total = orthodontists.length; // Use current page count as fallback
+    }
+    
+    const totalPages = Math.ceil(total / limitNum);
+    
+    res.json({
+      success: true,
+      orthodontists,
+      total,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
+        itemsPerPage: limitNum
+      },
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    logger.error('Erro no endpoint temporário de ortodontistas:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Erro interno do servidor',
+        details: error.message
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   getSystemSettings,
   updateSystemSetting,
@@ -911,5 +1024,6 @@ module.exports = {
   runMaintenance,
   runDatabaseMigrations,
   testDatabaseQuery,
-  testPatientsEndpoint
+  testPatientsEndpoint,
+  testOrthodontistsEndpoint
 };
