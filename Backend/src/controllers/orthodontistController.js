@@ -190,18 +190,34 @@ const getPartnershipRequests = async (req, res, next) => {
     
     logDBOperation('SELECT', 'orthodontist_partnerships', requests, Date.now() - startTime);
     
+    // Mapear partnerships para formato de orthodontists para o admin
+    const orthodontists = requests.map(partnership => ({
+      id: partnership.id,
+      name: partnership.nome,
+      email: partnership.email,
+      phone: partnership.telefone,
+      cro: partnership.cro,
+      specialty: 'Ortodontia',
+      city: 'A definir',
+      state: 'SP',
+      status: partnership.status === 'fechado' ? 'Ativo' : 'Pendente',
+      patientsCount: 0,
+      rating: 0,
+      registrationDate: partnership.created_at.split('T')[0],
+      partnershipModel: partnership.interesse === 'atma-aligner' ? 'Standard' : 'Premium'
+    }));
+
     res.json({
       success: true,
-      data: {
-        partnerships: requests,
-        pagination: {
-          current_page: parseInt(page),
-          total_pages: totalPages,
-          total_items: total,
-          items_per_page: parseInt(limit),
-          has_next: page < totalPages,
-          has_prev: page > 1
-        }
+      orthodontists: orthodontists,
+      total: total,
+      pagination: {
+        current_page: parseInt(page),
+        total_pages: totalPages,
+        total_items: total,
+        items_per_page: parseInt(limit),
+        has_next: page < totalPages,
+        has_prev: page > 1
       },
       timestamp: new Date().toISOString()
     });
