@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { apiService, PatientsResponse, SystemStatsResponse, QuickActionsResponse } from '@/lib/api'
+import { apiService, PatientsResponse, OrthodontistsResponse, SystemStatsResponse, QuickActionsResponse } from '@/lib/api'
 
 export function useApi<T>(
   apiCall: () => Promise<T>,
