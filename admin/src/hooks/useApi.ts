@@ -94,7 +94,7 @@ export function usePatients() {
 
 export function useOrthodontists() {
   const getOrthodontists = useCallback(() => apiService.getOrthodontists(), [])
-  return useApi(getOrthodontists, [])
+  return useApi<OrthodontistsResponse>(getOrthodontists, [])
 }
 
 export function useSystemStats() {

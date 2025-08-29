@@ -8,9 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Search, Plus, Edit, Eye, Filter, MapPin, Star } from 'lucide-react'
+import { Search, Plus, Edit, Eye, Filter, MapPin, Star, Loader2, AlertCircle } from 'lucide-react'
+import { useOrthodontists } from '@/hooks/useApi'
+import { Orthodontist } from '@/lib/api'
 
-const mockOrthodontists = [
+const mockOrthodontists: Orthodontist[] = [
   {
     id: 1,
     name: 'Dr. João Santos',
@@ -60,8 +62,11 @@ const mockOrthodontists = [
 
 export default function OrtodontistasPage() {
   const [searchTerm, setSearchTerm] = useState('')
+  const { data: orthodontistsData, loading, error } = useOrthodontists()
 
-  const filteredOrthodontists = mockOrthodontists.filter(orthodontist =>
+  const orthodontists = orthodontistsData?.orthodontists || mockOrthodontists
+
+  const filteredOrthodontists = orthodontists.filter(orthodontist =>
     (orthodontist.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (orthodontist.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (orthodontist.cro?.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -91,6 +96,11 @@ export default function OrtodontistasPage() {
         return <Badge variant="secondary">{model}</Badge>
     }
   }
+
+  const activeOrthodontists = orthodontists.filter(o => o.status === 'Ativo').length
+  const averageRating = orthodontists.length > 0
+    ? (orthodontists.reduce((acc, o) => acc + o.rating, 0) / orthodontists.length).toFixed(1)
+    : '0.0'
 
   return (
     <div className="space-y-6">
@@ -143,6 +153,17 @@ export default function OrtodontistasPage() {
         </Dialog>
       </div>
 
+      {/* Connection Status */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="flex items-center gap-3 py-4">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            <span className="text-red-800">Erro ao carregar ortodontistas: {error}</span>
+            <span className="text-sm text-red-600 ml-auto">Usando dados locais</span>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
@@ -150,7 +171,7 @@ export default function OrtodontistasPage() {
             <CardTitle className="text-sm font-medium">Total de Ortodontistas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">56</div>
+            <div className="text-2xl font-bold">{orthodontistsData?.total || orthodontists.length}</div>
             <p className="text-xs text-muted-foreground">+3 este mês</p>
           </CardContent>
         </Card>
@@ -159,8 +180,12 @@ export default function OrtodontistasPage() {
             <CardTitle className="text-sm font-medium">Ortodontistas Ativos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">52</div>
-            <p className="text-xs text-muted-foreground">92.9% do total</p>
+            <div className="text-2xl font-bold">{activeOrthodontists}</div>
+            <p className="text-xs text-muted-foreground">
+              {orthodontists.length > 0
+                ? `${((activeOrthodontists / orthodontists.length) * 100).toFixed(1)}% do total`
+                : '0% do total'}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -168,7 +193,7 @@ export default function OrtodontistasPage() {
             <CardTitle className="text-sm font-medium">Avaliação Média</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4.7</div>
+            <div className="text-2xl font-bold">{averageRating}</div>
             <p className="text-xs text-muted-foreground">⭐ Excelente</p>
           </CardContent>
         </Card>
@@ -204,58 +229,65 @@ export default function OrtodontistasPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>CRO</TableHead>
-                <TableHead>Localização</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Parceria</TableHead>
-                <TableHead>Pacientes</TableHead>
-                <TableHead>Avaliação</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrthodontists.map((orthodontist) => (
-                <TableRow key={orthodontist.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{orthodontist.name}</div>
-                      <div className="text-sm text-gray-500">{orthodontist.email}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{orthodontist.cro}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-gray-400" />
-                      <span className="text-sm">{orthodontist.city}, {orthodontist.state}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(orthodontist.status)}</TableCell>
-                  <TableCell>{getPartnershipBadge(orthodontist.partnershipModel)}</TableCell>
-                  <TableCell>{orthodontist.patientsCount}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span>{orthodontist.rating || 'N/A'}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <span className="ml-2 text-gray-600">Carregando ortodontistas...</span>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>CRO</TableHead>
+                  <TableHead>Localização</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Parceria</TableHead>
+                  <TableHead>Pacientes</TableHead>
+                  <TableHead>Avaliação</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredOrthodontists.map((orthodontist) => (
+                  <TableRow key={orthodontist.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{orthodontist.name}</div>
+                        <div className="text-sm text-gray-500">{orthodontist.email}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{orthodontist.cro}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3 text-gray-400" />
+                        <span className="text-sm">{orthodontist.city}, {orthodontist.state}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(orthodontist.status)}</TableCell>
+                    <TableCell>{getPartnershipBadge(orthodontist.partnershipModel)}</TableCell>
+                    <TableCell>{orthodontist.patientsCount}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                        <span>{orthodontist.rating || 'N/A'}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

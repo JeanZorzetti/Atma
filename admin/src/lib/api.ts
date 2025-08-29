@@ -14,6 +14,27 @@ export interface PatientsResponse {
   total: number
 }
 
+export interface Orthodontist {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  cro: string;
+  specialty: string;
+  city: string;
+  state: string;
+  status: string;
+  patientsCount: number;
+  rating: number;
+  registrationDate: string;
+  partnershipModel: string;
+}
+
+export interface OrthodontistsResponse {
+  orthodontists: Orthodontist[];
+  total: number;
+}
+
 export interface SystemStatsResponse {
   totalPatients: number
   patientsGrowth: string
@@ -184,8 +205,8 @@ class ApiService {
   }
 
   // Orthodontist methods (corrigido para usar endpoints corretos do backend)
-  async getOrthodontists(page = 1, limit = 10) {
-    return this.request(`/orthodontists/partnerships?page=${page}&limit=${limit}`)
+  async getOrthodontists(page = 1, limit = 10): Promise<OrthodontistsResponse> {
+    return this.request<OrthodontistsResponse>(`/orthodontists/partnerships?page=${page}&limit=${limit}`)
   }
 
   async getActiveOrthodontists() {
