@@ -107,7 +107,7 @@ export default function RelatoriosPage() {
                 <Award className="h-4 w-4 text-yellow-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{kpis.averageRating || 4.8}</div>
+                <div className="text-2xl font-bold">{kpis.averageRating || 0.0}</div>
                 <p className="text-xs text-yellow-600">⭐ {kpis.ratingLabel || 'Excelente avaliação'}</p>
               </CardContent>
             </Card>
