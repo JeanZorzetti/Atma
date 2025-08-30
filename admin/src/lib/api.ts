@@ -323,6 +323,11 @@ class ApiService {
   async getEmailTemplates() {
     return this.request('/emails/templates')
   }
+
+  // Reports methods
+  async getReports() {
+    return this.request('/system/reports')
+  }
 }
 
 export const apiService = new ApiService()

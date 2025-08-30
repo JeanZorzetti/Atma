@@ -111,3 +111,8 @@ export function useQuickActions() {
   const getQuickActions = useCallback(() => apiService.getQuickActions(), [])
   return useApi<QuickActionsResponse>(getQuickActions, [])
 }
+
+export function useReports() {
+  const getReports = useCallback(() => apiService.getReports(), [])
+  return useApi(getReports, [])
+}
