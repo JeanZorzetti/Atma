@@ -1136,8 +1136,9 @@ const getReportsData = async (req, res, next) => {
     const growthPercent = previousMonth > 0 ? (((currentMonth - previousMonth) / previousMonth) * 100).toFixed(1) : '0.0';
 
     // Calcular satisfação, receita e no-show
-    const avgSatisfaction = satisfactionResult[0]?.avg_satisfaction || 4.8;
-    const satisfactionLabel = avgSatisfaction >= 4.5 ? 'Excelente avaliação' : 
+    const avgSatisfaction = satisfactionResult[0]?.avg_satisfaction || 0;
+    const satisfactionLabel = avgSatisfaction === 0 ? 'Sem dados disponíveis' :
+                              avgSatisfaction >= 4.5 ? 'Excelente avaliação' : 
                               avgSatisfaction >= 4.0 ? 'Boa avaliação' : 'Avaliação regular';
 
     const revenueData = revenueDistributionResult[0] || { tratamentos_ativos: 0, consultas: 0, outros: 0 };
@@ -1145,7 +1146,7 @@ const getReportsData = async (req, res, next) => {
     
     const noShowData = noShowResult[0] || { total_scheduled: 0, no_shows: 0 };
     const noShowRate = noShowData.total_scheduled > 0 ? 
-      ((noShowData.no_shows / noShowData.total_scheduled) * 100).toFixed(1) : '3.2';
+      ((noShowData.no_shows / noShowData.total_scheduled) * 100).toFixed(1) : '0.0';
 
     // Processar dados mensais para gráficos
     const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -1186,7 +1187,7 @@ const getReportsData = async (req, res, next) => {
       patientsGrowth: `${growthPercent >= 0 ? '+' : ''}${growthPercent}%`,
       conversionRate: parseFloat(conversionRate),
       conversionGrowth: `${conversionGrowth >= 0 ? '+' : ''}${conversionGrowth}%`,
-      averageRating: parseFloat(avgSatisfaction.toFixed(1)),
+      averageRating: avgSatisfaction > 0 ? parseFloat(avgSatisfaction.toFixed(1)) : 0,
       ratingLabel: satisfactionLabel,
       
       // Dados para gráficos
@@ -1209,7 +1210,7 @@ const getReportsData = async (req, res, next) => {
           tratamentosAtivos: ((revenueData.tratamentos_ativos / totalRevenue) * 100).toFixed(1),
           consultas: ((revenueData.consultas / totalRevenue) * 100).toFixed(1),
           outros: ((revenueData.outros / totalRevenue) * 100).toFixed(1)
-        } : { tratamentosAtivos: '75', consultas: '20', outros: '5' }
+        } : { tratamentosAtivos: '0', consultas: '0', outros: '0' }
       },
       
       // Metas
@@ -1252,13 +1253,19 @@ const getReportsData = async (req, res, next) => {
         patientsGrowth: '+0%',
         conversionRate: 0,
         conversionGrowth: '+0%',
-        averageRating: 4.8,
-        ratingLabel: 'Sistema iniciando',
+        averageRating: 0,
+        ratingLabel: 'Sem dados disponíveis',
         monthlyData: [],
         topOrthodontists: [],
         monthlyConsultations: 0,
         noShowRate: 0,
         averageTreatmentTime: 0,
+        revenueDistribution: {
+          tratamentosAtivos: 0,
+          consultas: 0,
+          outros: 0,
+          percentages: { tratamentosAtivos: '0', consultas: '0', outros: '0' }
+        },
         quarterGoals: {
           newPatients: { current: 0, target: 200, percentage: 0.0 },
           revenue: { current: 0, target: 600000, percentage: 0.0 }
