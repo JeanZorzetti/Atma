@@ -258,27 +258,48 @@ export default function RelatoriosPage() {
                   <span>Tratamentos Ativos</span>
                   <div className="flex items-center gap-2">
                     <div className="w-16 h-2 bg-gray-200 rounded">
-                      <div className="w-3/4 h-full bg-blue-500 rounded"></div>
+                      <div 
+                        className="h-full bg-blue-500 rounded" 
+                        style={{ 
+                          width: `${reportsData?.data?.revenueDistribution?.percentages?.tratamentosAtivos || 75}%` 
+                        }}
+                      ></div>
                     </div>
-                    <span className="font-medium">75%</span>
+                    <span className="font-medium">
+                      {reportsData?.data?.revenueDistribution?.percentages?.tratamentosAtivos || 75}%
+                    </span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Consultas</span>
                   <div className="flex items-center gap-2">
                     <div className="w-16 h-2 bg-gray-200 rounded">
-                      <div className="w-1/5 h-full bg-green-500 rounded"></div>
+                      <div 
+                        className="h-full bg-green-500 rounded"
+                        style={{ 
+                          width: `${reportsData?.data?.revenueDistribution?.percentages?.consultas || 20}%` 
+                        }}
+                      ></div>
                     </div>
-                    <span className="font-medium">20%</span>
+                    <span className="font-medium">
+                      {reportsData?.data?.revenueDistribution?.percentages?.consultas || 20}%
+                    </span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Outros</span>
                   <div className="flex items-center gap-2">
                     <div className="w-16 h-2 bg-gray-200 rounded">
-                      <div className="w-1/20 h-full bg-purple-500 rounded"></div>
+                      <div 
+                        className="h-full bg-purple-500 rounded"
+                        style={{ 
+                          width: `${reportsData?.data?.revenueDistribution?.percentages?.outros || 5}%` 
+                        }}
+                      ></div>
                     </div>
-                    <span className="font-medium">5%</span>
+                    <span className="font-medium">
+                      {reportsData?.data?.revenueDistribution?.percentages?.outros || 5}%
+                    </span>
                   </div>
                 </div>
               </CardContent>

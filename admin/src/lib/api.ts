@@ -98,6 +98,16 @@ export interface ReportsResponse {
     monthlyConsultations: number
     noShowRate: number
     averageTreatmentTime: number
+    revenueDistribution: {
+      tratamentosAtivos: number
+      consultas: number
+      outros: number
+      percentages: {
+        tratamentosAtivos: string
+        consultas: string
+        outros: string
+      }
+    }
     quarterGoals: {
       newPatients: {
         current: number
