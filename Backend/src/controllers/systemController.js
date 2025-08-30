@@ -1148,11 +1148,11 @@ const getReportsData = async (req, res, next) => {
       
       // Metas
       quarterGoals: {
-        newPatients: { current: currentMonth, target: 200, percentage: Math.min(100, (currentMonth / 200) * 100).toFixed(1) },
+        newPatients: { current: currentMonth, target: 200, percentage: Math.min(100, parseFloat(((currentMonth / 200) * 100).toFixed(1))) },
         revenue: { 
           current: monthlyData.reduce((sum, month) => sum + month.revenue, 0), 
           target: 600000, 
-          percentage: Math.min(100, (monthlyData.reduce((sum, month) => sum + month.revenue, 0) / 600000) * 100).toFixed(1)
+          percentage: Math.min(100, parseFloat(((monthlyData.reduce((sum, month) => sum + month.revenue, 0) / 600000) * 100).toFixed(1)))
         }
       }
     };
@@ -1194,8 +1194,8 @@ const getReportsData = async (req, res, next) => {
         noShowRate: 0,
         averageTreatmentTime: 0,
         quarterGoals: {
-          newPatients: { current: 0, target: 200, percentage: '0.0' },
-          revenue: { current: 0, target: 600000, percentage: '0.0' }
+          newPatients: { current: 0, target: 200, percentage: 0.0 },
+          revenue: { current: 0, target: 600000, percentage: 0.0 }
         }
       },
       warning: 'Dados indisponíveis - usando valores padrão',

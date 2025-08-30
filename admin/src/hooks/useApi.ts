@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { apiService, PatientsResponse, OrthodontistsResponse, SystemStatsResponse, QuickActionsResponse } from '@/lib/api'
+import { apiService, PatientsResponse, OrthodontistsResponse, SystemStatsResponse, QuickActionsResponse, ReportsResponse } from '@/lib/api'
 
 export function useApi<T>(
   apiCall: () => Promise<T>,
@@ -114,5 +114,5 @@ export function useQuickActions() {
 
 export function useReports() {
   const getReports = useCallback(() => apiService.getReports(), [])
-  return useApi(getReports, [])
+  return useApi<ReportsResponse>(getReports, [])
 }

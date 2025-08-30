@@ -72,6 +72,49 @@ export interface QuickActionsResponse {
   timestamp: string
 }
 
+export interface ReportsResponse {
+  success: boolean
+  data: {
+    totalRevenue: number
+    revenueGrowth: string
+    newPatients: number
+    patientsGrowth: string
+    conversionRate: number
+    conversionGrowth: string
+    averageRating: number
+    ratingLabel: string
+    monthlyData: Array<{
+      month: string
+      patients: number
+      revenue: number
+      consultations: number
+    }>
+    topOrthodontists: Array<{
+      name: string
+      patients: number
+      revenue: number
+      rating: number
+    }>
+    monthlyConsultations: number
+    noShowRate: number
+    averageTreatmentTime: number
+    quarterGoals: {
+      newPatients: {
+        current: number
+        target: number
+        percentage: number
+      }
+      revenue: {
+        current: number
+        target: number
+        percentage: number
+      }
+    }
+  }
+  warning?: string
+  timestamp: string
+}
+
 class ApiService {
   private baseUrl: string
   private requestCache: Map<string, { data: unknown; timestamp: number }> = new Map()
@@ -325,8 +368,8 @@ class ApiService {
   }
 
   // Reports methods
-  async getReports() {
-    return this.request('/system/reports')
+  async getReports(): Promise<ReportsResponse> {
+    return this.request<ReportsResponse>('/system/reports')
   }
 }
 

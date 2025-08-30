@@ -369,7 +369,8 @@ export default function RelatoriosPage() {
             </Card>
           </div>
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      )}
     </div>
   )
 }
