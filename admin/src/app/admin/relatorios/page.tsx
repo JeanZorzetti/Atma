@@ -30,7 +30,7 @@ export default function RelatoriosPage() {
     patientsGrowth: '+0%',
     conversionRate: 0,
     conversionGrowth: '+0%',
-    averageRating: 4.8,
+    averageRating: 0,
     ratingLabel: 'Carregando...'
   }
   return (
