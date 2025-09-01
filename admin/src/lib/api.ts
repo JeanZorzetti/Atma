@@ -125,6 +125,20 @@ export interface ReportsResponse {
   timestamp: string
 }
 
+export interface SettingsResponse {
+  success: boolean
+  data: {
+    settings: {
+      [key: string]: {
+        value: string
+        description: string
+        updated_at: string
+      }
+    }
+  }
+  timestamp: string
+}
+
 class ApiService {
   private baseUrl: string
   private requestCache: Map<string, { data: unknown; timestamp: number }> = new Map()
@@ -380,6 +394,22 @@ class ApiService {
   // Reports methods
   async getReports(): Promise<ReportsResponse> {
     return this.request<ReportsResponse>('/system/reports')
+  }
+
+  // Settings methods
+  async getSettings(): Promise<SettingsResponse> {
+    return this.request<SettingsResponse>('/system/settings')
+  }
+
+  async updateSetting(settingKey: string, settingValue: string, description?: string) {
+    return this.request('/system/settings', {
+      method: 'PUT',
+      body: JSON.stringify({ 
+        setting_key: settingKey, 
+        setting_value: settingValue,
+        description 
+      }),
+    })
   }
 }
 

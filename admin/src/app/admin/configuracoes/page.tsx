@@ -19,13 +19,24 @@ import {
   Save,
   Key,
   Globe,
-  Smartphone
+  Smartphone,
+  Loader2
 } from 'lucide-react'
+import { useSettings } from '@/hooks/useApi'
 
 export default function ConfiguracoesPage() {
+  const { data: settingsData, loading, error } = useSettings()
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [smsNotifications, setSmsNotifications] = useState(false)
   const [autoBackup, setAutoBackup] = useState(true)
+
+  // Extract settings from API response
+  const settings = settingsData?.data?.settings || {}
+  const companyName = settings.email_from_name?.value || 'Atma Aligner'
+  const companyEmail = settings.email_from_address?.value || 'contato@atma.com.br'
+  const adminEmail = settings.admin_email?.value || 'admin@atma.com.br'
+  const maxDistance = settings.max_distance_km?.value || '50'
+  const autoAssignmentEnabled = settings.auto_assignment_enabled?.value === 'true'
 
   return (
     <div className="space-y-6">
@@ -54,26 +65,42 @@ export default function ConfiguracoesPage() {
                 <CardDescription>Configurações básicas da Atma Aligner</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="company-name">Nome da Empresa</Label>
-                  <Input id="company-name" defaultValue="Atma Aligner" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="company-email">Email Principal</Label>
-                  <Input id="company-email" type="email" defaultValue="contato@atma.com.br" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="company-phone">Telefone</Label>
-                  <Input id="company-phone" defaultValue="(11) 3000-0000" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="company-address">Endereço</Label>
-                  <Input id="company-address" defaultValue="São Paulo, SP" />
-                </div>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  <Save className="mr-2 h-4 w-4" />
-                  Salvar Alterações
-                </Button>
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                    <span className="ml-2 text-gray-600">Carregando configurações...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="company-name">Nome da Empresa</Label>
+                      <Input id="company-name" defaultValue={companyName} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="company-email">Email Principal</Label>
+                      <Input id="company-email" type="email" defaultValue={companyEmail} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="admin-email">Email do Administrador</Label>
+                      <Input id="admin-email" type="email" defaultValue={adminEmail} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="company-phone">Telefone</Label>
+                      <Input id="company-phone" defaultValue="(11) 3000-0000" placeholder="Ainda não configurado" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="company-address">Endereço</Label>
+                      <Input id="company-address" defaultValue="São Paulo, SP" placeholder="Ainda não configurado" />
+                    </div>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                      <Save className="mr-2 h-4 w-4" />
+                      Salvar Alterações
+                    </Button>
+                  </>
+                )}
+                {error && (
+                  <p className="text-sm text-red-600">Erro ao carregar configurações: {error}</p>
+                )}
               </CardContent>
             </Card>
 
@@ -86,26 +113,39 @@ export default function ConfiguracoesPage() {
                 <CardDescription>Preferências gerais do sistema</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="timezone">Fuso Horário</Label>
-                  <Input id="timezone" defaultValue="America/Sao_Paulo" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="currency">Moeda</Label>
-                  <Input id="currency" defaultValue="BRL (Real Brasileiro)" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="language">Idioma do Sistema</Label>
-                  <Input id="language" defaultValue="Português (Brasil)" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date-format">Formato de Data</Label>
-                  <Input id="date-format" defaultValue="DD/MM/YYYY" />
-                </div>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  <Save className="mr-2 h-4 w-4" />
-                  Salvar Alterações
-                </Button>
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                    <span className="ml-2 text-gray-600">Carregando...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="max-distance">Distância Máxima (km)</Label>
+                      <Input id="max-distance" type="number" defaultValue={maxDistance} />
+                      <p className="text-sm text-gray-500">Distância máxima para busca de ortodontistas</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-base font-medium">Atribuição Automática</Label>
+                        <p className="text-sm text-gray-500">Atribuir leads automaticamente aos ortodontistas</p>
+                      </div>
+                      <Switch defaultChecked={autoAssignmentEnabled} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="timezone">Fuso Horário</Label>
+                      <Input id="timezone" defaultValue="America/Sao_Paulo" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="currency">Moeda</Label>
+                      <Input id="currency" defaultValue="BRL (Real Brasileiro)" />
+                    </div>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                      <Save className="mr-2 h-4 w-4" />
+                      Salvar Alterações
+                    </Button>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
