@@ -19,7 +19,6 @@ import {
   Phone,
   Mail,
   Calendar,
-  MapPin,
   Building,
   Eye,
   Edit,
@@ -39,7 +38,6 @@ import { CrmFilters } from '@/components/crm/filters'
 import { NewLeadModal } from '@/components/crm/new-lead-modal'
 import { apiService } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
-import type { CrmLead } from '@/lib/api'
 
 export default function CrmLeadsListPage() {
   const [filters, setFilters] = useState({})
@@ -48,7 +46,7 @@ export default function CrmLeadsListPage() {
   const pageSize = 20
   const { toast } = useToast()
   
-  const { data: crmData, loading, error, refetch } = useCrmLeads(
+  const { data: crmData, loading, refetch } = useCrmLeads(
     currentPage, pageSize,
     filters.status,
     filters.responsavel,

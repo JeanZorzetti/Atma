@@ -62,7 +62,7 @@ export default function KanbanPage() {
   const [draggedLead, setDraggedLead] = useState<CrmLead | null>(null)
   const { toast } = useToast()
   
-  const { data: crmData, loading, error, refetch } = useCrmLeads(
+  const { data: crmData, loading, refetch } = useCrmLeads(
     1, 50, 
     filters.status, 
     filters.responsavel, 
