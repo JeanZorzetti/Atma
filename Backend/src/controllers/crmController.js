@@ -4,21 +4,62 @@ const { logger } = require('../utils/logger');
 // GET /api/crm/leads - Listar todos os leads do CRM
 const getCrmLeads = async (req, res, next) => {
   try {
-    // Versão ultra-simples para funcionar
-    const leads = await executeQuery('SELECT * FROM crm_leads ORDER BY created_at DESC LIMIT 10');
+    const { status, responsavel, origem, page = 1, limit = 50, search } = req.query;
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit) || 50), 100);
+    const offset = (pageNum - 1) * limitNum;
+
+    let whereConditions = [];
+    let queryParams = [];
+
+    // Filtros
+    if (status && status !== 'all') {
+      whereConditions.push('status = ?');
+      queryParams.push(status);
+    }
+
+    if (responsavel && responsavel !== 'all') {
+      whereConditions.push('responsavel_comercial = ?');
+      queryParams.push(responsavel);
+    }
+
+    if (origem && origem !== 'all') {
+      whereConditions.push('origem_lead = ?');
+      queryParams.push(origem);
+    }
+
+    if (search) {
+      whereConditions.push('(nome LIKE ? OR clinica LIKE ? OR email LIKE ? OR cro LIKE ?)');
+      const searchTerm = `%${search}%`;
+      queryParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
+    }
+
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    // Query principal com todas as colunas
+    const query = `SELECT * FROM crm_leads ${whereClause} ORDER BY created_at DESC LIMIT ${limitNum} OFFSET ${offset}`;
     
-    logger.info('Query de leads CRM executada com sucesso:', { count: leads.length });
+    // Query de contagem
+    const countQuery = `SELECT COUNT(*) as total FROM crm_leads ${whereClause}`;
+
+    const leads = await executeQuery(query, queryParams);
+    const countResult = await executeQuery(countQuery, queryParams);
+    const total = countResult[0]?.total || 0;
+    
+    const totalPages = Math.ceil(total / limitNum);
+
+    logger.info('Query de leads CRM executada com sucesso:', { count: leads.length, total, filters: { status, responsavel, origem, search } });
 
     res.json({
       success: true,
       leads: leads || [],
-      total: leads.length,
+      total,
       pagination: {
-        currentPage: 1,
-        totalPages: 1,
-        hasNext: false,
-        hasPrev: false,
-        itemsPerPage: 10
+        currentPage: pageNum,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
+        itemsPerPage: limitNum
       },
       timestamp: new Date().toISOString()
     });
@@ -387,9 +428,130 @@ const migrateLeadToPpartnership = async (req, res, next) => {
   }
 };
 
+// POST /api/crm/leads - Criar novo lead
+const createCrmLead = async (req, res, next) => {
+  try {
+    const {
+      nome,
+      clinica,
+      cro,
+      email,
+      telefone,
+      cep,
+      cidade,
+      estado,
+      consultórios,
+      scanner,
+      scanner_marca,
+      casos_mes,
+      interesse,
+      responsavel_comercial,
+      origem_lead = 'outbound',
+      observacoes_internas
+    } = req.body;
+
+    // Validação básica
+    if (!nome || !clinica || !cro || !email || !telefone) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Campos obrigatórios: nome, clinica, cro, email, telefone' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Verificar se CRO já existe
+    const existingLead = await executeQuery('SELECT id FROM crm_leads WHERE cro = ?', [cro]);
+    if (existingLead.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Já existe um lead com este CRO' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const insertQuery = `
+      INSERT INTO crm_leads (
+        nome, clinica, cro, email, telefone, cep, cidade, estado,
+        consultórios, scanner, scanner_marca, casos_mes, interesse,
+        responsavel_comercial, origem_lead, observacoes_internas
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const result = await executeQuery(insertQuery, [
+      nome, clinica, cro, email, telefone, cep, cidade, estado,
+      consultórios, scanner, scanner_marca, casos_mes, interesse,
+      responsavel_comercial, origem_lead, observacoes_internas
+    ]);
+
+    // Registrar atividade
+    const activityQuery = `
+      INSERT INTO crm_activities (crm_lead_id, tipo, titulo, descricao, usuario)
+      VALUES (?, 'mudanca_status', 'Lead criado', 'Novo lead adicionado ao sistema', ?)
+    `;
+    await executeQuery(activityQuery, [result.insertId, responsavel_comercial || 'Sistema']);
+
+    logger.info(`Novo lead CRM criado: ${nome} (${cro})`);
+
+    res.status(201).json({
+      success: true,
+      message: 'Lead criado com sucesso',
+      leadId: result.insertId,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao criar lead CRM:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro ao criar lead', details: error.message },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
+// GET /api/crm/leads/:id - Buscar lead específico
+const getCrmLead = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const lead = await executeQuery('SELECT * FROM crm_leads WHERE id = ?', [id]);
+    
+    if (!lead.length) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Lead não encontrado' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Buscar atividades do lead
+    const activities = await executeQuery(
+      'SELECT * FROM crm_activities WHERE crm_lead_id = ? ORDER BY created_at DESC',
+      [id]
+    );
+
+    res.json({
+      success: true,
+      lead: lead[0],
+      activities: activities || [],
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao buscar lead CRM:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro ao buscar lead', details: error.message },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   getCrmLeads,
   getCrmStats,
   updateLeadStatus,
-  migrateLeadToPpartnership
+  migrateLeadToPpartnership,
+  createCrmLead,
+  getCrmLead
 };
