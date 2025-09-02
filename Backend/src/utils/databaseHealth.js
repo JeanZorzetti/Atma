@@ -10,7 +10,9 @@ const checkEssentialTables = async () => {
     'orthodontists',
     'orthodontist_partnerships',
     'email_logs',
-    'system_settings'
+    'system_settings',
+    'crm_leads',
+    'crm_activities'
   ];
 
   const results = {};
@@ -99,6 +101,62 @@ const createBasicTables = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         
         INDEX idx_setting_key (setting_key)
+      )
+    `,
+    crm_leads: `
+      CREATE TABLE IF NOT EXISTS crm_leads (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        nome VARCHAR(255) NOT NULL,
+        clinica VARCHAR(255) NOT NULL,
+        cro VARCHAR(50) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        telefone VARCHAR(20) NOT NULL,
+        cep VARCHAR(10) NULL,
+        cidade VARCHAR(100) NULL,
+        estado VARCHAR(2) NULL,
+        endereco_completo TEXT NULL,
+        consultórios ENUM('1', '2-3', '4-5', '6+') NULL,
+        scanner ENUM('sim', 'nao') NULL,
+        scanner_marca VARCHAR(100) NULL,
+        casos_mes ENUM('1-5', '6-10', '11-20', '21+') NULL,
+        interesse ENUM('atma-aligner', 'atma-labs', 'ambos') NULL,
+        status ENUM('prospeccao', 'contato_inicial', 'apresentacao', 'negociacao') DEFAULT 'prospeccao',
+        responsavel_comercial VARCHAR(255) NULL,
+        origem_lead ENUM('inbound', 'outbound', 'indicacao', 'evento', 'outro') DEFAULT 'outbound',
+        primeira_interacao TEXT NULL,
+        observacoes_internas TEXT NULL,
+        próximo_followup DATETIME NULL,
+        data_prospeccao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        data_contato_inicial TIMESTAMP NULL,
+        data_apresentacao TIMESTAMP NULL,
+        data_negociacao TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        INDEX idx_status (status),
+        INDEX idx_responsavel (responsavel_comercial),
+        INDEX idx_created_at (created_at),
+        INDEX idx_próximo_followup (próximo_followup)
+      )
+    `,
+    crm_activities: `
+      CREATE TABLE IF NOT EXISTS crm_activities (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        crm_lead_id INT NOT NULL,
+        tipo ENUM('ligacao', 'email', 'reuniao', 'apresentacao', 'proposta', 'followup', 'mudanca_status') NOT NULL,
+        titulo VARCHAR(255) NOT NULL,
+        descricao TEXT NULL,
+        status_anterior ENUM('prospeccao', 'contato_inicial', 'apresentacao', 'negociacao') NULL,
+        status_novo ENUM('prospeccao', 'contato_inicial', 'apresentacao', 'negociacao') NULL,
+        usuario VARCHAR(255) NOT NULL,
+        agendada_para DATETIME NULL,
+        concluida_em DATETIME NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        
+        FOREIGN KEY (crm_lead_id) REFERENCES crm_leads(id) ON DELETE CASCADE,
+        INDEX idx_lead_id (crm_lead_id),
+        INDEX idx_tipo (tipo),
+        INDEX idx_agendada_para (agendada_para)
       )
     `
   };
