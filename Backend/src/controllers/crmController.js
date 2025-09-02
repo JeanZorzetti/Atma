@@ -217,6 +217,8 @@ const updateLeadStatus = async (req, res, next) => {
     const { id } = req.params;
     const { status, observacoes } = req.body;
 
+    console.log('updateLeadStatus - params:', { id, status, observacoes });
+
     const validStatuses = ['prospeccao', 'contato_inicial', 'apresentacao', 'negociacao'];
     
     if (!validStatuses.includes(status)) {
@@ -245,7 +247,9 @@ const updateLeadStatus = async (req, res, next) => {
       WHERE id = ?
     `;
 
-    await executeQuery(updateQuery, [status, observacoes || null, id]);
+    const queryParams = [status, observacoes || null, parseInt(id)];
+    console.log('updateQuery params:', queryParams);
+    await executeQuery(updateQuery, queryParams);
 
     // Registrar atividade
     const activityQuery = `
@@ -256,7 +260,9 @@ const updateLeadStatus = async (req, res, next) => {
     const activityTitle = `Status alterado para: ${status}`;
     const activityDesc = observacoes || `Lead movido para etapa ${status}`;
 
-    await executeQuery(activityQuery, [id, activityTitle, activityDesc]);
+    const activityParams = [parseInt(id), activityTitle, activityDesc];
+    console.log('activityQuery params:', activityParams);
+    await executeQuery(activityQuery, activityParams);
 
     logger.info(`Status do lead ${id} atualizado para ${status}`);
 
