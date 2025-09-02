@@ -245,7 +245,7 @@ const updateLeadStatus = async (req, res, next) => {
       WHERE id = ?
     `;
 
-    await executeQuery(updateQuery, [status, observacoes, id]);
+    await executeQuery(updateQuery, [status, observacoes || null, id]);
 
     // Registrar atividade
     const activityQuery = `
