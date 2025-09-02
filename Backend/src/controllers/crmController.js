@@ -237,19 +237,24 @@ const updateLeadStatus = async (req, res, next) => {
       'negociacao': 'data_negociacao'
     }[status];
 
-    // Atualizar o lead
+    // Atualizar o lead - query básica primeiro
     const updateQuery = `
       UPDATE crm_leads 
       SET status = ?, 
           ${timestampField} = CASE WHEN ${timestampField} IS NULL THEN NOW() ELSE ${timestampField} END,
-          observacoes_internas = CASE WHEN ? IS NOT NULL THEN ? ELSE observacoes_internas END,
           updated_at = NOW()
       WHERE id = ?
     `;
 
-    const queryParams = [status, observacoes || null, observacoes || null, parseInt(id)];
+    const queryParams = [status, parseInt(id)];
     console.log('updateQuery params:', queryParams);
     await executeQuery(updateQuery, queryParams);
+
+    // Atualizar observações separadamente se fornecidas
+    if (observacoes) {
+      const obsQuery = `UPDATE crm_leads SET observacoes_internas = ? WHERE id = ?`;
+      await executeQuery(obsQuery, [observacoes, parseInt(id)]);
+    }
 
     // Registrar atividade
     const activityQuery = `
