@@ -289,8 +289,13 @@ const executeQuery = async (query, params = [], retryCount = 0) => {
 
     let results;
     try {
+      // Filter out undefined values from params to prevent MySQL errors
+      const cleanParams = params.map(param => param === undefined ? null : param);
+      console.log('executeQuery - original params:', params);
+      console.log('executeQuery - clean params:', cleanParams);
+      
       // Execute query with timeout
-      const queryPromise = connection.execute(query, params);
+      const queryPromise = connection.execute(query, cleanParams);
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Query timeout')), 60000)
       );
