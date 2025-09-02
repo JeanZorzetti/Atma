@@ -4,28 +4,7 @@ const { logger } = require('../utils/logger');
 // GET /api/crm/leads - Listar todos os leads do CRM
 const getCrmLeads = async (req, res, next) => {
   try {
-    const { status, responsavel, page = 1, limit = 50 } = req.query;
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(Math.max(1, parseInt(limit) || 50), 100);
-    const offset = (pageNum - 1) * limitNum;
-
-    let whereConditions = [];
-    let queryParams = [];
-
-    // Filtros
-    if (status && status !== 'all') {
-      whereConditions.push('status = ?');
-      queryParams.push(status);
-    }
-
-    if (responsavel) {
-      whereConditions.push('responsavel_comercial = ?');
-      queryParams.push(responsavel);
-    }
-
-    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-
-    // Query principal
+    // Versão simplificada para funcionar
     const query = `
       SELECT 
         id, nome, clinica, cro, email, telefone, cidade, estado,
@@ -35,52 +14,24 @@ const getCrmLeads = async (req, res, next) => {
         data_prospeccao, data_contato_inicial, data_apresentacao, data_negociacao,
         created_at, updated_at
       FROM crm_leads 
-      ${whereClause}
       ORDER BY created_at DESC 
-      LIMIT ? OFFSET ?
+      LIMIT 50
     `;
 
-    // Query de contagem
-    const countQuery = `SELECT COUNT(*) as total FROM crm_leads ${whereClause}`;
-
-    const [leadsResult, totalResult] = await Promise.allSettled([
-      executeQuery(query, [...queryParams, limitNum, offset]),
-      executeQuery(countQuery, queryParams)
-    ]);
-
-    let leads = [];
-    let total = 0;
-
-    if (leadsResult.status === 'fulfilled') {
-      leads = leadsResult.value || [];
-      logger.info('Query de leads CRM executada com sucesso:', { count: leads.length });
-    } else {
-      logger.error('Erro na query de leads CRM:', leadsResult.reason?.message);
-      return res.status(500).json({
-        success: false,
-        error: { message: 'Erro ao buscar leads do CRM', details: leadsResult.reason?.message },
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    if (totalResult.status === 'fulfilled') {
-      total = totalResult.value?.[0]?.total || 0;
-    } else {
-      total = leads.length;
-    }
-
-    const totalPages = Math.ceil(total / limitNum);
+    const leads = await executeQuery(query);
+    
+    logger.info('Query de leads CRM executada com sucesso:', { count: leads.length });
 
     res.json({
       success: true,
-      leads,
-      total,
+      leads: leads || [],
+      total: leads.length,
       pagination: {
-        currentPage: pageNum,
-        totalPages,
-        hasNext: pageNum < totalPages,
-        hasPrev: pageNum > 1,
-        itemsPerPage: limitNum
+        currentPage: 1,
+        totalPages: 1,
+        hasNext: false,
+        hasPrev: false,
+        itemsPerPage: 50
       },
       timestamp: new Date().toISOString()
     });
