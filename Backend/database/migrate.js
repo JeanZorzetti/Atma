@@ -45,8 +45,8 @@ async function runMigrations() {
     connection = await mysql.createConnection(dbConfig);
     logger.info('🔌 Conectado ao MySQL para executar migrações');
     
-    // Ler arquivo schema.sql
-    const schemaPath = path.join(__dirname, 'schema.sql');
+    // Ler arquivo combined_schema.sql
+    const schemaPath = path.join(__dirname, 'combined_schema.sql');
     const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
     
     // Dividir o arquivo em statements individuais

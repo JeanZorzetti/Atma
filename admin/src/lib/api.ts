@@ -139,6 +139,74 @@ export interface SettingsResponse {
   timestamp: string
 }
 
+export interface CrmLead {
+  id: number
+  nome: string
+  clinica: string
+  cro: string
+  email: string
+  telefone: string
+  cidade?: string
+  estado?: string
+  consultórios?: string
+  scanner?: 'sim' | 'nao'
+  scanner_marca?: string
+  casos_mes?: string
+  interesse?: 'atma-aligner' | 'atma-labs' | 'ambos'
+  status: 'prospeccao' | 'contato_inicial' | 'apresentacao' | 'negociacao'
+  responsavel_comercial?: string
+  origem_lead?: 'inbound' | 'outbound' | 'indicacao' | 'evento' | 'outro'
+  observacoes_internas?: string
+  próximo_followup?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface CrmLeadsResponse {
+  success: boolean
+  leads: CrmLead[]
+  total: number
+  pagination: {
+    currentPage: number
+    totalPages: number
+    hasNext: boolean
+    hasPrev: boolean
+    itemsPerPage: number
+  }
+  timestamp: string
+}
+
+export interface CrmStatsResponse {
+  success: boolean
+  data: {
+    pipeline: {
+      prospeccao: number
+      contato_inicial: number
+      apresentacao: number
+      negociacao: number
+      fechado: number
+    }
+    conversion_rates: {
+      prospeccao_to_contato: string
+      contato_to_apresentacao: string
+      apresentacao_to_negociacao: string
+      negociacao_to_fechado: string
+      overall: string
+    }
+    by_responsavel: { [key: string]: number }
+    by_origem: { [key: string]: number }
+    tempo_medio_dias: {
+      prospeccao: number
+      contato: number
+      apresentacao: number
+    }
+    total_leads_crm: number
+    total_fechados: number
+    total_geral: number
+  }
+  timestamp: string
+}
+
 class ApiService {
   private baseUrl: string
   private requestCache: Map<string, { data: unknown; timestamp: number }> = new Map()
@@ -409,6 +477,29 @@ class ApiService {
         setting_value: settingValue,
         description 
       }),
+    })
+  }
+
+  // CRM methods
+  async getCrmLeads(page = 1, limit = 50, status?: string, responsavel?: string): Promise<CrmLeadsResponse> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    })
+    if (status) params.append('status', status)
+    if (responsavel) params.append('responsavel', responsavel)
+    
+    return this.request<CrmLeadsResponse>(`/crm/leads?${params.toString()}`)
+  }
+
+  async getCrmStats(): Promise<CrmStatsResponse> {
+    return this.request<CrmStatsResponse>('/crm/stats')
+  }
+
+  async updateLeadStatus(id: number, status: string, observacoes?: string) {
+    return this.request(`/crm/leads/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status, observacoes }),
     })
   }
 }

@@ -17,84 +17,45 @@ import {
   Stethoscope
 } from 'lucide-react'
 import Link from 'next/link'
+import { useCrmLeads } from '@/hooks/useApi'
+import type { CrmLead } from '@/lib/api'
 
-interface Orthodontist {
-  id: number
-  nome: string
-  clinica: string
-  cro: string
-  email: string
-  telefone: string
-  consultórios: string
-  casos_mes: string
-  interesse: string
-  responsavel_comercial?: string
-  created_at: string
-}
 
-const mockOrthodontists: Orthodontist[] = [
-  {
-    id: 1,
-    nome: "Dr. João Silva",
-    clinica: "Clínica OrthoSmile",
-    cro: "CRO-SP 12345",
-    email: "joao@orthosmile.com.br",
-    telefone: "(11) 9999-8888",
-    consultórios: "2-3",
-    casos_mes: "11-20",
-    interesse: "atma-aligner",
-    responsavel_comercial: "Maria Santos",
-    created_at: "2024-01-15"
-  },
-  {
-    id: 2,
-    nome: "Dra. Ana Costa",
-    clinica: "Costa Ortodontia",
-    cro: "CRO-RJ 67890",
-    email: "ana@costaorotdontia.com.br", 
-    telefone: "(21) 8888-7777",
-    consultórios: "4-5",
-    casos_mes: "21+",
-    interesse: "atma-labs",
-    created_at: "2024-01-10"
-  }
-]
-
-const columns = [
+const getColumns = (leads: CrmLead[]) => [
   { 
-    id: 'novo', 
+    id: 'prospeccao', 
     title: 'Prospecção', 
     color: 'bg-gray-100 border-gray-300',
-    count: 2 
+    count: leads.filter(l => l.status === 'prospeccao').length,
+    leads: leads.filter(l => l.status === 'prospeccao')
   },
   { 
-    id: 'analisando', 
+    id: 'contato_inicial', 
     title: 'Contato Inicial', 
     color: 'bg-blue-50 border-blue-200',
-    count: 0 
+    count: leads.filter(l => l.status === 'contato_inicial').length,
+    leads: leads.filter(l => l.status === 'contato_inicial')
   },
   { 
-    id: 'proposta-enviada', 
+    id: 'apresentacao', 
     title: 'Apresentação', 
     color: 'bg-yellow-50 border-yellow-200',
-    count: 0 
+    count: leads.filter(l => l.status === 'apresentacao').length,
+    leads: leads.filter(l => l.status === 'apresentacao')
   },
   { 
     id: 'negociacao', 
     title: 'Negociação', 
     color: 'bg-orange-50 border-orange-200',
-    count: 0 
-  },
-  { 
-    id: 'fechado', 
-    title: 'Fechado', 
-    color: 'bg-green-50 border-green-200',
-    count: 0 
+    count: leads.filter(l => l.status === 'negociacao').length,
+    leads: leads.filter(l => l.status === 'negociacao')
   }
 ]
 
 export default function KanbanPage() {
-  const [orthodontists] = useState<Orthodontist[]>(mockOrthodontists)
+  const { data: crmData, loading, error } = useCrmLeads()
+  const leads = crmData?.leads || []
+  const columns = getColumns(leads)
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase()
@@ -147,80 +108,117 @@ export default function KanbanPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                {column.id === 'novo' && orthodontists.map((orthodontist) => (
-                  <Card key={orthodontist.id} className="bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
-                        {/* Header do Card */}
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-blue-100 text-blue-800 text-sm font-semibold">
-                                {getInitials(orthodontist.nome)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h3 className="font-semibold text-sm">{orthodontist.nome}</h3>
-                              <p className="text-xs text-gray-600">{orthodontist.cro}</p>
+                {loading ? (
+                  <div className="space-y-3">
+                    {[...Array(2)].map((_, i) => (
+                      <Card key={i} className="bg-white animate-pulse">
+                        <CardContent className="p-4">
+                          <div className="space-y-3">
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                                <div>
+                                  <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+                                  <div className="h-3 bg-gray-200 rounded w-16"></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="h-4 bg-gray-200 rounded w-32"></div>
+                            <div className="space-y-1">
+                              <div className="h-3 bg-gray-200 rounded w-28"></div>
+                              <div className="h-3 bg-gray-200 rounded w-24"></div>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                            <MoreVertical className="h-3 w-3" />
-                          </Button>
-                        </div>
-
-                        {/* Clínica */}
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Building className="h-4 w-4" />
-                          <span className="truncate">{orthodontist.clinica}</span>
-                        </div>
-
-                        {/* Perfil comercial */}
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <MapPin className="h-3 w-3" />
-                            <span>{orthodontist.consultórios} consultórios</span>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-8 text-red-500">
+                    <div className="text-sm">Erro ao carregar leads</div>
+                  </div>
+                ) : (
+                  column.leads?.map((lead) => (
+                    <Card key={lead.id} className="bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          {/* Header do Card */}
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-blue-100 text-blue-800 text-sm font-semibold">
+                                  {getInitials(lead.nome)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <h3 className="font-semibold text-sm">{lead.nome}</h3>
+                                <p className="text-xs text-gray-600">{lead.cro}</p>
+                              </div>
+                            </div>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                              <MoreVertical className="h-3 w-3" />
+                            </Button>
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <Stethoscope className="h-3 w-3" />
-                            <span>{orthodontist.casos_mes} casos/mês</span>
-                          </div>
-                        </div>
 
-                        {/* Tags */}
-                        <div className="flex items-center gap-2">
-                          {getInterestBadge(orthodontist.interesse)}
-                          {orthodontist.responsavel_comercial && (
-                            <Badge variant="outline" className="text-xs">
-                              {orthodontist.responsavel_comercial}
-                            </Badge>
+                          {/* Clínica */}
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Building className="h-4 w-4" />
+                            <span className="truncate">{lead.clinica}</span>
+                          </div>
+
+                          {/* Perfil comercial */}
+                          {(lead.consultórios || lead.casos_mes) && (
+                            <div className="space-y-1">
+                              {lead.consultórios && (
+                                <div className="flex items-center gap-2 text-xs text-gray-500">
+                                  <MapPin className="h-3 w-3" />
+                                  <span>{lead.consultórios} consultórios</span>
+                                </div>
+                              )}
+                              {lead.casos_mes && (
+                                <div className="flex items-center gap-2 text-xs text-gray-500">
+                                  <Stethoscope className="h-3 w-3" />
+                                  <span>{lead.casos_mes} casos/mês</span>
+                                </div>
+                              )}
+                            </div>
                           )}
-                        </div>
 
-                        {/* Ações */}
-                        <div className="flex items-center justify-between pt-2 border-t">
-                          <div className="flex gap-1">
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                              <Phone className="h-3 w-3" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                              <Mail className="h-3 w-3" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                              <Calendar className="h-3 w-3" />
-                            </Button>
+                          {/* Tags */}
+                          <div className="flex items-center gap-2">
+                            {lead.interesse && getInterestBadge(lead.interesse)}
+                            {lead.responsavel_comercial && (
+                              <Badge variant="outline" className="text-xs">
+                                {lead.responsavel_comercial}
+                              </Badge>
+                            )}
                           </div>
-                          <span className="text-xs text-gray-400">
-                            {new Date(orthodontist.created_at).toLocaleDateString('pt-BR')}
-                          </span>
+
+                          {/* Ações */}
+                          <div className="flex items-center justify-between pt-2 border-t">
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                <Phone className="h-3 w-3" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                <Mail className="h-3 w-3" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                <Calendar className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <span className="text-xs text-gray-400">
+                              {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
 
                 {/* Placeholder para colunas vazias */}
-                {column.id !== 'novo' && column.count === 0 && (
+                {!loading && !error && column.count === 0 && (
                   <div className="text-center py-8 text-gray-400">
                     <div className="text-sm">Arraste cards aqui</div>
                   </div>

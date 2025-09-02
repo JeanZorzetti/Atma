@@ -15,8 +15,63 @@ import {
   Search
 } from 'lucide-react'
 import Link from 'next/link'
+import { useCrmStats } from '@/hooks/useApi'
 
 export default function CRMPage() {
+  const { data: stats, loading, error } = useCrmStats()
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">CRM B2B</h1>
+            <p className="text-gray-600 mt-2">Gerencie o pipeline de captação de ortodontistas</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="h-4 bg-gray-200 rounded w-24"></div>
+                <div className="h-4 w-4 bg-gray-200 rounded"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 bg-gray-200 rounded w-16 mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-32"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">CRM B2B</h1>
+            <p className="text-gray-600 mt-2">Gerencie o pipeline de captação de ortodontistas</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-red-600">Erro ao carregar estatísticas do CRM: {error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const crmData = stats?.data || {
+    pipeline: { prospeccao: 0, contato_inicial: 0, apresentacao: 0, negociacao: 0, fechado: 0 },
+    conversion_rates: { overall: '0.0' },
+    total_leads_crm: 0,
+    total_fechados: 0
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -44,7 +99,7 @@ export default function CRMPage() {
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{crmData.total_leads_crm}</div>
             <p className="text-xs text-gray-600">Ortodontistas no pipeline</p>
           </CardContent>
         </Card>
@@ -55,7 +110,7 @@ export default function CRMPage() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0%</div>
+            <div className="text-2xl font-bold">{crmData.conversion_rates.overall}%</div>
             <p className="text-xs text-gray-600">Fechamentos vs leads</p>
           </CardContent>
         </Card>
@@ -66,7 +121,7 @@ export default function CRMPage() {
             <Target className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{crmData.pipeline.negociacao}</div>
             <p className="text-xs text-gray-600">Propostas ativas</p>
           </CardContent>
         </Card>
@@ -77,7 +132,7 @@ export default function CRMPage() {
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{crmData.total_fechados}</div>
             <p className="text-xs text-gray-600">Parcerias fechadas</p>
           </CardContent>
         </Card>

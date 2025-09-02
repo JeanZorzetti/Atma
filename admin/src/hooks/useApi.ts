@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { apiService, PatientsResponse, OrthodontistsResponse, SystemStatsResponse, QuickActionsResponse, ReportsResponse, SettingsResponse } from '@/lib/api'
+import { apiService, PatientsResponse, OrthodontistsResponse, SystemStatsResponse, QuickActionsResponse, ReportsResponse, SettingsResponse, CrmLeadsResponse, CrmStatsResponse } from '@/lib/api'
 
 export function useApi<T>(
   apiCall: () => Promise<T>,
@@ -120,4 +120,14 @@ export function useReports() {
 export function useSettings() {
   const getSettings = useCallback(() => apiService.getSettings(), [])
   return useApi<SettingsResponse>(getSettings, [])
+}
+
+export function useCrmLeads(status?: string, responsavel?: string) {
+  const getCrmLeads = useCallback(() => apiService.getCrmLeads(1, 50, status, responsavel), [status, responsavel])
+  return useApi<CrmLeadsResponse>(getCrmLeads, [status, responsavel])
+}
+
+export function useCrmStats() {
+  const getCrmStats = useCallback(() => apiService.getCrmStats(), [])
+  return useApi<CrmStatsResponse>(getCrmStats, [])
 }
