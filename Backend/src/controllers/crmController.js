@@ -241,13 +241,13 @@ const updateLeadStatus = async (req, res, next) => {
     const updateQuery = `
       UPDATE crm_leads 
       SET status = ?, 
-          ${timestampField} = COALESCE(${timestampField}, NOW()),
-          observacoes_internas = COALESCE(?, observacoes_internas),
+          ${timestampField} = CASE WHEN ${timestampField} IS NULL THEN NOW() ELSE ${timestampField} END,
+          observacoes_internas = CASE WHEN ? IS NOT NULL THEN ? ELSE observacoes_internas END,
           updated_at = NOW()
       WHERE id = ?
     `;
 
-    const queryParams = [status, observacoes || null, parseInt(id)];
+    const queryParams = [status, observacoes || null, observacoes || null, parseInt(id)];
     console.log('updateQuery params:', queryParams);
     await executeQuery(updateQuery, queryParams);
 
