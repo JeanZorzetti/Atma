@@ -1,5 +1,5 @@
 const { executeQuery } = require('../config/database');
-const logger = require('../utils/logger');
+const { logger } = require('../utils/logger');
 
 // GET /api/crm/leads - Listar todos os leads do CRM
 const getCrmLeads = async (req, res, next) => {
