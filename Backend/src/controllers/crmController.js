@@ -4,21 +4,8 @@ const { logger } = require('../utils/logger');
 // GET /api/crm/leads - Listar todos os leads do CRM
 const getCrmLeads = async (req, res, next) => {
   try {
-    // Versão simplificada para funcionar
-    const query = `
-      SELECT 
-        id, nome, clinica, cro, email, telefone, cidade, estado,
-        consultórios, scanner, scanner_marca, casos_mes, interesse,
-        status, responsavel_comercial, origem_lead,
-        observacoes_internas, próximo_followup,
-        data_prospeccao, data_contato_inicial, data_apresentacao, data_negociacao,
-        created_at, updated_at
-      FROM crm_leads 
-      ORDER BY created_at DESC 
-      LIMIT 50
-    `;
-
-    const leads = await executeQuery(query);
+    // Versão ultra-simples para funcionar
+    const leads = await executeQuery('SELECT * FROM crm_leads ORDER BY created_at DESC LIMIT 10');
     
     logger.info('Query de leads CRM executada com sucesso:', { count: leads.length });
 
@@ -31,7 +18,7 @@ const getCrmLeads = async (req, res, next) => {
         totalPages: 1,
         hasNext: false,
         hasPrev: false,
-        itemsPerPage: 50
+        itemsPerPage: 10
       },
       timestamp: new Date().toISOString()
     });
