@@ -230,8 +230,17 @@ const updateLeadStatus = async (req, res, next) => {
     }
 
     // Query mais simples possível para debug
+    const leadId = parseInt(id);
+    if (isNaN(leadId)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'ID inválido' },
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     const updateQuery = `UPDATE crm_leads SET status = ?, updated_at = NOW() WHERE id = ?`;
-    const queryParams = [status, parseInt(id)];
+    const queryParams = [status, leadId];
     console.log('Simple query params:', queryParams);
     
     await executeQuery(updateQuery, queryParams);
