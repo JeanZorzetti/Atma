@@ -215,9 +215,9 @@ const getCrmStats = async (req, res, next) => {
 const updateLeadStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { status, observacoes } = req.body;
+    const { status } = req.body;
 
-    console.log('updateLeadStatus - params:', { id, status, observacoes });
+    console.log('Simple updateLeadStatus - params:', { id, status });
 
     const validStatuses = ['prospeccao', 'contato_inicial', 'apresentacao', 'negociacao'];
     
@@ -229,60 +229,29 @@ const updateLeadStatus = async (req, res, next) => {
       });
     }
 
-    // Determinar qual campo de timestamp atualizar
-    const timestampField = {
-      'prospeccao': 'data_prospeccao',
-      'contato_inicial': 'data_contato_inicial', 
-      'apresentacao': 'data_apresentacao',
-      'negociacao': 'data_negociacao'
-    }[status];
-
-    // Atualizar o lead - query básica primeiro
-    const updateQuery = `
-      UPDATE crm_leads 
-      SET status = ?, 
-          ${timestampField} = CASE WHEN ${timestampField} IS NULL THEN NOW() ELSE ${timestampField} END,
-          updated_at = NOW()
-      WHERE id = ?
-    `;
-
+    // Query mais simples possível para debug
+    const updateQuery = `UPDATE crm_leads SET status = ?, updated_at = NOW() WHERE id = ?`;
     const queryParams = [status, parseInt(id)];
-    console.log('updateQuery params:', queryParams);
+    console.log('Simple query params:', queryParams);
+    
     await executeQuery(updateQuery, queryParams);
-
-    // Atualizar observações separadamente se fornecidas
-    if (observacoes) {
-      const obsQuery = `UPDATE crm_leads SET observacoes_internas = ? WHERE id = ?`;
-      await executeQuery(obsQuery, [observacoes, parseInt(id)]);
-    }
-
-    // Registrar atividade
-    const activityQuery = `
-      INSERT INTO crm_activities (crm_lead_id, tipo, titulo, descricao, usuario)
-      VALUES (?, 'mudanca_status', ?, ?, 'Sistema')
-    `;
-
-    const activityTitle = `Status alterado para: ${status}`;
-    const activityDesc = observacoes || `Lead movido para etapa ${status}`;
-
-    const activityParams = [parseInt(id), activityTitle, activityDesc];
-    console.log('activityQuery params:', activityParams);
-    await executeQuery(activityQuery, activityParams);
-
-    logger.info(`Status do lead ${id} atualizado para ${status}`);
+    console.log('Query executed successfully');
 
     res.json({
       success: true,
       message: 'Status atualizado com sucesso',
-      data: { id, status, timestamp: new Date().toISOString() },
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
     logger.error('Erro ao atualizar status do lead:', error);
+    console.error('Full error details:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Erro ao atualizar status', details: error.message },
+      error: { 
+        message: 'Erro ao atualizar status',
+        details: error.message 
+      },
       timestamp: new Date().toISOString()
     });
   }
