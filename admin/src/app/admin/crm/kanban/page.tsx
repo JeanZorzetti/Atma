@@ -18,6 +18,10 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useCrmLeads } from '@/hooks/useApi'
+import { CrmFilters } from '@/components/crm/filters'
+import { NewLeadModal } from '@/components/crm/new-lead-modal'
+import { apiService } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
 import type { CrmLead } from '@/lib/api'
 
 
@@ -53,12 +57,70 @@ const getColumns = (leads: CrmLead[]) => [
 ]
 
 export default function KanbanPage() {
-  const { data: crmData, loading, error } = useCrmLeads()
+  const [filters, setFilters] = useState({})
+  const [showNewLeadModal, setShowNewLeadModal] = useState(false)
+  const [draggedLead, setDraggedLead] = useState<CrmLead | null>(null)
+  const { toast } = useToast()
+  
+  const { data: crmData, loading, error, refetch } = useCrmLeads(
+    1, 50, 
+    filters.status, 
+    filters.responsavel, 
+    filters.origem, 
+    filters.search
+  )
   const leads = crmData?.leads || []
   const columns = getColumns(leads)
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase()
+  }
+
+  // Funções de Drag & Drop
+  const handleDragStart = (e: React.DragEvent, lead: CrmLead) => {
+    setDraggedLead(lead)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDrop = async (e: React.DragEvent, newStatus: string) => {
+    e.preventDefault()
+    
+    if (!draggedLead || draggedLead.status === newStatus) {
+      setDraggedLead(null)
+      return
+    }
+
+    try {
+      await apiService.updateLeadStatus(draggedLead.id, newStatus)
+      toast({
+        title: 'Status atualizado!',
+        description: `Lead movido para ${getStatusLabel(newStatus)}.`,
+      })
+      refetch() // Recarregar dados
+    } catch (error) {
+      toast({
+        title: 'Erro ao atualizar',
+        description: 'Não foi possível mover o lead.',
+        variant: 'destructive'
+      })
+    }
+    
+    setDraggedLead(null)
+  }
+
+  const getStatusLabel = (status: string) => {
+    const labels = {
+      'prospeccao': 'Prospecção',
+      'contato_inicial': 'Contato Inicial',
+      'apresentacao': 'Apresentação',
+      'negociacao': 'Negociação'
+    }
+    return labels[status as keyof typeof labels] || status
   }
 
   const getInterestBadge = (interesse: string) => {
@@ -86,11 +148,20 @@ export default function KanbanPage() {
             <p className="text-gray-600">Gerencie o funil de captação de ortodontistas</p>
           </div>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => setShowNewLeadModal(true)}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Novo Lead
         </Button>
       </div>
+
+      {/* Filtros */}
+      <CrmFilters 
+        activeFilters={filters}
+        onFiltersChange={setFilters}
+      />
 
       {/* Kanban Board */}
       <div className="flex gap-6 overflow-x-auto pb-4">
@@ -107,7 +178,11 @@ export default function KanbanPage() {
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent 
+                className="space-y-3"
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, column.id)}
+              >
                 {loading ? (
                   <div className="space-y-3">
                     {[...Array(2)].map((_, i) => (
@@ -139,7 +214,14 @@ export default function KanbanPage() {
                   </div>
                 ) : (
                   column.leads?.map((lead) => (
-                    <Card key={lead.id} className="bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                    <Card 
+                      key={lead.id} 
+                      className={`bg-white shadow-sm hover:shadow-md transition-all cursor-move ${
+                        draggedLead?.id === lead.id ? 'opacity-50 transform rotate-3' : ''
+                      }`}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, lead)}
+                    >
                       <CardContent className="p-4">
                         <div className="space-y-3">
                           {/* Header do Card */}
@@ -229,6 +311,7 @@ export default function KanbanPage() {
                   variant="ghost" 
                   className="w-full border-2 border-dashed border-gray-300 hover:border-gray-400 text-gray-500 hover:text-gray-700"
                   size="sm"
+                  onClick={() => setShowNewLeadModal(true)}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Adicionar Lead
@@ -238,6 +321,15 @@ export default function KanbanPage() {
           </div>
         ))}
       </div>
+
+      {/* Modal de Novo Lead */}
+      <NewLeadModal 
+        open={showNewLeadModal}
+        onOpenChange={setShowNewLeadModal}
+        onSuccess={() => {
+          refetch() // Atualiza os leads
+        }}
+      />
     </div>
   )
 }

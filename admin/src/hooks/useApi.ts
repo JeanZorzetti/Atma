@@ -122,9 +122,9 @@ export function useSettings() {
   return useApi<SettingsResponse>(getSettings, [])
 }
 
-export function useCrmLeads(status?: string, responsavel?: string) {
-  const getCrmLeads = useCallback(() => apiService.getCrmLeads(1, 50, status, responsavel), [status, responsavel])
-  return useApi<CrmLeadsResponse>(getCrmLeads, [status, responsavel])
+export function useCrmLeads(page = 1, limit = 50, status?: string, responsavel?: string, origem?: string, search?: string) {
+  const getCrmLeads = useCallback(() => apiService.getCrmLeads(page, limit, status, responsavel, origem, search), [page, limit, status, responsavel, origem, search])
+  return useApi<CrmLeadsResponse>(getCrmLeads, [page, limit, status, responsavel, origem, search])
 }
 
 export function useCrmStats() {

@@ -481,19 +481,33 @@ class ApiService {
   }
 
   // CRM methods
-  async getCrmLeads(page = 1, limit = 50, status?: string, responsavel?: string): Promise<CrmLeadsResponse> {
+  async getCrmLeads(page = 1, limit = 50, status?: string, responsavel?: string, origem?: string, search?: string): Promise<CrmLeadsResponse> {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString()
     })
     if (status) params.append('status', status)
     if (responsavel) params.append('responsavel', responsavel)
+    if (origem) params.append('origem', origem)
+    if (search) params.append('search', search)
     
     return this.request<CrmLeadsResponse>(`/crm/leads?${params.toString()}`)
   }
 
   async getCrmStats(): Promise<CrmStatsResponse> {
     return this.request<CrmStatsResponse>('/crm/stats')
+  }
+
+  async createCrmLead(leadData: Partial<CrmLead>) {
+    return this.request('/crm/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(leadData)
+    })
+  }
+
+  async getCrmLead(id: number) {
+    return this.request(`/crm/leads/${id}`)
   }
 
   async updateLeadStatus(id: number, status: string, observacoes?: string) {

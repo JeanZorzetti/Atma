@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -16,9 +17,13 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useCrmStats } from '@/hooks/useApi'
+import { CrmFilters } from '@/components/crm/filters'
+import { NewLeadModal } from '@/components/crm/new-lead-modal'
 
 export default function CRMPage() {
-  const { data: stats, loading, error } = useCrmStats()
+  const { data: stats, loading, error, refetch } = useCrmStats()
+  const [showNewLeadModal, setShowNewLeadModal] = useState(false)
+  const [filters, setFilters] = useState({})
 
   if (loading) {
     return (
@@ -80,16 +85,21 @@ export default function CRMPage() {
           <p className="text-gray-600 mt-2">Gerencie o pipeline de captação de ortodontistas</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Filter className="mr-2 h-4 w-4" />
-            Filtros
-          </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => setShowNewLeadModal(true)}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Novo Lead
           </Button>
         </div>
       </div>
+
+      {/* Filtros */}
+      <CrmFilters 
+        activeFilters={filters}
+        onFiltersChange={setFilters}
+      />
 
       {/* KPIs do CRM */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -221,6 +231,15 @@ export default function CRMPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Novo Lead */}
+      <NewLeadModal 
+        open={showNewLeadModal}
+        onOpenChange={setShowNewLeadModal}
+        onSuccess={() => {
+          refetch() // Atualiza as estatísticas
+        }}
+      />
     </div>
   )
 }
