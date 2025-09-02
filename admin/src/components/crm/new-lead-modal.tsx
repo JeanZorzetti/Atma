@@ -71,7 +71,8 @@ export function NewLeadModal({ open, onOpenChange, onSuccess }: NewLeadModalProp
 
     setLoading(true)
     try {
-      await apiService.createCrmLead(formData)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await apiService.createCrmLead(formData as any)
       toast({
         title: 'Lead criado com sucesso!',
         description: 'O novo lead foi adicionado ao CRM.',

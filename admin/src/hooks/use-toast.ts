@@ -11,6 +11,8 @@ type ToasterToast = {
   description?: React.ReactNode
   action?: React.ReactNode
   variant?: "default" | "destructive"
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -37,7 +37,9 @@
       "Read(/C:\\c\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site/**)",
       "Read(/C:\\c\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site/**)",
       "Bash(npm run dev:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm run:*)",
+      "Bash(mysql:*)"
     ],
     "deny": [],
     "ask": []
