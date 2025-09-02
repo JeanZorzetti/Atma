@@ -8,7 +8,8 @@ import {
   Settings, 
   Home,
   LogOut,
-  Menu
+  Menu,
+  PhoneCall
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -35,6 +36,11 @@ const sidebarItems = [
     title: 'Ortodontistas',
     href: '/admin/ortodontistas',
     icon: UserCheck
+  },
+  {
+    title: 'CRM B2B',
+    href: '/admin/crm',
+    icon: PhoneCall
   },
   {
     title: 'Relatórios',
