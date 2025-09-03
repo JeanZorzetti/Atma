@@ -99,17 +99,12 @@ export function NewLeadModal({ open, onOpenChange, onSuccess }: NewLeadModalProp
       onOpenChange(false)
       onSuccess()
     } catch (error: unknown) {
-      // Debug: log do erro para entender a estrutura
-      console.log('Erro capturado:', error);
-      
       // Extrair mensagem do backend se disponível
       let errorMessage = 'Erro desconhecido';
       
       if (error && typeof error === 'object' && 'errorData' in error) {
         const errorWithData = error as { errorData?: { error?: { message?: string }, message?: string } };
         const errorData = errorWithData.errorData;
-        
-        console.log('ErrorData encontrado:', errorData);
         
         if (errorData?.error?.message) {
           // Mensagem específica do backend (ex: "Já existe um lead com este CRO")
@@ -124,13 +119,11 @@ export function NewLeadModal({ open, onOpenChange, onSuccess }: NewLeadModalProp
         errorMessage = error.message;
       }
 
-      console.log('Mensagem final do toast:', errorMessage);
-
       toast({
         title: 'Erro ao criar lead',
         description: errorMessage,
         variant: 'destructive', // Auto 5s por ser destructive
-      })
+      });
     } finally {
       setLoading(false)
     }
