@@ -322,6 +322,7 @@ class ApiService {
   async createPatient(data: Record<string, unknown>) {
     return this.request('/patients/leads', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     })
   }
@@ -329,6 +330,7 @@ class ApiService {
   async updatePatient(id: string, data: Record<string, unknown>) {
     return this.request(`/patients/leads/${id}/status`, {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     })
   }
@@ -472,6 +474,7 @@ class ApiService {
   async updateSetting(settingKey: string, settingValue: string, description?: string) {
     return this.request('/system/settings', {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         setting_key: settingKey, 
         setting_value: settingValue,
@@ -513,6 +516,7 @@ class ApiService {
   async updateLeadStatus(id: number, status: string, observacoes?: string) {
     return this.request(`/crm/leads/${id}/status`, {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, observacoes }),
     })
   }
