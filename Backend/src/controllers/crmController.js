@@ -458,19 +458,25 @@ const createCrmLead = async (req, res, next) => {
       });
     }
 
+    // Usar apenas colunas básicas que sabemos que existem na tabela atual
     const insertQuery = `
       INSERT INTO crm_leads (
-        nome, clinica, cro, email, telefone, cep, cidade, estado,
-        consultórios, scanner, scanner_marca, casos_mes, interesse,
+        nome, clinica, cro, email, telefone, 
         responsavel_comercial, origem_lead, observacoes_internas
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
+    
+    const queryParams = [
+      nome, clinica, cro, email, telefone,
+      responsavel_comercial || 'Sistema', 
+      origem_lead || 'outbound', 
+      observacoes_internas || `Lead criado via formulário: ${JSON.stringify({
+        cidade, estado, cep, consultórios, scanner, scanner_marca, 
+        casos_mes, interesse
+      })}`
+    ];
 
-    const result = await executeQuery(insertQuery, [
-      nome, clinica, cro, email, telefone, cep, cidade, estado,
-      consultórios, scanner, scanner_marca, casos_mes, interesse,
-      responsavel_comercial, origem_lead, observacoes_internas
-    ]);
+    const result = await executeQuery(insertQuery, queryParams);
 
     // Registrar atividade
     const activityQuery = `
