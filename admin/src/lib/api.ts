@@ -298,7 +298,7 @@ class ApiService {
           // Se não conseguir fazer parse do JSON, usar mensagem genérica
         }
         
-        const error = new Error(`HTTP error! status: ${response.status}`) as any;
+        const error = new Error(`HTTP error! status: ${response.status}`) as Error & { errorData?: unknown };
         error.errorData = errorData; // Anexar dados do erro para o componente usar
         throw error;
       }
