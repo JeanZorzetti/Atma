@@ -75,7 +75,8 @@ export function NewLeadModal({ open, onOpenChange, onSuccess }: NewLeadModalProp
       await apiService.createCrmLead(formData as any)
       toast({
         title: 'Lead criado com sucesso!',
-        description: 'O novo lead foi adicionado ao CRM.',
+        description: `${formData.nome} foi adicionado ao pipeline de vendas.`,
+        duration: 3000, // 3 segundos para sucesso
       })
       setFormData({
         nome: '',
@@ -97,11 +98,23 @@ export function NewLeadModal({ open, onOpenChange, onSuccess }: NewLeadModalProp
       })
       onOpenChange(false)
       onSuccess()
-    } catch (error) {
+    } catch (error: any) {
+      // Extrair mensagem do backend se disponível
+      let errorMessage = 'Erro desconhecido';
+      
+      if (error?.errorData?.error?.message) {
+        // Mensagem específica do backend (ex: "Já existe um lead com este CRO")
+        errorMessage = error.errorData.error.message;
+      } else if (error?.message?.includes('HTTP error! status: 400')) {
+        errorMessage = 'Erro de validação. Verifique os dados informados.';
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: 'Erro ao criar lead',
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: 'destructive'
+        description: errorMessage,
+        variant: 'destructive', // Auto 5s por ser destructive
       })
     } finally {
       setLoading(false)

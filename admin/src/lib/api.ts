@@ -290,7 +290,17 @@ class ApiService {
       }
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        // Tentar extrair mensagem de erro do backend
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          // Se não conseguir fazer parse do JSON, usar mensagem genérica
+        }
+        
+        const error = new Error(`HTTP error! status: ${response.status}`) as any;
+        error.errorData = errorData; // Anexar dados do erro para o componente usar
+        throw error;
       }
 
       const data = await response.json()

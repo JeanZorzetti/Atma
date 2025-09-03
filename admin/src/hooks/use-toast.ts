@@ -11,6 +11,7 @@ type ToasterToast = {
   description?: React.ReactNode
   action?: React.ReactNode
   variant?: "default" | "destructive"
+  duration?: number
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }
@@ -159,6 +160,14 @@ function toast({ ...props }: Toast) {
       },
     },
   })
+
+  // Auto-dismiss após duração especificada (padrão 5s para destructive)
+  const duration = props.duration || (props.variant === "destructive" ? 5000 : 3000)
+  if (duration > 0) {
+    setTimeout(() => {
+      dismiss()
+    }, duration)
+  }
 
   return {
     id: id,
