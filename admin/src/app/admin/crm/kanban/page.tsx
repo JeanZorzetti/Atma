@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useOptimistic } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -67,7 +67,6 @@ export default function KanbanPage() {
   const [filters, setFilters] = useState({})
   const [showNewLeadModal, setShowNewLeadModal] = useState(false)
   const [draggedLead, setDraggedLead] = useState<CrmLead | null>(null)
-  const [optimisticLeads, setOptimisticLeads] = useState<CrmLead[]>([])
   const { toast } = useToast()
   
   const { data: crmData, loading, refetch } = useCrmLeads(
@@ -83,16 +82,20 @@ export default function KanbanPage() {
   )
   
   const serverLeads = React.useMemo(() => crmData?.leads || [], [crmData?.leads])
-  // Usar leads otimistas se disponíveis, senão usar leads do servidor
-  const leads = optimisticLeads.length > 0 ? optimisticLeads : serverLeads
-  const columns = getColumns(leads)
   
-  // Sincronizar leads otimistas com leads do servidor quando atualizarem
-  React.useEffect(() => {
-    if (serverLeads.length > 0 && optimisticLeads.length === 0) {
-      setOptimisticLeads(serverLeads)
+  // Use React 19's useOptimistic for real-time updates
+  const [optimisticLeads, updateOptimisticLeads] = useOptimistic(
+    serverLeads,
+    (currentLeads, { leadId, newStatus }: { leadId: number, newStatus: CrmLead['status'] }) => {
+      return currentLeads.map(lead => 
+        lead.id === leadId 
+          ? { ...lead, status: newStatus }
+          : lead
+      )
     }
-  }, [serverLeads, optimisticLeads.length])
+  )
+  
+  const columns = getColumns(optimisticLeads)
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase()
@@ -117,16 +120,11 @@ export default function KanbanPage() {
       return
     }
 
-    const originalStatus = draggedLead.status
-    
     // 1. Atualização otimista - atualizar UI imediatamente
-    setOptimisticLeads(currentLeads => 
-      currentLeads.map(lead => 
-        lead.id === draggedLead.id 
-          ? { ...lead, status: newStatus as CrmLead['status'] }
-          : lead
-      )
-    )
+    updateOptimisticLeads({ 
+      leadId: draggedLead.id, 
+      newStatus: newStatus as CrmLead['status'] 
+    })
 
     // 2. Mostrar toast de carregamento
     toast({
@@ -144,24 +142,21 @@ export default function KanbanPage() {
         description: `Lead movido para ${getStatusLabel(newStatus)}.`,
       })
       
-      // 5. Sincronizar com servidor (opcional, para garantir consistência)
+      // 5. Sincronizar com servidor para manter dados frescos
+      // O useOptimistic automaticamente sincroniza quando serverLeads muda
       await refetch()
-      setOptimisticLeads([]) // Reset para usar dados do servidor
-    } catch {
-      // 6. Reverter em caso de erro
-      setOptimisticLeads(currentLeads => 
-        currentLeads.map(lead => 
-          lead.id === draggedLead.id 
-            ? { ...lead, status: originalStatus as CrmLead['status'] }
-            : lead
-        )
-      )
       
+    } catch {
+      // 6. Em caso de erro, o useOptimistic automaticamente reverte 
+      // quando os dados do servidor são recarregados
       toast({
         title: 'Erro ao atualizar',
-        description: 'Não foi possível mover o lead. Posição revertida.',
+        description: 'Não foi possível mover o lead. Tente novamente.',
         variant: 'destructive'
       })
+      
+      // Forçar um refetch para garantir que o estado volta ao normal
+      await refetch()
     }
     
     setDraggedLead(null)
