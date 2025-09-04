@@ -120,7 +120,7 @@ const createBasicTables = async () => {
         scanner_marca VARCHAR(100) NULL,
         casos_mes ENUM('1-5', '6-10', '11-20', '21+') NULL,
         interesse ENUM('atma-aligner', 'atma-labs', 'ambos') NULL,
-        status ENUM('prospeccao', 'contato_inicial', 'apresentacao', 'negociacao') DEFAULT 'prospeccao',
+        status ENUM('prospeccao', 'contato_inicial', 'apresentacao', 'negociacao', 'parceria_fechada') DEFAULT 'prospeccao',
         responsavel_comercial VARCHAR(255) NULL,
         origem_lead ENUM('inbound', 'outbound', 'indicacao', 'evento', 'outro') DEFAULT 'outbound',
         primeira_interacao TEXT NULL,

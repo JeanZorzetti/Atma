@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -53,6 +53,13 @@ const getColumns = (leads: CrmLead[]) => [
     color: 'bg-orange-50 border-orange-200',
     count: leads.filter(l => l.status === 'negociacao').length,
     leads: leads.filter(l => l.status === 'negociacao')
+  },
+  { 
+    id: 'parceria_fechada', 
+    title: 'Parceria Fechada', 
+    color: 'bg-green-50 border-green-200',
+    count: leads.filter(l => l.status === 'parceria_fechada').length,
+    leads: leads.filter(l => l.status === 'parceria_fechada')
   }
 ]
 
@@ -60,6 +67,7 @@ export default function KanbanPage() {
   const [filters, setFilters] = useState({})
   const [showNewLeadModal, setShowNewLeadModal] = useState(false)
   const [draggedLead, setDraggedLead] = useState<CrmLead | null>(null)
+  const [optimisticLeads, setOptimisticLeads] = useState<CrmLead[]>([])
   const { toast } = useToast()
   
   const { data: crmData, loading, refetch } = useCrmLeads(
@@ -73,8 +81,18 @@ export default function KanbanPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (filters as any).search
   )
-  const leads = crmData?.leads || []
+  
+  const serverLeads = crmData?.leads || []
+  // Usar leads otimistas se disponíveis, senão usar leads do servidor
+  const leads = optimisticLeads.length > 0 ? optimisticLeads : serverLeads
   const columns = getColumns(leads)
+  
+  // Sincronizar leads otimistas com leads do servidor quando atualizarem
+  React.useEffect(() => {
+    if (serverLeads.length > 0 && optimisticLeads.length === 0) {
+      setOptimisticLeads(serverLeads)
+    }
+  }, [serverLeads, optimisticLeads.length])
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase()
@@ -99,17 +117,49 @@ export default function KanbanPage() {
       return
     }
 
+    const originalStatus = draggedLead.status
+    
+    // 1. Atualização otimista - atualizar UI imediatamente
+    setOptimisticLeads(currentLeads => 
+      currentLeads.map(lead => 
+        lead.id === draggedLead.id 
+          ? { ...lead, status: newStatus as any }
+          : lead
+      )
+    )
+
+    // 2. Mostrar toast de carregamento
+    toast({
+      title: 'Movendo lead...',
+      description: `Atualizando para ${getStatusLabel(newStatus)}.`,
+    })
+
     try {
+      // 3. Fazer request para o servidor
       await apiService.updateLeadStatus(draggedLead.id, newStatus)
+      
+      // 4. Toast de sucesso
       toast({
         title: 'Status atualizado!',
         description: `Lead movido para ${getStatusLabel(newStatus)}.`,
       })
-      refetch() // Recarregar dados
+      
+      // 5. Sincronizar com servidor (opcional, para garantir consistência)
+      await refetch()
+      setOptimisticLeads([]) // Reset para usar dados do servidor
     } catch {
+      // 6. Reverter em caso de erro
+      setOptimisticLeads(currentLeads => 
+        currentLeads.map(lead => 
+          lead.id === draggedLead.id 
+            ? { ...lead, status: originalStatus as any }
+            : lead
+        )
+      )
+      
       toast({
         title: 'Erro ao atualizar',
-        description: 'Não foi possível mover o lead.',
+        description: 'Não foi possível mover o lead. Posição revertida.',
         variant: 'destructive'
       })
     }
@@ -122,7 +172,8 @@ export default function KanbanPage() {
       'prospeccao': 'Prospecção',
       'contato_inicial': 'Contato Inicial',
       'apresentacao': 'Apresentação',
-      'negociacao': 'Negociação'
+      'negociacao': 'Negociação',
+      'parceria_fechada': 'Parceria Fechada'
     }
     return labels[status as keyof typeof labels] || status
   }

@@ -219,7 +219,7 @@ const updateLeadStatus = async (req, res, next) => {
 
     console.log('Simple updateLeadStatus - params:', { id, status });
 
-    const validStatuses = ['prospeccao', 'contato_inicial', 'apresentacao', 'negociacao'];
+    const validStatuses = ['prospeccao', 'contato_inicial', 'apresentacao', 'negociacao', 'parceria_fechada'];
     
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
@@ -542,11 +542,40 @@ const getCrmLead = async (req, res, next) => {
   }
 };
 
+// POST /api/crm/migrate-status - Migrar ENUM da tabela para incluir parceria_fechada
+const migrateStatusEnum = async (req, res, next) => {
+  try {
+    const migrateQuery = `
+      ALTER TABLE crm_leads 
+      MODIFY COLUMN status ENUM('prospeccao', 'contato_inicial', 'apresentacao', 'negociacao', 'parceria_fechada') 
+      DEFAULT 'prospeccao'
+    `;
+    
+    await executeQuery(migrateQuery);
+    
+    logger.info('Migração do ENUM status realizada com sucesso');
+    
+    res.json({
+      success: true,
+      message: 'ENUM status migrado para incluir parceria_fechada',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    logger.error('Erro na migração do ENUM status:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro na migração', details: error.message },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   getCrmLeads,
   getCrmStats,
   updateLeadStatus,
   migrateLeadToPpartnership,
   createCrmLead,
-  getCrmLead
+  getCrmLead,
+  migrateStatusEnum
 };

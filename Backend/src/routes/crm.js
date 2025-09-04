@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getCrmLeads, getCrmStats, updateLeadStatus, migrateLeadToPpartnership, createCrmLead, getCrmLead } = require('../controllers/crmController');
+const { getCrmLeads, getCrmStats, updateLeadStatus, migrateLeadToPpartnership, createCrmLead, getCrmLead, migrateStatusEnum } = require('../controllers/crmController');
 
 // GET /api/crm/leads - Listar todos os leads do CRM (com filtros e paginação)
 router.get('/leads', getCrmLeads);
@@ -19,5 +19,8 @@ router.put('/leads/:id/status', updateLeadStatus);
 
 // POST /api/crm/leads/:id/migrate - Migrar lead fechado para orthodontist_partnerships
 router.post('/leads/:id/migrate', migrateLeadToPpartnership);
+
+// POST /api/crm/migrate-status - Migrar ENUM da tabela para incluir parceria_fechada
+router.post('/migrate-status', migrateStatusEnum);
 
 module.exports = router;
