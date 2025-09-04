@@ -82,7 +82,7 @@ export default function KanbanPage() {
     (filters as any).search
   )
   
-  const serverLeads = crmData?.leads || []
+  const serverLeads = React.useMemo(() => crmData?.leads || [], [crmData?.leads])
   // Usar leads otimistas se disponíveis, senão usar leads do servidor
   const leads = optimisticLeads.length > 0 ? optimisticLeads : serverLeads
   const columns = getColumns(leads)
@@ -123,7 +123,7 @@ export default function KanbanPage() {
     setOptimisticLeads(currentLeads => 
       currentLeads.map(lead => 
         lead.id === draggedLead.id 
-          ? { ...lead, status: newStatus as any }
+          ? { ...lead, status: newStatus as CrmLead['status'] }
           : lead
       )
     )
@@ -152,7 +152,7 @@ export default function KanbanPage() {
       setOptimisticLeads(currentLeads => 
         currentLeads.map(lead => 
           lead.id === draggedLead.id 
-            ? { ...lead, status: originalStatus as any }
+            ? { ...lead, status: originalStatus as CrmLead['status'] }
             : lead
         )
       )

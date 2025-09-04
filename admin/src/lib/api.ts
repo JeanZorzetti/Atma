@@ -153,7 +153,7 @@ export interface CrmLead {
   scanner_marca?: string
   casos_mes?: string
   interesse?: 'atma-aligner' | 'atma-labs' | 'ambos'
-  status: 'prospeccao' | 'contato_inicial' | 'apresentacao' | 'negociacao'
+  status: 'prospeccao' | 'contato_inicial' | 'apresentacao' | 'negociacao' | 'parceria_fechada'
   responsavel_comercial?: string
   origem_lead?: 'inbound' | 'outbound' | 'indicacao' | 'evento' | 'outro'
   observacoes_internas?: string
