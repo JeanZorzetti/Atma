@@ -29,24 +29,18 @@ const dbConfig = {
   database: process.env.DB_NAME || 'atma_aligner',
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
-  connectionLimit: 20, // Increased from 10
+  connectionLimit: 20,
   queueLimit: 0,
   charset: 'utf8mb4',
   timezone: '+00:00',
-  acquireTimeout: 60000, // 60 seconds
-  timeout: 60000, // 60 seconds
-  reconnect: true,
   idleTimeout: 300000, // 5 minutes
-  // Connection management options
+  // Connection management options  
   maxIdle: 10, // Maximum idle connections
-  idleCheckInterval: 30000, // Check for idle connections every 30 seconds
-  maxReuses: 100, // Reuse connection up to 100 times before recreating
   // Error handling options
   supportBigNumbers: true,
   bigNumberStrings: true,
   dateStrings: false,
   debug: false,
-  trace: true,
   multipleStatements: false
 };
 
