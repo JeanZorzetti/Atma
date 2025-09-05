@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+// AlertDialog não disponível, usando Dialog comum
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -21,6 +22,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { 
   ArrowLeft,
   Plus,
@@ -33,7 +40,9 @@ import {
   Stethoscope,
   Edit,
   Save,
-  X
+  X,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react'
 import Link from 'next/link'
 import { useCrmLeads } from '@/hooks/useApi'
@@ -90,6 +99,7 @@ export default function KanbanPage() {
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editFormData, setEditFormData] = useState<Partial<CrmLead>>({})
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const { toast } = useToast()
   
   const { data: crmData, loading, refetch } = useCrmLeads(
@@ -209,6 +219,34 @@ export default function KanbanPage() {
   const handleCancelEdit = () => {
     setIsEditing(false)
     setEditFormData({})
+  }
+
+  // Função de exclusão
+  const handleDeleteLead = async () => {
+    if (!selectedLead) return
+
+    try {
+      // Fazer request para excluir o lead
+      await apiService.deleteLead(selectedLead.id)
+      
+      toast({
+        title: 'Lead excluído!',
+        description: `${selectedLead.nome} foi removido do sistema.`,
+      })
+      
+      // Atualizar a lista e fechar modais
+      await refetch()
+      setShowDeleteDialog(false)
+      setShowLeadModal(false)
+      setSelectedLead(null)
+      
+    } catch {
+      toast({
+        title: 'Erro ao excluir',
+        description: 'Não foi possível excluir o lead. Tente novamente.',
+        variant: 'destructive'
+      })
+    }
   }
 
   // Funções de Drag & Drop
@@ -405,9 +443,40 @@ export default function KanbanPage() {
                                 <p className="text-xs text-gray-600">{lead.cro}</p>
                               </div>
                             </div>
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                              <MoreVertical className="h-3 w-3" />
-                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-6 w-6 p-0"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreVertical className="h-3 w-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem 
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleCardClick(lead)
+                                  }}
+                                >
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Ver Detalhes
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedLead(lead)
+                                    setShowDeleteDialog(true)
+                                  }}
+                                  className="text-red-600 focus:text-red-600"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Excluir Lead
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
 
                           {/* Clínica */}
@@ -538,15 +607,26 @@ export default function KanbanPage() {
                 )}
               </div>
               {!isEditing ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleEditClick}
-                  className="flex items-center gap-2"
-                >
-                  <Edit className="h-4 w-4" />
-                  Editar
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Excluir
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleEditClick}
+                    className="flex items-center gap-2"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Editar
+                  </Button>
+                </div>
               ) : (
                 <div className="flex gap-2">
                   <Button
@@ -812,6 +892,40 @@ export default function KanbanPage() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Confirmação de Exclusão */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              Confirmar Exclusão
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600">
+              Tem certeza que deseja excluir o lead <strong>{selectedLead?.nome}</strong>?
+            </p>
+            <p className="text-sm text-red-600 font-medium mt-2">
+              Esta ação não pode ser desfeita.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteLead}
+            >
+              Excluir Lead
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

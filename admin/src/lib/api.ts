@@ -559,6 +559,17 @@ class ApiService {
     
     return result
   }
+
+  async deleteLead(id: number) {
+    const result = await this.request(`/crm/leads/${id}`, {
+      method: 'DELETE',
+    })
+    
+    // Invalidate CRM leads cache to force fresh data on next request
+    this.invalidateCache('/crm/leads')
+    
+    return result
+  }
 }
 
 export const apiService = new ApiService()
