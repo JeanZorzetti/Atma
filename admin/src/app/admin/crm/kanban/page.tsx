@@ -5,6 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { 
   ArrowLeft,
   Plus,
@@ -67,6 +73,8 @@ export default function KanbanPage() {
   const [filters, setFilters] = useState({})
   const [showNewLeadModal, setShowNewLeadModal] = useState(false)
   const [draggedLead, setDraggedLead] = useState<CrmLead | null>(null)
+  const [selectedLead, setSelectedLead] = useState<CrmLead | null>(null)
+  const [showLeadModal, setShowLeadModal] = useState(false)
   const { toast } = useToast()
   
   const { data: crmData, loading, refetch } = useCrmLeads(
@@ -99,6 +107,38 @@ export default function KanbanPage() {
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase()
+  }
+
+  // Funções de ação para os cards
+  const handleCardClick = (lead: CrmLead) => {
+    setSelectedLead(lead)
+    setShowLeadModal(true)
+  }
+
+  const handlePhoneCall = (lead: CrmLead) => {
+    window.open(`tel:${lead.telefone}`, '_self')
+    toast({
+      title: 'Ligando...',
+      description: `Iniciando chamada para ${lead.nome}`,
+    })
+  }
+
+  const handleEmail = (lead: CrmLead) => {
+    const subject = encodeURIComponent(`Atma Aligner - Contato ${lead.nome}`)
+    const body = encodeURIComponent(`Olá ${lead.nome},\n\nEspero que esteja bem!\n\n`)
+    window.open(`mailto:${lead.email}?subject=${subject}&body=${body}`, '_blank')
+    toast({
+      title: 'Email aberto',
+      description: `Redigindo email para ${lead.nome}`,
+    })
+  }
+
+  const handleSchedule = (lead: CrmLead) => {
+    // Integração futura com sistema de agendamento
+    toast({
+      title: 'Agendar reunião',
+      description: `Funcionalidade em desenvolvimento para ${lead.nome}`,
+    })
   }
 
   // Funções de Drag & Drop
@@ -170,6 +210,17 @@ export default function KanbanPage() {
       'parceria_fechada': 'Parceria Fechada'
     }
     return labels[status as keyof typeof labels] || status
+  }
+
+  const getStatusColor = (status: string) => {
+    const colors = {
+      'prospeccao': 'bg-gray-100 text-gray-800',
+      'contato_inicial': 'bg-blue-100 text-blue-800',
+      'apresentacao': 'bg-yellow-100 text-yellow-800',
+      'negociacao': 'bg-orange-100 text-orange-800',
+      'parceria_fechada': 'bg-green-100 text-green-800'
+    }
+    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800'
   }
 
   const getInterestBadge = (interesse: string) => {
@@ -262,11 +313,12 @@ export default function KanbanPage() {
                   column.leads?.map((lead) => (
                     <Card 
                       key={lead.id} 
-                      className={`bg-white shadow-sm hover:shadow-md transition-all cursor-move ${
+                      className={`bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${
                         draggedLead?.id === lead.id ? 'opacity-50 transform rotate-3' : ''
                       }`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, lead)}
+                      onClick={() => handleCardClick(lead)}
                     >
                       <CardContent className="p-4">
                         <div className="space-y-3">
@@ -325,18 +377,45 @@ export default function KanbanPage() {
                           {/* Ações */}
                           <div className="flex items-center justify-between pt-2 border-t">
                             <div className="flex gap-1">
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-7 w-7 p-0 hover:bg-green-50 hover:text-green-600"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handlePhoneCall(lead)
+                                }}
+                                title={`Ligar para ${lead.telefone}`}
+                              >
                                 <Phone className="h-3 w-3" />
                               </Button>
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-7 w-7 p-0 hover:bg-blue-50 hover:text-blue-600"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleEmail(lead)
+                                }}
+                                title={`Email para ${lead.email}`}
+                              >
                                 <Mail className="h-3 w-3" />
                               </Button>
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-7 w-7 p-0 hover:bg-orange-50 hover:text-orange-600"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleSchedule(lead)
+                                }}
+                                title="Agendar reunião"
+                              >
                                 <Calendar className="h-3 w-3" />
                               </Button>
                             </div>
                             <span className="text-xs text-gray-400">
-                              {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+                              {lead.created_at ? new Date(lead.created_at).toLocaleDateString('pt-BR') : 'Novo'}
                             </span>
                           </div>
                         </div>
@@ -367,6 +446,133 @@ export default function KanbanPage() {
           </div>
         ))}
       </div>
+
+      {/* Modal de Detalhes do Lead */}
+      <Dialog open={showLeadModal} onOpenChange={setShowLeadModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              {selectedLead && (
+                <>
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-blue-100 text-blue-800 text-sm font-semibold">
+                      {getInitials(selectedLead.nome)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <span className="text-xl">{selectedLead.nome}</span>
+                    <p className="text-sm text-gray-600 font-normal">{selectedLead.cro}</p>
+                  </div>
+                </>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedLead && (
+            <div className="space-y-6 mt-4">
+              {/* Informações básicas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-gray-900">Contato</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm">{selectedLead.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm">{selectedLead.telefone}</span>
+                    </div>
+                    {(selectedLead.cidade || selectedLead.estado) && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm">
+                          {selectedLead.cidade}{selectedLead.cidade && selectedLead.estado && ', '}{selectedLead.estado}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-gray-900">Clínica</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Building className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm">{selectedLead.clinica}</span>
+                    </div>
+                    {selectedLead.consultórios && (
+                      <p className="text-sm text-gray-600">
+                        <strong>Consultórios:</strong> {selectedLead.consultórios}
+                      </p>
+                    )}
+                    {selectedLead.casos_mes && (
+                      <p className="text-sm text-gray-600">
+                        <strong>Casos/mês:</strong> {selectedLead.casos_mes}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Status e responsável */}
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <Badge className={getStatusColor(selectedLead.status)}>
+                    {getStatusLabel(selectedLead.status)}
+                  </Badge>
+                  {selectedLead.responsavel_comercial && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      Responsável: {selectedLead.responsavel_comercial}
+                    </p>
+                  )}
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-600">
+                    Criado em {selectedLead.created_at ? new Date(selectedLead.created_at).toLocaleDateString('pt-BR') : 'Data não disponível'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Ações rápidas */}
+              <div className="flex gap-2 pt-4 border-t">
+                <Button 
+                  className="flex-1"
+                  onClick={() => {
+                    handlePhoneCall(selectedLead)
+                    setShowLeadModal(false)
+                  }}
+                >
+                  <Phone className="mr-2 h-4 w-4" />
+                  Ligar
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    handleEmail(selectedLead)
+                    setShowLeadModal(false)
+                  }}
+                >
+                  <Mail className="mr-2 h-4 w-4" />
+                  Email
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    handleSchedule(selectedLead)
+                    setShowLeadModal(false)
+                  }}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Agendar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Modal de Novo Lead */}
       <NewLeadModal 
