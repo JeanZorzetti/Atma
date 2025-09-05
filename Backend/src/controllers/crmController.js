@@ -211,25 +211,14 @@ const getCrmStats = async (req, res, next) => {
   }
 };
 
-// PUT /api/crm/leads/:id/status - Atualizar status do lead
+// PUT /api/crm/leads/:id/status - Atualizar status do lead (expandido para suportar mais campos)
 const updateLeadStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const updateData = req.body;
 
-    console.log('Simple updateLeadStatus - params:', { id, status });
+    console.log('Enhanced updateLeadStatus - params:', { id, updateData });
 
-    const validStatuses = ['prospeccao', 'contato_inicial', 'apresentacao', 'negociacao', 'parceria_fechada'];
-    
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        error: { message: 'Status inválido', validStatuses },
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Query mais simples possível para debug
     const leadId = parseInt(id);
     if (isNaN(leadId)) {
       return res.status(400).json({
@@ -238,27 +227,84 @@ const updateLeadStatus = async (req, res, next) => {
         timestamp: new Date().toISOString()
       });
     }
-    
-    const updateQuery = `UPDATE crm_leads SET status = ?, updated_at = NOW() WHERE id = ?`;
-    const queryParams = [status, leadId];
-    console.log('Simple query params:', queryParams);
+
+    // Campos permitidos para atualização via endpoint de status
+    const allowedFields = [
+      'status', 'observacoes_internas', 'próximo_followup', 'responsavel_comercial',
+      'nome', 'clinica', 'email', 'telefone', 'consultórios', 'scanner',
+      'scanner_marca', 'casos_mes', 'interesse'
+    ];
+
+    // Validar status se fornecido
+    if (updateData.status) {
+      const validStatuses = ['prospeccao', 'contato_inicial', 'apresentacao', 'negociacao', 'parceria_fechada'];
+      if (!validStatuses.includes(updateData.status)) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Status inválido', validStatuses },
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+
+    // Construir query de update dinamicamente
+    const updateFields = [];
+    const queryParams = [];
+
+    Object.keys(updateData).forEach(key => {
+      if (allowedFields.includes(key) && updateData[key] !== undefined) {
+        updateFields.push(`${key} = ?`);
+        queryParams.push(updateData[key]);
+      }
+    });
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Nenhum campo válido para atualização' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Adicionar updated_at
+    updateFields.push('updated_at = NOW()');
+    queryParams.push(leadId);
+
+    const updateQuery = `UPDATE crm_leads SET ${updateFields.join(', ')} WHERE id = ?`;
+    console.log('Enhanced query params:', queryParams);
     
     await executeQuery(updateQuery, queryParams);
-    console.log('Query executed successfully');
+    console.log('Enhanced query executed successfully');
+
+    // Registrar atividade se não for só status
+    const isStatusOnlyUpdate = Object.keys(updateData).length === 1 && updateData.status;
+    if (!isStatusOnlyUpdate) {
+      try {
+        const activityQuery = `
+          INSERT INTO crm_activities (crm_lead_id, tipo, titulo, descricao, usuario)
+          VALUES (?, 'atualizacao', 'Lead atualizado', ?, 'Sistema')
+        `;
+        const updatedFields = Object.keys(updateData).filter(key => allowedFields.includes(key));
+        await executeQuery(activityQuery, [leadId, `Campos atualizados: ${updatedFields.join(', ')}`]);
+      } catch (actError) {
+        // Log error but don't fail the main operation
+        console.warn('Failed to log activity:', actError);
+      }
+    }
 
     res.json({
       success: true,
-      message: 'Status atualizado com sucesso',
+      message: updateData.status ? 'Status atualizado com sucesso' : 'Lead atualizado com sucesso',
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
-    logger.error('Erro ao atualizar status do lead:', error);
+    logger.error('Erro ao atualizar lead:', error);
     console.error('Full error details:', error);
     res.status(500).json({
       success: false,
       error: { 
-        message: 'Erro ao atualizar status',
+        message: 'Erro ao atualizar lead',
         details: error.message 
       },
       timestamp: new Date().toISOString()

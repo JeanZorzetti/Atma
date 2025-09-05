@@ -548,16 +548,38 @@ class ApiService {
   }
 
   async updateLead(id: number, leadData: Partial<CrmLead>) {
-    const result = await this.request(`/crm/leads/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(leadData),
-    })
-    
-    // Invalidate CRM leads cache to force fresh data on next request
-    this.invalidateCache('/crm/leads')
-    
-    return result
+    try {
+      // Try the new complete update endpoint first
+      const result = await this.request(`/crm/leads/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(leadData),
+      })
+      
+      // Invalidate CRM leads cache to force fresh data on next request
+      this.invalidateCache('/crm/leads')
+      
+      return result
+    } catch (error: any) {
+      // If the endpoint doesn't exist (404), try fallback approach using the enhanced status endpoint
+      if (error.message?.includes('não encontrado') || error.message?.includes('não existe')) {
+        console.warn('Using enhanced status endpoint as fallback for updateLead')
+        
+        // Use the enhanced status endpoint that can handle more fields
+        const result = await this.request(`/crm/leads/${id}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(leadData),
+        })
+        
+        // Invalidate CRM leads cache to force fresh data on next request
+        this.invalidateCache('/crm/leads')
+        
+        return result
+      }
+      
+      throw error
+    }
   }
 
   async deleteLead(id: number) {
