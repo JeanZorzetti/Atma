@@ -52,7 +52,7 @@ export default function CrmLeadsListPage() {
   const [filters, setFilters] = useState({})
   const [showNewLeadModal, setShowNewLeadModal] = useState(false)
   const [showFollowUpModal, setShowFollowUpModal] = useState(false)
-  const [selectedLeadForFollowUp, setSelectedLeadForFollowUp] = useState<any>(null)
+  const [selectedLeadForFollowUp, setSelectedLeadForFollowUp] = useState<unknown>(null)
   const [followUpForm, setFollowUpForm] = useState({
     leadId: '',
     datetime: '',
@@ -128,12 +128,18 @@ export default function CrmLeadsListPage() {
     }
   }
 
-  const handleScheduleFollowUp = (lead: any) => {
+  const handleScheduleFollowUp = (lead: unknown) => {
+    const leadData = lead as { 
+      id: number; 
+      nome?: string; 
+      próximo_followup?: string;
+      observacoes_internas?: string;
+    }
     setSelectedLeadForFollowUp(lead)
     setFollowUpForm({
-      leadId: lead.id.toString(),
-      datetime: lead.próximo_followup || '',
-      notes: lead.próximo_followup ? 'Reagendamento de follow-up' : 'Novo follow-up agendado'
+      leadId: leadData.id.toString(),
+      datetime: leadData.próximo_followup || '',
+      notes: leadData.próximo_followup ? 'Reagendamento de follow-up' : 'Novo follow-up agendado'
     })
     setShowFollowUpModal(true)
   }
@@ -149,16 +155,21 @@ export default function CrmLeadsListPage() {
     }
 
     try {
+      const selectedLead = selectedLeadForFollowUp as {
+        nome?: string;
+        observacoes_internas?: string;
+      } | null
+
       await apiService.updateLead(parseInt(followUpForm.leadId), {
         próximo_followup: followUpForm.datetime,
-        observacoes_internas: selectedLeadForFollowUp?.observacoes_internas 
-          ? selectedLeadForFollowUp.observacoes_internas + `\n[${new Date().toLocaleDateString('pt-BR')}] Follow-up agendado: ${followUpForm.notes}`
+        observacoes_internas: selectedLead?.observacoes_internas 
+          ? selectedLead.observacoes_internas + `\n[${new Date().toLocaleDateString('pt-BR')}] Follow-up agendado: ${followUpForm.notes}`
           : `[${new Date().toLocaleDateString('pt-BR')}] Follow-up agendado: ${followUpForm.notes}`
       })
 
       toast({
         title: 'Follow-up agendado!',
-        description: `Ação agendada para ${selectedLeadForFollowUp?.nome} em ${new Date(followUpForm.datetime).toLocaleString('pt-BR')}.`,
+        description: `Ação agendada para ${selectedLead?.nome || 'lead'} em ${new Date(followUpForm.datetime).toLocaleString('pt-BR')}.`,
       })
 
       setShowFollowUpModal(false)
@@ -452,7 +463,7 @@ export default function CrmLeadsListPage() {
           <DialogHeader>
             <DialogTitle>Agendar Follow-up</DialogTitle>
             <DialogDescription>
-              Agende um follow-up para {selectedLeadForFollowUp?.nome}
+              Agende um follow-up para {(selectedLeadForFollowUp as { nome?: string } | null)?.nome || 'este lead'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
