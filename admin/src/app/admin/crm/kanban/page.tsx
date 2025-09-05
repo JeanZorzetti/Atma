@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -172,7 +173,8 @@ export default function KanbanPage() {
         casos_mes: selectedLead.casos_mes,
         status: selectedLead.status,
         responsavel_comercial: selectedLead.responsavel_comercial,
-        interesse: selectedLead.interesse
+        interesse: selectedLead.interesse,
+        observacoes_internas: selectedLead.observacoes_internas
       })
       setIsEditing(true)
     }
@@ -573,49 +575,63 @@ export default function KanbanPage() {
             <div className="space-y-6 mt-4">
               {/* Informações básicas */}
               {!isEditing ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-3">
-                    <h3 className="text-lg font-semibold text-gray-900">Contato</h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">{selectedLead.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">{selectedLead.telefone}</span>
-                      </div>
-                      {(selectedLead.cidade || selectedLead.estado) && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Contato</h3>
+                      <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm">
-                            {selectedLead.cidade}{selectedLead.cidade && selectedLead.estado && ', '}{selectedLead.estado}
-                          </span>
+                          <Mail className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm">{selectedLead.email}</span>
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h3 className="text-lg font-semibold text-gray-900">Clínica</h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Building className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">{selectedLead.clinica}</span>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm">{selectedLead.telefone}</span>
+                        </div>
+                        {(selectedLead.cidade || selectedLead.estado) && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm">
+                              {selectedLead.cidade}{selectedLead.cidade && selectedLead.estado && ', '}{selectedLead.estado}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      {selectedLead.consultórios && (
-                        <p className="text-sm text-gray-600">
-                          <strong>Consultórios:</strong> {selectedLead.consultórios}
-                        </p>
-                      )}
-                      {selectedLead.casos_mes && (
-                        <p className="text-sm text-gray-600">
-                          <strong>Casos/mês:</strong> {selectedLead.casos_mes}
-                        </p>
-                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Clínica</h3>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Building className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm">{selectedLead.clinica}</span>
+                        </div>
+                        {selectedLead.consultórios && (
+                          <p className="text-sm text-gray-600">
+                            <strong>Consultórios:</strong> {selectedLead.consultórios}
+                          </p>
+                        )}
+                        {selectedLead.casos_mes && (
+                          <p className="text-sm text-gray-600">
+                            <strong>Casos/mês:</strong> {selectedLead.casos_mes}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                  
+                  {/* Observações internas - se existirem */}
+                  {selectedLead.observacoes_internas && (
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Observações Internas</h3>
+                      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                          {selectedLead.observacoes_internas}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900">Editar Informações</h3>
@@ -719,6 +735,19 @@ export default function KanbanPage() {
                         onChange={(e) => setEditFormData(prev => ({ ...prev, responsavel_comercial: e.target.value }))}
                       />
                     </div>
+                  </div>
+                  
+                  {/* Campo de observações em largura completa */}
+                  <div className="space-y-2">
+                    <Label htmlFor="observacoes">Observações Internas</Label>
+                    <Textarea
+                      id="observacoes"
+                      placeholder="Adicione observações sobre este lead..."
+                      value={editFormData.observacoes_internas || ''}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, observacoes_internas: e.target.value }))}
+                      rows={4}
+                      className="resize-none"
+                    />
                   </div>
                 </div>
               )}
