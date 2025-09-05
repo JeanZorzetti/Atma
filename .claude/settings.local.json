@@ -39,7 +39,19 @@
       "Bash(npm run dev:*)",
       "Bash(npm run build:*)",
       "Bash(npm run:*)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "WebFetch(domain:atmaapi.roilabs.com.br)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\admin\\src\\app\\admin\\crm\\kanban/**)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\admin\\src\\app\\admin\\crm\\kanban/**)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\admin\\src\\app\\admin\\crm\\kanban/**)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\admin\\src\\app\\admin\\crm\\kanban/**)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend\\src\\controllers/**)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend\\src\\utils/**)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend\\src\\routes/**)",
+      "Bash(find:*)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend/**)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend/**)",
+      "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend/**)"
     ],
     "deny": [],
     "ask": []

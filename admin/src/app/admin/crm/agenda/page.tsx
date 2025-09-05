@@ -16,13 +16,31 @@ import {
   CheckCircle2
 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useCrmLeads } from '@/hooks/useApi'
-import type { CrmLead } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
+import { apiService, type CrmLead } from '@/lib/api'
+import { useState } from 'react'
 
 export default function CrmAgendaPage() {
-  const { data: crmData, loading, error } = useCrmLeads()
+  const { data: crmData, loading, error, refetch } = useCrmLeads()
   const leads = crmData?.leads || []
+  const { toast } = useToast()
+  const [showNewFollowUpModal, setShowNewFollowUpModal] = useState(false)
+  const [followUpForm, setFollowUpForm] = useState({
+    leadId: '',
+    datetime: '',
+    notes: ''
+  })
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase()
@@ -46,6 +64,95 @@ export default function CrmAgendaPage() {
     const oneWeekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
     return followUpDate > today && followUpDate <= oneWeekFromNow
   })
+
+  // Funções de ação da agenda
+  const handlePhoneCall = (lead: CrmLead) => {
+    window.open(`tel:${lead.telefone}`, '_self')
+    toast({
+      title: 'Ligando...',
+      description: `Iniciando chamada para ${lead.nome}`,
+    })
+  }
+
+  const handleEmail = (lead: CrmLead) => {
+    const subject = encodeURIComponent(`Follow-up - ${lead.nome}`)
+    const body = encodeURIComponent(`Olá ${lead.nome},\n\nEspero que esteja bem!\n\nRetomando nossa conversa sobre a Atma Aligner...\n\n`)
+    window.open(`mailto:${lead.email}?subject=${subject}&body=${body}`, '_blank')
+    toast({
+      title: 'Email aberto',
+      description: `Redigindo follow-up para ${lead.nome}`,
+    })
+  }
+
+  const handleCompleteFollowUp = async (lead: CrmLead) => {
+    try {
+      await apiService.updateLead(lead.id, {
+        próximo_followup: '',
+        observacoes_internas: (lead.observacoes_internas || '') + 
+          `\n[${new Date().toLocaleDateString('pt-BR')}] Follow-up concluído.`
+      })
+
+      toast({
+        title: 'Follow-up concluído!',
+        description: `Ação para ${lead.nome} marcada como concluída.`,
+      })
+
+      await refetch()
+    } catch {
+      toast({
+        title: 'Erro ao concluir',
+        description: 'Não foi possível marcar o follow-up como concluído.',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleRescheduleFollowUp = (lead: CrmLead) => {
+    // Pré-preencher o formulário com o lead selecionado
+    setFollowUpForm({
+      leadId: lead.id.toString(),
+      datetime: lead.próximo_followup || '',
+      notes: 'Reagendamento de follow-up'
+    })
+    setShowNewFollowUpModal(true)
+  }
+
+  const handleCreateFollowUp = async () => {
+    if (!followUpForm.leadId || !followUpForm.datetime) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Por favor, selecione um lead e data/hora.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    try {
+      const selectedLead = leads.find(l => l.id === parseInt(followUpForm.leadId))
+      
+      await apiService.updateLead(parseInt(followUpForm.leadId), {
+        próximo_followup: followUpForm.datetime,
+        observacoes_internas: selectedLead?.observacoes_internas 
+          ? selectedLead.observacoes_internas + `\n[${new Date().toLocaleDateString('pt-BR')}] Follow-up agendado: ${followUpForm.notes}`
+          : `[${new Date().toLocaleDateString('pt-BR')}] Follow-up agendado: ${followUpForm.notes}`
+      })
+
+      toast({
+        title: 'Follow-up agendado!',
+        description: `Ação agendada para ${selectedLead?.nome} em ${new Date(followUpForm.datetime).toLocaleString('pt-BR')}.`,
+      })
+
+      setShowNewFollowUpModal(false)
+      setFollowUpForm({ leadId: '', datetime: '', notes: '' })
+      await refetch()
+    } catch {
+      toast({
+        title: 'Erro ao agendar',
+        description: 'Não foi possível agendar o follow-up.',
+        variant: 'destructive'
+      })
+    }
+  }
 
   const getStatusBadge = (status: string) => {
     const badges = {
@@ -114,17 +221,40 @@ export default function CrmAgendaPage() {
 
           <div className="flex items-center justify-between pt-3 border-t mt-3">
             <div className="flex gap-1">
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-7 w-7 p-0 hover:bg-green-50 hover:text-green-600"
+                onClick={() => handlePhoneCall(lead)}
+                title={`Ligar para ${lead.telefone}`}
+              >
                 <Phone className="h-3 w-3" />
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-7 w-7 p-0 hover:bg-blue-50 hover:text-blue-600"
+                onClick={() => handleEmail(lead)}
+                title={`Email para ${lead.email}`}
+              >
                 <Mail className="h-3 w-3" />
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-7 w-7 p-0 hover:bg-orange-50 hover:text-orange-600"
+                onClick={() => handleRescheduleFollowUp(lead)}
+                title="Reagendar follow-up"
+              >
                 <Calendar className="h-3 w-3" />
               </Button>
             </div>
-            <Button size="sm" variant="outline" className="h-7 text-xs">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="h-7 text-xs hover:bg-green-50 hover:text-green-600"
+              onClick={() => handleCompleteFollowUp(lead)}
+            >
               <CheckCircle2 className="mr-1 h-3 w-3" />
               Concluir
             </Button>
@@ -218,7 +348,10 @@ export default function CrmAgendaPage() {
             </p>
           </div>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => setShowNewFollowUpModal(true)}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Novo Follow-up
         </Button>
@@ -374,6 +507,90 @@ export default function CrmAgendaPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Modal de Novo Follow-up */}
+      <Dialog open={showNewFollowUpModal} onOpenChange={setShowNewFollowUpModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Agendar Novo Follow-up</DialogTitle>
+            <DialogDescription>
+              Selecione um lead e defina quando deve ser o próximo contato.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="lead-select">Lead</Label>
+              <select
+                id="lead-select"
+                value={followUpForm.leadId}
+                onChange={(e) => setFollowUpForm(prev => ({ 
+                  ...prev, 
+                  leadId: e.target.value 
+                }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Selecione um lead...</option>
+                {leads.map(lead => (
+                  <option key={lead.id} value={lead.id.toString()}>
+                    {lead.nome} - {lead.clinica}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="follow-datetime">Data e Horário</Label>
+              <Input
+                id="follow-datetime"
+                type="datetime-local"
+                value={followUpForm.datetime}
+                onChange={(e) => setFollowUpForm(prev => ({ 
+                  ...prev, 
+                  datetime: e.target.value 
+                }))}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="follow-notes">Observações</Label>
+              <textarea
+                id="follow-notes"
+                placeholder="Adicione detalhes sobre o follow-up (opcional)"
+                value={followUpForm.notes}
+                onChange={(e) => setFollowUpForm(prev => ({ 
+                  ...prev, 
+                  notes: e.target.value 
+                }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  setShowNewFollowUpModal(false)
+                  setFollowUpForm({ leadId: '', datetime: '', notes: '' })
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleCreateFollowUp}
+                className="bg-blue-600 hover:bg-blue-700"
+                disabled={!followUpForm.leadId || !followUpForm.datetime}
+              >
+                Agendar Follow-up
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

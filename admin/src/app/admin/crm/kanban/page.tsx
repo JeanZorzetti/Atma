@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 // AlertDialog não disponível, usando Dialog comum
 import { Input } from '@/components/ui/input'
@@ -100,6 +101,12 @@ export default function KanbanPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [editFormData, setEditFormData] = useState<Partial<CrmLead>>({})
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showFollowUpModal, setShowFollowUpModal] = useState(false)
+  const [followUpForm, setFollowUpForm] = useState({
+    leadId: '',
+    datetime: '',
+    notes: ''
+  })
   const { toast } = useToast()
   
   const { data: crmData, loading, refetch } = useCrmLeads(
@@ -219,6 +226,55 @@ export default function KanbanPage() {
   const handleCancelEdit = () => {
     setIsEditing(false)
     setEditFormData({})
+  }
+
+  // Funções de follow-up
+  const handleScheduleFollowUp = (lead: CrmLead | null) => {
+    if (!lead) return
+    
+    setFollowUpForm({
+      leadId: lead.id.toString(),
+      datetime: lead.próximo_followup || '',
+      notes: lead.próximo_followup ? 'Reagendamento de follow-up' : 'Novo follow-up agendado'
+    })
+    setShowFollowUpModal(true)
+  }
+
+  const handleCreateFollowUp = async () => {
+    if (!followUpForm.leadId || !followUpForm.datetime) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Por favor, selecione um lead e data/hora.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    try {
+      const selectedLead = optimisticLeads.find(l => l.id === parseInt(followUpForm.leadId))
+      
+      await apiService.updateLead(parseInt(followUpForm.leadId), {
+        próximo_followup: followUpForm.datetime,
+        observacoes_internas: selectedLead?.observacoes_internas 
+          ? selectedLead.observacoes_internas + `\n[${new Date().toLocaleDateString('pt-BR')}] Follow-up agendado: ${followUpForm.notes}`
+          : `[${new Date().toLocaleDateString('pt-BR')}] Follow-up agendado: ${followUpForm.notes}`
+      })
+
+      toast({
+        title: 'Follow-up agendado!',
+        description: `Ação agendada para ${selectedLead?.nome} em ${new Date(followUpForm.datetime).toLocaleString('pt-BR')}.`,
+      })
+
+      setShowFollowUpModal(false)
+      setFollowUpForm({ leadId: '', datetime: '', notes: '' })
+      await refetch()
+    } catch {
+      toast({
+        title: 'Erro ao agendar',
+        description: 'Não foi possível agendar o follow-up.',
+        variant: 'destructive'
+      })
+    }
   }
 
   // Função de exclusão
@@ -611,6 +667,15 @@ export default function KanbanPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => handleScheduleFollowUp(selectedLead)}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <Calendar className="h-4 w-4" />
+                    Follow-up
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setShowDeleteDialog(true)}
                     className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
@@ -925,6 +990,69 @@ export default function KanbanPage() {
             >
               Excluir Lead
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Follow-up */}
+      <Dialog open={showFollowUpModal} onOpenChange={setShowFollowUpModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Agendar Follow-up</DialogTitle>
+            <DialogDescription>
+              Defina quando deve ser o próximo contato com este lead.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="follow-datetime">Data e Horário</Label>
+              <Input
+                id="follow-datetime"
+                type="datetime-local"
+                value={followUpForm.datetime}
+                onChange={(e) => setFollowUpForm(prev => ({ 
+                  ...prev, 
+                  datetime: e.target.value 
+                }))}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="follow-notes">Observações</Label>
+              <Textarea
+                id="follow-notes"
+                placeholder="Adicione detalhes sobre o follow-up (opcional)"
+                value={followUpForm.notes}
+                onChange={(e) => setFollowUpForm(prev => ({ 
+                  ...prev, 
+                  notes: e.target.value 
+                }))}
+                rows={3}
+                className="resize-none"
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  setShowFollowUpModal(false)
+                  setFollowUpForm({ leadId: '', datetime: '', notes: '' })
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleCreateFollowUp}
+                className="bg-blue-600 hover:bg-blue-700"
+                disabled={!followUpForm.leadId || !followUpForm.datetime}
+              >
+                Agendar Follow-up
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

@@ -504,6 +504,126 @@ const createCrmLead = async (req, res, next) => {
   }
 };
 
+// PUT /api/crm/leads/:id - Atualizar lead completo
+const updateCrmLead = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // Verificar se o lead existe
+    const existingLead = await executeQuery('SELECT * FROM crm_leads WHERE id = ?', [id]);
+    if (!existingLead.length) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Lead não encontrado' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Campos permitidos para atualização
+    const allowedFields = [
+      'nome', 'clinica', 'cro', 'email', 'telefone', 'status',
+      'responsavel_comercial', 'origem_lead', 'observacoes_internas',
+      'próximo_followup', 'consultórios', 'scanner', 'scanner_marca',
+      'casos_mes', 'interesse'
+    ];
+
+    // Construir query de update dinamicamente
+    const updateFields = [];
+    const queryParams = [];
+
+    Object.keys(updateData).forEach(key => {
+      if (allowedFields.includes(key) && updateData[key] !== undefined) {
+        updateFields.push(`${key} = ?`);
+        queryParams.push(updateData[key]);
+      }
+    });
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Nenhum campo válido para atualização' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Adicionar updated_at
+    updateFields.push('updated_at = NOW()');
+    queryParams.push(id);
+
+    const updateQuery = `UPDATE crm_leads SET ${updateFields.join(', ')} WHERE id = ?`;
+    
+    await executeQuery(updateQuery, queryParams);
+
+    // Registrar atividade
+    const activityQuery = `
+      INSERT INTO crm_activities (crm_lead_id, tipo, titulo, descricao, usuario)
+      VALUES (?, 'atualizacao', 'Lead atualizado', ?, 'Sistema')
+    `;
+    const updatedFields = Object.keys(updateData).filter(key => allowedFields.includes(key));
+    await executeQuery(activityQuery, [id, `Campos atualizados: ${updatedFields.join(', ')}`]);
+
+    // Buscar lead atualizado
+    const updatedLead = await executeQuery('SELECT * FROM crm_leads WHERE id = ?', [id]);
+
+    logger.info(`Lead ${id} atualizado com sucesso`);
+
+    res.json({
+      success: true,
+      message: 'Lead atualizado com sucesso',
+      lead: updatedLead[0],
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao atualizar lead CRM:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro ao atualizar lead', details: error.message },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
+// DELETE /api/crm/leads/:id - Excluir lead
+const deleteCrmLead = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Verificar se o lead existe
+    const existingLead = await executeQuery('SELECT * FROM crm_leads WHERE id = ?', [id]);
+    if (!existingLead.length) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Lead não encontrado' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Excluir atividades relacionadas primeiro
+    await executeQuery('DELETE FROM crm_activities WHERE crm_lead_id = ?', [id]);
+
+    // Excluir o lead
+    await executeQuery('DELETE FROM crm_leads WHERE id = ?', [id]);
+
+    logger.info(`Lead ${id} (${existingLead[0].nome}) excluído com sucesso`);
+
+    res.json({
+      success: true,
+      message: 'Lead excluído com sucesso',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao excluir lead CRM:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro ao excluir lead', details: error.message },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 // GET /api/crm/leads/:id - Buscar lead específico
 const getCrmLead = async (req, res, next) => {
   try {
@@ -570,12 +690,64 @@ const migrateStatusEnum = async (req, res, next) => {
   }
 };
 
+// POST /api/crm/migrate-followup - Adicionar coluna próximo_followup
+const migrateFollowUpColumn = async (req, res, next) => {
+  try {
+    // Primeiro verificar se a coluna já existe
+    const checkColumnQuery = `
+      SELECT COLUMN_NAME 
+      FROM INFORMATION_SCHEMA.COLUMNS 
+      WHERE TABLE_SCHEMA = DATABASE() 
+      AND TABLE_NAME = 'crm_leads' 
+      AND COLUMN_NAME = 'próximo_followup'
+    `;
+    
+    const columnExists = await executeQuery(checkColumnQuery);
+    
+    if (columnExists.length > 0) {
+      return res.json({
+        success: true,
+        message: 'Coluna próximo_followup já existe',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Adicionar a coluna
+    const addColumnQuery = `
+      ALTER TABLE crm_leads 
+      ADD COLUMN próximo_followup DATETIME NULL 
+      COMMENT 'Data e hora do próximo follow-up agendado'
+    `;
+    
+    await executeQuery(addColumnQuery);
+    
+    logger.info('Coluna próximo_followup adicionada com sucesso');
+    
+    res.json({
+      success: true,
+      message: 'Coluna próximo_followup adicionada com sucesso',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    logger.error('Erro ao adicionar coluna próximo_followup:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro ao adicionar coluna', details: error.message },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   getCrmLeads,
   getCrmStats,
   updateLeadStatus,
+  updateCrmLead,
+  deleteCrmLead,
   migrateLeadToPpartnership,
   createCrmLead,
   getCrmLead,
-  migrateStatusEnum
+  migrateStatusEnum,
+  migrateFollowUpColumn
 };

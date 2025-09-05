@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getCrmLeads, getCrmStats, updateLeadStatus, migrateLeadToPpartnership, createCrmLead, getCrmLead, migrateStatusEnum } = require('../controllers/crmController');
+const { getCrmLeads, getCrmStats, updateLeadStatus, updateCrmLead, deleteCrmLead, migrateLeadToPpartnership, createCrmLead, getCrmLead, migrateStatusEnum, migrateFollowUpColumn } = require('../controllers/crmController');
 
 // GET /api/crm/leads - Listar todos os leads do CRM (com filtros e paginação)
 router.get('/leads', getCrmLeads);
@@ -10,6 +10,12 @@ router.post('/leads', createCrmLead);
 
 // GET /api/crm/leads/:id - Buscar lead específico
 router.get('/leads/:id', getCrmLead);
+
+// PUT /api/crm/leads/:id - Atualizar lead completo
+router.put('/leads/:id', updateCrmLead);
+
+// DELETE /api/crm/leads/:id - Excluir lead
+router.delete('/leads/:id', deleteCrmLead);
 
 // GET /api/crm/stats - Estatísticas e conversões do funil
 router.get('/stats', getCrmStats);
@@ -22,5 +28,8 @@ router.post('/leads/:id/migrate', migrateLeadToPpartnership);
 
 // POST /api/crm/migrate-status - Migrar ENUM da tabela para incluir parceria_fechada
 router.post('/migrate-status', migrateStatusEnum);
+
+// POST /api/crm/migrate-followup - Adicionar coluna próximo_followup
+router.post('/migrate-followup', migrateFollowUpColumn);
 
 module.exports = router;
