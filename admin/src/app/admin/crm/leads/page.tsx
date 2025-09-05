@@ -32,6 +32,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useCrmLeads } from '@/hooks/useApi'
 import { CrmFilters } from '@/components/crm/filters'
@@ -42,6 +51,13 @@ import { useToast } from '@/hooks/use-toast'
 export default function CrmLeadsListPage() {
   const [filters, setFilters] = useState({})
   const [showNewLeadModal, setShowNewLeadModal] = useState(false)
+  const [showFollowUpModal, setShowFollowUpModal] = useState(false)
+  const [selectedLeadForFollowUp, setSelectedLeadForFollowUp] = useState<any>(null)
+  const [followUpForm, setFollowUpForm] = useState({
+    leadId: '',
+    datetime: '',
+    notes: ''
+  })
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 20
   const { toast } = useToast()
@@ -107,6 +123,52 @@ export default function CrmLeadsListPage() {
       toast({
         title: 'Erro ao atualizar',
         description: 'Não foi possível atualizar o status do lead.',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleScheduleFollowUp = (lead: any) => {
+    setSelectedLeadForFollowUp(lead)
+    setFollowUpForm({
+      leadId: lead.id.toString(),
+      datetime: lead.próximo_followup || '',
+      notes: lead.próximo_followup ? 'Reagendamento de follow-up' : 'Novo follow-up agendado'
+    })
+    setShowFollowUpModal(true)
+  }
+
+  const handleCreateFollowUp = async () => {
+    if (!followUpForm.leadId || !followUpForm.datetime) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Por favor, selecione um lead e data/hora.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    try {
+      await apiService.updateLead(parseInt(followUpForm.leadId), {
+        próximo_followup: followUpForm.datetime,
+        observacoes_internas: selectedLeadForFollowUp?.observacoes_internas 
+          ? selectedLeadForFollowUp.observacoes_internas + `\n[${new Date().toLocaleDateString('pt-BR')}] Follow-up agendado: ${followUpForm.notes}`
+          : `[${new Date().toLocaleDateString('pt-BR')}] Follow-up agendado: ${followUpForm.notes}`
+      })
+
+      toast({
+        title: 'Follow-up agendado!',
+        description: `Ação agendada para ${selectedLeadForFollowUp?.nome} em ${new Date(followUpForm.datetime).toLocaleString('pt-BR')}.`,
+      })
+
+      setShowFollowUpModal(false)
+      setFollowUpForm({ leadId: '', datetime: '', notes: '' })
+      setSelectedLeadForFollowUp(null)
+      await refetch()
+    } catch {
+      toast({
+        title: 'Erro ao agendar',
+        description: 'Não foi possível agendar o follow-up.',
         variant: 'destructive'
       })
     }
@@ -318,7 +380,7 @@ export default function CrmLeadsListPage() {
                               <Mail className="mr-2 h-4 w-4" />
                               Enviar email
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleScheduleFollowUp(lead)}>
                               <Calendar className="mr-2 h-4 w-4" />
                               Agendar follow-up
                             </DropdownMenuItem>
@@ -383,6 +445,47 @@ export default function CrmLeadsListPage() {
           refetch()
         }}
       />
+
+      {/* Modal de Follow-up */}
+      <Dialog open={showFollowUpModal} onOpenChange={setShowFollowUpModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Agendar Follow-up</DialogTitle>
+            <DialogDescription>
+              Agende um follow-up para {selectedLeadForFollowUp?.nome}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="datetime">Data e Hora</Label>
+              <Input
+                id="datetime"
+                type="datetime-local"
+                value={followUpForm.datetime}
+                onChange={(e) => setFollowUpForm(prev => ({ ...prev, datetime: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="notes">Observações</Label>
+              <Input
+                id="notes"
+                value={followUpForm.notes}
+                onChange={(e) => setFollowUpForm(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Adicione observações sobre este follow-up..."
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowFollowUpModal(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleCreateFollowUp} className="bg-blue-600 hover:bg-blue-700">
+              Agendar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
