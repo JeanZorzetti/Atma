@@ -1,0 +1,7 @@
+nome,clinica,cro,email,telefone,cidade,estado,consultorios,scanner,scanner_marca,casos_mes,interesse,responsavel,origem,observacoes
+Dr. João Silva,Clínica OrthoSmile,CRO-SP 12345,joao@orthosmile.com.br,(11) 9999-8888,São Paulo,SP,2-3,sim,iTero,11-20,atma-aligner,Maria Santos,outbound,Lead qualificado - tem interesse em tecnologia
+Dra. Ana Costa,Costa Ortodontia,CRO-RJ 67890,ana@costaortodontia.com.br,(21) 8888-7777,Rio de Janeiro,RJ,4-5,nao,,21+,atma-labs,João Oliveira,inbound,Preencheu formulário no site - alto volume
+Dr. Carlos Mendes,Mendes & Associados,CRO-MG 54321,carlos@mendesortho.com.br,(31) 7777-6666,Belo Horizonte,MG,6+,sim,3Shape,21+,ambos,Maria Santos,indicacao,Indicação do Dr. Paulo - muito interessado
+Dra. Lucia Fernandes,Sorriso Perfeito,CRO-SP 98765,lucia@sorrisoperfeito.com.br,(11) 6666-5555,Campinas,SP,2-3,nao,,6-10,atma-aligner,João Oliveira,evento,Conheceu no congresso - proposta enviada
+Dr. Roberto Santos,Clínica Dental Excellence,CRO-RS 13579,roberto@dentalexcellence.com.br,(51) 5555-4444,Porto Alegre,RS,1,sim,Medit,1-5,atma-aligner,Carlos Lima,outbound,Primeiro contato - interessado em modernização
+Dra. Patricia Alves,Ortodontia Moderna,CRO-DF 24681,patricia@ortodontiamoderna.com.br,(61) 4444-3333,Brasília,DF,2-3,sim,CEREC,11-20,atma-labs,Ana Silva,inbound,Lead com potencial alto - clínica em expansão
