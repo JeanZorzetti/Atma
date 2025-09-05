@@ -168,11 +168,8 @@ export default function KanbanPage() {
   }
 
   const handleSchedule = (lead: CrmLead) => {
-    // Integração futura com sistema de agendamento
-    toast({
-      title: 'Agendar reunião',
-      description: `Funcionalidade em desenvolvimento para ${lead.nome}`,
-    })
+    // Abrir o modal de follow-up
+    handleScheduleFollowUp(lead)
   }
 
   // Funções de edição
@@ -945,12 +942,14 @@ export default function KanbanPage() {
                       variant="outline"
                       className="flex-1"
                       onClick={() => {
-                        handleSchedule(selectedLead)
-                        setShowLeadModal(false)
+                        if (selectedLead) {
+                          handleScheduleFollowUp(selectedLead)
+                          setShowLeadModal(false)
+                        }
                       }}
                     >
                       <Calendar className="mr-2 h-4 w-4" />
-                      Agendar
+                      Agendar Follow-up
                     </Button>
                   </div>
                 </>
