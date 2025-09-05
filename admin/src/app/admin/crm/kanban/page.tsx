@@ -183,9 +183,10 @@ export default function KanbanPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="space-y-6 p-4 md:p-6">
+      {/* Header responsivo */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
           <Link href="/admin/crm">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -193,12 +194,12 @@ export default function KanbanPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Kanban Pipeline</h1>
-            <p className="text-gray-600">Gerencie o funil de captação de ortodontistas</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Kanban Pipeline</h1>
+            <p className="text-sm sm:text-base text-gray-600">Gerencie o funil de captação de ortodontistas</p>
           </div>
         </div>
         <Button 
-          className="bg-blue-600 hover:bg-blue-700"
+          className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
           onClick={() => setShowNewLeadModal(true)}
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -213,9 +214,9 @@ export default function KanbanPage() {
       />
 
       {/* Kanban Board */}
-      <div className="flex gap-6 overflow-x-auto pb-4">
+      <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 min-h-[600px]">
         {columns.map((column) => (
-          <div key={column.id} className="flex-shrink-0 w-80">
+          <div key={column.id} className="flex-shrink-0 w-72 sm:w-80 min-w-[280px]">
             <Card className={`${column.color} border-2`}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -228,7 +229,7 @@ export default function KanbanPage() {
                 </div>
               </CardHeader>
               <CardContent 
-                className="space-y-3"
+                className="space-y-3 min-h-[500px] max-h-[70vh] overflow-y-auto"
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, column.id)}
               >
