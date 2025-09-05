@@ -219,6 +219,17 @@ class ApiService {
     this.baseUrl = baseUrl
   }
 
+  // Method to invalidate cache for specific endpoints
+  private invalidateCache(pattern: string) {
+    const keysToDelete: string[] = []
+    this.requestCache.forEach((_, key) => {
+      if (key.includes(pattern)) {
+        keysToDelete.push(key)
+      }
+    })
+    keysToDelete.forEach(key => this.requestCache.delete(key))
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -524,11 +535,16 @@ class ApiService {
   }
 
   async updateLeadStatus(id: number, status: string, observacoes?: string) {
-    return this.request(`/crm/leads/${id}/status`, {
+    const result = await this.request(`/crm/leads/${id}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, observacoes }),
     })
+    
+    // Invalidate CRM leads cache to force fresh data on next request
+    this.invalidateCache('/crm/leads')
+    
+    return result
   }
 }
 

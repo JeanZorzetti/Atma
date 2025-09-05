@@ -133,7 +133,7 @@ export default function KanbanPage() {
     })
 
     try {
-      // 3. Fazer request para o servidor
+      // 3. Fazer request para o servidor (cache será invalidado automaticamente)
       await apiService.updateLeadStatus(draggedLead.id, newStatus)
       
       // 4. Toast de sucesso
@@ -142,8 +142,7 @@ export default function KanbanPage() {
         description: `Lead movido para ${getStatusLabel(newStatus)}.`,
       })
       
-      // 5. Sincronizar com servidor para manter dados frescos
-      // O useOptimistic automaticamente sincroniza quando serverLeads muda
+      // 5. Forçar atualização dos dados do servidor
       await refetch()
       
     } catch {
