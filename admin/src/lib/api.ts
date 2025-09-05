@@ -561,22 +561,32 @@ class ApiService {
       
       return result
     } catch (error: unknown) {
-      // If the endpoint doesn't exist (404), try fallback approach using the enhanced status endpoint
+      // If the endpoint doesn't exist (404/500), try fallback approach using the enhanced status endpoint
       const errorMessage = (error as Error)?.message || ''
-      if (errorMessage.includes('não encontrado') || errorMessage.includes('não existe')) {
-        console.warn('Using enhanced status endpoint as fallback for updateLead')
+      const isEndpointMissing = errorMessage.includes('não encontrado') || 
+                              errorMessage.includes('não existe') ||
+                              errorMessage.includes('500') ||
+                              errorMessage.includes('HTTP error')
+      
+      if (isEndpointMissing) {
+        console.warn('Using enhanced status endpoint as fallback for updateLead:', errorMessage)
         
-        // Use the enhanced status endpoint that can handle more fields
-        const result = await this.request(`/crm/leads/${id}/status`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(leadData),
-        })
-        
-        // Invalidate CRM leads cache to force fresh data on next request
-        this.invalidateCache('/crm/leads')
-        
-        return result
+        try {
+          // Use the enhanced status endpoint that can handle more fields
+          const result = await this.request(`/crm/leads/${id}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(leadData),
+          })
+          
+          // Invalidate CRM leads cache to force fresh data on next request
+          this.invalidateCache('/crm/leads')
+          
+          return result
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError)
+          throw new Error('Não foi possível atualizar o lead. Verifique se o backend foi atualizado.')
+        }
       }
       
       throw error
