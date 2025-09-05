@@ -16,6 +16,7 @@ import {
 import { 
   ArrowLeft,
   Plus,
+  Upload,
   Phone,
   Mail,
   Calendar,
@@ -45,12 +46,14 @@ import Link from 'next/link'
 import { useCrmLeads } from '@/hooks/useApi'
 import { CrmFilters } from '@/components/crm/filters'
 import { NewLeadModal } from '@/components/crm/new-lead-modal'
+import { ImportLeadsModal } from '@/components/crm/import-leads-modal'
 import { apiService } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
 
 export default function CrmLeadsListPage() {
   const [filters, setFilters] = useState({})
   const [showNewLeadModal, setShowNewLeadModal] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
   const [showFollowUpModal, setShowFollowUpModal] = useState(false)
   const [selectedLeadForFollowUp, setSelectedLeadForFollowUp] = useState<unknown>(null)
   const [followUpForm, setFollowUpForm] = useState({
@@ -267,13 +270,22 @@ export default function CrmLeadsListPage() {
             </p>
           </div>
         </div>
-        <Button 
-          className="bg-blue-600 hover:bg-blue-700"
-          onClick={() => setShowNewLeadModal(true)}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Lead
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowImportModal(true)}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Importar Planilha
+          </Button>
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => setShowNewLeadModal(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Lead
+          </Button>
+        </div>
       </div>
 
       {/* Filtros */}
@@ -497,6 +509,15 @@ export default function CrmLeadsListPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de Importação */}
+      <ImportLeadsModal 
+        open={showImportModal}
+        onOpenChange={setShowImportModal}
+        onSuccess={() => {
+          refetch()
+        }}
+      />
     </div>
   )
 }

@@ -1,5 +1,26 @@
 const { executeQuery } = require('../config/database');
 const { logger } = require('../utils/logger');
+const XLSX = require('xlsx');
+const multer = require('multer');
+
+// Configurar multer para upload de arquivos na memória
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limite
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/vnd.ms-excel', // .xls
+      'text/csv' // .csv
+    ];
+    
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos Excel (.xlsx, .xls) ou CSV são permitidos'), false);
+    }
+  }
+});
 
 // GET /api/crm/leads - Listar todos os leads do CRM
 const getCrmLeads = async (req, res, next) => {
@@ -785,6 +806,186 @@ const migrateFollowUpColumn = async (req, res, next) => {
   }
 };
 
+// POST /api/crm/leads/import - Importar leads via planilha
+const importLeads = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Nenhum arquivo enviado' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Processar o arquivo
+    let workbook;
+    try {
+      if (req.file.mimetype === 'text/csv') {
+        // Para arquivos CSV
+        const csvData = req.file.buffer.toString('utf8');
+        workbook = XLSX.read(csvData, { type: 'string' });
+      } else {
+        // Para arquivos Excel
+        workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      }
+    } catch (parseError) {
+      logger.error('Erro ao processar arquivo:', parseError);
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Erro ao processar arquivo. Verifique se o formato está correto.' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Pegar a primeira aba
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    
+    // Converter para JSON
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+    if (jsonData.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Planilha está vazia' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Mapear colunas (flexível para diferentes formatos)
+    const mapColumn = (row, possibleNames) => {
+      for (const name of possibleNames) {
+        if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
+          return String(row[name]).trim();
+        }
+      }
+      return null;
+    };
+
+    const results = {
+      imported: 0,
+      skipped: 0,
+      errors: []
+    };
+
+    // Processar cada linha
+    for (let i = 0; i < jsonData.length; i++) {
+      const row = jsonData[i];
+      const rowNumber = i + 2; // +2 porque Excel começa em 1 e temos header
+
+      try {
+        // Mapear campos com diferentes possibilidades de nomes de colunas
+        const leadData = {
+          nome: mapColumn(row, ['nome', 'Nome', 'NOME', 'name', 'Name']),
+          clinica: mapColumn(row, ['clinica', 'Clinica', 'CLINICA', 'clínica', 'clinic', 'Clinic']),
+          cro: mapColumn(row, ['cro', 'CRO', 'Cro', 'registro', 'Registro']),
+          email: mapColumn(row, ['email', 'Email', 'EMAIL', 'e-mail', 'E-mail']),
+          telefone: mapColumn(row, ['telefone', 'Telefone', 'TELEFONE', 'phone', 'Phone', 'tel']),
+          cidade: mapColumn(row, ['cidade', 'Cidade', 'CIDADE', 'city', 'City']),
+          estado: mapColumn(row, ['estado', 'Estado', 'ESTADO', 'uf', 'UF', 'state', 'State']),
+          consultórios: mapColumn(row, ['consultorios', 'Consultorios', 'CONSULTORIOS', 'consultórios', 'Consultórios']),
+          scanner: mapColumn(row, ['scanner', 'Scanner', 'SCANNER', 'tem_scanner']),
+          scanner_marca: mapColumn(row, ['scanner_marca', 'Scanner_Marca', 'marca_scanner', 'Marca_Scanner']),
+          casos_mes: mapColumn(row, ['casos_mes', 'Casos_Mes', 'casos_por_mes', 'Casos_Por_Mes']),
+          interesse: mapColumn(row, ['interesse', 'Interesse', 'INTERESSE']),
+          responsavel_comercial: mapColumn(row, ['responsavel', 'Responsavel', 'RESPONSAVEL', 'responsavel_comercial', 'Responsavel_Comercial']),
+          origem_lead: mapColumn(row, ['origem', 'Origem', 'ORIGEM', 'origem_lead', 'Origem_Lead']),
+          observacoes_internas: mapColumn(row, ['observacoes', 'Observacoes', 'OBSERVACOES', 'observações', 'Observações', 'notes', 'Notes'])
+        };
+
+        // Validar campos obrigatórios
+        if (!leadData.nome || !leadData.clinica || !leadData.cro || !leadData.email || !leadData.telefone) {
+          results.errors.push(`Linha ${rowNumber}: Campos obrigatórios ausentes (nome, clinica, cro, email, telefone)`);
+          results.skipped++;
+          continue;
+        }
+
+        // Verificar se CRO já existe
+        const existingLead = await executeQuery('SELECT id FROM crm_leads WHERE cro = ?', [leadData.cro]);
+        if (existingLead.length > 0) {
+          results.errors.push(`Linha ${rowNumber}: CRO ${leadData.cro} já existe no sistema`);
+          results.skipped++;
+          continue;
+        }
+
+        // Normalizar valores de ENUM
+        if (leadData.scanner) {
+          leadData.scanner = ['sim', 'yes', 'true', '1'].includes(leadData.scanner.toLowerCase()) ? 'sim' : 'nao';
+        }
+
+        if (leadData.interesse) {
+          const interesse = leadData.interesse.toLowerCase();
+          if (interesse.includes('aligner')) leadData.interesse = 'atma-aligner';
+          else if (interesse.includes('labs')) leadData.interesse = 'atma-labs';
+          else if (interesse.includes('ambos') || interesse.includes('both')) leadData.interesse = 'ambos';
+          else leadData.interesse = null;
+        }
+
+        if (leadData.origem_lead) {
+          const origem = leadData.origem_lead.toLowerCase();
+          if (['inbound', 'outbound', 'indicacao', 'indicação', 'evento', 'outro'].includes(origem)) {
+            leadData.origem_lead = origem === 'indicação' ? 'indicacao' : origem;
+          } else {
+            leadData.origem_lead = 'outro';
+          }
+        } else {
+          leadData.origem_lead = 'outbound';
+        }
+
+        // Inserir lead no banco
+        const insertQuery = `
+          INSERT INTO crm_leads (
+            nome, clinica, cro, email, telefone, cidade, estado,
+            consultórios, scanner, scanner_marca, casos_mes, interesse,
+            responsavel_comercial, origem_lead, observacoes_internas
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        const queryParams = [
+          leadData.nome,
+          leadData.clinica,
+          leadData.cro,
+          leadData.email,
+          leadData.telefone,
+          leadData.cidade,
+          leadData.estado,
+          leadData.consultórios,
+          leadData.scanner,
+          leadData.scanner_marca,
+          leadData.casos_mes,
+          leadData.interesse,
+          leadData.responsavel_comercial || 'Sistema',
+          leadData.origem_lead,
+          leadData.observacoes_internas
+        ];
+
+        await executeQuery(insertQuery, queryParams);
+        results.imported++;
+
+      } catch (error) {
+        logger.error(`Erro ao processar linha ${rowNumber}:`, error);
+        results.errors.push(`Linha ${rowNumber}: ${error.message}`);
+        results.skipped++;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      results,
+      message: `Importação concluída: ${results.imported} leads importados, ${results.skipped} ignorados`,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro na importação de leads:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro interno do servidor durante a importação' },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   getCrmLeads,
   getCrmStats,
@@ -795,5 +996,7 @@ module.exports = {
   createCrmLead,
   getCrmLead,
   migrateStatusEnum,
-  migrateFollowUpColumn
+  migrateFollowUpColumn,
+  importLeads,
+  upload
 };

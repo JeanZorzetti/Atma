@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { getCrmLeads, getCrmStats, updateLeadStatus, updateCrmLead, deleteCrmLead, migrateLeadToPpartnership, createCrmLead, getCrmLead, migrateStatusEnum, migrateFollowUpColumn } = require('../controllers/crmController');
+const { getCrmLeads, getCrmStats, updateLeadStatus, updateCrmLead, deleteCrmLead, migrateLeadToPpartnership, createCrmLead, getCrmLead, migrateStatusEnum, migrateFollowUpColumn, importLeads, upload } = require('../controllers/crmController');
 
 // GET /api/crm/leads - Listar todos os leads do CRM (com filtros e paginação)
 router.get('/leads', getCrmLeads);
 
 // POST /api/crm/leads - Criar novo lead
 router.post('/leads', createCrmLead);
+
+// POST /api/crm/leads/import - Importar leads via planilha Excel/CSV
+router.post('/leads/import', upload.single('file'), importLeads);
 
 // GET /api/crm/leads/:id - Buscar lead específico
 router.get('/leads/:id', getCrmLead);
