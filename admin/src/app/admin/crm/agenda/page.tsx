@@ -409,8 +409,11 @@ export default function CrmAgendaPage() {
       </div>
 
       {/* Tabs da agenda */}
-      <Tabs defaultValue="overdue" className="space-y-4">
+      <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="all">
+            Todos ({leadsWithFollowUp.length})
+          </TabsTrigger>
           <TabsTrigger value="overdue">
             Atrasados ({overdueLeads.length})
           </TabsTrigger>
@@ -420,10 +423,29 @@ export default function CrmAgendaPage() {
           <TabsTrigger value="upcoming">
             Próximos ({upcomingLeads.length})
           </TabsTrigger>
-          <TabsTrigger value="all">
-            Todos ({leadsWithFollowUp.length})
-          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="all" className="space-y-4">
+          {leadsWithFollowUp.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center py-8">
+                  <Calendar className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium">Nenhum follow-up agendado</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Comece agendando follow-ups com seus leads para manter o pipeline ativo.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {leadsWithFollowUp.map(lead => (
+                <FollowUpCard key={lead.id} lead={lead} />
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
         <TabsContent value="overdue" className="space-y-4">
           {overdueLeads.length === 0 ? (
@@ -480,28 +502,6 @@ export default function CrmAgendaPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {upcomingLeads.map(lead => (
                 <FollowUpCard key={lead.id} lead={lead} priority="upcoming" />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="all" className="space-y-4">
-          {leadsWithFollowUp.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-8">
-                  <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium">Nenhum follow-up agendado</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Comece agendando follow-ups com seus leads para manter o pipeline ativo.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {leadsWithFollowUp.map(lead => (
-                <FollowUpCard key={lead.id} lead={lead} />
               ))}
             </div>
           )}
