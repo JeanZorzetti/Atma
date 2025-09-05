@@ -11,6 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { 
   ArrowLeft,
   Plus,
@@ -20,7 +29,10 @@ import {
   Calendar,
   MapPin,
   Building,
-  Stethoscope
+  Stethoscope,
+  Edit,
+  Save,
+  X
 } from 'lucide-react'
 import Link from 'next/link'
 import { useCrmLeads } from '@/hooks/useApi'
@@ -75,6 +87,8 @@ export default function KanbanPage() {
   const [draggedLead, setDraggedLead] = useState<CrmLead | null>(null)
   const [selectedLead, setSelectedLead] = useState<CrmLead | null>(null)
   const [showLeadModal, setShowLeadModal] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editFormData, setEditFormData] = useState<Partial<CrmLead>>({})
   const { toast } = useToast()
   
   const { data: crmData, loading, refetch } = useCrmLeads(
@@ -113,6 +127,8 @@ export default function KanbanPage() {
   const handleCardClick = (lead: CrmLead) => {
     setSelectedLead(lead)
     setShowLeadModal(true)
+    setIsEditing(false)
+    setEditFormData({})
   }
 
   const handlePhoneCall = (lead: CrmLead) => {
@@ -139,6 +155,58 @@ export default function KanbanPage() {
       title: 'Agendar reunião',
       description: `Funcionalidade em desenvolvimento para ${lead.nome}`,
     })
+  }
+
+  // Funções de edição
+  const handleEditClick = () => {
+    if (selectedLead) {
+      setEditFormData({
+        nome: selectedLead.nome,
+        email: selectedLead.email,
+        telefone: selectedLead.telefone,
+        clinica: selectedLead.clinica,
+        cro: selectedLead.cro,
+        cidade: selectedLead.cidade,
+        estado: selectedLead.estado,
+        consultórios: selectedLead.consultórios,
+        casos_mes: selectedLead.casos_mes,
+        status: selectedLead.status,
+        responsavel_comercial: selectedLead.responsavel_comercial,
+        interesse: selectedLead.interesse
+      })
+      setIsEditing(true)
+    }
+  }
+
+  const handleSaveEdit = async () => {
+    if (!selectedLead) return
+
+    try {
+      // Fazer request para atualizar o lead
+      await apiService.updateLead(selectedLead.id, editFormData)
+      
+      toast({
+        title: 'Lead atualizado!',
+        description: `Informações de ${editFormData.nome} foram salvas.`,
+      })
+      
+      // Atualizar a lista
+      await refetch()
+      setIsEditing(false)
+      setShowLeadModal(false)
+      
+    } catch {
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível atualizar as informações do lead.',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setEditFormData({})
   }
 
   // Funções de Drag & Drop
@@ -451,19 +519,52 @@ export default function KanbanPage() {
       <Dialog open={showLeadModal} onOpenChange={setShowLeadModal}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              {selectedLead && (
-                <>
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-blue-100 text-blue-800 text-sm font-semibold">
-                      {getInitials(selectedLead.nome)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <span className="text-xl">{selectedLead.nome}</span>
-                    <p className="text-sm text-gray-600 font-normal">{selectedLead.cro}</p>
-                  </div>
-                </>
+            <DialogTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {selectedLead && (
+                  <>
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-blue-100 text-blue-800 text-sm font-semibold">
+                        {getInitials(selectedLead.nome)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <span className="text-xl">{selectedLead.nome}</span>
+                      <p className="text-sm text-gray-600 font-normal">{selectedLead.cro}</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              {!isEditing ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEditClick}
+                  className="flex items-center gap-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  Editar
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelEdit}
+                    className="flex items-center gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Cancelar
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleSaveEdit}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="h-4 w-4" />
+                    Salvar
+                  </Button>
+                </div>
               )}
             </DialogTitle>
           </DialogHeader>
@@ -471,104 +572,215 @@ export default function KanbanPage() {
           {selectedLead && (
             <div className="space-y-6 mt-4">
               {/* Informações básicas */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-gray-900">Contato</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{selectedLead.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{selectedLead.telefone}</span>
-                    </div>
-                    {(selectedLead.cidade || selectedLead.estado) && (
+              {!isEditing ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-gray-900">Contato</h3>
+                    <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">
-                          {selectedLead.cidade}{selectedLead.cidade && selectedLead.estado && ', '}{selectedLead.estado}
-                        </span>
+                        <Mail className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm">{selectedLead.email}</span>
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-gray-900">Clínica</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Building className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{selectedLead.clinica}</span>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm">{selectedLead.telefone}</span>
+                      </div>
+                      {(selectedLead.cidade || selectedLead.estado) && (
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm">
+                            {selectedLead.cidade}{selectedLead.cidade && selectedLead.estado && ', '}{selectedLead.estado}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    {selectedLead.consultórios && (
-                      <p className="text-sm text-gray-600">
-                        <strong>Consultórios:</strong> {selectedLead.consultórios}
-                      </p>
-                    )}
-                    {selectedLead.casos_mes && (
-                      <p className="text-sm text-gray-600">
-                        <strong>Casos/mês:</strong> {selectedLead.casos_mes}
-                      </p>
-                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-gray-900">Clínica</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm">{selectedLead.clinica}</span>
+                      </div>
+                      {selectedLead.consultórios && (
+                        <p className="text-sm text-gray-600">
+                          <strong>Consultórios:</strong> {selectedLead.consultórios}
+                        </p>
+                      )}
+                      {selectedLead.casos_mes && (
+                        <p className="text-sm text-gray-600">
+                          <strong>Casos/mês:</strong> {selectedLead.casos_mes}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Status e responsável */}
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <Badge className={getStatusColor(selectedLead.status)}>
-                    {getStatusLabel(selectedLead.status)}
-                  </Badge>
-                  {selectedLead.responsavel_comercial && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      Responsável: {selectedLead.responsavel_comercial}
-                    </p>
-                  )}
+              ) : (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Editar Informações</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nome">Nome</Label>
+                      <Input
+                        id="nome"
+                        value={editFormData.nome || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, nome: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="cro">CRO</Label>
+                      <Input
+                        id="cro"
+                        value={editFormData.cro || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, cro: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={editFormData.email || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="telefone">Telefone</Label>
+                      <Input
+                        id="telefone"
+                        value={editFormData.telefone || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, telefone: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="clinica">Clínica</Label>
+                      <Input
+                        id="clinica"
+                        value={editFormData.clinica || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, clinica: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="cidade">Cidade</Label>
+                      <Input
+                        id="cidade"
+                        value={editFormData.cidade || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, cidade: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="estado">Estado</Label>
+                      <Input
+                        id="estado"
+                        value={editFormData.estado || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, estado: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="consultorios">Consultórios</Label>
+                      <Input
+                        id="consultorios"
+                        value={editFormData.consultórios || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, consultórios: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="casos_mes">Casos/mês</Label>
+                      <Input
+                        id="casos_mes"
+                        value={editFormData.casos_mes || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, casos_mes: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Status</Label>
+                      <Select 
+                        value={editFormData.status || ''}
+                        onValueChange={(value) => setEditFormData(prev => ({ ...prev, status: value as CrmLead['status'] }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="prospeccao">Prospecção</SelectItem>
+                          <SelectItem value="contato_inicial">Contato Inicial</SelectItem>
+                          <SelectItem value="apresentacao">Apresentação</SelectItem>
+                          <SelectItem value="negociacao">Negociação</SelectItem>
+                          <SelectItem value="parceria_fechada">Parceria Fechada</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="responsavel">Responsável Comercial</Label>
+                      <Input
+                        id="responsavel"
+                        value={editFormData.responsavel_comercial || ''}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, responsavel_comercial: e.target.value }))}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">
-                    Criado em {selectedLead.created_at ? new Date(selectedLead.created_at).toLocaleDateString('pt-BR') : 'Data não disponível'}
-                  </p>
-                </div>
-              </div>
+              )}
 
-              {/* Ações rápidas */}
-              <div className="flex gap-2 pt-4 border-t">
-                <Button 
-                  className="flex-1"
-                  onClick={() => {
-                    handlePhoneCall(selectedLead)
-                    setShowLeadModal(false)
-                  }}
-                >
-                  <Phone className="mr-2 h-4 w-4" />
-                  Ligar
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => {
-                    handleEmail(selectedLead)
-                    setShowLeadModal(false)
-                  }}
-                >
-                  <Mail className="mr-2 h-4 w-4" />
-                  Email
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => {
-                    handleSchedule(selectedLead)
-                    setShowLeadModal(false)
-                  }}
-                >
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Agendar
-                </Button>
-              </div>
+              {/* Status e responsável - apenas no modo visualização */}
+              {!isEditing && (
+                <>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <Badge className={getStatusColor(selectedLead.status)}>
+                        {getStatusLabel(selectedLead.status)}
+                      </Badge>
+                      {selectedLead.responsavel_comercial && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          Responsável: {selectedLead.responsavel_comercial}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600">
+                        Criado em {selectedLead.created_at ? new Date(selectedLead.created_at).toLocaleDateString('pt-BR') : 'Data não disponível'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Ações rápidas */}
+                  <div className="flex gap-2 pt-4 border-t">
+                    <Button 
+                      className="flex-1"
+                      onClick={() => {
+                        handlePhoneCall(selectedLead)
+                        setShowLeadModal(false)
+                      }}
+                    >
+                      <Phone className="mr-2 h-4 w-4" />
+                      Ligar
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        handleEmail(selectedLead)
+                        setShowLeadModal(false)
+                      }}
+                    >
+                      <Mail className="mr-2 h-4 w-4" />
+                      Email
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        handleSchedule(selectedLead)
+                        setShowLeadModal(false)
+                      }}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      Agendar
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </DialogContent>

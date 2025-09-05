@@ -546,6 +546,19 @@ class ApiService {
     
     return result
   }
+
+  async updateLead(id: number, leadData: Partial<CrmLead>) {
+    const result = await this.request(`/crm/leads/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(leadData),
+    })
+    
+    // Invalidate CRM leads cache to force fresh data on next request
+    this.invalidateCache('/crm/leads')
+    
+    return result
+  }
 }
 
 export const apiService = new ApiService()
