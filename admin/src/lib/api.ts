@@ -560,9 +560,10 @@ class ApiService {
       this.invalidateCache('/crm/leads')
       
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If the endpoint doesn't exist (404), try fallback approach using the enhanced status endpoint
-      if (error.message?.includes('não encontrado') || error.message?.includes('não existe')) {
+      const errorMessage = (error as Error)?.message || ''
+      if (errorMessage.includes('não encontrado') || errorMessage.includes('não existe')) {
         console.warn('Using enhanced status endpoint as fallback for updateLead')
         
         // Use the enhanced status endpoint that can handle more fields
