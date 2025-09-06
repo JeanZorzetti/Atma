@@ -52,7 +52,9 @@
       "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend/**)",
       "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend/**)",
       "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend/**)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(git rm:*)",
+      "Bash(where mysql mysqld)"
     ],
     "deny": [],
     "ask": []
