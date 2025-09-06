@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,6 +47,41 @@ export default function ConfiguracoesPage() {
 
   // Extract settings from API response
   const settings = settingsData?.data?.settings || {}
+
+  // useEffect para sincronizar configurações de notificação com o backend
+  useEffect(() => {
+    if (settings) {
+      // Mapear configurações de notificação do backend para o estado local
+      const notificationTypeMapping = {
+        'notification_type_new_patients': 'newPatients',
+        'notification_type_appointments': 'appointments', 
+        'notification_type_payments': 'payments',
+        'notification_type_weekly_reports': 'weeklyReports',
+        'notification_type_system_alerts': 'systemAlerts'
+      }
+
+      const updatedNotificationTypes = { ...notificationTypes }
+      
+      Object.entries(notificationTypeMapping).forEach(([backendKey, frontendKey]) => {
+        if (settings[backendKey]) {
+          updatedNotificationTypes[frontendKey as keyof typeof notificationTypes] = settings[backendKey].value === 'true'
+        }
+      })
+
+      setNotificationTypes(updatedNotificationTypes)
+
+      // Sincronizar outros toggles
+      if (settings.notification_email) {
+        setEmailNotifications(settings.notification_email.value === 'true')
+      }
+      if (settings.notification_sms) {
+        setSmsNotifications(settings.notification_sms.value === 'true')  
+      }
+      if (settings.auto_backup_enabled) {
+        setAutoBackup(settings.auto_backup_enabled.value === 'true')
+      }
+    }
+  }, [settings]) // eslint-disable-line react-hooks/exhaustive-deps
   const companyName = settings.email_from_name?.value || 'Atma Aligner'
   const companyEmail = settings.email_from_address?.value || 'contato@atma.com.br'
   const adminEmail = settings.admin_email?.value || 'admin@atma.com.br'
@@ -163,9 +198,15 @@ export default function ConfiguracoesPage() {
     }
   }
 
+  // Função para converter camelCase para snake_case
+  const camelToSnakeCase = (str: string) => {
+    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
+  }
+
   const handleNotificationTypeToggle = async (type: string, checked: boolean) => {
     try {
-      await apiService.updateSetting(`notification_type_${type}`, checked.toString(), `Notificação de ${type}`)
+      const snakeCaseType = camelToSnakeCase(type)
+      await apiService.updateSetting(`notification_type_${snakeCaseType}`, checked.toString(), `Notificação de ${type}`)
       
       setNotificationTypes(prev => ({
         ...prev,
