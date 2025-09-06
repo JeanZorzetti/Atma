@@ -986,6 +986,57 @@ const importLeads = async (req, res, next) => {
   }
 };
 
+// GET /api/crm/activities - Buscar atividades recentes do CRM
+const getCrmActivities = async (req, res, next) => {
+  try {
+    const { limit = 10, offset = 0 } = req.query;
+    const limitNum = Math.min(Math.max(1, parseInt(limit) || 10), 50);
+    const offsetNum = Math.max(0, parseInt(offset) || 0);
+
+    const query = `
+      SELECT 
+        a.*,
+        l.nome as lead_nome,
+        l.clinica as lead_clinica
+      FROM crm_activities a
+      LEFT JOIN crm_leads l ON a.crm_lead_id = l.id
+      ORDER BY a.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const activities = await executeQuery(query, [limitNum, offsetNum]);
+
+    // Contar total para paginação
+    const countQuery = 'SELECT COUNT(*) as total FROM crm_activities';
+    const [countResult] = await executeQuery(countQuery);
+
+    res.status(200).json({
+      success: true,
+      activities: activities.map(activity => ({
+        ...activity,
+        created_at: activity.created_at ? new Date(activity.created_at).toISOString() : null,
+        agendada_para: activity.agendada_para ? new Date(activity.agendada_para).toISOString() : null,
+        concluida_em: activity.concluida_em ? new Date(activity.concluida_em).toISOString() : null
+      })),
+      total: countResult.total,
+      pagination: {
+        limit: limitNum,
+        offset: offsetNum,
+        hasMore: (offsetNum + limitNum) < countResult.total
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao buscar atividades do CRM:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro interno do servidor' },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   getCrmLeads,
   getCrmStats,
@@ -998,5 +1049,6 @@ module.exports = {
   migrateStatusEnum,
   migrateFollowUpColumn,
   importLeads,
-  upload
+  upload,
+  getCrmActivities
 };

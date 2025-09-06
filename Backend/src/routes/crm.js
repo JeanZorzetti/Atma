@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getCrmLeads, getCrmStats, updateLeadStatus, updateCrmLead, deleteCrmLead, migrateLeadToPpartnership, createCrmLead, getCrmLead, migrateStatusEnum, migrateFollowUpColumn, importLeads, upload } = require('../controllers/crmController');
+const { getCrmLeads, getCrmStats, updateLeadStatus, updateCrmLead, deleteCrmLead, migrateLeadToPpartnership, createCrmLead, getCrmLead, migrateStatusEnum, migrateFollowUpColumn, importLeads, upload, getCrmActivities } = require('../controllers/crmController');
 
 // GET /api/crm/leads - Listar todos os leads do CRM (com filtros e paginação)
 router.get('/leads', getCrmLeads);
@@ -22,6 +22,9 @@ router.delete('/leads/:id', deleteCrmLead);
 
 // GET /api/crm/stats - Estatísticas e conversões do funil
 router.get('/stats', getCrmStats);
+
+// GET /api/crm/activities - Buscar atividades recentes do CRM
+router.get('/activities', getCrmActivities);
 
 // PUT /api/crm/leads/:id/status - Atualizar status do lead
 router.put('/leads/:id/status', updateLeadStatus);

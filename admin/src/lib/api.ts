@@ -176,6 +176,34 @@ export interface CrmLeadsResponse {
   timestamp: string
 }
 
+export interface CrmActivity {
+  id: number
+  crm_lead_id: number
+  tipo: 'ligacao' | 'email' | 'reuniao' | 'apresentacao' | 'proposta' | 'followup' | 'mudanca_status'
+  titulo: string
+  descricao?: string
+  status_anterior?: 'prospeccao' | 'contato_inicial' | 'apresentacao' | 'negociacao'
+  status_novo?: 'prospeccao' | 'contato_inicial' | 'apresentacao' | 'negociacao'
+  usuario: string
+  agendada_para?: string
+  concluida_em?: string
+  created_at: string
+  lead_nome?: string
+  lead_clinica?: string
+}
+
+export interface CrmActivitiesResponse {
+  success: boolean
+  activities: CrmActivity[]
+  total: number
+  pagination: {
+    limit: number
+    offset: number
+    hasMore: boolean
+  }
+  timestamp: string
+}
+
 export interface CrmStatsResponse {
   success: boolean
   data: {
@@ -520,6 +548,17 @@ class ApiService {
 
   async getCrmStats(): Promise<CrmStatsResponse> {
     return this.request<CrmStatsResponse>('/crm/stats')
+  }
+
+  async getCrmActivities(params?: { limit?: number, offset?: number }): Promise<CrmActivitiesResponse> {
+    const searchParams = new URLSearchParams()
+    if (params?.limit) searchParams.append('limit', params.limit.toString())
+    if (params?.offset) searchParams.append('offset', params.offset.toString())
+    
+    const queryString = searchParams.toString()
+    const url = queryString ? `/crm/activities?${queryString}` : '/crm/activities'
+    
+    return this.request<CrmActivitiesResponse>(url)
   }
 
   async createCrmLead(leadData: Partial<CrmLead>) {

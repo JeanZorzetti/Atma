@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { 
@@ -11,10 +11,18 @@ import {
   Calendar,
   CheckCircle,
   Plus,
-  Search
+  Search,
+  Phone,
+  Mail,
+  Video,
+  FileText,
+  UserCheck,
+  ArrowRight,
+  Clock
 } from 'lucide-react'
 import Link from 'next/link'
 import { useCrmStats } from '@/hooks/useApi'
+import { apiService, CrmActivity } from '@/lib/api'
 import { CrmFilters } from '@/components/crm/filters'
 import { NewLeadModal } from '@/components/crm/new-lead-modal'
 
@@ -22,6 +30,77 @@ export default function CRMPage() {
   const { data: stats, loading, error, refetch } = useCrmStats()
   const [showNewLeadModal, setShowNewLeadModal] = useState(false)
   const [filters, setFilters] = useState({})
+  const [activities, setActivities] = useState<CrmActivity[]>([])
+  const [loadingActivities, setLoadingActivities] = useState(true)
+
+  const fetchActivities = async () => {
+    try {
+      setLoadingActivities(true)
+      const response = await apiService.getCrmActivities({ limit: 10 })
+      setActivities(response.activities)
+    } catch (error) {
+      console.error('Erro ao buscar atividades:', error)
+    } finally {
+      setLoadingActivities(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchActivities()
+  }, [])
+
+  const getActivityIcon = (tipo: CrmActivity['tipo']) => {
+    const iconProps = { className: "h-4 w-4" }
+    
+    switch (tipo) {
+      case 'ligacao':
+        return <Phone {...iconProps} />
+      case 'email':
+        return <Mail {...iconProps} />
+      case 'reuniao':
+        return <Video {...iconProps} />
+      case 'apresentacao':
+        return <FileText {...iconProps} />
+      case 'proposta':
+        return <FileText {...iconProps} />
+      case 'followup':
+        return <Clock {...iconProps} />
+      case 'mudanca_status':
+        return <UserCheck {...iconProps} />
+      default:
+        return <ArrowRight {...iconProps} />
+    }
+  }
+
+  const getActivityTypeLabel = (tipo: CrmActivity['tipo']) => {
+    const labels = {
+      'ligacao': 'Ligação',
+      'email': 'E-mail',
+      'reuniao': 'Reunião',
+      'apresentacao': 'Apresentação',
+      'proposta': 'Proposta',
+      'followup': 'Follow-up',
+      'mudanca_status': 'Mudança de Status'
+    }
+    return labels[tipo] || tipo
+  }
+
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    
+    if (diffInMinutes < 1) return 'Agora há pouco'
+    if (diffInMinutes < 60) return `${diffInMinutes}min atrás`
+    
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `${diffInHours}h atrás`
+    
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays < 7) return `${diffInDays}d atrás`
+    
+    return date.toLocaleDateString('pt-BR')
+  }
 
   if (loading) {
     return (
@@ -217,15 +296,80 @@ export default function CRMPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-center py-8 text-gray-500">
-              <div className="text-center">
-                <Users className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium">Nenhuma atividade ainda</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  As interações com ortodontistas aparecerão aqui.
-                </p>
+            {loadingActivities ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-center">
+                  <Clock className="mx-auto h-8 w-8 text-gray-400 animate-spin" />
+                  <p className="mt-2 text-sm text-gray-500">Carregando atividades...</p>
+                </div>
               </div>
-            </div>
+            ) : activities.length === 0 ? (
+              <div className="flex items-center justify-center py-8 text-gray-500">
+                <div className="text-center">
+                  <Users className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium">Nenhuma atividade ainda</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    As interações com leads aparecerão aqui.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {activities.map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg border bg-gray-50/50">
+                    <div className="flex-shrink-0 p-2 bg-white rounded-full border">
+                      {getActivityIcon(activity.tipo)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-gray-900">
+                          {activity.titulo}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatRelativeTime(activity.created_at)}
+                        </p>
+                      </div>
+                      <div className="flex items-center text-xs text-gray-600 mt-1">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                          {getActivityTypeLabel(activity.tipo)}
+                        </span>
+                        <span className="ml-2">•</span>
+                        <span className="ml-2">
+                          {activity.lead_nome} ({activity.lead_clinica})
+                        </span>
+                        <span className="ml-2">•</span>
+                        <span className="ml-2">{activity.usuario}</span>
+                      </div>
+                      {activity.descricao && (
+                        <p className="text-xs text-gray-600 mt-2 line-clamp-2">
+                          {activity.descricao}
+                        </p>
+                      )}
+                      {(activity.status_anterior && activity.status_novo) && (
+                        <div className="flex items-center text-xs text-gray-600 mt-1">
+                          <span className="capitalize px-2 py-0.5 bg-gray-200 rounded">
+                            {activity.status_anterior}
+                          </span>
+                          <ArrowRight className="h-3 w-3 mx-1" />
+                          <span className="capitalize px-2 py-0.5 bg-green-100 text-green-700 rounded">
+                            {activity.status_novo}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                
+                {activities.length >= 10 && (
+                  <div className="pt-4 text-center">
+                    <Button variant="outline" size="sm" onClick={() => {}}>
+                      Ver todas as atividades
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
