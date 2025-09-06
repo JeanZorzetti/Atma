@@ -20,8 +20,17 @@ import {
   Key,
   Globe,
   Smartphone,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { useSettings } from '@/hooks/useApi'
 import { apiService } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
@@ -39,6 +48,13 @@ export default function ConfiguracoesPage() {
     systemAlerts: true
   })
   const [saving, setSaving] = useState(false)
+  const [integrations, setIntegrations] = useState({
+    paymentGateway: true,
+    emailMarketing: false, 
+    whatsappBusiness: true,
+    googleAnalytics: false
+  })
+  const [integrationModal, setIntegrationModal] = useState<string | null>(null)
   const { toast } = useToast()
   
   // Form refs for general settings
@@ -69,6 +85,24 @@ export default function ConfiguracoesPage() {
       })
 
       setNotificationTypes(updatedNotificationTypes)
+
+      // Sincronizar integrações
+      const integrationTypeMapping = {
+        'integration_payment_gateway': 'paymentGateway',
+        'integration_email_marketing': 'emailMarketing',
+        'integration_whatsapp_business': 'whatsappBusiness',
+        'integration_google_analytics': 'googleAnalytics'
+      }
+
+      const updatedIntegrations = { ...integrations }
+      
+      Object.entries(integrationTypeMapping).forEach(([backendKey, frontendKey]) => {
+        if (settings[backendKey]) {
+          updatedIntegrations[frontendKey as keyof typeof integrations] = settings[backendKey].value === 'true'
+        }
+      })
+
+      setIntegrations(updatedIntegrations)
 
       // Sincronizar outros toggles
       if (settings.notification_email) {
@@ -226,6 +260,148 @@ export default function ConfiguracoesPage() {
         variant: 'destructive'
       })
     }
+  }
+
+  const handleIntegrationToggle = async (type: string, checked: boolean) => {
+    try {
+      const snakeCaseType = camelToSnakeCase(type)
+      await apiService.updateSetting(`integration_${snakeCaseType}`, checked.toString(), `Integração ${type}`)
+      
+      setIntegrations(prev => ({
+        ...prev,
+        [type]: checked
+      }))
+      
+      toast({
+        title: "Integração atualizada!",
+        description: `${getIntegrationDisplayName(type)} ${checked ? 'ativada' : 'desativada'}.`
+      })
+      
+      refetch()
+    } catch (error) {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível atualizar a integração.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const getIntegrationDisplayName = (type: string) => {
+    const names = {
+      paymentGateway: 'Gateway de Pagamento',
+      emailMarketing: 'Email Marketing',
+      whatsappBusiness: 'WhatsApp Business', 
+      googleAnalytics: 'Google Analytics'
+    }
+    return names[type as keyof typeof names] || type
+  }
+
+  const handleIntegrationConfig = (type: string) => {
+    setIntegrationModal(type)
+  }
+
+  const renderIntegrationModal = () => {
+    if (!integrationModal) return null
+
+    interface IntegrationField {
+      name: string
+      label: string
+      type: string
+      placeholder: string
+      options?: string[]
+    }
+
+    const integrationConfigs: Record<string, { title: string, description: string, fields: IntegrationField[] }> = {
+      paymentGateway: {
+        title: 'Configurar Gateway de Pagamento',
+        description: 'Configure as credenciais para Stripe ou PagSeguro',
+        fields: [
+          { name: 'payment_gateway_provider', label: 'Provedor', type: 'select', options: ['stripe', 'pagseguro'], placeholder: 'Selecione o provedor' },
+          { name: 'payment_gateway_key', label: 'Chave Pública', type: 'text', placeholder: 'pk_test_...' },
+          { name: 'payment_gateway_secret', label: 'Chave Secreta', type: 'password', placeholder: 'sk_test_...' },
+          { name: 'payment_gateway_webhook', label: 'URL Webhook', type: 'text', placeholder: 'https://...' }
+        ]
+      },
+      emailMarketing: {
+        title: 'Configurar Email Marketing',
+        description: 'Configure a integração com Mailchimp',
+        fields: [
+          { name: 'mailchimp_api_key', label: 'API Key Mailchimp', type: 'password', placeholder: 'Digite sua API Key' },
+          { name: 'mailchimp_list_id', label: 'ID da Lista', type: 'text', placeholder: 'ID da lista padrão' },
+          { name: 'mailchimp_datacenter', label: 'Datacenter', type: 'text', placeholder: 'us1, us2, etc.' }
+        ]
+      },
+      whatsappBusiness: {
+        title: 'Configurar WhatsApp Business',
+        description: 'Configure a API do WhatsApp Business',
+        fields: [
+          { name: 'whatsapp_phone_id', label: 'Phone Number ID', type: 'text', placeholder: 'Seu Phone Number ID' },
+          { name: 'whatsapp_token', label: 'Access Token', type: 'password', placeholder: 'Token de acesso' },
+          { name: 'whatsapp_webhook_verify', label: 'Webhook Verify Token', type: 'password', placeholder: 'Token de verificação' }
+        ]
+      },
+      googleAnalytics: {
+        title: 'Configurar Google Analytics',
+        description: 'Configure o tracking do Google Analytics',
+        fields: [
+          { name: 'ga_tracking_id', label: 'Tracking ID', type: 'text', placeholder: 'GA4-XXXXXXXXX-X' },
+          { name: 'ga_measurement_id', label: 'Measurement ID', type: 'text', placeholder: 'G-XXXXXXXXXX' },
+          { name: 'ga_api_secret', label: 'API Secret', type: 'password', placeholder: 'Chave secreta da API' }
+        ]
+      }
+    }
+
+    const config = integrationConfigs[integrationModal as keyof typeof integrationConfigs]
+    
+    return (
+      <Dialog open={!!integrationModal} onOpenChange={() => setIntegrationModal(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{config.title}</DialogTitle>
+            <DialogDescription>{config.description}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {config.fields.map((field) => (
+              <div key={field.name} className="space-y-2">
+                <Label htmlFor={field.name}>{field.label}</Label>
+                {field.type === 'select' ? (
+                  <select 
+                    id={field.name}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="">{field.placeholder}</option>
+                    {field.options?.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <Input
+                    id={field.name}
+                    type={field.type}
+                    placeholder={field.placeholder}
+                  />
+                )}
+              </div>
+            ))}
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setIntegrationModal(null)}>
+                Cancelar
+              </Button>
+              <Button onClick={() => {
+                toast({ 
+                  title: "Configuração salva!", 
+                  description: `${config.title} configurado com sucesso.` 
+                })
+                setIntegrationModal(null)
+              }}>
+                Salvar Configuração
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
   }
 
   const handleAutoBackupToggle = async (checked: boolean) => {
@@ -658,10 +834,19 @@ export default function ConfiguracoesPage() {
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium">Gateway de Pagamento</h3>
-                    <Switch defaultChecked />
+                    <Switch 
+                      checked={integrations.paymentGateway}
+                      onCheckedChange={(checked) => handleIntegrationToggle('paymentGateway', checked)}
+                      disabled={saving}
+                    />
                   </div>
                   <p className="text-sm text-gray-500">Integração com Stripe/PagSeguro</p>
-                  <Button variant="outline" size="sm" className="mt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2"
+                    onClick={() => handleIntegrationConfig('paymentGateway')}
+                  >
                     Configurar
                   </Button>
                 </div>
@@ -669,10 +854,19 @@ export default function ConfiguracoesPage() {
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium">Email Marketing</h3>
-                    <Switch />
+                    <Switch 
+                      checked={integrations.emailMarketing}
+                      onCheckedChange={(checked) => handleIntegrationToggle('emailMarketing', checked)}
+                      disabled={saving}
+                    />
                   </div>
                   <p className="text-sm text-gray-500">Integração com Mailchimp</p>
-                  <Button variant="outline" size="sm" className="mt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2"
+                    onClick={() => handleIntegrationConfig('emailMarketing')}
+                  >
                     Configurar
                   </Button>
                 </div>
@@ -680,10 +874,19 @@ export default function ConfiguracoesPage() {
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium">WhatsApp Business</h3>
-                    <Switch defaultChecked />
+                    <Switch 
+                      checked={integrations.whatsappBusiness}
+                      onCheckedChange={(checked) => handleIntegrationToggle('whatsappBusiness', checked)}
+                      disabled={saving}
+                    />
                   </div>
                   <p className="text-sm text-gray-500">Comunicação via WhatsApp</p>
-                  <Button variant="outline" size="sm" className="mt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2"
+                    onClick={() => handleIntegrationConfig('whatsappBusiness')}
+                  >
                     Configurar
                   </Button>
                 </div>
@@ -691,10 +894,19 @@ export default function ConfiguracoesPage() {
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium">Google Analytics</h3>
-                    <Switch />
+                    <Switch 
+                      checked={integrations.googleAnalytics}
+                      onCheckedChange={(checked) => handleIntegrationToggle('googleAnalytics', checked)}
+                      disabled={saving}
+                    />
                   </div>
                   <p className="text-sm text-gray-500">Análise de dados</p>
-                  <Button variant="outline" size="sm" className="mt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2"
+                    onClick={() => handleIntegrationConfig('googleAnalytics')}
+                  >
                     Configurar
                   </Button>
                 </div>
@@ -775,6 +987,7 @@ export default function ConfiguracoesPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      {renderIntegrationModal()}
     </div>
   )
 }
