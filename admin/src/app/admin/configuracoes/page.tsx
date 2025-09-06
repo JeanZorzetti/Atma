@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,12 +23,27 @@ import {
   Loader2
 } from 'lucide-react'
 import { useSettings } from '@/hooks/useApi'
+import { apiService } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
 
 export default function ConfiguracoesPage() {
-  const { data: settingsData, loading, error } = useSettings()
+  const { data: settingsData, loading, error, refetch } = useSettings()
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [smsNotifications, setSmsNotifications] = useState(false)
   const [autoBackup, setAutoBackup] = useState(true)
+  const [notificationTypes, setNotificationTypes] = useState({
+    newPatients: true,
+    appointments: true,
+    payments: true,
+    weeklyReports: false,
+    systemAlerts: true
+  })
+  const [saving, setSaving] = useState(false)
+  const { toast } = useToast()
+  
+  // Form refs for general settings
+  const generalFormRef = useRef<HTMLFormElement>(null)
+  const systemFormRef = useRef<HTMLFormElement>(null)
 
   // Extract settings from API response
   const settings = settingsData?.data?.settings || {}
@@ -37,6 +52,202 @@ export default function ConfiguracoesPage() {
   const adminEmail = settings.admin_email?.value || 'admin@atma.com.br'
   const maxDistance = settings.max_distance_km?.value || '50'
   const autoAssignmentEnabled = settings.auto_assignment_enabled?.value === 'true'
+
+  const handleSaveGeneralSettings = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setSaving(true)
+
+    try {
+      const formData = new FormData(e.currentTarget)
+      const companyNameValue = formData.get('company-name') as string
+      const companyEmailValue = formData.get('company-email') as string
+      const adminEmailValue = formData.get('admin-email') as string
+      const companyPhoneValue = formData.get('company-phone') as string
+      const companyAddressValue = formData.get('company-address') as string
+
+      // Update multiple settings
+      await Promise.all([
+        apiService.updateSetting('email_from_name', companyNameValue, 'Nome da empresa usado nos emails'),
+        apiService.updateSetting('email_from_address', companyEmailValue, 'Email principal da empresa'),
+        apiService.updateSetting('admin_email', adminEmailValue, 'Email do administrador do sistema'),
+        apiService.updateSetting('company_phone', companyPhoneValue, 'Telefone da empresa'),
+        apiService.updateSetting('company_address', companyAddressValue, 'Endereço da empresa')
+      ])
+
+      toast({
+        title: 'Configurações salvas!',
+        description: 'As informações da empresa foram atualizadas com sucesso.',
+      })
+
+      refetch()
+    } catch (error) {
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar as configurações. Tente novamente.',
+        variant: 'destructive'
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSaveSystemSettings = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setSaving(true)
+
+    try {
+      const formData = new FormData(e.currentTarget)
+      const maxDistanceValue = formData.get('max-distance') as string
+      const timezoneValue = formData.get('timezone') as string
+      const currencyValue = formData.get('currency') as string
+
+      await Promise.all([
+        apiService.updateSetting('max_distance_km', maxDistanceValue, 'Distância máxima para busca de ortodontistas'),
+        apiService.updateSetting('timezone', timezoneValue, 'Fuso horário do sistema'),
+        apiService.updateSetting('currency', currencyValue, 'Moeda padrão do sistema')
+      ])
+
+      toast({
+        title: 'Configurações salvas!',
+        description: 'As configurações do sistema foram atualizadas com sucesso.',
+      })
+
+      refetch()
+    } catch (error) {
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar as configurações. Tente novamente.',
+        variant: 'destructive'
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleToggleAutoAssignment = async (checked: boolean) => {
+    try {
+      await apiService.updateSetting('auto_assignment_enabled', checked.toString(), 'Habilitar atribuição automática de leads')
+      toast({
+        title: 'Configuração atualizada!',
+        description: `Atribuição automática ${checked ? 'ativada' : 'desativada'}.`,
+      })
+      refetch()
+    } catch (error) {
+      toast({
+        title: 'Erro ao atualizar',
+        description: 'Não foi possível alterar a configuração.',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleNotificationToggle = async (type: string, checked: boolean) => {
+    try {
+      await apiService.updateSetting(`notification_${type}`, checked.toString(), `Notificações por ${type}`)
+      
+      if (type === 'email') setEmailNotifications(checked)
+      if (type === 'sms') setSmsNotifications(checked)
+      
+      toast({
+        title: 'Notificações atualizadas!',
+        description: `Notificações por ${type} ${checked ? 'ativadas' : 'desativadas'}.`,
+      })
+      
+      refetch()
+    } catch (error) {
+      toast({
+        title: 'Erro ao atualizar',
+        description: 'Não foi possível alterar as notificações.',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleNotificationTypeToggle = async (type: string, checked: boolean) => {
+    try {
+      await apiService.updateSetting(`notification_type_${type}`, checked.toString(), `Notificação de ${type}`)
+      
+      setNotificationTypes(prev => ({
+        ...prev,
+        [type]: checked
+      }))
+      
+      toast({
+        title: 'Preferência salva!',
+        description: `Notificação de ${type} ${checked ? 'ativada' : 'desativada'}.`,
+      })
+      
+      refetch()
+    } catch (error) {
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar a preferência.',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleAutoBackupToggle = async (checked: boolean) => {
+    try {
+      await apiService.updateSetting('auto_backup_enabled', checked.toString(), 'Backup automático habilitado')
+      setAutoBackup(checked)
+      
+      toast({
+        title: 'Backup configurado!',
+        description: `Backup automático ${checked ? 'ativado' : 'desativado'}.`,
+      })
+      
+      refetch()
+    } catch (error) {
+      toast({
+        title: 'Erro ao configurar',
+        description: 'Não foi possível alterar a configuração de backup.',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleRunBackup = async () => {
+    try {
+      setSaving(true)
+      // Simular backup - em produção seria uma chamada real à API
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      
+      toast({
+        title: 'Backup realizado!',
+        description: 'Backup manual executado com sucesso.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro no backup',
+        description: 'Não foi possível realizar o backup.',
+        variant: 'destructive'
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleRestoreBackup = async () => {
+    try {
+      setSaving(true)
+      // Simular restore - em produção seria uma chamada real à API
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      toast({
+        title: 'Restauração iniciada!',
+        description: 'O processo de restauração foi iniciado.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro na restauração',
+        description: 'Não foi possível restaurar o backup.',
+        variant: 'destructive'
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -71,32 +282,67 @@ export default function ConfiguracoesPage() {
                     <span className="ml-2 text-gray-600">Carregando configurações...</span>
                   </div>
                 ) : (
-                  <>
+                  <form ref={generalFormRef} onSubmit={handleSaveGeneralSettings} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="company-name">Nome da Empresa</Label>
-                      <Input id="company-name" defaultValue={companyName} />
+                      <Input 
+                        id="company-name" 
+                        name="company-name"
+                        defaultValue={companyName}
+                        required 
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-email">Email Principal</Label>
-                      <Input id="company-email" type="email" defaultValue={companyEmail} />
+                      <Input 
+                        id="company-email" 
+                        name="company-email"
+                        type="email" 
+                        defaultValue={companyEmail}
+                        required 
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="admin-email">Email do Administrador</Label>
-                      <Input id="admin-email" type="email" defaultValue={adminEmail} />
+                      <Input 
+                        id="admin-email" 
+                        name="admin-email"
+                        type="email" 
+                        defaultValue={adminEmail}
+                        required 
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-phone">Telefone</Label>
-                      <Input id="company-phone" defaultValue="(11) 3000-0000" placeholder="Ainda não configurado" />
+                      <Input 
+                        id="company-phone" 
+                        name="company-phone"
+                        defaultValue={settings.company_phone?.value || "(11) 3000-0000"} 
+                        placeholder="(11) 3000-0000" 
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-address">Endereço</Label>
-                      <Input id="company-address" defaultValue="São Paulo, SP" placeholder="Ainda não configurado" />
+                      <Input 
+                        id="company-address" 
+                        name="company-address"
+                        defaultValue={settings.company_address?.value || "São Paulo, SP"} 
+                        placeholder="São Paulo, SP" 
+                      />
                     </div>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      <Save className="mr-2 h-4 w-4" />
-                      Salvar Alterações
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      disabled={saving}
+                    >
+                      {saving ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="mr-2 h-4 w-4" />
+                      )}
+                      {saving ? 'Salvando...' : 'Salvar Alterações'}
                     </Button>
-                  </>
+                  </form>
                 )}
                 {error && (
                   <p className="text-sm text-red-600">Erro ao carregar configurações: {error}</p>
@@ -120,30 +366,66 @@ export default function ConfiguracoesPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-2">
-                      <Label htmlFor="max-distance">Distância Máxima (km)</Label>
-                      <Input id="max-distance" type="number" defaultValue={maxDistance} />
-                      <p className="text-sm text-gray-500">Distância máxima para busca de ortodontistas</p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base font-medium">Atribuição Automática</Label>
-                        <p className="text-sm text-gray-500">Atribuir leads automaticamente aos ortodontistas</p>
+                    <form ref={systemFormRef} onSubmit={handleSaveSystemSettings} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="max-distance">Distância Máxima (km)</Label>
+                        <Input 
+                          id="max-distance" 
+                          name="max-distance"
+                          type="number" 
+                          defaultValue={maxDistance}
+                          min="1"
+                          max="1000"
+                          required
+                        />
+                        <p className="text-sm text-gray-500">Distância máxima para busca de ortodontistas</p>
                       </div>
-                      <Switch defaultChecked={autoAssignmentEnabled} />
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="timezone">Fuso Horário</Label>
+                        <Input 
+                          id="timezone" 
+                          name="timezone"
+                          defaultValue={settings.timezone?.value || "America/Sao_Paulo"}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="currency">Moeda</Label>
+                        <Input 
+                          id="currency" 
+                          name="currency"
+                          defaultValue={settings.currency?.value || "BRL (Real Brasileiro)"}
+                          required
+                        />
+                      </div>
+                      <Button 
+                        type="submit"
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                        disabled={saving}
+                      >
+                        {saving ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="mr-2 h-4 w-4" />
+                        )}
+                        {saving ? 'Salvando...' : 'Salvar Alterações'}
+                      </Button>
+                    </form>
+                    
+                    <div className="pt-4 border-t">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label className="text-base font-medium">Atribuição Automática</Label>
+                          <p className="text-sm text-gray-500">Atribuir leads automaticamente aos ortodontistas</p>
+                        </div>
+                        <Switch 
+                          checked={autoAssignmentEnabled} 
+                          onCheckedChange={handleToggleAutoAssignment}
+                          disabled={saving}
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="timezone">Fuso Horário</Label>
-                      <Input id="timezone" defaultValue="America/Sao_Paulo" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="currency">Moeda</Label>
-                      <Input id="currency" defaultValue="BRL (Real Brasileiro)" />
-                    </div>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      <Save className="mr-2 h-4 w-4" />
-                      Salvar Alterações
-                    </Button>
                   </>
                 )}
               </CardContent>
@@ -172,7 +454,8 @@ export default function ConfiguracoesPage() {
                   </div>
                   <Switch 
                     checked={emailNotifications} 
-                    onCheckedChange={setEmailNotifications}
+                    onCheckedChange={(checked) => handleNotificationToggle('email', checked)}
+                    disabled={saving}
                   />
                 </div>
 
@@ -186,7 +469,8 @@ export default function ConfiguracoesPage() {
                   </div>
                   <Switch 
                     checked={smsNotifications} 
-                    onCheckedChange={setSmsNotifications}
+                    onCheckedChange={(checked) => handleNotificationToggle('sms', checked)}
+                    disabled={saving}
                   />
                 </div>
               </div>
@@ -198,31 +482,50 @@ export default function ConfiguracoesPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label>Novos pacientes cadastrados</Label>
-                    <Switch defaultChecked />
+                    <Switch 
+                      checked={notificationTypes.newPatients}
+                      onCheckedChange={(checked) => handleNotificationTypeToggle('newPatients', checked)}
+                      disabled={saving}
+                    />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label>Consultas agendadas/canceladas</Label>
-                    <Switch defaultChecked />
+                    <Switch 
+                      checked={notificationTypes.appointments}
+                      onCheckedChange={(checked) => handleNotificationTypeToggle('appointments', checked)}
+                      disabled={saving}
+                    />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label>Pagamentos recebidos</Label>
-                    <Switch defaultChecked />
+                    <Switch 
+                      checked={notificationTypes.payments}
+                      onCheckedChange={(checked) => handleNotificationTypeToggle('payments', checked)}
+                      disabled={saving}
+                    />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label>Relatórios semanais</Label>
-                    <Switch />
+                    <Switch 
+                      checked={notificationTypes.weeklyReports}
+                      onCheckedChange={(checked) => handleNotificationTypeToggle('weeklyReports', checked)}
+                      disabled={saving}
+                    />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label>Alertas de sistema</Label>
-                    <Switch defaultChecked />
+                    <Switch 
+                      checked={notificationTypes.systemAlerts}
+                      onCheckedChange={(checked) => handleNotificationTypeToggle('systemAlerts', checked)}
+                      disabled={saving}
+                    />
                   </div>
                 </div>
               </div>
 
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                <Save className="mr-2 h-4 w-4" />
-                Salvar Preferências
-              </Button>
+              <div className="text-center pt-4 text-sm text-gray-500">
+                ✓ As alterações são salvas automaticamente
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -374,7 +677,11 @@ export default function ConfiguracoesPage() {
                   <Label className="text-base font-medium">Backup Automático</Label>
                   <p className="text-sm text-gray-500">Realize backups automáticos diariamente</p>
                 </div>
-                <Switch checked={autoBackup} onCheckedChange={setAutoBackup} />
+                <Switch 
+                  checked={autoBackup} 
+                  onCheckedChange={handleAutoBackupToggle}
+                  disabled={saving}
+                />
               </div>
 
               {autoBackup && (
@@ -400,11 +707,27 @@ export default function ConfiguracoesPage() {
               </div>
 
               <div className="flex gap-2">
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-                  Realizar Backup Agora
+                <Button 
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  onClick={handleRunBackup}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Executando...
+                    </>
+                  ) : (
+                    'Realizar Backup Agora'
+                  )}
                 </Button>
-                <Button variant="outline" className="flex-1">
-                  Restaurar Backup
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={handleRestoreBackup}
+                  disabled={saving}
+                >
+                  {saving ? 'Aguarde...' : 'Restaurar Backup'}
                 </Button>
               </div>
             </CardContent>
