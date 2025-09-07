@@ -55,6 +55,7 @@ export default function ConfiguracoesPage() {
     googleAnalytics: false
   })
   const [integrationModal, setIntegrationModal] = useState<string | null>(null)
+  const [integrationSettings, setIntegrationSettings] = useState<{[key: string]: string}>({})
   const { toast } = useToast()
   
   // Form refs for general settings
@@ -103,6 +104,24 @@ export default function ConfiguracoesPage() {
       })
 
       setIntegrations(updatedIntegrations)
+
+      // Sincronizar configurações de integração
+      const gaSettings = {
+        ga_tracking_id: settings.ga_tracking_id?.value || '',
+        ga_measurement_id: settings.ga_measurement_id?.value || 'G-EMCS41DMSP',
+        ga_api_secret: settings.ga_api_secret?.value || '',
+        payment_gateway_provider: settings.payment_gateway_provider?.value || '',
+        payment_gateway_key: settings.payment_gateway_key?.value || '',
+        payment_gateway_secret: settings.payment_gateway_secret?.value || '',
+        payment_gateway_webhook: settings.payment_gateway_webhook?.value || '',
+        mailchimp_api_key: settings.mailchimp_api_key?.value || '',
+        mailchimp_list_id: settings.mailchimp_list_id?.value || '',
+        mailchimp_datacenter: settings.mailchimp_datacenter?.value || '',
+        whatsapp_phone_id: settings.whatsapp_phone_id?.value || '',
+        whatsapp_token: settings.whatsapp_token?.value || '',
+        whatsapp_webhook_verify: settings.whatsapp_webhook_verify?.value || ''
+      }
+      setIntegrationSettings(gaSettings)
 
       // Sincronizar outros toggles
       if (settings.notification_email) {
@@ -301,6 +320,44 @@ export default function ConfiguracoesPage() {
     setIntegrationModal(type)
   }
 
+  const isIntegrationConfigured = (type: string) => {
+    const integrationConfigs: Record<string, { fields: { name: string }[] }> = {
+      paymentGateway: {
+        fields: [
+          { name: 'payment_gateway_provider' },
+          { name: 'payment_gateway_key' },
+          { name: 'payment_gateway_secret' }
+        ]
+      },
+      emailMarketing: {
+        fields: [
+          { name: 'mailchimp_api_key' },
+          { name: 'mailchimp_list_id' }
+        ]
+      },
+      whatsappBusiness: {
+        fields: [
+          { name: 'whatsapp_phone_id' },
+          { name: 'whatsapp_token' }
+        ]
+      },
+      googleAnalytics: {
+        fields: [
+          { name: 'ga_measurement_id' },
+          { name: 'ga_tracking_id' }
+        ]
+      }
+    }
+
+    const config = integrationConfigs[type]
+    if (!config) return false
+
+    return config.fields.some(field => {
+      const value = integrationSettings[field.name]
+      return value && value.trim() !== ''
+    })
+  }
+
   const renderIntegrationModal = () => {
     if (!integrationModal) return null
 
@@ -369,6 +426,11 @@ export default function ConfiguracoesPage() {
                   <select 
                     id={field.name}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    value={integrationSettings[field.name] || ''}
+                    onChange={(e) => setIntegrationSettings(prev => ({
+                      ...prev,
+                      [field.name]: e.target.value
+                    }))}
                   >
                     <option value="">{field.placeholder}</option>
                     {field.options?.map(option => (
@@ -380,6 +442,11 @@ export default function ConfiguracoesPage() {
                     id={field.name}
                     type={field.type}
                     placeholder={field.placeholder}
+                    value={integrationSettings[field.name] || ''}
+                    onChange={(e) => setIntegrationSettings(prev => ({
+                      ...prev,
+                      [field.name]: e.target.value
+                    }))}
                   />
                 )}
               </div>
@@ -388,14 +455,50 @@ export default function ConfiguracoesPage() {
               <Button variant="outline" onClick={() => setIntegrationModal(null)}>
                 Cancelar
               </Button>
-              <Button onClick={() => {
-                toast({ 
-                  title: "Configuração salva!", 
-                  description: `${config.title} configurado com sucesso.` 
-                })
-                setIntegrationModal(null)
-              }}>
-                Salvar Configuração
+              <Button onClick={async () => {
+                try {
+                  setSaving(true)
+                  
+                  // Salvar todas as configurações da integração atual
+                  const promises = config.fields.map(async (field) => {
+                    const value = integrationSettings[field.name] || ''
+                    if (value.trim()) {
+                      return apiService.updateSetting(
+                        field.name,
+                        value,
+                        `${config.title} - ${field.label}`
+                      )
+                    }
+                    return Promise.resolve()
+                  })
+                  
+                  await Promise.all(promises)
+                  
+                  toast({ 
+                    title: "Configuração salva!", 
+                    description: `${config.title} configurado com sucesso.` 
+                  })
+                  
+                  refetch() // Recarregar dados
+                  setIntegrationModal(null)
+                } catch (error) {
+                  toast({
+                    title: "Erro ao salvar configuração",
+                    description: "Não foi possível salvar as configurações da integração.",
+                    variant: "destructive"
+                  })
+                } finally {
+                  setSaving(false)
+                }
+              }} disabled={saving}>
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  'Salvar Configuração'
+                )}
               </Button>
             </div>
           </div>
@@ -893,21 +996,33 @@ export default function ConfiguracoesPage() {
 
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium">Google Analytics</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium">Google Analytics</h3>
+                      {isIntegrationConfigured('googleAnalytics') && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Configurado
+                        </span>
+                      )}
+                    </div>
                     <Switch 
                       checked={integrations.googleAnalytics}
                       onCheckedChange={(checked) => handleIntegrationToggle('googleAnalytics', checked)}
                       disabled={saving}
                     />
                   </div>
-                  <p className="text-sm text-gray-500">Análise de dados</p>
+                  <p className="text-sm text-gray-500">
+                    Análise de dados
+                    {isIntegrationConfigured('googleAnalytics') && (
+                      <span className="ml-1 text-green-600">• ID: {integrationSettings.ga_measurement_id?.substring(0, 15)}...</span>
+                    )}
+                  </p>
                   <Button 
                     variant="outline" 
                     size="sm" 
                     className="mt-2"
                     onClick={() => handleIntegrationConfig('googleAnalytics')}
                   >
-                    Configurar
+                    {isIntegrationConfigured('googleAnalytics') ? 'Editar' : 'Configurar'}
                   </Button>
                 </div>
               </div>
