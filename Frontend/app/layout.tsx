@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Roboto, Montserrat } from "next/font/google"
+import Script from "next/script"
 import "./globals.css"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -35,6 +36,18 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${roboto.variable} ${montserrat.variable}`}>
       <body className="min-h-screen flex flex-col">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-EMCS41DMSP"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-EMCS41DMSP');
+          `}
+        </Script>
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
