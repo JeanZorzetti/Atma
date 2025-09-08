@@ -77,7 +77,7 @@ export default function OrtodontistasPage() {
     cep: '',
     cidade: '',
     estado: '',
-    modelo_parceria: 'standard',
+    modelo_parceria: 'atma-aligner',
     tem_scanner: false,
     scanner_marca: '',
     capacidade_mensal: 10
@@ -163,7 +163,7 @@ export default function OrtodontistasPage() {
         cep: '',
         cidade: '',
         estado: '',
-        modelo_parceria: 'standard',
+        modelo_parceria: 'atma-aligner',
         tem_scanner: false,
         scanner_marca: '',
         capacidade_mensal: 10
@@ -267,8 +267,8 @@ export default function OrtodontistasPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="standard">Standard</SelectItem>
-                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="atma-aligner">Atma Aligner</SelectItem>
+                      <SelectItem value="atma-labs">Atma Labs</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
