@@ -10,7 +10,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label'
 import { Search, Plus, Edit, Eye, Filter, MapPin, Star, Loader2, AlertCircle } from 'lucide-react'
 import { useOrthodontists } from '@/hooks/useApi'
-import { Orthodontist } from '@/lib/api'
+import { Orthodontist, apiService } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 
 const mockOrthodontists: Orthodontist[] = [
   {
@@ -62,7 +65,26 @@ const mockOrthodontists: Orthodontist[] = [
 
 export default function OrtodontistasPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const { data: orthodontistsData, loading, error } = useOrthodontists()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({
+    nome: '',
+    clinica: '',
+    cro: '',
+    email: '',
+    telefone: '',
+    endereco_completo: '',
+    cep: '',
+    cidade: '',
+    estado: '',
+    modelo_parceria: 'standard',
+    tem_scanner: false,
+    scanner_marca: '',
+    capacidade_mensal: 10
+  })
+  
+  const { data: orthodontistsData, loading, error, refetch } = useOrthodontists()
+  const { toast } = useToast()
 
   const orthodontists = orthodontistsData?.orthodontists || mockOrthodontists
 
@@ -102,6 +124,66 @@ export default function OrtodontistasPage() {
     ? (orthodontists.reduce((acc: number, o: Orthodontist) => acc + o.rating, 0) / orthodontists.length).toFixed(1)
     : '0.0'
 
+  const handleInputChange = (field: string, value: string | number | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true)
+      
+      // Validar campos obrigatórios
+      if (!formData.nome || !formData.email || !formData.cro) {
+        toast({
+          title: "Campos obrigatórios",
+          description: "Preencha nome, email e CRO",
+          variant: "destructive"
+        })
+        return
+      }
+
+      await apiService.createOrthodontist(formData)
+      
+      toast({
+        title: "Ortodontista cadastrado!",
+        description: "O ortodontista foi adicionado com sucesso"
+      })
+
+      // Resetar formulário e fechar modal
+      setFormData({
+        nome: '',
+        clinica: '',
+        cro: '',
+        email: '',
+        telefone: '',
+        endereco_completo: '',
+        cep: '',
+        cidade: '',
+        estado: '',
+        modelo_parceria: 'standard',
+        tem_scanner: false,
+        scanner_marca: '',
+        capacidade_mensal: 10
+      })
+      setIsModalOpen(false)
+      
+      // Recarregar lista
+      refetch()
+      
+    } catch (error: unknown) {
+      toast({
+        title: "Erro ao cadastrar",
+        description: error instanceof Error ? error.message : "Não foi possível cadastrar o ortodontista",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -109,42 +191,183 @@ export default function OrtodontistasPage() {
           <h1 className="text-3xl font-bold text-gray-900">Ortodontistas</h1>
           <p className="text-gray-600 mt-2">Gerencie os ortodontistas parceiros da Atma</p>
         </div>
-        <Dialog>
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700">
               <Plus className="mr-2 h-4 w-4" />
               Novo Ortodontista
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Cadastrar Novo Ortodontista</DialogTitle>
               <DialogDescription>
-                Preencha as informações do profissional
+                Preencha as informações do profissional parceiro
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome Completo</Label>
-                <Input id="name" placeholder="Dr. Nome Sobrenome" />
+              {/* Informações Básicas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nome">Nome Completo *</Label>
+                  <Input 
+                    id="nome" 
+                    placeholder="Dr. Nome Sobrenome" 
+                    value={formData.nome}
+                    onChange={(e) => handleInputChange('nome', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="clinica">Nome da Clínica</Label>
+                  <Input 
+                    id="clinica" 
+                    placeholder="Clínica Exemplo" 
+                    value={formData.clinica}
+                    onChange={(e) => handleInputChange('clinica', e.target.value)}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="email@exemplo.com" />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cro">CRO *</Label>
+                  <Input 
+                    id="cro" 
+                    placeholder="CRO-SP 12345" 
+                    value={formData.cro}
+                    onChange={(e) => handleInputChange('cro', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="email@exemplo.com" 
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="cro">CRO</Label>
-                <Input id="cro" placeholder="CRO-SP 12345" />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="telefone">Telefone</Label>
+                  <Input 
+                    id="telefone" 
+                    placeholder="(11) 99999-9999" 
+                    value={formData.telefone}
+                    onChange={(e) => handleInputChange('telefone', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="modelo_parceria">Modelo de Parceria</Label>
+                  <Select value={formData.modelo_parceria} onValueChange={(value) => handleInputChange('modelo_parceria', value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="standard">Standard</SelectItem>
+                      <SelectItem value="premium">Premium</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+
+              {/* Endereço */}
               <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" placeholder="(11) 99999-9999" />
+                <Label htmlFor="endereco_completo">Endereço Completo</Label>
+                <Textarea 
+                  id="endereco_completo" 
+                  placeholder="Rua, número, bairro" 
+                  value={formData.endereco_completo}
+                  onChange={(e) => handleInputChange('endereco_completo', e.target.value)}
+                  className="min-h-[80px]"
+                />
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cep">CEP</Label>
+                  <Input 
+                    id="cep" 
+                    placeholder="12345-678" 
+                    value={formData.cep}
+                    onChange={(e) => handleInputChange('cep', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cidade">Cidade</Label>
+                  <Input 
+                    id="cidade" 
+                    placeholder="São Paulo" 
+                    value={formData.cidade}
+                    onChange={(e) => handleInputChange('cidade', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="estado">Estado</Label>
+                  <Select value={formData.estado} onValueChange={(value) => handleInputChange('estado', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SP">SP</SelectItem>
+                      <SelectItem value="RJ">RJ</SelectItem>
+                      <SelectItem value="MG">MG</SelectItem>
+                      <SelectItem value="RS">RS</SelectItem>
+                      <SelectItem value="PR">PR</SelectItem>
+                      <SelectItem value="SC">SC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Configurações Técnicas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="capacidade_mensal">Capacidade Mensal (casos)</Label>
+                  <Input 
+                    id="capacidade_mensal" 
+                    type="number" 
+                    min="1"
+                    max="100"
+                    value={formData.capacidade_mensal}
+                    onChange={(e) => handleInputChange('capacidade_mensal', parseInt(e.target.value) || 10)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="scanner_marca">Marca do Scanner (opcional)</Label>
+                  <Input 
+                    id="scanner_marca" 
+                    placeholder="iTero, 3Shape, etc." 
+                    value={formData.scanner_marca}
+                    onChange={(e) => handleInputChange('scanner_marca', e.target.value)}
+                  />
+                </div>
+              </div>
+
               <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-                  Cadastrar
+                <Button 
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Cadastrando...
+                    </>
+                  ) : (
+                    'Cadastrar'
+                  )}
                 </Button>
-                <Button variant="outline" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setIsModalOpen(false)}
+                  disabled={isSubmitting}
+                >
                   Cancelar
                 </Button>
               </div>
