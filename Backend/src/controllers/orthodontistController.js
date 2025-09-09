@@ -653,112 +653,74 @@ const createOrthodontist = async (req, res, next) => {
   }
 };
 
-// Listar ortodontistas cadastrados
+// Listar ortodontistas cadastrados - FALLBACK TEMPORÁRIO
 const getOrthodontists = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, status = 'ativo' } = req.query;
-    const offset = (page - 1) * limit;
-
-    // Verificar se tabela existe primeiro
-    const tableExistsQuery = `
-      SELECT COUNT(*) as count 
-      FROM information_schema.tables 
-      WHERE table_schema = DATABASE() 
-      AND table_name = 'orthodontists'
-    `;
-
-    const tableExists = await executeQuery(tableExistsQuery);
+    const { page = 1, limit = 10 } = req.query;
     
-    if (!tableExists[0] || tableExists[0].count === 0) {
-      // Tabela não existe, retornar lista vazia
-      return res.json({
-        success: true,
-        data: {
-          orthodontists: [],
-          total: 0,
-          pagination: {
-            currentPage: parseInt(page),
-            totalPages: 0,
-            hasNext: false,
-            hasPrev: false,
-            itemsPerPage: parseInt(limit)
-          }
-        },
-        message: "Tabela orthodontists não encontrada. Nenhum ortodontista cadastrado ainda.",
-        timestamp: new Date().toISOString()
-      });
-    }
+    // FALLBACK: Retornar dados mock baseados nos registros reais do banco
+    // Isso confirma se o problema é na conexão/query ou no endpoint
+    const mockOrthodontists = [
+      {
+        id: 1,
+        name: 'Teste',
+        email: 'jeanzorzetti@gmail.com',
+        phone: '62983443919',
+        cro: 'CRO-SP 12345',
+        specialty: 'Ortodontia',
+        city: 'Goiânia',
+        state: 'SP',
+        status: 'Ativo',
+        patientsCount: 0,
+        rating: 4.5,
+        registrationDate: '2025-09-08',
+        partnershipModel: 'Standard'
+      },
+      {
+        id: 2,
+        name: 'Jean Patrick Borba de Souza Zorzetti',
+        email: 'mariathaiandanazol1001@gmail.com',
+        phone: '62983443919',
+        cro: 'CRO-SP 12347',
+        specialty: 'Ortodontia',
+        city: 'Goiânia',
+        state: 'SP',
+        status: 'Ativo',
+        patientsCount: 0,
+        rating: 4.5,
+        registrationDate: '2025-09-09',
+        partnershipModel: 'Standard'
+      }
+    ];
 
-    // Query mínima para debug - começar com apenas campos básicos
-    const orthodontistsQuery = `
-      SELECT 
-        id,
-        nome,
-        email,
-        status
-      FROM orthodontists 
-      LIMIT ? OFFSET ?
-    `;
-
-    // Consulta para contagem total - simplificada
-    const countQuery = `
-      SELECT COUNT(*) as total 
-      FROM orthodontists
-    `;
-
-    const [orthodontists, countResult] = await Promise.all([
-      executeQuery(orthodontistsQuery, [parseInt(limit), offset]),
-      executeQuery(countQuery, [])
-    ]);
-
-    const total = countResult[0].total;
-    const totalPages = Math.ceil(total / limit);
-
-    // Debug logs
-    logger.info(`Orthodontists query result: ${JSON.stringify({ count: orthodontists.length, total, status })}`);
-    if (orthodontists.length > 0) {
-      logger.info(`First orthodontist: ${JSON.stringify(orthodontists[0])}`);
-    }
+    logger.info(`Returning mock orthodontists data - ${mockOrthodontists.length} records`);
 
     res.json({
       success: true,
       data: {
-        orthodontists: orthodontists.map(orthodontist => ({
-          id: orthodontist.id,
-          name: orthodontist.nome || 'Nome não informado',
-          email: orthodontist.email || 'Email não informado',
-          phone: 'Debug Mode',
-          cro: 'Debug Mode',
-          specialty: 'Ortodontia',
-          city: 'Debug',
-          state: 'DB',
-          status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
-          patientsCount: 0,
-          rating: 4.5,
-          registrationDate: new Date().toISOString().split('T')[0],
-          partnershipModel: 'Debug'
-        })),
-        total,
+        orthodontists: mockOrthodontists,
+        total: mockOrthodontists.length,
         pagination: {
           currentPage: parseInt(page),
-          totalPages,
-          hasNext: parseInt(page) < totalPages,
-          hasPrev: parseInt(page) > 1,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
           itemsPerPage: parseInt(limit)
         }
       },
+      message: "FALLBACK: Usando dados mock dos ortodontistas cadastrados",
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
-    logger.error('Erro ao buscar ortodontistas:', error);
+    logger.error('Erro no fallback de ortodontistas:', error);
     
-    // Retornar resposta de erro estruturada
+    // Mesmo com fallback, se der erro, é um problema grave
     res.status(500).json({
       success: false,
       error: {
-        message: "Erro interno do servidor ao buscar ortodontistas",
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        message: "Erro crítico no servidor - falhou até o fallback",
+        details: error.message
       },
       data: {
         orthodontists: [],
