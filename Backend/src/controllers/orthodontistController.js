@@ -689,42 +689,26 @@ const getOrthodontists = async (req, res, next) => {
       });
     }
 
-    // Consulta principal para ortodontistas (baseada na estrutura real da tabela)
+    // Query mínima para debug - começar com apenas campos básicos
     const orthodontistsQuery = `
       SELECT 
         id,
         nome,
-        clinica,
-        cro,
         email,
-        telefone,
-        endereco_completo,
-        cep,
-        cidade,
-        estado,
-        modelo_parceria,
-        status,
-        data_inicio,
-        tem_scanner,
-        scanner_marca,
-        capacidade_mensal,
-        created_at
+        status
       FROM orthodontists 
-      WHERE status = ?
-      ORDER BY created_at DESC
       LIMIT ? OFFSET ?
     `;
 
-    // Consulta para contagem total
+    // Consulta para contagem total - simplificada
     const countQuery = `
       SELECT COUNT(*) as total 
-      FROM orthodontists 
-      WHERE status = ?
+      FROM orthodontists
     `;
 
     const [orthodontists, countResult] = await Promise.all([
-      executeQuery(orthodontistsQuery, [status, parseInt(limit), offset]),
-      executeQuery(countQuery, [status])
+      executeQuery(orthodontistsQuery, [parseInt(limit), offset]),
+      executeQuery(countQuery, [])
     ]);
 
     const total = countResult[0].total;
@@ -743,16 +727,16 @@ const getOrthodontists = async (req, res, next) => {
           id: orthodontist.id,
           name: orthodontist.nome || 'Nome não informado',
           email: orthodontist.email || 'Email não informado',
-          phone: orthodontist.telefone || '',
-          cro: orthodontist.cro || '',
+          phone: 'Debug Mode',
+          cro: 'Debug Mode',
           specialty: 'Ortodontia',
-          city: orthodontist.cidade || '',
-          state: orthodontist.estado || '',
+          city: 'Debug',
+          state: 'DB',
           status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
-          patientsCount: 0, // TODO: implementar contagem real
-          rating: 4.5, // TODO: implementar sistema de avaliação
-          registrationDate: orthodontist.data_inicio || orthodontist.created_at || new Date().toISOString().split('T')[0],
-          partnershipModel: orthodontist.modelo_parceria === 'atma-aligner' ? 'Standard' : 'Premium'
+          patientsCount: 0,
+          rating: 4.5,
+          registrationDate: new Date().toISOString().split('T')[0],
+          partnershipModel: 'Debug'
         })),
         total,
         pagination: {
