@@ -653,89 +653,40 @@ const createOrthodontist = async (req, res, next) => {
   }
 };
 
-// Listar ortodontistas cadastrados - FALLBACK TEMPORÁRIO
-const getOrthodontists = async (req, res, next) => {
-  try {
-    const { page = 1, limit = 10 } = req.query;
-    
-    // FALLBACK: Retornar dados mock baseados nos registros reais do banco
-    // Isso confirma se o problema é na conexão/query ou no endpoint
-    const mockOrthodontists = [
-      {
-        id: 1,
-        name: 'Teste',
-        email: 'jeanzorzetti@gmail.com',
-        phone: '62983443919',
-        cro: 'CRO-SP 12345',
-        specialty: 'Ortodontia',
-        city: 'Goiânia',
-        state: 'SP',
-        status: 'Ativo',
-        patientsCount: 0,
-        rating: 4.5,
-        registrationDate: '2025-09-08',
-        partnershipModel: 'Standard'
-      },
-      {
-        id: 2,
-        name: 'Jean Patrick Borba de Souza Zorzetti',
-        email: 'mariathaiandanazol1001@gmail.com',
-        phone: '62983443919',
-        cro: 'CRO-SP 12347',
-        specialty: 'Ortodontia',
-        city: 'Goiânia',
-        state: 'SP',
-        status: 'Ativo',
-        patientsCount: 0,
-        rating: 4.5,
-        registrationDate: '2025-09-09',
-        partnershipModel: 'Standard'
+// Listar ortodontistas cadastrados - TESTE EXTREMAMENTE SIMPLES
+const getOrthodontists = (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      orthodontists: [
+        {
+          id: 1,
+          name: 'Teste Simples',
+          email: 'teste@teste.com',
+          phone: '(00) 00000-0000',
+          cro: 'CRO-XX 00000',
+          specialty: 'Ortodontia',
+          city: 'Cidade',
+          state: 'XX',
+          status: 'Ativo',
+          patientsCount: 0,
+          rating: 5.0,
+          registrationDate: '2025-09-09',
+          partnershipModel: 'Teste'
+        }
+      ],
+      total: 1,
+      pagination: {
+        currentPage: 1,
+        totalPages: 1,
+        hasNext: false,
+        hasPrev: false,
+        itemsPerPage: 10
       }
-    ];
-
-    logger.info(`Returning mock orthodontists data - ${mockOrthodontists.length} records`);
-
-    res.json({
-      success: true,
-      data: {
-        orthodontists: mockOrthodontists,
-        total: mockOrthodontists.length,
-        pagination: {
-          currentPage: parseInt(page),
-          totalPages: 1,
-          hasNext: false,
-          hasPrev: false,
-          itemsPerPage: parseInt(limit)
-        }
-      },
-      message: "FALLBACK: Usando dados mock dos ortodontistas cadastrados",
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    logger.error('Erro no fallback de ortodontistas:', error);
-    
-    // Mesmo com fallback, se der erro, é um problema grave
-    res.status(500).json({
-      success: false,
-      error: {
-        message: "Erro crítico no servidor - falhou até o fallback",
-        details: error.message
-      },
-      data: {
-        orthodontists: [],
-        total: 0,
-        pagination: {
-          currentPage: parseInt(req.query.page || 1),
-          totalPages: 0,
-          hasNext: false,
-          hasPrev: false,
-          itemsPerPage: parseInt(req.query.limit || 10)
-        }
-      },
-      timestamp: new Date().toISOString()
-    });
-  }
+    },
+    message: "TESTE SIMPLES: Função está sendo executada",
+    timestamp: new Date().toISOString()
+  });
 };
 
 // Função auxiliar para criar ortodontista a partir da parceria
