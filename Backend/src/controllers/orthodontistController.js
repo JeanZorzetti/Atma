@@ -653,38 +653,58 @@ const createOrthodontist = async (req, res, next) => {
   }
 };
 
-// Listar ortodontistas cadastrados - TESTE EXTREMAMENTE SIMPLES
+// Listar ortodontistas cadastrados - DADOS REAIS SEM ASYNC
 const getOrthodontists = (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  
+  // Dados baseados nos registros reais do banco (sem query por enquanto)
+  const realOrthodontists = [
+    {
+      id: 1,
+      name: 'Teste',
+      email: 'jeanzorzetti@gmail.com',
+      phone: '62983443919',
+      cro: 'CRO-SP 12345',
+      specialty: 'Ortodontia',
+      city: 'Goiânia',
+      state: 'SP',
+      status: 'Ativo',
+      patientsCount: 0,
+      rating: 4.5,
+      registrationDate: '2025-09-08',
+      partnershipModel: 'Standard'
+    },
+    {
+      id: 2,
+      name: 'Jean Patrick Borba de Souza Zorzetti',
+      email: 'mariathaiandanazol1001@gmail.com',
+      phone: '62983443919',
+      cro: 'CRO-SP 12347',
+      specialty: 'Ortodontia',
+      city: 'Goiânia',
+      state: 'SP',
+      status: 'Ativo',
+      patientsCount: 0,
+      rating: 4.5,
+      registrationDate: '2025-09-09',
+      partnershipModel: 'Standard'
+    }
+  ];
+
   res.json({
     success: true,
     data: {
-      orthodontists: [
-        {
-          id: 1,
-          name: 'Teste Simples',
-          email: 'teste@teste.com',
-          phone: '(00) 00000-0000',
-          cro: 'CRO-XX 00000',
-          specialty: 'Ortodontia',
-          city: 'Cidade',
-          state: 'XX',
-          status: 'Ativo',
-          patientsCount: 0,
-          rating: 5.0,
-          registrationDate: '2025-09-09',
-          partnershipModel: 'Teste'
-        }
-      ],
-      total: 1,
+      orthodontists: realOrthodontists,
+      total: realOrthodontists.length,
       pagination: {
-        currentPage: 1,
+        currentPage: parseInt(page),
         totalPages: 1,
         hasNext: false,
         hasPrev: false,
-        itemsPerPage: 10
+        itemsPerPage: parseInt(limit)
       }
     },
-    message: "TESTE SIMPLES: Função está sendo executada",
+    message: "Dados reais dos ortodontistas cadastrados (sem query no banco)",
     timestamp: new Date().toISOString()
   });
 };
