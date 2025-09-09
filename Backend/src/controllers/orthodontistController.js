@@ -653,60 +653,75 @@ const createOrthodontist = async (req, res, next) => {
   }
 };
 
-// Listar ortodontistas cadastrados - DADOS REAIS SEM ASYNC
-const getOrthodontists = (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-  
-  // Dados baseados nos registros reais do banco (sem query por enquanto)
-  const realOrthodontists = [
-    {
-      id: 1,
-      name: 'Teste',
-      email: 'jeanzorzetti@gmail.com',
-      phone: '62983443919',
-      cro: 'CRO-SP 12345',
-      specialty: 'Ortodontia',
-      city: 'Goiânia',
-      state: 'SP',
-      status: 'Ativo',
-      patientsCount: 0,
-      rating: 4.5,
-      registrationDate: '2025-09-08',
-      partnershipModel: 'Standard'
-    },
-    {
-      id: 2,
-      name: 'Jean Patrick Borba de Souza Zorzetti',
-      email: 'mariathaiandanazol1001@gmail.com',
-      phone: '62983443919',
-      cro: 'CRO-SP 12347',
-      specialty: 'Ortodontia',
-      city: 'Goiânia',
-      state: 'SP',
-      status: 'Ativo',
-      patientsCount: 0,
-      rating: 4.5,
-      registrationDate: '2025-09-09',
-      partnershipModel: 'Standard'
-    }
-  ];
+// Listar ortodontistas cadastrados - QUERY REAL DO BANCO
+const getOrthodontists = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
 
-  res.json({
-    success: true,
-    data: {
-      orthodontists: realOrthodontists,
-      total: realOrthodontists.length,
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages: 1,
-        hasNext: false,
-        hasPrev: false,
-        itemsPerPage: parseInt(limit)
-      }
-    },
-    message: "Dados reais dos ortodontistas cadastrados (sem query no banco)",
-    timestamp: new Date().toISOString()
-  });
+    // Query real na tabela orthodontists
+    const query = `
+      SELECT 
+        id, nome, clinica, cro, email, telefone,
+        endereco_completo, cep, cidade, estado,
+        modelo_parceria, status, data_inicio,
+        tem_scanner, scanner_marca, capacidade_mensal
+      FROM orthodontists 
+      WHERE status = 'ativo'
+      ORDER BY id DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM orthodontists 
+      WHERE status = 'ativo'
+    `;
+
+    const [orthodontists, countResult] = await Promise.all([
+      executeQuery(query, [parseInt(limit), offset]),
+      executeQuery(countQuery, [])
+    ]);
+
+    const total = countResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    logger.info(`Found ${orthodontists.length} orthodontists, total: ${total}`);
+
+    res.json({
+      success: true,
+      data: {
+        orthodontists: orthodontists.map(orthodontist => ({
+          id: orthodontist.id,
+          name: orthodontist.nome,
+          email: orthodontist.email,
+          phone: orthodontist.telefone || '',
+          cro: orthodontist.cro,
+          specialty: 'Ortodontia',
+          city: orthodontist.cidade || '',
+          state: orthodontist.estado || '',
+          status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
+          patientsCount: 0,
+          rating: 4.5,
+          registrationDate: orthodontist.data_inicio || new Date().toISOString().split('T')[0],
+          partnershipModel: orthodontist.modelo_parceria === 'atma-aligner' ? 'Standard' : 'Premium'
+        })),
+        total,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages,
+          hasNext: parseInt(page) < totalPages,
+          hasPrev: parseInt(page) > 1,
+          itemsPerPage: parseInt(limit)
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao buscar ortodontistas:', error);
+    next(error);
+  }
 };
 
 // Função auxiliar para criar ortodontista a partir da parceria
