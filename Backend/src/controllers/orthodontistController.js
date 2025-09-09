@@ -653,6 +653,89 @@ const createOrthodontist = async (req, res, next) => {
   }
 };
 
+// Listar ortodontistas cadastrados
+const getOrthodontists = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, status = 'ativo' } = req.query;
+    const offset = (page - 1) * limit;
+
+    // Consulta principal para ortodontistas
+    const orthodontistsQuery = `
+      SELECT 
+        id,
+        nome,
+        clinica,
+        cro,
+        email,
+        telefone,
+        endereco_completo,
+        cep,
+        cidade,
+        estado,
+        modelo_parceria,
+        status,
+        tem_scanner,
+        scanner_marca,
+        capacidade_mensal,
+        data_inicio,
+        created_at
+      FROM orthodontists 
+      WHERE status = ?
+      ORDER BY created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    // Consulta para contagem total
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM orthodontists 
+      WHERE status = ?
+    `;
+
+    const [orthodontists, countResult] = await Promise.all([
+      executeQuery(orthodontistsQuery, [status, parseInt(limit), offset]),
+      executeQuery(countQuery, [status])
+    ]);
+
+    const total = countResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      success: true,
+      data: {
+        orthodontists: orthodontists.map(orthodontist => ({
+          id: orthodontist.id,
+          name: orthodontist.nome,
+          email: orthodontist.email,
+          phone: orthodontist.telefone,
+          cro: orthodontist.cro,
+          specialty: 'Ortodontia',
+          city: orthodontist.cidade,
+          state: orthodontist.estado,
+          status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
+          patientsCount: 0, // TODO: implementar contagem real
+          rating: 0, // TODO: implementar sistema de avaliação
+          registrationDate: orthodontist.data_inicio || orthodontist.created_at,
+          partnershipModel: orthodontist.modelo_parceria === 'atma-aligner' ? 'Standard' : 'Premium'
+        })),
+        total,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages,
+          hasNext: parseInt(page) < totalPages,
+          hasPrev: parseInt(page) > 1,
+          itemsPerPage: parseInt(limit)
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao buscar ortodontistas:', error);
+    next(error);
+  }
+};
+
 // Função auxiliar para criar ortodontista a partir da parceria
 const createOrthodontistFromPartnership = async (partnershipData) => {
   // Buscar dados de endereço se tiver CEP no campo cep
@@ -766,5 +849,6 @@ module.exports = {
   searchOrthodontists,
   getOrthodontistStats,
   createOrthodontist,
-  updateOrthodontist
+  updateOrthodontist,
+  getOrthodontists
 };

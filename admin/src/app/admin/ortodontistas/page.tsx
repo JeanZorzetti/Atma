@@ -86,7 +86,7 @@ export default function OrtodontistasPage() {
   const { data: orthodontistsData, loading, error, refetch } = useOrthodontists()
   const { toast } = useToast()
 
-  const orthodontists = orthodontistsData?.orthodontists || mockOrthodontists
+  const orthodontists = orthodontistsData?.data?.orthodontists || mockOrthodontists
 
   const filteredOrthodontists = orthodontists.filter((orthodontist: Orthodontist) =>
     (orthodontist.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -405,7 +405,7 @@ export default function OrtodontistasPage() {
             <CardTitle className="text-sm font-medium">Total de Ortodontistas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{orthodontistsData?.total || orthodontists.length}</div>
+            <div className="text-2xl font-bold">{orthodontistsData?.data?.total || orthodontists.length}</div>
             <p className="text-xs text-muted-foreground">+3 este mês</p>
           </CardContent>
         </Card>

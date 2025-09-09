@@ -34,6 +34,9 @@ router.get('/search', validateOrthodontistSearch, orthodontistController.searchO
 // GET /api/orthodontists/stats - Estatísticas de parcerias
 router.get('/stats', orthodontistController.getOrthodontistStats);
 
+// GET /api/orthodontists - Listar ortodontistas cadastrados
+router.get('/', orthodontistController.getOrthodontists);
+
 // POST /api/orthodontists - Criar ortodontista parceiro (após aprovação)
 router.post('/', orthodontistController.createOrthodontist);
 
