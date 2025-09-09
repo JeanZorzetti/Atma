@@ -659,6 +659,36 @@ const getOrthodontists = async (req, res, next) => {
     const { page = 1, limit = 10, status = 'ativo' } = req.query;
     const offset = (page - 1) * limit;
 
+    // Verificar se tabela existe primeiro
+    const tableExistsQuery = `
+      SELECT COUNT(*) as count 
+      FROM information_schema.tables 
+      WHERE table_schema = DATABASE() 
+      AND table_name = 'orthodontists'
+    `;
+
+    const tableExists = await executeQuery(tableExistsQuery);
+    
+    if (!tableExists[0] || tableExists[0].count === 0) {
+      // Tabela não existe, retornar lista vazia
+      return res.json({
+        success: true,
+        data: {
+          orthodontists: [],
+          total: 0,
+          pagination: {
+            currentPage: parseInt(page),
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+            itemsPerPage: parseInt(limit)
+          }
+        },
+        message: "Tabela orthodontists não encontrada. Nenhum ortodontista cadastrado ainda.",
+        timestamp: new Date().toISOString()
+      });
+    }
+
     // Consulta principal para ortodontistas
     const orthodontistsQuery = `
       SELECT 
@@ -732,7 +762,27 @@ const getOrthodontists = async (req, res, next) => {
 
   } catch (error) {
     logger.error('Erro ao buscar ortodontistas:', error);
-    next(error);
+    
+    // Retornar resposta de erro estruturada
+    res.status(500).json({
+      success: false,
+      error: {
+        message: "Erro interno do servidor ao buscar ortodontistas",
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
+      data: {
+        orthodontists: [],
+        total: 0,
+        pagination: {
+          currentPage: parseInt(req.query.page || 1),
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+          itemsPerPage: parseInt(req.query.limit || 10)
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
   }
 };
 
