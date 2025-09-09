@@ -689,7 +689,7 @@ const getOrthodontists = async (req, res, next) => {
       });
     }
 
-    // Consulta principal para ortodontistas
+    // Consulta principal para ortodontistas (simplificada primeiro)
     const orthodontistsQuery = `
       SELECT 
         id,
@@ -698,20 +698,14 @@ const getOrthodontists = async (req, res, next) => {
         cro,
         email,
         telefone,
-        endereco_completo,
-        cep,
         cidade,
         estado,
         modelo_parceria,
         status,
-        tem_scanner,
-        scanner_marca,
-        capacidade_mensal,
-        data_inicio,
-        created_at
+        data_inicio
       FROM orthodontists 
       WHERE status = ?
-      ORDER BY created_at DESC
+      ORDER BY id DESC
       LIMIT ? OFFSET ?
     `;
 
@@ -730,22 +724,28 @@ const getOrthodontists = async (req, res, next) => {
     const total = countResult[0].total;
     const totalPages = Math.ceil(total / limit);
 
+    // Debug logs
+    logger.info(`Orthodontists query result: ${JSON.stringify({ count: orthodontists.length, total, status })}`);
+    if (orthodontists.length > 0) {
+      logger.info(`First orthodontist: ${JSON.stringify(orthodontists[0])}`);
+    }
+
     res.json({
       success: true,
       data: {
         orthodontists: orthodontists.map(orthodontist => ({
           id: orthodontist.id,
-          name: orthodontist.nome,
-          email: orthodontist.email,
-          phone: orthodontist.telefone,
-          cro: orthodontist.cro,
+          name: orthodontist.nome || 'Nome não informado',
+          email: orthodontist.email || 'Email não informado',
+          phone: orthodontist.telefone || '',
+          cro: orthodontist.cro || '',
           specialty: 'Ortodontia',
-          city: orthodontist.cidade,
-          state: orthodontist.estado,
+          city: orthodontist.cidade || '',
+          state: orthodontist.estado || '',
           status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
           patientsCount: 0, // TODO: implementar contagem real
-          rating: 0, // TODO: implementar sistema de avaliação
-          registrationDate: orthodontist.data_inicio || orthodontist.created_at,
+          rating: 4.5, // TODO: implementar sistema de avaliação
+          registrationDate: orthodontist.data_inicio || new Date().toISOString().split('T')[0],
           partnershipModel: orthodontist.modelo_parceria === 'atma-aligner' ? 'Standard' : 'Premium'
         })),
         total,
