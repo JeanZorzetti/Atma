@@ -86,7 +86,7 @@ export default function OrtodontistasPage() {
   const { data: orthodontistsData, loading, error, refetch } = useOrthodontists()
   const { toast } = useToast()
 
-  const orthodontists = orthodontistsData?.data?.orthodontists || mockOrthodontists
+  const orthodontists = orthodontistsData?.orthodontists || mockOrthodontists
 
   const filteredOrthodontists = orthodontists.filter((orthodontist: Orthodontist) =>
     (orthodontist.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||

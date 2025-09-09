@@ -32,16 +32,14 @@ export interface Orthodontist {
 
 export interface OrthodontistsResponse {
   success: boolean
-  data: {
-    orthodontists: Orthodontist[]
-    total: number
-    pagination: {
-      currentPage: number
-      totalPages: number
-      hasNext: boolean
-      hasPrev: boolean
-      itemsPerPage: number
-    }
+  orthodontists: Orthodontist[]
+  total: number
+  pagination: {
+    currentPage: number
+    totalPages: number
+    hasNext: boolean
+    hasPrev: boolean
+    itemsPerPage: number
   }
   timestamp: string
 }
