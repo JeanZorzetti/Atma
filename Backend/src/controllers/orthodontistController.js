@@ -689,7 +689,7 @@ const getOrthodontists = async (req, res, next) => {
       });
     }
 
-    // Consulta principal para ortodontistas (simplificada primeiro)
+    // Consulta principal para ortodontistas (baseada na estrutura real da tabela)
     const orthodontistsQuery = `
       SELECT 
         id,
@@ -698,14 +698,20 @@ const getOrthodontists = async (req, res, next) => {
         cro,
         email,
         telefone,
+        endereco_completo,
+        cep,
         cidade,
         estado,
         modelo_parceria,
         status,
-        data_inicio
+        data_inicio,
+        tem_scanner,
+        scanner_marca,
+        capacidade_mensal,
+        created_at
       FROM orthodontists 
       WHERE status = ?
-      ORDER BY id DESC
+      ORDER BY created_at DESC
       LIMIT ? OFFSET ?
     `;
 
@@ -745,7 +751,7 @@ const getOrthodontists = async (req, res, next) => {
           status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
           patientsCount: 0, // TODO: implementar contagem real
           rating: 4.5, // TODO: implementar sistema de avaliação
-          registrationDate: orthodontist.data_inicio || new Date().toISOString().split('T')[0],
+          registrationDate: orthodontist.data_inicio || orthodontist.created_at || new Date().toISOString().split('T')[0],
           partnershipModel: orthodontist.modelo_parceria === 'atma-aligner' ? 'Standard' : 'Premium'
         })),
         total,
