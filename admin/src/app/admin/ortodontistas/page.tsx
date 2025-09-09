@@ -174,9 +174,20 @@ export default function OrtodontistasPage() {
       refetch()
       
     } catch (error: unknown) {
+      let errorMessage = "Não foi possível cadastrar o ortodontista"
+      
+      if (error instanceof Error) {
+        // Se for erro 409 (conflito), mostrar mensagem específica
+        if (error.message.includes("409") || error.message.includes("duplicado") || error.message.includes("Registro duplicado")) {
+          errorMessage = "CRO ou email já cadastrado. Verifique se este ortodontista já existe no sistema."
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
       toast({
         title: "Erro ao cadastrar",
-        description: error instanceof Error ? error.message : "Não foi possível cadastrar o ortodontista",
+        description: errorMessage,
         variant: "destructive"
       })
     } finally {
