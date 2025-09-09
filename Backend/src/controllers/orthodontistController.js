@@ -103,95 +103,61 @@ const createPartnershipRequest = async (req, res, next) => {
   }
 };
 
-// Listar solicitações de parceria
+// Listar solicitações de parceria - APLICANDO PADRÕES DO CRM
 const getPartnershipRequests = async (req, res, next) => {
-  const startTime = Date.now();
-  
   try {
-    const {
-      page = 1,
-      limit = 20,
-      status,
-      interesse,
-      data_inicio,
-      data_fim,
-      search
-    } = req.query;
-    
-    const offset = (page - 1) * limit;
+    const { status, interesse, responsavel, origem, page = 1, limit = 50, search } = req.query;
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit) || 50), 100);
+    const offset = (pageNum - 1) * limitNum;
+
     let whereConditions = [];
     let queryParams = [];
-    
-    // Filtros
-    if (status) {
+
+    // Filtros - seguindo padrão do CRM
+    if (status && status !== 'all') {
       whereConditions.push('status = ?');
       queryParams.push(status);
     }
-    
-    if (interesse) {
+
+    if (interesse && interesse !== 'all') {
       whereConditions.push('interesse = ?');
       queryParams.push(interesse);
     }
-    
-    if (data_inicio) {
-      whereConditions.push('created_at >= ?');
-      queryParams.push(data_inicio);
+
+    if (responsavel && responsavel !== 'all') {
+      whereConditions.push('responsavel_comercial = ?');
+      queryParams.push(responsavel);
     }
-    
-    if (data_fim) {
-      whereConditions.push('created_at <= ?');
-      queryParams.push(data_fim);
-    }
-    
+
     if (search) {
       whereConditions.push('(nome LIKE ? OR clinica LIKE ? OR email LIKE ? OR cro LIKE ?)');
       const searchTerm = `%${search}%`;
       queryParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
     }
-    
+
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    // Query principal com todas as colunas - padrão CRM
+    const query = `SELECT * FROM orthodontist_partnerships ${whereClause} ORDER BY created_at DESC LIMIT ${limitNum} OFFSET ${offset}`;
     
-    // Query principal
-    const query = `
-      SELECT 
-        *,
-        CASE 
-          WHEN status = 'novo' THEN 1
-          WHEN status = 'analisando' THEN 2
-          WHEN status = 'proposta-enviada' THEN 3
-          WHEN status = 'negociacao' THEN 4
-          WHEN status = 'fechado' THEN 5
-          WHEN status = 'rejeitado' THEN 6
-          ELSE 7
-        END as status_priority
-      FROM orthodontist_partnerships
-      ${whereClause}
-      ORDER BY status_priority ASC, created_at DESC
-      LIMIT ? OFFSET ?
-    `;
+    // Query de contagem - padrão CRM
+    const countQuery = `SELECT COUNT(*) as total FROM orthodontist_partnerships ${whereClause}`;
+
+    const requests = await executeQuery(query, queryParams);
+    const countResult = await executeQuery(countQuery, queryParams);
+    const total = countResult[0]?.total || 0;
     
-    // Query para contar total
-    const countQuery = `
-      SELECT COUNT(*) as total
-      FROM orthodontist_partnerships
-      ${whereClause}
-    `;
-    
-    queryParams.push(parseInt(limit), parseInt(offset));
-    const countParams = queryParams.slice(0, -2);
-    
-    const [requests, totalResult] = await Promise.all([
-      executeQuery(query, queryParams),
-      executeQuery(countQuery, countParams)
-    ]);
-    
-    const total = totalResult[0].total;
-    const totalPages = Math.ceil(total / limit);
-    
-    logDBOperation('SELECT', 'orthodontist_partnerships', requests, Date.now() - startTime);
+    const totalPages = Math.ceil(total / limitNum);
+
+    logger.info('Query de parcerias executada com sucesso:', { 
+      count: requests.length, 
+      total, 
+      filters: { status, interesse, responsavel, search } 
+    });
     
     // Mapear partnerships para formato de orthodontists para o admin
-    const orthodontists = requests.map(partnership => ({
+    const orthodontists = (requests || []).map(partnership => ({
       id: partnership.id,
       name: partnership.nome,
       email: partnership.email,
@@ -203,28 +169,31 @@ const getPartnershipRequests = async (req, res, next) => {
       status: partnership.status === 'fechado' ? 'Ativo' : 'Pendente',
       patientsCount: 0,
       rating: 0,
-      registrationDate: partnership.created_at.split('T')[0],
+      registrationDate: partnership.created_at ? partnership.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
       partnershipModel: partnership.interesse === 'atma-aligner' ? 'Standard' : 'Premium'
     }));
 
     res.json({
       success: true,
       orthodontists: orthodontists,
-      total: total,
+      total,
       pagination: {
-        current_page: parseInt(page),
-        total_pages: totalPages,
-        total_items: total,
-        items_per_page: parseInt(limit),
-        has_next: page < totalPages,
-        has_prev: page > 1
+        currentPage: pageNum,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
+        itemsPerPage: limitNum
       },
       timestamp: new Date().toISOString()
     });
     
   } catch (error) {
-    logger.error('Erro ao buscar solicitações de parceria:', error);
-    next(error);
+    logger.error('Erro no endpoint de parcerias:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro interno do servidor', details: error.message },
+      timestamp: new Date().toISOString()
+    });
   }
 };
 
@@ -543,68 +512,134 @@ const searchOrthodontists = async (req, res, next) => {
   }
 };
 
-// Estatísticas de parcerias
+// Estatísticas de parcerias - APLICANDO PADRÕES DO CRM
 const getOrthodontistStats = async (req, res, next) => {
-  const startTime = Date.now();
-  
   try {
-    const { periodo = '30' } = req.query;
-    
     const queries = [
-      // Total de solicitações
-      `SELECT COUNT(*) as total_solicitacoes FROM orthodontist_partnerships WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${periodo} DAY)`,
+      // Contagem por status de parcerias
+      `SELECT status, COUNT(*) as count FROM orthodontist_partnerships GROUP BY status`,
       
-      // Solicitações por status
-      `SELECT status, COUNT(*) as count FROM orthodontist_partnerships WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${periodo} DAY) GROUP BY status`,
+      // Contagem de ortodontistas ativos
+      `SELECT COUNT(*) as total_ativos FROM orthodontists WHERE status = 'ativo'`,
       
-      // Solicitações por tipo de interesse
-      `SELECT interesse, COUNT(*) as count FROM orthodontist_partnerships WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${periodo} DAY) GROUP BY interesse`,
-      
-      // Ortodontistas ativos
-      `SELECT COUNT(*) as total_ativos FROM orthodontists WHERE status = "ativo"`,
+      // Parcerias por interesse
+      `SELECT interesse, COUNT(*) as count FROM orthodontist_partnerships GROUP BY interesse`,
       
       // Ortodontistas por modelo de parceria
-      `SELECT modelo_parceria, COUNT(*) as count FROM orthodontists WHERE status = "ativo" GROUP BY modelo_parceria`,
+      `SELECT modelo_parceria, COUNT(*) as count FROM orthodontists WHERE status = 'ativo' GROUP BY modelo_parceria`,
       
-      // Taxa de conversão (fechados vs total)
+      // Taxa de conversão
       `SELECT 
-        COUNT(*) as total,
-        SUM(CASE WHEN status = "fechado" THEN 1 ELSE 0 END) as fechados
-       FROM orthodontist_partnerships WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${periodo} DAY)`
+        COUNT(*) as total_partnerships,
+        SUM(CASE WHEN status = 'fechado' THEN 1 ELSE 0 END) as fechados,
+        SUM(CASE WHEN status = 'novo' THEN 1 ELSE 0 END) as novos,
+        SUM(CASE WHEN status = 'analisando' THEN 1 ELSE 0 END) as analisando,
+        SUM(CASE WHEN status = 'negociacao' THEN 1 ELSE 0 END) as negociacao
+       FROM orthodontist_partnerships`,
+      
+      // Parcerias por responsável comercial
+      `SELECT responsavel_comercial, COUNT(*) as count 
+       FROM orthodontist_partnerships 
+       WHERE responsavel_comercial IS NOT NULL 
+       GROUP BY responsavel_comercial`
     ];
-    
+
+    const queryResults = await Promise.allSettled(
+      queries.map(query => executeQuery(query))
+    );
+
     const [
-      totalSolicitacoes,
-      solicitacoesPorStatus,
-      solicitacoesPorInteresse,
-      ortodontistasAtivos,
-      ortodontistasPorModelo,
-      taxaConversao
-    ] = await Promise.all(queries.map(query => executeQuery(query)));
-    
-    logDBOperation('SELECT', 'orthodontist_stats', { length: 6 }, Date.now() - startTime);
-    
+      statusResult,
+      ativosResult,
+      interesseResult,
+      modeloResult,
+      conversaoResult,
+      responsavelResult
+    ] = queryResults.map(result => 
+      result.status === 'fulfilled' ? result.value : []
+    );
+
+    // Processar contagem por status
+    const statusCount = {
+      novo: 0,
+      analisando: 0,
+      negociacao: 0,
+      fechado: 0,
+      rejeitado: 0
+    };
+
+    statusResult.forEach(row => {
+      if (statusCount.hasOwnProperty(row.status)) {
+        statusCount[row.status] = row.count;
+      }
+    });
+
+    // Calcular conversões
+    const conversions = conversaoResult[0] || {};
+    const totalPartnerships = conversions.total_partnerships || 1;
+    const ativosCount = ativosResult[0]?.total_ativos || 0;
+
+    const conversionRates = {
+      novo_to_analisando: totalPartnerships > 0 ? ((conversions.analisando || 0) / totalPartnerships * 100).toFixed(1) : '0.0',
+      analisando_to_negociacao: conversions.analisando > 0 ? ((conversions.negociacao || 0) / conversions.analisando * 100).toFixed(1) : '0.0',
+      negociacao_to_fechado: conversions.negociacao > 0 ? ((conversions.fechados || 0) / conversions.negociacao * 100).toFixed(1) : '0.0',
+      overall: totalPartnerships > 0 ? ((conversions.fechados || 0) / totalPartnerships * 100).toFixed(1) : '0.0'
+    };
+
+    // Processar dados por interesse
+    const partnershipsByInteresse = interesseResult.reduce((acc, row) => {
+      acc[row.interesse] = row.count;
+      return acc;
+    }, {});
+
+    // Processar dados por modelo
+    const orthodontistsByModelo = modeloResult.reduce((acc, row) => {
+      acc[row.modelo_parceria] = row.count;
+      return acc;
+    }, {});
+
+    // Processar dados por responsável
+    const partnershipsByResponsavel = responsavelResult.reduce((acc, row) => {
+      acc[row.responsavel_comercial] = row.count;
+      return acc;
+    }, {});
+
     res.json({
       success: true,
       data: {
-        resumo: {
-          total_solicitacoes: totalSolicitacoes[0].total_solicitacoes,
-          ortodontistas_ativos: ortodontistasAtivos[0].total_ativos,
-          taxa_conversao: taxaConversao[0].total > 0 
-            ? ((taxaConversao[0].fechados / taxaConversao[0].total) * 100).toFixed(1)
-            : 0,
-          periodo_dias: parseInt(periodo)
+        // Contadores por etapa
+        pipeline: {
+          novo: statusCount.novo,
+          analisando: statusCount.analisando,
+          negociacao: statusCount.negociacao,
+          fechado: statusCount.fechado,
+          rejeitado: statusCount.rejeitado,
+          ortodontistas_ativos: ativosCount
         },
-        solicitacoes_por_status: solicitacoesPorStatus,
-        solicitacoes_por_interesse: solicitacoesPorInteresse,
-        ortodontistas_por_modelo: ortodontistasPorModelo
+        
+        // Taxa de conversão por etapa
+        conversion_rates: conversionRates,
+        
+        // Distribuições
+        by_interesse: partnershipsByInteresse,
+        by_modelo: orthodontistsByModelo,
+        by_responsavel: partnershipsByResponsavel,
+        
+        // Totais
+        total_partnerships: totalPartnerships,
+        total_ortodontistas_ativos: ativosCount,
+        total_geral: totalPartnerships + ativosCount
       },
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
     logger.error('Erro ao buscar estatísticas de ortodontistas:', error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro ao calcular estatísticas', details: error.message },
+      timestamp: new Date().toISOString()
+    });
   }
 };
 
@@ -653,74 +688,103 @@ const createOrthodontist = async (req, res, next) => {
   }
 };
 
-// Listar ortodontistas cadastrados - QUERY REAL DO BANCO
+// Listar ortodontistas cadastrados - APLICANDO PADRÕES DO CRM
 const getOrthodontists = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
+    const { status, modelo_parceria, cidade, estado, page = 1, limit = 50, search } = req.query;
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit) || 50), 100);
+    const offset = (pageNum - 1) * limitNum;
 
-    // Query real na tabela orthodontists
-    const query = `
-      SELECT 
-        id, nome, clinica, cro, email, telefone,
-        endereco_completo, cep, cidade, estado,
-        modelo_parceria, status, data_inicio,
-        tem_scanner, scanner_marca, capacidade_mensal
-      FROM orthodontists 
-      WHERE status = 'ativo'
-      ORDER BY id DESC
-      LIMIT ? OFFSET ?
-    `;
+    let whereConditions = [];
+    let queryParams = [];
 
-    const countQuery = `
-      SELECT COUNT(*) as total 
-      FROM orthodontists 
-      WHERE status = 'ativo'
-    `;
+    // Filtros - seguindo padrão do CRM
+    if (status && status !== 'all') {
+      whereConditions.push('status = ?');
+      queryParams.push(status);
+    } else {
+      // Por padrão, buscar apenas ativos como no CRM
+      whereConditions.push('status = ?');
+      queryParams.push('ativo');
+    }
 
-    const [orthodontists, countResult] = await Promise.all([
-      executeQuery(query, [parseInt(limit), offset]),
-      executeQuery(countQuery, [])
-    ]);
+    if (modelo_parceria && modelo_parceria !== 'all') {
+      whereConditions.push('modelo_parceria = ?');
+      queryParams.push(modelo_parceria);
+    }
 
-    const total = countResult[0].total;
-    const totalPages = Math.ceil(total / limit);
+    if (cidade && cidade !== 'all') {
+      whereConditions.push('cidade = ?');
+      queryParams.push(cidade);
+    }
 
-    logger.info(`Found ${orthodontists.length} orthodontists, total: ${total}`);
+    if (estado && estado !== 'all') {
+      whereConditions.push('estado = ?');
+      queryParams.push(estado);
+    }
+
+    if (search) {
+      whereConditions.push('(nome LIKE ? OR clinica LIKE ? OR email LIKE ? OR cro LIKE ?)');
+      const searchTerm = `%${search}%`;
+      queryParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
+    }
+
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    // Query principal com todas as colunas - padrão CRM
+    const query = `SELECT * FROM orthodontists ${whereClause} ORDER BY created_at DESC LIMIT ${limitNum} OFFSET ${offset}`;
+    
+    // Query de contagem - padrão CRM
+    const countQuery = `SELECT COUNT(*) as total FROM orthodontists ${whereClause}`;
+
+    const orthodontists = await executeQuery(query, queryParams);
+    const countResult = await executeQuery(countQuery, queryParams);
+    const total = countResult[0]?.total || 0;
+    
+    const totalPages = Math.ceil(total / limitNum);
+
+    logger.info('Query de ortodontistas executada com sucesso:', { 
+      count: orthodontists.length, 
+      total, 
+      filters: { status, modelo_parceria, cidade, estado, search } 
+    });
 
     res.json({
       success: true,
-      data: {
-        orthodontists: orthodontists.map(orthodontist => ({
-          id: orthodontist.id,
-          name: orthodontist.nome,
-          email: orthodontist.email,
-          phone: orthodontist.telefone || '',
-          cro: orthodontist.cro,
-          specialty: 'Ortodontia',
-          city: orthodontist.cidade || '',
-          state: orthodontist.estado || '',
-          status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
-          patientsCount: 0,
-          rating: 4.5,
-          registrationDate: orthodontist.data_inicio || new Date().toISOString().split('T')[0],
-          partnershipModel: orthodontist.modelo_parceria === 'atma-aligner' ? 'Standard' : 'Premium'
-        })),
-        total,
-        pagination: {
-          currentPage: parseInt(page),
-          totalPages,
-          hasNext: parseInt(page) < totalPages,
-          hasPrev: parseInt(page) > 1,
-          itemsPerPage: parseInt(limit)
-        }
+      orthodontists: (orthodontists || []).map(orthodontist => ({
+        id: orthodontist.id,
+        name: orthodontist.nome,
+        email: orthodontist.email,
+        phone: orthodontist.telefone || '',
+        cro: orthodontist.cro,
+        specialty: 'Ortodontia',
+        city: orthodontist.cidade || '',
+        state: orthodontist.estado || '',
+        status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
+        patientsCount: 0,
+        rating: 4.5,
+        registrationDate: orthodontist.data_inicio || new Date().toISOString().split('T')[0],
+        partnershipModel: orthodontist.modelo_parceria === 'atma-aligner' ? 'Standard' : 'Premium'
+      })),
+      total,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
+        itemsPerPage: limitNum
       },
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
-    logger.error('Erro ao buscar ortodontistas:', error);
-    next(error);
+    logger.error('Erro no endpoint de ortodontistas:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro interno do servidor', details: error.message },
+      timestamp: new Date().toISOString()
+    });
   }
 };
 
