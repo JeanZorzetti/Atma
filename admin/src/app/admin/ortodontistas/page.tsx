@@ -67,6 +67,9 @@ export default function OrtodontistasPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [selectedOrthodontist, setSelectedOrthodontist] = useState<Orthodontist | null>(null)
   const [formData, setFormData] = useState({
     nome: '',
     clinica: '',
@@ -116,6 +119,70 @@ export default function OrtodontistasPage() {
         return <Badge className="bg-blue-100 text-blue-800">Standard</Badge>
       default:
         return <Badge variant="secondary">{model}</Badge>
+    }
+  }
+
+  const handleViewOrthodontist = (orthodontist: Orthodontist) => {
+    setSelectedOrthodontist(orthodontist)
+    setIsViewModalOpen(true)
+  }
+
+  const handleEditOrthodontist = (orthodontist: Orthodontist) => {
+    setSelectedOrthodontist(orthodontist)
+    setFormData({
+      nome: orthodontist.name,
+      clinica: '',
+      cro: orthodontist.cro,
+      email: orthodontist.email,
+      telefone: orthodontist.phone,
+      endereco_completo: '',
+      cep: '',
+      cidade: orthodontist.city,
+      estado: orthodontist.state,
+      modelo_parceria: orthodontist.partnershipModel === 'Premium' ? 'premium' : 'atma-aligner',
+      tem_scanner: false,
+      scanner_marca: '',
+      capacidade_mensal: 10
+    })
+    setIsEditModalOpen(true)
+  }
+
+  const handleUpdateOrthodontist = async () => {
+    if (!selectedOrthodontist) return
+    
+    try {
+      setIsSubmitting(true)
+      
+      // Validar campos obrigatórios
+      if (!formData.nome || !formData.email || !formData.cro) {
+        toast({
+          title: "Campos obrigatórios",
+          description: "Preencha nome, email e CRO",
+          variant: "destructive"
+        })
+        return
+      }
+
+      await apiService.updateOrthodontist(selectedOrthodontist.id.toString(), formData)
+      
+      toast({
+        title: "Ortodontista atualizado!",
+        description: "As alterações foram salvas com sucesso"
+      })
+
+      // Fechar modal e recarregar dados
+      setIsEditModalOpen(false)
+      setSelectedOrthodontist(null)
+      refetch()
+
+    } catch (error) {
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível salvar as alterações",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -385,6 +452,180 @@ export default function OrtodontistasPage() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Modal de Visualização */}
+        <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Detalhes do Ortodontista</DialogTitle>
+              <DialogDescription>
+                Visualize as informações completas do ortodontista
+              </DialogDescription>
+            </DialogHeader>
+            {selectedOrthodontist && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Nome</Label>
+                    <div className="mt-1 text-sm">{selectedOrthodontist.name}</div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Email</Label>
+                    <div className="mt-1 text-sm">{selectedOrthodontist.email}</div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Telefone</Label>
+                    <div className="mt-1 text-sm">{selectedOrthodontist.phone}</div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">CRO</Label>
+                    <div className="mt-1 text-sm">{selectedOrthodontist.cro}</div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Cidade</Label>
+                    <div className="mt-1 text-sm">{selectedOrthodontist.city}</div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Estado</Label>
+                    <div className="mt-1 text-sm">{selectedOrthodontist.state}</div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Status</Label>
+                    <div className="mt-1">{getStatusBadge(selectedOrthodontist.status)}</div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Modelo de Parceria</Label>
+                    <div className="mt-1">{getPartnershipBadge(selectedOrthodontist.partnershipModel)}</div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Pacientes</Label>
+                    <div className="mt-1 text-sm">{selectedOrthodontist.patientsCount}</div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Avaliação</Label>
+                    <div className="mt-1 flex items-center gap-1">
+                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      <span className="text-sm">{selectedOrthodontist.rating}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Data de Cadastro</Label>
+                    <div className="mt-1 text-sm">{selectedOrthodontist.registrationDate}</div>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button onClick={() => setIsViewModalOpen(false)}>
+                    Fechar
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Edição */}
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Editar Ortodontista</DialogTitle>
+              <DialogDescription>
+                Atualize as informações do ortodontista
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-nome">Nome *</Label>
+                  <Input
+                    id="edit-nome"
+                    value={formData.nome}
+                    onChange={(e) => setFormData({...formData, nome: e.target.value})}
+                    placeholder="Nome completo"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-email">Email *</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    placeholder="email@exemplo.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-telefone">Telefone</Label>
+                  <Input
+                    id="edit-telefone"
+                    value={formData.telefone}
+                    onChange={(e) => setFormData({...formData, telefone: e.target.value})}
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-cro">CRO *</Label>
+                  <Input
+                    id="edit-cro"
+                    value={formData.cro}
+                    onChange={(e) => setFormData({...formData, cro: e.target.value})}
+                    placeholder="CRO-SP 12345"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-cidade">Cidade</Label>
+                  <Input
+                    id="edit-cidade"
+                    value={formData.cidade}
+                    onChange={(e) => setFormData({...formData, cidade: e.target.value})}
+                    placeholder="São Paulo"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-estado">Estado</Label>
+                  <Select value={formData.estado} onValueChange={(value) => setFormData({...formData, estado: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o estado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SP">São Paulo</SelectItem>
+                      <SelectItem value="RJ">Rio de Janeiro</SelectItem>
+                      <SelectItem value="MG">Minas Gerais</SelectItem>
+                      <SelectItem value="GO">Goiás</SelectItem>
+                      <SelectItem value="PR">Paraná</SelectItem>
+                      <SelectItem value="SC">Santa Catarina</SelectItem>
+                      <SelectItem value="RS">Rio Grande do Sul</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button 
+                  className="flex-1" 
+                  onClick={handleUpdateOrthodontist}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Salvando...
+                    </>
+                  ) : (
+                    'Salvar Alterações'
+                  )}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setIsEditModalOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Connection Status */}
@@ -509,10 +750,20 @@ export default function OrtodontistasPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleViewOrthodontist(orthodontist)}
+                          title="Visualizar ortodontista"
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleEditOrthodontist(orthodontist)}
+                          title="Editar ortodontista"
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                       </div>
