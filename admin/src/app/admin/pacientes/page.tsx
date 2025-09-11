@@ -647,7 +647,7 @@ export default function PacientesPage() {
           <DialogHeader>
             <DialogTitle>Cancelar Paciente</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja cancelar este paciente? O paciente ficará com status "Cancelado".
+              Tem certeza que deseja cancelar este paciente? O paciente ficará com status &quot;Cancelado&quot;.
             </DialogDescription>
           </DialogHeader>
           {selectedPatient && (
