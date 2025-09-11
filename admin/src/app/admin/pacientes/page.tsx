@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import { Search, Plus, Edit, Eye, Filter, Loader2, AlertCircle, Trash2 } from 'lucide-react'
+import { Search, Plus, Edit, Eye, Filter, Loader2, AlertCircle, Trash2, Ban, X } from 'lucide-react'
 import { usePatients } from '@/hooks/useApi'
 import { apiService } from '@/lib/api'
 
@@ -33,7 +33,10 @@ export default function PacientesPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<string>('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -47,11 +50,15 @@ export default function PacientesPage() {
   const { toast } = useToast()
 
   const patients = patientsData?.patients || []
-  const filteredPatients = patients.filter((patient: Patient) =>
-    (patient.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (patient.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (patient.cpf && patient.cpf.includes(searchTerm))
-  )
+  const filteredPatients = patients.filter((patient: Patient) => {
+    const matchesSearch = (patient.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         (patient.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         (patient.cpf && patient.cpf.includes(searchTerm))
+    
+    const matchesStatus = !statusFilter || patient.status === statusFilter
+    
+    return matchesSearch && matchesStatus
+  })
 
   // Reset form data
   const resetForm = () => {
@@ -147,6 +154,34 @@ export default function PacientesPage() {
     }
   }
 
+  // Handle cancel patient
+  const handleCancelPatient = async () => {
+    if (!selectedPatient) return
+
+    setIsSubmitting(true)
+    try {
+      const response = await apiService.cancelPatient(selectedPatient.id.toString()) as { success: boolean }
+
+      if (response.success) {
+        toast({
+          title: "Sucesso",
+          description: "Paciente cancelado com sucesso"
+        })
+        setIsCancelDialogOpen(false)
+        setSelectedPatient(null)
+        refetch()
+      }
+    } catch (error: unknown) {
+      toast({
+        title: "Erro",
+        description: error instanceof Error ? error.message : "Erro ao cancelar paciente",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   // Handle delete patient
   const handleDeletePatient = async () => {
     if (!selectedPatient) return
@@ -158,7 +193,7 @@ export default function PacientesPage() {
       if (response.success) {
         toast({
           title: "Sucesso",
-          description: "Paciente excluído com sucesso"
+          description: "Paciente excluído permanentemente"
         })
         setIsDeleteDialogOpen(false)
         setSelectedPatient(null)
@@ -194,6 +229,12 @@ export default function PacientesPage() {
     setIsEditDialogOpen(true)
   }
 
+  // Handle cancel patient setup
+  const handleCancelPatientSetup = (patient: Patient) => {
+    setSelectedPatient(patient)
+    setIsCancelDialogOpen(true)
+  }
+
   // Handle delete patient setup
   const handleDeletePatientSetup = (patient: Patient) => {
     setSelectedPatient(patient)
@@ -213,7 +254,9 @@ export default function PacientesPage() {
       case 'convertido':
         return <Badge className="bg-emerald-100 text-emerald-800">Convertido</Badge>
       case 'cancelado':
-        return <Badge className="bg-red-100 text-red-800">Cancelado</Badge>
+        return <Badge className="bg-orange-100 text-orange-800">Cancelado</Badge>
+      case 'excluido':
+        return <Badge className="bg-red-100 text-red-800">Excluído</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
     }
@@ -262,11 +305,51 @@ export default function PacientesPage() {
                 className="pl-9"
               />
             </div>
-            <Button variant="outline">
+            <Button 
+              variant="outline"
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+            >
               <Filter className="mr-2 h-4 w-4" />
               Filtros
             </Button>
+            {statusFilter && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setStatusFilter('')}
+                className="text-red-600 hover:text-red-700"
+              >
+                <X className="mr-1 h-3 w-3" />
+                Limpar filtros
+              </Button>
+            )}
           </div>
+          
+          {/* Filter Panel */}
+          {isFilterOpen && (
+            <div className="mt-4 pt-4 border-t">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Status</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todos os status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Todos os status</SelectItem>
+                      <SelectItem value="novo">Novo</SelectItem>
+                      <SelectItem value="contatado">Contatado</SelectItem>
+                      <SelectItem value="agendado">Agendado</SelectItem>
+                      <SelectItem value="atribuido">Em Andamento</SelectItem>
+                      <SelectItem value="convertido">Convertido</SelectItem>
+                      <SelectItem value="cancelado">Cancelado</SelectItem>
+                      <SelectItem value="excluido">Excluído</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -307,7 +390,7 @@ export default function PacientesPage() {
                     <TableCell>{patient.treatmentStage || 'N/A'}</TableCell>
                     <TableCell>{patient.orthodontist || 'N/A'}</TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1">
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -324,11 +407,22 @@ export default function PacientesPage() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
+                        {patient.status !== 'cancelado' && patient.status !== 'excluido' && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleCancelPatientSetup(patient)}
+                            title="Cancelar paciente"
+                            className="text-orange-600 hover:text-orange-800 hover:bg-orange-50"
+                          >
+                            <Ban className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button 
                           variant="ghost" 
                           size="sm"
                           onClick={() => handleDeletePatientSetup(patient)}
-                          title="Excluir paciente"
+                          title="Excluir permanentemente"
                           className="text-red-600 hover:text-red-800 hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -466,6 +560,7 @@ export default function PacientesPage() {
                   <SelectItem value="atribuido">Em Andamento</SelectItem>
                   <SelectItem value="convertido">Convertido</SelectItem>
                   <SelectItem value="cancelado">Cancelado</SelectItem>
+                  <SelectItem value="excluido">Excluído</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -546,13 +641,56 @@ export default function PacientesPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Cancel Patient Dialog */}
+      <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cancelar Paciente</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja cancelar este paciente? O paciente ficará com status "Cancelado".
+            </DialogDescription>
+          </DialogHeader>
+          {selectedPatient && (
+            <div className="space-y-4">
+              <Card className="border-orange-200 bg-orange-50">
+                <CardContent className="pt-4">
+                  <div className="space-y-2">
+                    <p className="font-medium text-orange-800">{selectedPatient.name}</p>
+                    <p className="text-sm text-orange-600">{selectedPatient.email}</p>
+                    <p className="text-xs text-orange-600">Status atual: {selectedPatient.status}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <div className="flex gap-2 pt-4">
+                <Button 
+                  className="flex-1 bg-orange-600 hover:bg-orange-700"
+                  onClick={handleCancelPatient}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Cancelar Paciente
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setIsCancelDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Voltar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Delete Patient Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Excluir Paciente</DialogTitle>
+            <DialogTitle>Excluir Paciente Permanentemente</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita.
+              ⚠️ ATENÇÃO: Esta ação excluirá permanentemente o paciente do sistema. Esta operação NÃO pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           {selectedPatient && (

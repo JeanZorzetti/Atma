@@ -19,7 +19,10 @@ router.put('/leads/:id/status', validateId, validateStatusUpdate, patientControl
 // PUT /api/patients/leads/:id - Atualizar informações do paciente
 router.put('/leads/:id', validateId, patientController.updatePatientLead);
 
-// DELETE /api/patients/leads/:id - Deletar lead (soft delete)
+// PUT /api/patients/leads/:id/cancel - Cancelar paciente
+router.put('/leads/:id/cancel', validateId, patientController.cancelPatientLead);
+
+// DELETE /api/patients/leads/:id - Excluir lead
 router.delete('/leads/:id', validateId, patientController.deletePatientLead);
 
 // GET /api/patients/stats - Estatísticas de leads

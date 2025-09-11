@@ -348,8 +348,8 @@ const updatePatientLeadStatus = async (req, res, next) => {
   }
 };
 
-// Deletar lead (soft delete)
-const deletePatientLead = async (req, res, next) => {
+// Cancelar lead (soft delete)
+const cancelPatientLead = async (req, res, next) => {
   const startTime = Date.now();
   
   try {
@@ -362,7 +362,7 @@ const deletePatientLead = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         error: {
-          message: 'Lead não encontrado'
+          message: 'Paciente não encontrado'
         },
         timestamp: new Date().toISOString()
       });
@@ -376,7 +376,7 @@ const deletePatientLead = async (req, res, next) => {
     
     logDBOperation('UPDATE', 'patient_leads', result, Date.now() - startTime);
     
-    logger.info('Lead marcado como cancelado', {
+    logger.info('Paciente marcado como cancelado', {
       leadId: id,
       nome: existingLead[0].nome,
       email: existingLead[0].email
@@ -385,13 +385,61 @@ const deletePatientLead = async (req, res, next) => {
     res.json({
       success: true,
       data: {
-        message: 'Lead cancelado com sucesso'
+        message: 'Paciente cancelado com sucesso'
       },
       timestamp: new Date().toISOString()
     });
     
   } catch (error) {
-    logger.error('Erro ao deletar lead:', error);
+    logger.error('Erro ao cancelar paciente:', error);
+    next(error);
+  }
+};
+
+// Excluir lead (hard delete/status excluído)
+const deletePatientLead = async (req, res, next) => {
+  const startTime = Date.now();
+  
+  try {
+    const { id } = req.params;
+    
+    // Verificar se lead existe
+    const existingLead = await executeQuery('SELECT * FROM patient_leads WHERE id = ?', [id]);
+    
+    if (existingLead.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: 'Paciente não encontrado'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Atualizar status para excluído
+    const result = await executeQuery(
+      'UPDATE patient_leads SET status = "excluido", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [id]
+    );
+    
+    logDBOperation('UPDATE', 'patient_leads', result, Date.now() - startTime);
+    
+    logger.info('Paciente marcado como excluído', {
+      leadId: id,
+      nome: existingLead[0].nome,
+      email: existingLead[0].email
+    });
+    
+    res.json({
+      success: true,
+      data: {
+        message: 'Paciente excluído com sucesso'
+      },
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    logger.error('Erro ao excluir paciente:', error);
     next(error);
   }
 };
@@ -660,6 +708,8 @@ const updatePatientLead = async (req, res, next) => {
           WHEN pl.status = 'agendado' THEN 'Consulta Agendada'
           WHEN pl.status = 'atribuido' THEN 'Em Andamento'
           WHEN pl.status = 'convertido' THEN 'Tratamento Iniciado'
+          WHEN pl.status = 'cancelado' THEN 'Cancelado'
+          WHEN pl.status = 'excluido' THEN 'Excluído'
           ELSE 'Avaliação Inicial'
         END as treatmentStage,
         IFNULL(o.nome, 'Não atribuído') as orthodontist,
@@ -690,6 +740,7 @@ module.exports = {
   getPatientLeadById,
   updatePatientLeadStatus,
   updatePatientLead,
+  cancelPatientLead,
   deletePatientLead,
   getPatientStats,
   getPatientLeadsForAdmin

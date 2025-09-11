@@ -401,6 +401,12 @@ class ApiService {
     })
   }
 
+  async cancelPatient(id: string) {
+    return this.request(`/patients/leads/${id}/cancel`, {
+      method: 'PUT',
+    })
+  }
+
   async deletePatient(id: string) {
     return this.request(`/patients/leads/${id}`, {
       method: 'DELETE',
