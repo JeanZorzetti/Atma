@@ -463,26 +463,34 @@ const getPatientStats = async (req, res, next) => {
   }
 };
 
-// Endpoint específico para o frontend admin (sem middleware temporariamente para debug)
+// Endpoint específico para o frontend admin
 const getPatientLeadsForAdmin = async (req, res, next) => {
   const startTime = Date.now();
   
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, search } = req.query;
     
     // Validar parâmetros de paginação
     const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(Math.max(1, parseInt(limit) || 10), 100); // Max 100 items per page
+    const limitNum = Math.min(Math.max(1, parseInt(limit) || 10), 100);
     const offset = (pageNum - 1) * limitNum;
     
-    logger.info('Buscando leads para admin', { 
+    logger.info('Buscando pacientes para admin', { 
       page: pageNum, 
       limit: limitNum, 
-      offset 
+      offset,
+      search 
     });
 
-    // Database availability is checked by executeQuery internally
-    logger.debug('Iniciando busca de leads para admin...');
+    let whereClause = '';
+    let queryParams = [];
+    
+    // Adicionar busca se fornecida
+    if (search) {
+      whereClause = 'WHERE (pl.nome LIKE ? OR pl.email LIKE ? OR pl.telefone LIKE ?)';
+      const searchTerm = `%${search}%`;
+      queryParams = [searchTerm, searchTerm, searchTerm];
+    }
 
     const query = `
       SELECT 
@@ -494,21 +502,25 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
         pl.status,
         'Avaliação Inicial' as treatmentStage,
         IFNULL(o.nome, 'Não atribuído') as orthodontist,
-        pl.created_at
+        pl.created_at as registrationDate
       FROM patient_leads pl
       LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      ${whereClause}
       ORDER BY pl.created_at DESC
-      LIMIT 10 OFFSET 0
+      LIMIT ${limitNum} OFFSET ${offset}
     `;
     
-    const countQuery = 'SELECT COUNT(*) as total FROM patient_leads';
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM patient_leads pl 
+      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      ${whereClause}
+    `;
     
-    logger.info('Executando queries do admin...');
-    
-    // Execute queries with timeout and error handling
+    // Execute queries with graceful fallbacks
     const [patientsResult, totalResult] = await Promise.allSettled([
-      executeQuery(query),  // Sem parâmetros por enquanto
-      executeQuery(countQuery)
+      executeQuery(query, queryParams),
+      executeQuery(countQuery, queryParams)
     ]);
     
     // Handle query results with graceful fallbacks
@@ -540,6 +552,7 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
         });
       }
       
+      // Return error for other cases
       throw patientsResult.reason;
     }
     
@@ -547,10 +560,10 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
       total = totalResult.value?.[0]?.total || 0;
     } else {
       logger.warn('Falha na query de total - usando valor padrão:', totalResult.reason?.message);
-      total = patients.length; // Use current page count as fallback
+      total = patients.length;
     }
     
-    logger.info('Queries executadas com sucesso', { 
+    logger.info('Pacientes carregados com sucesso', { 
       patientsCount: patients.length, 
       total,
       executionTime: Date.now() - startTime
@@ -592,11 +605,91 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
   }
 };
 
+// Atualizar informações completas do paciente
+const updatePatientLead = async (req, res, next) => {
+  const startTime = Date.now();
+  
+  try {
+    const { id } = req.params;
+    const { nome, email, telefone, cep, status, observacoes } = req.body;
+    
+    // Verificar se lead existe
+    const existingLead = await executeQuery('SELECT * FROM patient_leads WHERE id = ?', [id]);
+    
+    if (existingLead.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Paciente não encontrado' },
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Atualizar informações
+    const updateQuery = `
+      UPDATE patient_leads 
+      SET nome = ?, email = ?, telefone = ?, cep = ?, status = ?, observacoes = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
+    
+    const result = await executeQuery(updateQuery, [
+      nome || existingLead[0].nome,
+      email || existingLead[0].email, 
+      telefone || existingLead[0].telefone,
+      cep || existingLead[0].cep,
+      status || existingLead[0].status,
+      observacoes,
+      id
+    ]);
+    
+    logDBOperation('UPDATE', 'patient_leads', result, Date.now() - startTime);
+    
+    logger.info('Paciente atualizado', { leadId: id, nome, email });
+    
+    // Buscar dados atualizados
+    const updatedLead = await executeQuery(`
+      SELECT 
+        pl.id,
+        pl.nome as name,
+        pl.email,
+        pl.telefone as phone,
+        '' as cpf,
+        pl.status,
+        CASE 
+          WHEN pl.status = 'novo' THEN 'Avaliação Inicial'
+          WHEN pl.status = 'contatado' THEN 'Contatado'
+          WHEN pl.status = 'agendado' THEN 'Consulta Agendada'
+          WHEN pl.status = 'atribuido' THEN 'Em Andamento'
+          WHEN pl.status = 'convertido' THEN 'Tratamento Iniciado'
+          ELSE 'Avaliação Inicial'
+        END as treatmentStage,
+        IFNULL(o.nome, 'Não atribuído') as orthodontist,
+        pl.created_at as registrationDate
+      FROM patient_leads pl
+      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      WHERE pl.id = ?
+    `, [id]);
+    
+    res.json({
+      success: true,
+      data: {
+        message: 'Paciente atualizado com sucesso',
+        patient: updatedLead[0]
+      },
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    logger.error('Erro ao atualizar paciente:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   createPatientLead,
   getPatientLeads,
   getPatientLeadById,
   updatePatientLeadStatus,
+  updatePatientLead,
   deletePatientLead,
   getPatientStats,
   getPatientLeadsForAdmin

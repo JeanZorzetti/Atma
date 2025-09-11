@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,77 +8,212 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Search, Plus, Edit, Eye, Filter, Loader2, AlertCircle } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useToast } from '@/hooks/use-toast'
+import { Search, Plus, Edit, Eye, Filter, Loader2, AlertCircle, Trash2 } from 'lucide-react'
 import { usePatients } from '@/hooks/useApi'
+import { apiService } from '@/lib/api'
 
-const mockPatients = [
-  {
-    id: 1,
-    name: 'Maria Silva',
-    email: 'maria@email.com',
-    phone: '(11) 99999-9999',
-    cpf: '123.456.789-00',
-    birthDate: '1990-05-15',
-    status: 'Ativo',
-    treatmentStage: 'Planejamento',
-    orthodontist: 'Dr. João Santos',
-    registrationDate: '2024-01-15'
-  },
-  {
-    id: 2,
-    name: 'Pedro Oliveira',
-    email: 'pedro@email.com',
-    phone: '(11) 88888-8888',
-    cpf: '987.654.321-00',
-    birthDate: '1985-12-20',
-    status: 'Em Tratamento',
-    treatmentStage: 'Alinhadores 3/12',
-    orthodontist: 'Dra. Ana Costa',
-    registrationDate: '2024-02-10'
-  },
-  {
-    id: 3,
-    name: 'Ana Carolina',
-    email: 'ana@email.com',
-    phone: '(11) 77777-7777',
-    cpf: '456.789.123-00',
-    birthDate: '1995-08-10',
-    status: 'Concluído',
-    treatmentStage: 'Finalizado',
-    orthodontist: 'Dr. Carlos Lima',
-    registrationDate: '2023-09-05'
-  }
-]
 
 interface Patient {
   id: number
   name: string
   email: string
+  phone?: string
   cpf?: string
   status: string
   treatmentStage?: string
   orthodontist?: string
+  registrationDate?: string
 }
 
 export default function PacientesPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const { data: patientsData, loading, error } = usePatients()
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    cep: '',
+    status: 'novo'
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const patients = patientsData?.patients || mockPatients
+  const { data: patientsData, loading, error, refetch } = usePatients()
+  const { toast } = useToast()
+
+  const patients = patientsData?.patients || []
   const filteredPatients = patients.filter((patient: Patient) =>
     (patient.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (patient.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (patient.cpf && patient.cpf.includes(searchTerm))
   )
 
+  // Reset form data
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      cep: '',
+      status: 'novo'
+    })
+  }
+
+  // Handle create patient
+  const handleCreatePatient = async () => {
+    if (!formData.name || !formData.email) {
+      toast({
+        title: "Erro",
+        description: "Nome e email são obrigatórios",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const response = await apiService.createPatient({
+        nome: formData.name,
+        email: formData.email,
+        telefone: formData.phone,
+        cep: formData.cep,
+        consentimento: true
+      })
+
+      if (response.success) {
+        toast({
+          title: "Sucesso",
+          description: "Paciente criado com sucesso"
+        })
+        setIsCreateDialogOpen(false)
+        resetForm()
+        refetch()
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao criar paciente",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Handle edit patient
+  const handleEditPatient = async () => {
+    if (!selectedPatient || !formData.name || !formData.email) {
+      toast({
+        title: "Erro",
+        description: "Nome e email são obrigatórios",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const response = await apiService.updatePatient(selectedPatient.id.toString(), {
+        nome: formData.name,
+        email: formData.email,
+        telefone: formData.phone,
+        cep: formData.cep,
+        status: formData.status
+      })
+
+      if (response.success) {
+        toast({
+          title: "Sucesso",
+          description: "Paciente atualizado com sucesso"
+        })
+        setIsEditDialogOpen(false)
+        resetForm()
+        setSelectedPatient(null)
+        refetch()
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao atualizar paciente",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Handle delete patient
+  const handleDeletePatient = async () => {
+    if (!selectedPatient) return
+
+    setIsSubmitting(true)
+    try {
+      const response = await apiService.deletePatient(selectedPatient.id.toString())
+
+      if (response.success) {
+        toast({
+          title: "Sucesso",
+          description: "Paciente excluído com sucesso"
+        })
+        setIsDeleteDialogOpen(false)
+        setSelectedPatient(null)
+        refetch()
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao excluir paciente",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Handle view patient
+  const handleViewPatient = (patient: Patient) => {
+    setSelectedPatient(patient)
+    setIsViewDialogOpen(true)
+  }
+
+  // Handle edit patient setup
+  const handleEditPatientSetup = (patient: Patient) => {
+    setSelectedPatient(patient)
+    setFormData({
+      name: patient.name,
+      email: patient.email,
+      phone: patient.phone || '',
+      cep: '',
+      status: patient.status
+    })
+    setIsEditDialogOpen(true)
+  }
+
+  // Handle delete patient setup
+  const handleDeletePatientSetup = (patient: Patient) => {
+    setSelectedPatient(patient)
+    setIsDeleteDialogOpen(true)
+  }
+
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'Ativo':
-        return <Badge className="bg-green-100 text-green-800">Ativo</Badge>
-      case 'Em Tratamento':
-        return <Badge className="bg-blue-100 text-blue-800">Em Tratamento</Badge>
-      case 'Concluído':
-        return <Badge className="bg-gray-100 text-gray-800">Concluído</Badge>
+      case 'novo':
+        return <Badge className="bg-blue-100 text-blue-800">Novo</Badge>
+      case 'contatado':
+        return <Badge className="bg-yellow-100 text-yellow-800">Contatado</Badge>
+      case 'agendado':
+        return <Badge className="bg-purple-100 text-purple-800">Agendado</Badge>
+      case 'atribuido':
+        return <Badge className="bg-green-100 text-green-800">Em Andamento</Badge>
+      case 'convertido':
+        return <Badge className="bg-emerald-100 text-emerald-800">Convertido</Badge>
+      case 'cancelado':
+        return <Badge className="bg-red-100 text-red-800">Cancelado</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
     }
@@ -91,48 +226,16 @@ export default function PacientesPage() {
           <h1 className="text-3xl font-bold text-gray-900">Pacientes</h1>
           <p className="text-gray-600 mt-2">Gerencie os pacientes cadastrados no sistema</p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Paciente
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Cadastrar Novo Paciente</DialogTitle>
-              <DialogDescription>
-                Preencha as informações básicas do paciente
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome Completo</Label>
-                <Input id="name" placeholder="Digite o nome completo" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="email@exemplo.com" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" placeholder="(11) 99999-9999" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cpf">CPF</Label>
-                <Input id="cpf" placeholder="000.000.000-00" />
-              </div>
-              <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-                  Cadastrar
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  Cancelar
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => {
+            resetForm()
+            setIsCreateDialogOpen(true)
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Novo Paciente
+        </Button>
       </div>
 
       {/* Connection Status */}
@@ -205,11 +308,30 @@ export default function PacientesPage() {
                     <TableCell>{patient.orthodontist || 'N/A'}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleViewPatient(patient)}
+                          title="Visualizar paciente"
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditPatientSetup(patient)}
+                          title="Editar paciente"
+                        >
                           <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleDeletePatientSetup(patient)}
+                          title="Excluir paciente"
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -220,6 +342,253 @@ export default function PacientesPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Create Patient Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cadastrar Novo Paciente</DialogTitle>
+            <DialogDescription>
+              Preencha as informações básicas do paciente
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="create-name">Nome Completo *</Label>
+              <Input 
+                id="create-name" 
+                placeholder="Digite o nome completo"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-email">Email *</Label>
+              <Input 
+                id="create-email" 
+                type="email" 
+                placeholder="email@exemplo.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-phone">Telefone</Label>
+              <Input 
+                id="create-phone" 
+                placeholder="(11) 99999-9999"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-cep">CEP</Label>
+              <Input 
+                id="create-cep" 
+                placeholder="00000-000"
+                value={formData.cep}
+                onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
+              />
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button 
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={handleCreatePatient}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Cadastrar
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setIsCreateDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Patient Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Paciente</DialogTitle>
+            <DialogDescription>
+              Atualize as informações do paciente
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Nome Completo *</Label>
+              <Input 
+                id="edit-name" 
+                placeholder="Digite o nome completo"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email *</Label>
+              <Input 
+                id="edit-email" 
+                type="email" 
+                placeholder="email@exemplo.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Telefone</Label>
+              <Input 
+                id="edit-phone" 
+                placeholder="(11) 99999-9999"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-status">Status</Label>
+              <Select 
+                value={formData.status} 
+                onValueChange={(value) => setFormData({ ...formData, status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="novo">Novo</SelectItem>
+                  <SelectItem value="contatado">Contatado</SelectItem>
+                  <SelectItem value="agendado">Agendado</SelectItem>
+                  <SelectItem value="atribuido">Em Andamento</SelectItem>
+                  <SelectItem value="convertido">Convertido</SelectItem>
+                  <SelectItem value="cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button 
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={handleEditPatient}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Salvar
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setIsEditDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Patient Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Paciente</DialogTitle>
+            <DialogDescription>
+              Informações completas do paciente
+            </DialogDescription>
+          </DialogHeader>
+          {selectedPatient && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Nome</Label>
+                  <p className="text-sm text-gray-600">{selectedPatient.name}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Status</Label>
+                  <div className="mt-1">{getStatusBadge(selectedPatient.status)}</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Email</Label>
+                  <p className="text-sm text-gray-600">{selectedPatient.email}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Telefone</Label>
+                  <p className="text-sm text-gray-600">{selectedPatient.phone || 'N/A'}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Etapa do Tratamento</Label>
+                  <p className="text-sm text-gray-600">{selectedPatient.treatmentStage || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Ortodontista</Label>
+                  <p className="text-sm text-gray-600">{selectedPatient.orthodontist || 'Não atribuído'}</p>
+                </div>
+              </div>
+              <div className="pt-4">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setIsViewDialogOpen(false)}
+                >
+                  Fechar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Patient Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Excluir Paciente</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedPatient && (
+            <div className="space-y-4">
+              <Card className="border-red-200 bg-red-50">
+                <CardContent className="pt-4">
+                  <div className="space-y-2">
+                    <p className="font-medium text-red-800">{selectedPatient.name}</p>
+                    <p className="text-sm text-red-600">{selectedPatient.email}</p>
+                    <p className="text-xs text-red-600">Status: {selectedPatient.status}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <div className="flex gap-2 pt-4">
+                <Button 
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={handleDeletePatient}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Excluir
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setIsDeleteDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

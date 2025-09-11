@@ -7,15 +7,17 @@ const patientController = require('../controllers/patientController');
 // POST /api/patients/leads - Criar novo lead de paciente
 router.post('/leads', contactLimiter, validatePatientLead, patientController.createPatientLead);
 
-// GET /api/patients/leads - Listar leads de pacientes (para admin) - usando endpoint que funciona temporariamente
-const systemController = require('../controllers/systemController');
-router.get('/leads', systemController.testPatientsEndpoint);
+// GET /api/patients/leads - Listar leads de pacientes (para admin)
+router.get('/leads', patientController.getPatientLeadsForAdmin);
 
 // GET /api/patients/leads/:id - Buscar lead específico
 router.get('/leads/:id', validateId, patientController.getPatientLeadById);
 
 // PUT /api/patients/leads/:id/status - Atualizar status do lead
 router.put('/leads/:id/status', validateId, validateStatusUpdate, patientController.updatePatientLeadStatus);
+
+// PUT /api/patients/leads/:id - Atualizar informações do paciente
+router.put('/leads/:id', validateId, patientController.updatePatientLead);
 
 // DELETE /api/patients/leads/:id - Deletar lead (soft delete)
 router.delete('/leads/:id', validateId, patientController.deletePatientLead);

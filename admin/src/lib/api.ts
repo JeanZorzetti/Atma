@@ -386,10 +386,18 @@ class ApiService {
   }
 
   async updatePatient(id: string, data: Record<string, unknown>) {
-    return this.request(`/patients/leads/${id}/status`, {
+    return this.request(`/patients/leads/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
+    })
+  }
+
+  async updatePatientStatus(id: string, status: string, observacoes?: string) {
+    return this.request(`/patients/leads/${id}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, observacoes }),
     })
   }
 
