@@ -199,11 +199,12 @@ const getPatientLeads = async (req, res, next) => {
       ${whereClause}
     `;
     
-    queryParams.push(parseInt(limit), parseInt(offset));
-    const countParams = queryParams.slice(0, -2); // Remove limit e offset
+    // Add limit and offset parameters for main query
+    const mainQueryParams = [...queryParams, limitNum, offset];
+    const countParams = queryParams; // Count query doesn't need limit/offset
     
     const [leadsResult, totalResult] = await Promise.all([
-      executeQuery(query, queryParams),
+      executeQuery(query, mainQueryParams),
       executeQuery(countQuery, countParams)
     ]);
     
@@ -555,7 +556,7 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
       LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
       ${whereClause}
       ORDER BY pl.created_at DESC
-      LIMIT ${limitNum} OFFSET ${offset}
+      LIMIT ? OFFSET ?
     `;
     
     const countQuery = `
@@ -565,10 +566,14 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
       ${whereClause}
     `;
     
+    // Add limit and offset parameters for main query
+    const mainQueryParams = [...queryParams, limitNum, offset];
+    const countParams = queryParams; // Count query doesn't need limit/offset
+    
     // Execute queries with graceful fallbacks
     const [patientsResult, totalResult] = await Promise.allSettled([
-      executeQuery(query, queryParams),
-      executeQuery(countQuery, queryParams)
+      executeQuery(query, mainQueryParams),
+      executeQuery(countQuery, countParams)
     ]);
     
     // Handle query results with graceful fallbacks

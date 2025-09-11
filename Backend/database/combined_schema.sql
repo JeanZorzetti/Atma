@@ -9,7 +9,7 @@ CREATE TABLE patient_leads (
     telefone VARCHAR(20) NOT NULL,
     cep VARCHAR(10) NOT NULL,
     consentimento BOOLEAN NOT NULL DEFAULT false,
-    status ENUM('novo', 'contatado', 'agendado', 'convertido', 'cancelado') DEFAULT 'novo',
+    status ENUM('novo', 'contatado', 'agendado', 'convertido', 'cancelado', 'excluido') DEFAULT 'novo',
     ortodontista_id INT NULL, -- Relacionamento com ortodontista que ficará responsável
     observacoes TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
