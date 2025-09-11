@@ -891,6 +891,48 @@ const updateOrthodontist = async (req, res, next) => {
   }
 };
 
+// Excluir ortodontista - APLICANDO PADRÕES DO CRM
+const deleteOrthodontist = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Verificar se o ortodontista existe
+    const checkQuery = 'SELECT id, nome FROM orthodontists WHERE id = ?';
+    const orthodontists = await executeQuery(checkQuery, [id]);
+
+    if (orthodontists.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Ortodontista não encontrado' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Soft delete: atualizar status para 'excluido' em vez de deletar fisicamente
+    const updateQuery = 'UPDATE orthodontists SET status = ?, updated_at = NOW() WHERE id = ?';
+    await executeQuery(updateQuery, ['excluido', id]);
+
+    logger.info('Ortodontista marcado como excluído:', { 
+      id, 
+      nome: orthodontists[0].nome 
+    });
+
+    res.json({
+      success: true,
+      message: 'Ortodontista excluído com sucesso',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao excluir ortodontista:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro interno do servidor', details: error.message },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   createPartnershipRequest,
   getPartnershipRequests,
@@ -902,5 +944,6 @@ module.exports = {
   getOrthodontistStats,
   createOrthodontist,
   updateOrthodontist,
-  getOrthodontists
+  getOrthodontists,
+  deleteOrthodontist
 };

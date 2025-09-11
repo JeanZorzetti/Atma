@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Search, Plus, Edit, Eye, Filter, MapPin, Star, Loader2, AlertCircle } from 'lucide-react'
+import { Search, Plus, Edit, Eye, Filter, MapPin, Star, Loader2, AlertCircle, Trash2 } from 'lucide-react'
 import { useOrthodontists } from '@/hooks/useApi'
 import { Orthodontist, apiService } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
@@ -69,6 +69,7 @@ export default function OrtodontistasPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedOrthodontist, setSelectedOrthodontist] = useState<Orthodontist | null>(null)
   const [formData, setFormData] = useState({
     nome: '',
@@ -179,6 +180,40 @@ export default function OrtodontistasPage() {
       toast({
         title: "Erro ao atualizar",
         description: "Não foi possível salvar as alterações",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteOrthodontist = (orthodontist: Orthodontist) => {
+    setSelectedOrthodontist(orthodontist)
+    setIsDeleteModalOpen(true)
+  }
+
+  const confirmDeleteOrthodontist = async () => {
+    if (!selectedOrthodontist) return
+    
+    try {
+      setIsSubmitting(true)
+
+      await apiService.deleteOrthodontist(selectedOrthodontist.id.toString())
+      
+      toast({
+        title: "Ortodontista excluído!",
+        description: "O ortodontista foi removido com sucesso"
+      })
+
+      // Fechar modal e recarregar dados
+      setIsDeleteModalOpen(false)
+      setSelectedOrthodontist(null)
+      refetch()
+
+    } catch (error) {
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível remover o ortodontista",
         variant: "destructive"
       })
     } finally {
@@ -626,6 +661,64 @@ export default function OrtodontistasPage() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Modal de Confirmação de Exclusão */}
+        <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Confirmar Exclusão</DialogTitle>
+              <DialogDescription>
+                Esta ação não pode ser desfeita. O ortodontista será removido permanentemente do sistema.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedOrthodontist && (
+              <div className="space-y-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-600" />
+                    <div>
+                      <p className="font-medium text-red-800">Excluir Ortodontista</p>
+                      <p className="text-sm text-red-600 mt-1">
+                        <strong>{selectedOrthodontist.name}</strong>
+                        <br />
+                        {selectedOrthodontist.email} • {selectedOrthodontist.cro}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 pt-2">
+                  <Button 
+                    variant="destructive" 
+                    className="flex-1"
+                    onClick={confirmDeleteOrthodontist}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Excluindo...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Confirmar Exclusão
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => setIsDeleteModalOpen(false)}
+                    disabled={isSubmitting}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Connection Status */}
@@ -765,6 +858,15 @@ export default function OrtodontistasPage() {
                           title="Editar ortodontista"
                         >
                           <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleDeleteOrthodontist(orthodontist)}
+                          title="Excluir ortodontista"
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>

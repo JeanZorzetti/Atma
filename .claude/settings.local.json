@@ -54,7 +54,10 @@
       "Read(/C:\\Users\\jeanz\\OneDrive\\Desktop\\ROI Labs\\Atma\\Site\\Backend/**)",
       "Bash(dir:*)",
       "Bash(git rm:*)",
-      "Bash(where mysql mysqld)"
+      "Bash(where mysql mysqld)",
+      "Bash(net start:*)",
+      "Bash(set PORT=3002)",
+      "Bash(set PORT=3003)"
     ],
     "deny": [],
     "ask": []

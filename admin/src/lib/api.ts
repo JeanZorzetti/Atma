@@ -442,6 +442,12 @@ class ApiService {
     })
   }
 
+  async deleteOrthodontist(id: string) {
+    return this.request(`/orthodontists/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
   async updatePartnershipStatus(id: string, status: string) {
     return this.request(`/orthodontists/partnerships/${id}/status`, {
       method: 'PUT',

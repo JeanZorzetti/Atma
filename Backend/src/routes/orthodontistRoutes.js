@@ -43,4 +43,7 @@ router.get('/', orthodontistController.getOrthodontists);
 // PUT /api/orthodontists/:id - Atualizar ortodontista
 router.put('/:id', validateId, orthodontistController.updateOrthodontist);
 
+// DELETE /api/orthodontists/:id - Excluir ortodontista
+router.delete('/:id', validateId, orthodontistController.deleteOrthodontist);
+
 module.exports = router;
