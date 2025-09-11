@@ -908,11 +908,11 @@ const deleteOrthodontist = async (req, res, next) => {
       });
     }
 
-    // Soft delete: atualizar status para 'excluido' em vez de deletar fisicamente
+    // Soft delete: atualizar status para 'inativo' em vez de deletar fisicamente
     const updateQuery = 'UPDATE orthodontists SET status = ?, updated_at = NOW() WHERE id = ?';
-    await executeQuery(updateQuery, ['excluido', id]);
+    await executeQuery(updateQuery, ['inativo', id]);
 
-    logger.info('Ortodontista marcado como excluído:', { 
+    logger.info('Ortodontista marcado como inativo (excluído):', { 
       id, 
       nome: orthodontists[0].nome 
     });
