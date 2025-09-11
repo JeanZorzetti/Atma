@@ -83,7 +83,7 @@ export default function PacientesPage() {
         telefone: formData.phone,
         cep: formData.cep,
         consentimento: true
-      })
+      }) as { success: boolean }
 
       if (response.success) {
         toast({
@@ -124,7 +124,7 @@ export default function PacientesPage() {
         telefone: formData.phone,
         cep: formData.cep,
         status: formData.status
-      })
+      }) as { success: boolean }
 
       if (response.success) {
         toast({
@@ -153,7 +153,7 @@ export default function PacientesPage() {
 
     setIsSubmitting(true)
     try {
-      const response = await apiService.deletePatient(selectedPatient.id.toString())
+      const response = await apiService.deletePatient(selectedPatient.id.toString()) as { success: boolean }
 
       if (response.success) {
         toast({
