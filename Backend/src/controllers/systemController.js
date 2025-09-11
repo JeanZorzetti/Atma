@@ -4,6 +4,7 @@ const orthodontistService = require('../services/orthodontistService');
 const cepService = require('../services/cepService');
 const emailService = require('../services/emailService');
 const { withDbErrorHandling } = require('../middleware/dbErrorHandler');
+const packageInfo = require('../../package.json');
 
 // Listar configurações do sistema
 const getSystemSettings = async (req, res, next) => {
@@ -1277,6 +1278,45 @@ const getReportsData = async (req, res, next) => {
   }
 };
 
+// Informações de versão da API
+const getVersion = async (req, res) => {
+  try {
+    const buildInfo = {
+      version: packageInfo.version,
+      name: packageInfo.name,
+      description: packageInfo.description,
+      node_version: process.version,
+      environment: process.env.NODE_ENV || 'development',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      api_status: 'online',
+      features: [
+        'Orthodontist Management',
+        'Partnership Requests',
+        'CRM Integration', 
+        'Email Services',
+        'Statistics & Reports'
+      ]
+    };
+
+    logger.info('Version info requested:', { version: packageInfo.version, environment: buildInfo.environment });
+
+    res.json({
+      success: true,
+      data: buildInfo,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao buscar informações de versão:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erro interno do servidor', details: error.message },
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   getSystemSettings,
   updateSystemSetting,
@@ -1288,5 +1328,6 @@ module.exports = {
   testDatabaseQuery,
   testPatientsEndpoint,
   testOrthodontistsEndpoint,
-  getReportsData
+  getReportsData,
+  getVersion
 };

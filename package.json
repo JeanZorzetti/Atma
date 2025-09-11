@@ -1,6 +1,6 @@
 {
   "name": "atma-aligner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sistema completo Atma Aligner - Frontend, Admin e Backend",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:admin\"",
@@ -18,7 +18,12 @@
     "install:all": "npm install && cd Backend && npm install && cd ../Frontend && npm install && cd ../admin && npm install",
     "docker:build": "cd Backend && docker build -t atma-backend .",
     "docker:up": "cd Backend && docker-compose up -d",
-    "docker:down": "cd Backend && docker-compose down"
+    "docker:down": "cd Backend && docker-compose down",
+    "version:patch": "npm version patch --no-git-tag-version && npm run version:sync",
+    "version:minor": "npm version minor --no-git-tag-version && npm run version:sync",
+    "version:major": "npm version major --no-git-tag-version && npm run version:sync",
+    "version:sync": "node scripts/sync-versions.js",
+    "version:info": "node -e \"const pkg = require('./package.json'); console.log('🚀 Atma Aligner v' + pkg.version); console.log('📦 Backend:', require('./Backend/package.json').version); console.log('💻 Admin:', require('./admin/package.json').version);\""
   },
   "keywords": [
     "ortodontia",

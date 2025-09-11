@@ -1,6 +1,6 @@
 {
   "name": "atma-aligner-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Backend API para o site da Atma Aligner - Ortodontia Digital",
   "main": "src/server.js",
   "scripts": {
@@ -12,7 +12,11 @@
     "db:migrate": "node database/migrate.js migrate",
     "db:seed": "node database/migrate.js seed",
     "db:test": "node database/migrate.js test",
-    "db:reset": "node database/migrate.js reset"
+    "db:reset": "node database/migrate.js reset",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "version:info": "node -e \"console.log('Backend Version:', require('./package.json').version)\""
   },
   "keywords": [
     "ortodontia",

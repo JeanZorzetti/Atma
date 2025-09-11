@@ -12,6 +12,9 @@ router.put('/settings', validateSystemSetting, systemController.updateSystemSett
 // GET /api/system/health - Health check detalhado
 router.get('/health', systemController.getSystemHealth);
 
+// GET /api/system/version - Informações de versão da API
+router.get('/version', systemController.getVersion);
+
 // GET /api/system/stats - Estatísticas gerais do sistema
 router.get('/stats', systemController.getSystemStats);
 

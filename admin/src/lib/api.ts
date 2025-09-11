@@ -448,6 +448,25 @@ class ApiService {
     })
   }
 
+  // System methods
+  async getSystemVersion() {
+    return this.request<{
+      success: boolean
+      data: {
+        version: string
+        name: string
+        description: string
+        node_version: string
+        environment: string
+        uptime: number
+        timestamp: string
+        api_status: string
+        features: string[]
+      }
+      timestamp: string
+    }>('/system/version')
+  }
+
   async updatePartnershipStatus(id: string, status: string) {
     return this.request(`/orthodontists/partnerships/${id}/status`, {
       method: 'PUT',

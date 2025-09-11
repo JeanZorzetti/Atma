@@ -1,12 +1,16 @@
 {
   "name": "admin",
-  "version": "0.1.1",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "version:info": "node -e \"console.log('Admin Version:', require('./package.json').version)\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

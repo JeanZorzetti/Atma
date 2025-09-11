@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Separator } from '@/components/ui/separator'
+import { VersionInfo } from '@/components/version-info'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -130,6 +131,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {children}
         </main>
       </div>
+
+      {/* Version Info */}
+      <VersionInfo />
     </div>
   )
 }
