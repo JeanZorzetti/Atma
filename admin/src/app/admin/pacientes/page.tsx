@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
@@ -94,10 +94,10 @@ export default function PacientesPage() {
         resetForm()
         refetch()
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro",
-        description: error.message || "Erro ao criar paciente",
+        description: error instanceof Error ? error.message : "Erro ao criar paciente",
         variant: "destructive"
       })
     } finally {
@@ -136,10 +136,10 @@ export default function PacientesPage() {
         setSelectedPatient(null)
         refetch()
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro",
-        description: error.message || "Erro ao atualizar paciente",
+        description: error instanceof Error ? error.message : "Erro ao atualizar paciente",
         variant: "destructive"
       })
     } finally {
@@ -164,10 +164,10 @@ export default function PacientesPage() {
         setSelectedPatient(null)
         refetch()
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro",
-        description: error.message || "Erro ao excluir paciente",
+        description: error instanceof Error ? error.message : "Erro ao excluir paciente",
         variant: "destructive"
       })
     } finally {
