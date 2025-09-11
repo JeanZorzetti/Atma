@@ -532,13 +532,13 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
     });
 
     let whereClause = '';
-    let queryParams = [];
+    let searchParams = [];
     
     // Adicionar busca se fornecida
     if (search) {
       whereClause = 'WHERE (pl.nome LIKE ? OR pl.email LIKE ? OR pl.telefone LIKE ?)';
       const searchTerm = `%${search}%`;
-      queryParams = [searchTerm, searchTerm, searchTerm];
+      searchParams = [searchTerm, searchTerm, searchTerm];
     }
 
     const query = `
@@ -567,8 +567,8 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
     `;
     
     // Add limit and offset parameters for main query
-    const mainQueryParams = [...queryParams, limitNum, offset];
-    const countParams = queryParams; // Count query doesn't need limit/offset
+    const mainQueryParams = [...searchParams, limitNum, offset];
+    const countParams = searchParams; // Count query doesn't need limit/offset
     
     // Execute queries with graceful fallbacks
     const [patientsResult, totalResult] = await Promise.allSettled([
