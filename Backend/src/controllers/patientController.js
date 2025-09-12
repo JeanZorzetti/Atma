@@ -541,26 +541,27 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
       searchParams = [searchTerm, searchTerm, searchTerm];
     }
 
-    const query = `SELECT pl.id, pl.nome as name, pl.email, pl.telefone as phone, '' as cpf, pl.status, 'Avaliação Inicial' as treatmentStage, 'Não atribuído' as orthodontist, pl.created_at as registrationDate FROM patient_leads pl ${whereClause} ORDER BY pl.created_at DESC LIMIT ? OFFSET ?`;
+    // Build query with direct substitution to avoid binding issues
+    let finalQuery = `SELECT pl.id, pl.nome as name, pl.email, pl.telefone as phone, '' as cpf, pl.status, 'Avaliação Inicial' as treatmentStage, 'Não atribuído' as orthodontist, pl.created_at as registrationDate FROM patient_leads pl`;
+    let finalCountQuery = `SELECT COUNT(*) as total FROM patient_leads pl`;
     
-    const countQuery = `SELECT COUNT(*) as total FROM patient_leads pl ${whereClause}`;
+    const queryParams = [];
+    const countQueryParams = [];
     
-    // Add limit and offset parameters for main query - force integer types
-    const mainQueryParams = [...searchParams, parseInt(limitNum), parseInt(offset)];
-    const countParams = searchParams; // Count query doesn't need limit/offset
+    if (search && search.trim()) {
+      const searchTerm = `%${search.trim()}%`;
+      finalQuery += ` WHERE (pl.nome LIKE ? OR pl.email LIKE ? OR pl.telefone LIKE ?)`;
+      finalCountQuery += ` WHERE (pl.nome LIKE ? OR pl.email LIKE ? OR pl.telefone LIKE ?)`;
+      queryParams.push(searchTerm, searchTerm, searchTerm);
+      countQueryParams.push(searchTerm, searchTerm, searchTerm);
+    }
     
-    // Debug: Log the actual queries and parameters
-    console.log('=== DEBUG QUERY ===');
-    console.log('whereClause:', whereClause);
-    console.log('searchParams:', searchParams);
-    console.log('mainQueryParams:', mainQueryParams);
-    console.log('query:', query);
-    console.log('==================');
+    finalQuery += ` ORDER BY pl.created_at DESC LIMIT ${parseInt(limitNum)} OFFSET ${parseInt(offset)}`;
     
     // Execute queries with graceful fallbacks
     const [patientsResult, totalResult] = await Promise.allSettled([
-      executeQuery(query, mainQueryParams),
-      executeQuery(countQuery, countParams)
+      executeQuery(finalQuery, queryParams),
+      executeQuery(finalCountQuery, countQueryParams)
     ]);
     
     // Handle query results with graceful fallbacks
