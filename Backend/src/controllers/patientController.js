@@ -541,30 +541,9 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
       searchParams = [searchTerm, searchTerm, searchTerm];
     }
 
-    const query = `
-      SELECT 
-        pl.id,
-        pl.nome as name,
-        pl.email,
-        pl.telefone as phone,
-        '' as cpf,
-        pl.status,
-        'Avaliação Inicial' as treatmentStage,
-        IFNULL(o.nome, 'Não atribuído') as orthodontist,
-        pl.created_at as registrationDate
-      FROM patient_leads pl
-      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
-      ${whereClause}
-      ORDER BY pl.created_at DESC
-      LIMIT ? OFFSET ?
-    `;
+    const query = `SELECT pl.id, pl.nome as name, pl.email, pl.telefone as phone, '' as cpf, pl.status, 'Avaliação Inicial' as treatmentStage, IFNULL(o.nome, 'Não atribuído') as orthodontist, pl.created_at as registrationDate FROM patient_leads pl LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id ${whereClause} ORDER BY pl.created_at DESC LIMIT ? OFFSET ?`;
     
-    const countQuery = `
-      SELECT COUNT(*) as total 
-      FROM patient_leads pl 
-      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
-      ${whereClause}
-    `;
+    const countQuery = `SELECT COUNT(*) as total FROM patient_leads pl LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id ${whereClause}`;
     
     // Add limit and offset parameters for main query
     const mainQueryParams = [...searchParams, limitNum, offset];
