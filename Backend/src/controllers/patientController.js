@@ -570,6 +570,14 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
     const mainQueryParams = [...searchParams, limitNum, offset];
     const countParams = searchParams; // Count query doesn't need limit/offset
     
+    // Debug: Log the actual queries and parameters
+    console.log('=== DEBUG QUERY ===');
+    console.log('whereClause:', whereClause);
+    console.log('searchParams:', searchParams);
+    console.log('mainQueryParams:', mainQueryParams);
+    console.log('query:', query);
+    console.log('==================');
+    
     // Execute queries with graceful fallbacks
     const [patientsResult, totalResult] = await Promise.allSettled([
       executeQuery(query, mainQueryParams),
