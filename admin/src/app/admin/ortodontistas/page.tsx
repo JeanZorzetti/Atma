@@ -202,7 +202,7 @@ export default function OrtodontistasPage() {
       
       toast({
         title: "Ortodontista excluído!",
-        description: "O ortodontista foi removido com sucesso"
+        description: "O ortodontista foi removido permanentemente com sucesso"
       })
 
       // Fechar modal e recarregar dados

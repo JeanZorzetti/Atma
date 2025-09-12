@@ -891,7 +891,7 @@ const updateOrthodontist = async (req, res, next) => {
   }
 };
 
-// Excluir ortodontista - APLICANDO PADRÕES DO CRM
+// Excluir ortodontista - EXCLUSÃO REAL (hard delete)
 const deleteOrthodontist = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -908,18 +908,18 @@ const deleteOrthodontist = async (req, res, next) => {
       });
     }
 
-    // Soft delete: atualizar status para 'inativo' em vez de deletar fisicamente
-    const updateQuery = 'UPDATE orthodontists SET status = ?, updated_at = NOW() WHERE id = ?';
-    await executeQuery(updateQuery, ['inativo', id]);
+    // Hard delete: deletar completamente do banco de dados
+    const deleteQuery = 'DELETE FROM orthodontists WHERE id = ?';
+    await executeQuery(deleteQuery, [id]);
 
-    logger.info('Ortodontista marcado como inativo (excluído):', { 
+    logger.info('Ortodontista deletado permanentemente do banco de dados:', { 
       id, 
       nome: orthodontists[0].nome 
     });
 
     res.json({
       success: true,
-      message: 'Ortodontista excluído com sucesso',
+      message: 'Ortodontista excluído permanentemente com sucesso',
       timestamp: new Date().toISOString()
     });
 
