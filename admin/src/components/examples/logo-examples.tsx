@@ -2,7 +2,7 @@
 // Este arquivo pode ser removido após a implementação
 
 import { AtmaLogo, RoiLabsLogo, SimpleLogo, useThemeLogo } from '@/components/ui/logo'
-import { getAtmaLogo, getRoiLabsLogo } from '@/lib/assets'
+import { getAtmaLogo } from '@/lib/assets'
 
 export function LogoExamples() {
   const themeLogos = useThemeLogo('light') // ou 'dark'

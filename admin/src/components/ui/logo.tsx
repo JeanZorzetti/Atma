@@ -32,17 +32,20 @@ export function AtmaLogo({
   const src = getAtmaLogo(variant)
   
   // Determinar props padrão baseado na variante
-  let defaultProps = LogoProps.atma.horizontal // fallback
-  
-  if (variant === 'vertical') {
-    defaultProps = LogoProps.atma.vertical
-  } else if (variant === 'marca') {
-    defaultProps = LogoProps.atma.marca
-  } else if (variant === 'principal') {
-    defaultProps = LogoProps.atma.principal
-  } else {
-    defaultProps = LogoProps.atma.horizontal
+  const getDefaultProps = () => {
+    switch (variant) {
+      case 'vertical':
+        return LogoProps.atma.vertical
+      case 'marca':
+        return LogoProps.atma.marca
+      case 'principal':
+        return LogoProps.atma.principal
+      default:
+        return LogoProps.atma.horizontal
+    }
   }
+  
+  const defaultProps = getDefaultProps()
   
   return (
     <Image
@@ -91,12 +94,15 @@ interface SimpleLogoProps extends LogoBaseProps {
 }
 
 export function SimpleLogo({ src, alt, width, height, className, onClick }: SimpleLogoProps) {
+  const numWidth = typeof width === 'string' ? parseInt(width) : width || 100
+  const numHeight = typeof height === 'string' ? parseInt(height) : height || 100
+  
   return (
-    <img
+    <Image
       src={src}
       alt={alt}
-      width={width}
-      height={height}
+      width={numWidth}
+      height={numHeight}
       className={cn('object-contain', onClick && 'cursor-pointer', className)}
       onClick={onClick}
     />
