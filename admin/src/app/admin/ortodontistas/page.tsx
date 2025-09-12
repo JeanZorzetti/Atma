@@ -77,6 +77,7 @@ export default function OrtodontistasPage() {
     cro: '',
     email: '',
     telefone: '',
+    celular: '',
     endereco_completo: '',
     cep: '',
     cidade: '',
@@ -136,6 +137,7 @@ export default function OrtodontistasPage() {
       cro: orthodontist.cro,
       email: orthodontist.email,
       telefone: orthodontist.phone,
+      celular: '',
       endereco_completo: '',
       cep: '',
       cidade: orthodontist.city,
@@ -261,6 +263,7 @@ export default function OrtodontistasPage() {
         cro: '',
         email: '',
         telefone: '',
+        celular: '',
         endereco_completo: '',
         cep: '',
         cidade: '',
@@ -368,11 +371,23 @@ export default function OrtodontistasPage() {
                   <Label htmlFor="telefone">Telefone</Label>
                   <Input 
                     id="telefone" 
-                    placeholder="(11) 99999-9999" 
+                    placeholder="(11) 3333-4444" 
                     value={formData.telefone}
                     onChange={(e) => handleInputChange('telefone', e.target.value)}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="celular">Celular</Label>
+                  <Input 
+                    id="celular" 
+                    placeholder="(11) 99999-9999" 
+                    value={formData.celular}
+                    onChange={(e) => handleInputChange('celular', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="modelo_parceria">Modelo de Parceria</Label>
                   <Select value={formData.modelo_parceria} onValueChange={(value) => handleInputChange('modelo_parceria', value)}>
@@ -594,6 +609,15 @@ export default function OrtodontistasPage() {
                     id="edit-telefone"
                     value={formData.telefone}
                     onChange={(e) => setFormData({...formData, telefone: e.target.value})}
+                    placeholder="(11) 3333-4444"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-celular">Celular</Label>
+                  <Input
+                    id="edit-celular"
+                    value={formData.celular}
+                    onChange={(e) => setFormData({...formData, celular: e.target.value})}
                     placeholder="(11) 99999-9999"
                   />
                 </div>
