@@ -55,7 +55,7 @@ export default function PacientesPage() {
                          (patient.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
                          (patient.cpf && patient.cpf.includes(searchTerm))
     
-    const matchesStatus = !statusFilter || patient.status === statusFilter
+    const matchesStatus = !statusFilter || statusFilter === 'all' || patient.status === statusFilter
     
     return matchesSearch && matchesStatus
   })
@@ -336,7 +336,7 @@ export default function PacientesPage() {
                       <SelectValue placeholder="Todos os status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos os status</SelectItem>
+                      <SelectItem value="all">Todos os status</SelectItem>
                       <SelectItem value="novo">Novo</SelectItem>
                       <SelectItem value="contatado">Contatado</SelectItem>
                       <SelectItem value="agendado">Agendado</SelectItem>
