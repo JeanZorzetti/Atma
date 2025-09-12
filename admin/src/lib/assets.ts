@@ -2,14 +2,15 @@
 export const ASSETS = {
   logos: {
     atma: {
-      horizontal: '/assets/logos/atma/atma-logo-horizontal.svg',
-      horizontalDark: '/assets/logos/atma/atma-logo-horizontal-dark.svg',
-      horizontalLight: '/assets/logos/atma/atma-logo-horizontal-light.svg',
-      vertical: '/assets/logos/atma/atma-logo-vertical.svg',
-      verticalDark: '/assets/logos/atma/atma-logo-vertical-dark.svg',
-      verticalLight: '/assets/logos/atma/atma-logo-vertical-light.svg',
-      marca: '/assets/logos/atma/atma-marca.svg',
-      marcaDark: '/assets/logos/atma/atma-marca-dark.svg',
+      horizontal: '/assets/logos/atma/logo-horizontal.svg',
+      principal: '/assets/logos/atma/logo-principal.svg',
+      principalDark: '/assets/logos/atma/logo-principal-dark.svg',
+      principalLight: '/assets/logos/atma/logo-principal-light.svg',
+      vertical: '/assets/logos/atma/logo-vertical.svg',
+      marca: '/assets/logos/atma/logo-marca.svg',
+      // Aliases para compatibilidade
+      horizontalDark: '/assets/logos/atma/logo-principal-dark.svg',
+      horizontalLight: '/assets/logos/atma/logo-principal-light.svg',
     },
     roiLabs: {
       horizontal: '/assets/logos/roi-labs/roi-labs-logo-horizontal.svg',
@@ -50,6 +51,7 @@ export const getIcon = (variant: IconVariant) => {
 export const LogoProps = {
   atma: {
     horizontal: { width: 200, height: 50, alt: 'Atma Aligner' },
+    principal: { width: 220, height: 55, alt: 'Atma Aligner' },
     vertical: { width: 100, height: 120, alt: 'Atma Aligner' },
     marca: { width: 64, height: 64, alt: 'Atma' },
   },

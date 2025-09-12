@@ -30,7 +30,19 @@ export function AtmaLogo({
   onClick 
 }: AtmaLogoProps) {
   const src = getAtmaLogo(variant)
-  const defaultProps = LogoProps.atma[variant === 'horizontal' ? 'horizontal' : variant === 'vertical' ? 'vertical' : 'marca']
+  
+  // Determinar props padrão baseado na variante
+  let defaultProps = LogoProps.atma.horizontal // fallback
+  
+  if (variant === 'vertical') {
+    defaultProps = LogoProps.atma.vertical
+  } else if (variant === 'marca') {
+    defaultProps = LogoProps.atma.marca
+  } else if (variant === 'principal') {
+    defaultProps = LogoProps.atma.principal
+  } else {
+    defaultProps = LogoProps.atma.horizontal
+  }
   
   return (
     <Image
