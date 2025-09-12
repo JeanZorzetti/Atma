@@ -397,7 +397,7 @@ const cancelPatientLead = async (req, res, next) => {
   }
 };
 
-// Excluir lead (hard delete/status excluído)
+// Excluir lead (hard delete - remoção real do banco)
 const deletePatientLead = async (req, res, next) => {
   const startTime = Date.now();
   
@@ -417,15 +417,12 @@ const deletePatientLead = async (req, res, next) => {
       });
     }
     
-    // Atualizar status para excluído
-    const result = await executeQuery(
-      'UPDATE patient_leads SET status = "excluido", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [id]
-    );
+    // Deletar completamente do banco de dados
+    const result = await executeQuery('DELETE FROM patient_leads WHERE id = ?', [id]);
     
-    logDBOperation('UPDATE', 'patient_leads', result, Date.now() - startTime);
+    logDBOperation('DELETE', 'patient_leads', result, Date.now() - startTime);
     
-    logger.info('Paciente marcado como excluído', {
+    logger.info('Paciente deletado permanentemente do banco de dados', {
       leadId: id,
       nome: existingLead[0].nome,
       email: existingLead[0].email
@@ -434,7 +431,7 @@ const deletePatientLead = async (req, res, next) => {
     res.json({
       success: true,
       data: {
-        message: 'Paciente excluído com sucesso'
+        message: 'Paciente excluído permanentemente com sucesso'
       },
       timestamp: new Date().toISOString()
     });

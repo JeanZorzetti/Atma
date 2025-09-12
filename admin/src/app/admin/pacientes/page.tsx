@@ -255,8 +255,6 @@ export default function PacientesPage() {
         return <Badge className="bg-emerald-100 text-emerald-800">Convertido</Badge>
       case 'cancelado':
         return <Badge className="bg-orange-100 text-orange-800">Cancelado</Badge>
-      case 'excluido':
-        return <Badge className="bg-red-100 text-red-800">Excluído</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
     }
@@ -343,7 +341,6 @@ export default function PacientesPage() {
                       <SelectItem value="atribuido">Em Andamento</SelectItem>
                       <SelectItem value="convertido">Convertido</SelectItem>
                       <SelectItem value="cancelado">Cancelado</SelectItem>
-                      <SelectItem value="excluido">Excluído</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -407,7 +404,7 @@ export default function PacientesPage() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        {patient.status !== 'cancelado' && patient.status !== 'excluido' && (
+                        {patient.status !== 'cancelado' && (
                           <Button 
                             variant="ghost" 
                             size="sm"
@@ -560,7 +557,6 @@ export default function PacientesPage() {
                   <SelectItem value="atribuido">Em Andamento</SelectItem>
                   <SelectItem value="convertido">Convertido</SelectItem>
                   <SelectItem value="cancelado">Cancelado</SelectItem>
-                  <SelectItem value="excluido">Excluído</SelectItem>
                 </SelectContent>
               </Select>
             </div>
