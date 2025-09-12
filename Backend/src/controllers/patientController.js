@@ -545,8 +545,8 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
     
     const countQuery = `SELECT COUNT(*) as total FROM patient_leads pl LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id ${whereClause}`;
     
-    // Add limit and offset parameters for main query
-    const mainQueryParams = [...searchParams, limitNum, offset];
+    // Add limit and offset parameters for main query - force integer types
+    const mainQueryParams = [...searchParams, parseInt(limitNum), parseInt(offset)];
     const countParams = searchParams; // Count query doesn't need limit/offset
     
     // Debug: Log the actual queries and parameters
