@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react"
+import { FooterLogo } from "@/components/ui/logo"
 
 export function Footer() {
   return (
@@ -8,12 +9,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">A</span>
-              </div>
-              <span className="font-heading text-xl font-bold text-primary">Atma Aligner</span>
-            </div>
+            <FooterLogo />
             <p className="text-muted-foreground text-sm">
               Tecnologia de ponta para o seu sorriso. Acessibilidade para o seu bolso.
             </p>
