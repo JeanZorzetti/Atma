@@ -49,11 +49,9 @@ export function HeaderLogo({ onClick }: { onClick?: () => void }) {
   return (
     <AtmaLogo
       variant="principal"
-      width={800}
-      height={200}
       onClick={onClick}
       priority
-      className="max-w-none"
+      className="h-14 w-auto"
     />
   )
 }
