@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { ArrowRight, Users, Award, Zap, Shield, Star, CheckCircle } from "lucide-react"
-import { HeroLogo } from "@/components/ui/logo"
 
 export default function HomePage() {
   return (
@@ -11,9 +10,6 @@ export default function HomePage() {
       <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-20 lg:py-32">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="mb-8">
-              <HeroLogo />
-            </div>
             <h1 className="text-4xl md:text-6xl font-heading font-bold text-foreground mb-6">
               A transformação do seu sorriso, <span className="text-primary">agora ao seu alcance</span>
             </h1>
