@@ -34,29 +34,29 @@ export const getIcon = (variant: IconVariant) => {
 // Configurações padrão para cada variante de logo
 export const LogoConfig = {
   atma: {
-    horizontal: { 
-      width: 200, 
-      height: 50, 
+    horizontal: {
+      width: 250,
+      height: 60,
       alt: 'Atma Aligner - Sistema de Alinhadores Transparentes',
-      className: 'h-8 w-auto'
+      className: 'h-12 w-auto'
     },
-    principal: { 
-      width: 220, 
-      height: 55, 
+    principal: {
+      width: 280,
+      height: 70,
       alt: 'Atma Aligner - Sistema de Alinhadores Transparentes',
-      className: 'h-10 w-auto'
+      className: 'h-16 w-auto'
     },
-    vertical: { 
-      width: 100, 
-      height: 120, 
+    vertical: {
+      width: 120,
+      height: 150,
       alt: 'Atma Aligner - Sistema de Alinhadores Transparentes',
-      className: 'h-24 w-auto'
+      className: 'h-32 w-auto'
     },
-    marca: { 
-      width: 64, 
-      height: 64, 
+    marca: {
+      width: 80,
+      height: 80,
       alt: 'Atma',
-      className: 'h-12 w-12'
+      className: 'h-16 w-16'
     },
   }
 } as const

@@ -47,9 +47,9 @@ export function AtmaLogo({
 // Logo para header/navbar
 export function HeaderLogo({ onClick }: { onClick?: () => void }) {
   return (
-    <AtmaLogo 
-      variant="principal" 
-      className="h-8 w-auto"
+    <AtmaLogo
+      variant="principal"
+      className="h-12 w-auto"
       onClick={onClick}
       priority
     />
@@ -59,9 +59,9 @@ export function HeaderLogo({ onClick }: { onClick?: () => void }) {
 // Logo para hero section
 export function HeroLogo() {
   return (
-    <AtmaLogo 
-      variant="principal" 
-      className="h-12 w-auto mx-auto"
+    <AtmaLogo
+      variant="principal"
+      className="h-20 w-auto mx-auto"
       priority
     />
   )
@@ -70,9 +70,9 @@ export function HeroLogo() {
 // Logo compacta para footer
 export function FooterLogo() {
   return (
-    <AtmaLogo 
-      variant="horizontal" 
-      className="h-6 w-auto opacity-75"
+    <AtmaLogo
+      variant="horizontal"
+      className="h-10 w-auto opacity-75"
     />
   )
 }
