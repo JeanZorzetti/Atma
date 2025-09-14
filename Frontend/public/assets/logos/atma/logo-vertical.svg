@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="150" viewBox="0 0 120 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="150" fill="transparent"/>
+
+  <!-- ATMA ALIGNER in vertical layout -->
+  <g transform="translate(60, 75)">
+    <!-- ATMA -->
+    <g transform="translate(0, -30)">
+      <!-- A -->
+      <path d="M-20 20 L-30 -10 L-10 -10 Z M-25 -15 L-15 -15 M-35 20 L-5 20" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- T -->
+      <path d="M-30 40 L10 40 M-10 40 L-10 70" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- M -->
+      <path d="M-30 100 L-30 70 L-10 90 L10 70 L10 100" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- A -->
+      <path d="M-20 130 L-10 100 L0 130 M-15 118 L-5 118" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- ALIGNER -->
+    <g transform="translate(0, 45)">
+      <!-- A -->
+      <path d="M-40 15 L-45 5 L-35 5 Z M-42 3 L-38 3 M-47 15 L-33 15" stroke="#666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- L -->
+      <path d="M-25 5 L-25 15 L-18 15" stroke="#666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- I -->
+      <path d="M-10 5 L-10 15" stroke="#666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- G -->
+      <path d="M0 8 Q-5 5 -5 10 Q-5 15 0 13 L3 13 L3 10" stroke="#666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- N -->
+      <path d="M10 15 L10 5 L17 12 L17 5" stroke="#666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- E -->
+      <path d="M25 5 L25 15 L32 15 M25 10 L30 10 M25 5 L32 5" stroke="#666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- R -->
+      <path d="M40 15 L40 5 L45 5 Q48 5 48 7.5 Q48 10 45 10 L40 10 L48 15" stroke="#666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

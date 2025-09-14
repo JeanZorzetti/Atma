@@ -2,12 +2,12 @@
 export const ASSETS = {
   logos: {
     atma: {
-      horizontal: '/assets/logos/atma/logo-horizontal.jpg',
-      principal: '/assets/logos/atma/logo-principal.jpg',
-      principalDark: '/assets/logos/atma/logo-principal-dark.jpg',
-      principalLight: '/assets/logos/atma/logo-principal-light.jpg',
-      vertical: '/assets/logos/atma/logo-vertical.jpg',
-      marca: '/assets/logos/atma/logo-marca.jpg',
+      horizontal: '/assets/logos/atma/logo-horizontal.svg',
+      principal: '/assets/logos/atma/logo-principal.svg',
+      principalDark: '/assets/logos/atma/logo-principal-dark.svg',
+      principalLight: '/assets/logos/atma/logo-principal-light.svg',
+      vertical: '/assets/logos/atma/logo-vertical.svg',
+      marca: '/assets/logos/atma/logo-marca.svg',
     }
   },
   icons: {

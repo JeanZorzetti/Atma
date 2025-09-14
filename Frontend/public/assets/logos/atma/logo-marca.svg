@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="12" fill="#2d63e4"/>
+
+  <!-- Simplified A mark -->
+  <g transform="translate(32, 32)">
+    <path d="M0 12 L-8 -8 L8 -8 Z M-4 -4 L4 -4" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
