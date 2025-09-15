@@ -299,9 +299,7 @@ exports.getMarketingMetrics = async (req, res) => {
         },
         campaigns: campaigns,
         analytics: {
-          avgSessionDuration: googleAnalytics.avgSessionDuration,
-          pagesPerSession: googleAnalytics.pagesPerSession,
-          bounceRate: googleAnalytics.bounceRate,
+          ...googleAnalytics,
           socialMedia: []
         }
       },
