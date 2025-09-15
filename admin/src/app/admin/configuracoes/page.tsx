@@ -48,9 +48,12 @@ export default function ConfiguracoesPage() {
   const [saving, setSaving] = useState(false)
   const [integrations, setIntegrations] = useState({
     paymentGateway: true,
-    emailMarketing: false, 
+    emailMarketing: false,
     whatsappBusiness: true,
-    googleAnalytics: false
+    googleAnalytics: false,
+    googleAds: false,
+    metaBusiness: false,
+    hubspot: false
   })
   const [integrationModal, setIntegrationModal] = useState<string | null>(null)
   const [integrationSettings, setIntegrationSettings] = useState<{[key: string]: string}>({})
@@ -90,7 +93,10 @@ export default function ConfiguracoesPage() {
         'integration_payment_gateway': 'paymentGateway',
         'integration_email_marketing': 'emailMarketing',
         'integration_whatsapp_business': 'whatsappBusiness',
-        'integration_google_analytics': 'googleAnalytics'
+        'integration_google_analytics': 'googleAnalytics',
+        'integration_google_ads': 'googleAds',
+        'integration_meta_business': 'metaBusiness',
+        'integration_hubspot': 'hubspot'
       }
 
       const updatedIntegrations = { ...integrations }
@@ -104,7 +110,7 @@ export default function ConfiguracoesPage() {
       setIntegrations(updatedIntegrations)
 
       // Sincronizar configurações de integração
-      const gaSettings = {
+      const allIntegrationSettings = {
         ga_tracking_id: settings.ga_tracking_id?.value || '',
         ga_measurement_id: settings.ga_measurement_id?.value || 'G-EMCS41DMSP',
         ga_api_secret: settings.ga_api_secret?.value || '',
@@ -117,9 +123,22 @@ export default function ConfiguracoesPage() {
         mailchimp_datacenter: settings.mailchimp_datacenter?.value || '',
         whatsapp_phone_id: settings.whatsapp_phone_id?.value || '',
         whatsapp_token: settings.whatsapp_token?.value || '',
-        whatsapp_webhook_verify: settings.whatsapp_webhook_verify?.value || ''
+        whatsapp_webhook_verify: settings.whatsapp_webhook_verify?.value || '',
+        google_ads_customer_id: settings.google_ads_customer_id?.value || '',
+        google_ads_developer_token: settings.google_ads_developer_token?.value || '',
+        google_ads_client_id: settings.google_ads_client_id?.value || '',
+        google_ads_client_secret: settings.google_ads_client_secret?.value || '',
+        google_ads_refresh_token: settings.google_ads_refresh_token?.value || '',
+        meta_app_id: settings.meta_app_id?.value || '',
+        meta_app_secret: settings.meta_app_secret?.value || '',
+        meta_access_token: settings.meta_access_token?.value || '',
+        meta_ad_account_id: settings.meta_ad_account_id?.value || '',
+        meta_page_id: settings.meta_page_id?.value || '',
+        hubspot_api_key: settings.hubspot_api_key?.value || '',
+        hubspot_portal_id: settings.hubspot_portal_id?.value || '',
+        hubspot_access_token: settings.hubspot_access_token?.value || ''
       }
-      setIntegrationSettings(gaSettings)
+      setIntegrationSettings(allIntegrationSettings)
 
       // Sincronizar outros toggles
       if (settings.notification_email) {
@@ -343,6 +362,24 @@ export default function ConfiguracoesPage() {
         fields: [
           { name: 'ga_measurement_id' },
           { name: 'ga_tracking_id' }
+        ]
+      },
+      googleAds: {
+        fields: [
+          { name: 'google_ads_customer_id' },
+          { name: 'google_ads_developer_token' }
+        ]
+      },
+      metaBusiness: {
+        fields: [
+          { name: 'meta_app_id' },
+          { name: 'meta_access_token' }
+        ]
+      },
+      hubspot: {
+        fields: [
+          { name: 'hubspot_api_key' },
+          { name: 'hubspot_portal_id' }
         ]
       }
     }
