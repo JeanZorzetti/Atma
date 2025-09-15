@@ -361,7 +361,7 @@ export default function ConfiguracoesPage() {
       googleAnalytics: {
         fields: [
           { name: 'ga_measurement_id' },
-          { name: 'ga_tracking_id' }
+          { name: 'ga_api_secret' }
         ]
       },
       googleAds: {
@@ -386,6 +386,16 @@ export default function ConfiguracoesPage() {
 
     const config = integrationConfigs[type]
     if (!config) return false
+
+    // Para Google Analytics, verificar se está ativado E tem configurações
+    if (type === 'googleAnalytics') {
+      const isEnabled = integrations.googleAnalytics
+      const hasRequiredFields = config.fields.every(field => {
+        const value = integrationSettings[field.name]
+        return value && value.trim() !== ''
+      })
+      return isEnabled && hasRequiredFields
+    }
 
     return config.fields.some(field => {
       const value = integrationSettings[field.name]
