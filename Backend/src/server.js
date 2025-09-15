@@ -221,9 +221,11 @@ app.use('/api/marketing', marketingRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
+  const packageJson = require('../package.json');
   res.json({
     message: 'Atma Aligner Backend API',
-    version: '1.0.0',
+    version: packageJson.version,
+    lastUpdate: '2025-09-15 16:52 - Google Analytics Fix',
     documentation: '/api/docs',
     health: '/health'
   });
