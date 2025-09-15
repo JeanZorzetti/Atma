@@ -299,6 +299,14 @@ export interface MarketingMetricsResponse {
       avgSessionDuration: string
       pagesPerSession: number
       bounceRate: number
+      configured?: boolean
+      configStatus?: {
+        enabled: boolean
+        measurementId: boolean
+        apiSecret: boolean
+        note?: string
+      }
+      error?: string
       socialMedia: Array<{
         platform: string
         followers: number
