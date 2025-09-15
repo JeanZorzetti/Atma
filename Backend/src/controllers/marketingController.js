@@ -36,13 +36,72 @@ const getDateRange = (range) => {
 
 // Função para buscar métricas do Google Analytics (simulado)
 const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
-  // Em produção, aqui seria integração real com Google Analytics API
-  return {
-    totalVisits: 0,
-    bounceRate: 0,
-    avgSessionDuration: '0:00',
-    pagesPerSession: 0
-  };
+  try {
+    // Verificar se o Google Analytics está configurado
+    const [gaSettings] = await pool.execute(`
+      SELECT setting_key, setting_value
+      FROM system_settings
+      WHERE setting_key IN ('ga_measurement_id', 'ga_tracking_id', 'ga_api_secret', 'integration_google_analytics')
+    `);
+
+    const settings = {};
+    gaSettings.forEach(row => {
+      settings[row.setting_key] = row.setting_value;
+    });
+
+    const isGAEnabled = settings.integration_google_analytics === 'true';
+    const hasMeasurementId = settings.ga_measurement_id && settings.ga_measurement_id.trim() !== '';
+    const hasApiSecret = settings.ga_api_secret && settings.ga_api_secret.trim() !== '';
+
+    logger.info(`🔍 Google Analytics Status:`, {
+      enabled: isGAEnabled,
+      measurementId: hasMeasurementId ? `${settings.ga_measurement_id?.substring(0, 8)}...` : 'Não configurado',
+      apiSecret: hasApiSecret ? 'Configurado' : 'Não configurado',
+      fullyConfigured: isGAEnabled && hasMeasurementId && hasApiSecret
+    });
+
+    if (!isGAEnabled || !hasMeasurementId || !hasApiSecret) {
+      return {
+        totalVisits: 0,
+        bounceRate: 0,
+        avgSessionDuration: '0:00',
+        pagesPerSession: 0,
+        configured: false,
+        configStatus: {
+          enabled: isGAEnabled,
+          measurementId: hasMeasurementId,
+          apiSecret: hasApiSecret
+        }
+      };
+    }
+
+    // TODO: Implementar integração real com Google Analytics API
+    // Para agora, retornar dados que indicam que está configurado mas ainda sem implementação
+    return {
+      totalVisits: 0,
+      bounceRate: 0,
+      avgSessionDuration: '0:00',
+      pagesPerSession: 0,
+      configured: true,
+      configStatus: {
+        enabled: true,
+        measurementId: true,
+        apiSecret: true,
+        note: 'Configurado - Implementação da API em desenvolvimento'
+      }
+    };
+
+  } catch (error) {
+    logger.error('Erro ao verificar configurações do Google Analytics:', error);
+    return {
+      totalVisits: 0,
+      bounceRate: 0,
+      avgSessionDuration: '0:00',
+      pagesPerSession: 0,
+      configured: false,
+      error: 'Erro ao verificar configurações'
+    };
+  }
 };
 
 // Função para buscar leads por fonte

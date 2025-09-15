@@ -442,8 +442,10 @@ export default function MarketingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {metrics.analytics.avgSessionDuration || metrics.analytics.pagesPerSession || metrics.analytics.bounceRate ? (
+                  {/* Verificar se Google Analytics está configurado */}
+                  {metrics.analytics.configured === true ? (
                     <>
+                      {/* Mostrar dados do Google Analytics se configurado */}
                       <div className="grid grid-cols-2 gap-4">
                         <div className="text-center p-3 bg-blue-50 rounded-lg">
                           <div className="text-2xl font-bold text-blue-600">{metrics.analytics.avgSessionDuration || '0:00'}</div>
@@ -458,7 +460,33 @@ export default function MarketingDashboard() {
                         <div className="text-2xl font-bold text-red-600">{metrics.analytics.bounceRate || '0'}%</div>
                         <div className="text-sm text-gray-600">Taxa de Rejeição</div>
                       </div>
+                      {metrics.analytics.configStatus?.note && (
+                        <div className="text-center py-2 text-xs text-blue-600 bg-blue-50 rounded-lg">
+                          ℹ️ {metrics.analytics.configStatus.note}
+                        </div>
+                      )}
                     </>
+                  ) : metrics.analytics.configured === false ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <Eye className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm font-medium">Google Analytics não configurado completamente</p>
+                      {metrics.analytics.configStatus && (
+                        <div className="text-xs mt-2 space-y-1">
+                          <p className={metrics.analytics.configStatus.enabled ? 'text-green-600' : 'text-red-600'}>
+                            {metrics.analytics.configStatus.enabled ? '✓' : '✗'} Integração ativada
+                          </p>
+                          <p className={metrics.analytics.configStatus.measurementId ? 'text-green-600' : 'text-red-600'}>
+                            {metrics.analytics.configStatus.measurementId ? '✓' : '✗'} Measurement ID configurado
+                          </p>
+                          <p className={metrics.analytics.configStatus.apiSecret ? 'text-green-600' : 'text-red-600'}>
+                            {metrics.analytics.configStatus.apiSecret ? '✓' : '✗'} API Secret configurado
+                          </p>
+                        </div>
+                      )}
+                      <p className="text-xs mt-3 text-blue-600">
+                        Configure todos os campos nas <a href="/admin/configuracoes" className="underline">Configurações</a>
+                      </p>
+                    </div>
                   ) : (
                     <div className="text-center py-8 text-gray-500">
                       <Eye className="h-8 w-8 mx-auto mb-2 text-gray-400" />
