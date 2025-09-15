@@ -249,6 +249,7 @@ exports.getMarketingMetrics = async (req, res) => {
     const { startDate, endDate } = getDateRange(range);
 
     logger.info(`📊 Buscando métricas de marketing para o período: ${startDate} - ${endDate}`);
+    logger.info(`🔄 VERSÃO ATUALIZADA - Verificação Google Analytics implementada`);
 
     // Buscar dados de várias fontes em paralelo
     const [
