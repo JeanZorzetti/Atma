@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { apiService, PatientsResponse, OrthodontistsResponse, SystemStatsResponse, QuickActionsResponse, ReportsResponse, SettingsResponse, CrmLeadsResponse, CrmStatsResponse } from '@/lib/api'
+import { apiService, PatientsResponse, OrthodontistsResponse, SystemStatsResponse, QuickActionsResponse, ReportsResponse, SettingsResponse, CrmLeadsResponse, CrmStatsResponse, MarketingMetricsResponse } from '@/lib/api'
 
 export function useApi<T>(
   apiCall: () => Promise<T>,
@@ -130,4 +130,44 @@ export function useCrmLeads(page = 1, limit = 50, status?: string, responsavel?:
 export function useCrmStats() {
   const getCrmStats = useCallback(() => apiService.getCrmStats(), [])
   return useApi<CrmStatsResponse>(getCrmStats, [])
+}
+
+export function useMarketingMetrics(dateRange = '30d') {
+  const getMarketingMetrics = useCallback(() => apiService.getMarketingMetrics(dateRange), [dateRange])
+  return useApi<MarketingMetricsResponse>(getMarketingMetrics, [dateRange])
+}
+
+export function useGoogleAnalytics(metrics: string[], dateRange: string) {
+  const getGoogleAnalytics = useCallback(() => apiService.getGoogleAnalyticsData(metrics, dateRange), [metrics, dateRange])
+  return useApi(getGoogleAnalytics, [metrics, dateRange])
+}
+
+export function useFacebookAds(dateRange: string) {
+  const getFacebookAds = useCallback(() => apiService.getFacebookAdsData(dateRange), [dateRange])
+  return useApi(getFacebookAds, [dateRange])
+}
+
+export function useInstagramInsights(dateRange: string) {
+  const getInstagramInsights = useCallback(() => apiService.getInstagramInsights(dateRange), [dateRange])
+  return useApi(getInstagramInsights, [dateRange])
+}
+
+export function useEmailMarketing(dateRange: string) {
+  const getEmailMarketing = useCallback(() => apiService.getEmailMarketingStats(dateRange), [dateRange])
+  return useApi(getEmailMarketing, [dateRange])
+}
+
+export function useWhatsAppMetrics(dateRange: string) {
+  const getWhatsAppMetrics = useCallback(() => apiService.getWhatsAppMetrics(dateRange), [dateRange])
+  return useApi(getWhatsAppMetrics, [dateRange])
+}
+
+export function useCampaignPerformance(campaignId?: string) {
+  const getCampaignPerformance = useCallback(() => apiService.getCampaignPerformance(campaignId), [campaignId])
+  return useApi(getCampaignPerformance, [campaignId])
+}
+
+export function useLeadSourceAnalysis(dateRange: string) {
+  const getLeadSourceAnalysis = useCallback(() => apiService.getLeadSourceAnalysis(dateRange), [dateRange])
+  return useApi(getLeadSourceAnalysis, [dateRange])
 }

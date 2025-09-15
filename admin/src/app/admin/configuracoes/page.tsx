@@ -406,6 +406,37 @@ export default function ConfiguracoesPage() {
           { name: 'ga_measurement_id', label: 'Measurement ID', type: 'text', placeholder: 'G-XXXXXXXXXX' },
           { name: 'ga_api_secret', label: 'API Secret', type: 'password', placeholder: 'Chave secreta da API' }
         ]
+      },
+      googleAds: {
+        title: 'Configurar Google Ads',
+        description: 'Configure a API do Google Ads para importar dados de campanhas',
+        fields: [
+          { name: 'google_ads_customer_id', label: 'Customer ID', type: 'text', placeholder: '123-456-7890' },
+          { name: 'google_ads_developer_token', label: 'Developer Token', type: 'password', placeholder: 'Token de desenvolvedor' },
+          { name: 'google_ads_client_id', label: 'Client ID', type: 'text', placeholder: 'Client ID OAuth2' },
+          { name: 'google_ads_client_secret', label: 'Client Secret', type: 'password', placeholder: 'Client Secret OAuth2' },
+          { name: 'google_ads_refresh_token', label: 'Refresh Token', type: 'password', placeholder: 'Token de refresh' }
+        ]
+      },
+      metaBusiness: {
+        title: 'Configurar Meta Business',
+        description: 'Configure a integração com Facebook e Instagram Ads',
+        fields: [
+          { name: 'meta_app_id', label: 'App ID', type: 'text', placeholder: 'ID da aplicação Meta' },
+          { name: 'meta_app_secret', label: 'App Secret', type: 'password', placeholder: 'App Secret' },
+          { name: 'meta_access_token', label: 'Access Token', type: 'password', placeholder: 'Token de acesso' },
+          { name: 'meta_ad_account_id', label: 'Ad Account ID', type: 'text', placeholder: 'act_1234567890' },
+          { name: 'meta_page_id', label: 'Page ID', type: 'text', placeholder: 'ID da página Facebook' }
+        ]
+      },
+      hubspot: {
+        title: 'Configurar HubSpot',
+        description: 'Configure a integração com HubSpot CRM',
+        fields: [
+          { name: 'hubspot_api_key', label: 'API Key', type: 'password', placeholder: 'Chave de API do HubSpot' },
+          { name: 'hubspot_portal_id', label: 'Portal ID', type: 'text', placeholder: 'ID do portal' },
+          { name: 'hubspot_access_token', label: 'Access Token', type: 'password', placeholder: 'Token de acesso OAuth' }
+        ]
       }
     }
 
@@ -1004,7 +1035,7 @@ export default function ConfiguracoesPage() {
                         </span>
                       )}
                     </div>
-                    <Switch 
+                    <Switch
                       checked={integrations.googleAnalytics}
                       onCheckedChange={(checked) => handleIntegrationToggle('googleAnalytics', checked)}
                       disabled={saving}
@@ -1016,13 +1047,73 @@ export default function ConfiguracoesPage() {
                       <span className="ml-1 text-green-600">• ID: {integrationSettings.ga_measurement_id?.substring(0, 15)}...</span>
                     )}
                   </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="mt-2"
                     onClick={() => handleIntegrationConfig('googleAnalytics')}
                   >
                     {isIntegrationConfigured('googleAnalytics') ? 'Editar' : 'Configurar'}
+                  </Button>
+                </div>
+
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium">Google Ads</h3>
+                    <Switch
+                      checked={integrations.googleAds || false}
+                      onCheckedChange={(checked) => handleIntegrationToggle('googleAds', checked)}
+                      disabled={saving}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500">Campanhas de publicidade no Google</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => handleIntegrationConfig('googleAds')}
+                  >
+                    Configurar
+                  </Button>
+                </div>
+
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium">Meta Business</h3>
+                    <Switch
+                      checked={integrations.metaBusiness || false}
+                      onCheckedChange={(checked) => handleIntegrationToggle('metaBusiness', checked)}
+                      disabled={saving}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500">Facebook e Instagram Ads</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => handleIntegrationConfig('metaBusiness')}
+                  >
+                    Configurar
+                  </Button>
+                </div>
+
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium">HubSpot</h3>
+                    <Switch
+                      checked={integrations.hubspot || false}
+                      onCheckedChange={(checked) => handleIntegrationToggle('hubspot', checked)}
+                      disabled={saving}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500">CRM e automação de marketing</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => handleIntegrationConfig('hubspot')}
+                  >
+                    Configurar
                   </Button>
                 </div>
               </div>

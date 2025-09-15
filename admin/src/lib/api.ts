@@ -244,6 +244,71 @@ export interface CrmStatsResponse {
   timestamp: string
 }
 
+export interface MarketingMetricsResponse {
+  success: boolean
+  data: {
+    overview: {
+      totalVisits: number
+      conversionRate: number
+      leadGeneration: number
+      revenue: number
+      growth: {
+        visits: number
+        conversion: number
+        leads: number
+        revenue: number
+      }
+    }
+    traffic: {
+      sources: Array<{
+        name: string
+        visits: number
+        percentage: number
+        growth: number
+      }>
+      devices: Array<{
+        name: string
+        visitors: number
+        percentage: number
+      }>
+    }
+    leads: {
+      bySource: Array<{
+        source: string
+        count: number
+        conversion: number
+      }>
+      byStatus: Array<{
+        status: string
+        count: number
+        percentage: number
+      }>
+    }
+    campaigns: Array<{
+      name: string
+      status: string
+      budget: number
+      spent: number
+      clicks: number
+      impressions: number
+      ctr: number
+      cpc: number
+      conversions: number
+    }>
+    analytics: {
+      avgSessionDuration: string
+      pagesPerSession: number
+      bounceRate: number
+      socialMedia: Array<{
+        platform: string
+        followers: number
+        engagement: number
+      }>
+    }
+  }
+  timestamp: string
+}
+
 class ApiService {
   private baseUrl: string
   private requestCache: Map<string, { data: unknown; timestamp: number }> = new Map()
@@ -689,6 +754,40 @@ class ApiService {
     this.invalidateCache('/crm/leads')
     
     return result
+  }
+
+  // Marketing methods
+  async getMarketingMetrics(dateRange = '30d'): Promise<MarketingMetricsResponse> {
+    return this.request<MarketingMetricsResponse>(`/marketing/metrics?range=${dateRange}`)
+  }
+
+  async getGoogleAnalyticsData(metrics: string[], dateRange: string) {
+    return this.request(`/marketing/analytics/google?metrics=${metrics.join(',')}&range=${dateRange}`)
+  }
+
+  async getFacebookAdsData(dateRange: string) {
+    return this.request(`/marketing/ads/facebook?range=${dateRange}`)
+  }
+
+  async getInstagramInsights(dateRange: string) {
+    return this.request(`/marketing/social/instagram?range=${dateRange}`)
+  }
+
+  async getEmailMarketingStats(dateRange: string) {
+    return this.request(`/marketing/email/stats?range=${dateRange}`)
+  }
+
+  async getWhatsAppMetrics(dateRange: string) {
+    return this.request(`/marketing/whatsapp/metrics?range=${dateRange}`)
+  }
+
+  async getCampaignPerformance(campaignId?: string) {
+    const url = campaignId ? `/marketing/campaigns/${campaignId}` : '/marketing/campaigns'
+    return this.request(url)
+  }
+
+  async getLeadSourceAnalysis(dateRange: string) {
+    return this.request(`/marketing/leads/sources?range=${dateRange}`)
   }
 }
 

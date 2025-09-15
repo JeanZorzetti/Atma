@@ -1,15 +1,16 @@
 "use client"
 
 import { ReactNode } from 'react'
-import { 
-  Users, 
-  UserCheck, 
-  BarChart3, 
-  Settings, 
+import {
+  Users,
+  UserCheck,
+  BarChart3,
+  Settings,
   Home,
   LogOut,
   Menu,
-  PhoneCall
+  PhoneCall,
+  TrendingUp
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -42,6 +43,11 @@ const sidebarItems = [
     title: 'CRM B2B',
     href: '/admin/crm',
     icon: PhoneCall
+  },
+  {
+    title: 'Marketing',
+    href: '/admin/marketing',
+    icon: TrendingUp
   },
   {
     title: 'Relatórios',
