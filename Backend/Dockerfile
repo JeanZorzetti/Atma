@@ -22,6 +22,9 @@ RUN addgroup -g 1001 -S nodejs && \
 # Copy application code
 COPY --chown=nodejs:nodejs . .
 
+# Force rebuild cache bust
+RUN echo "Build timestamp: $(date)" > /tmp/build-info
+
 # Create logs directory with correct permissions
 RUN mkdir -p logs && chown -R nodejs:nodejs logs
 
