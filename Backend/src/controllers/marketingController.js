@@ -1,5 +1,5 @@
 const { logger } = require('../utils/logger');
-const { pool } = require('../config/database');
+const { getDB } = require('../config/database');
 
 /**
  * Controller para métricas de marketing
@@ -38,6 +38,11 @@ const getDateRange = (range) => {
 const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
   try {
     // Verificar se o Google Analytics está configurado
+    const pool = getDB();
+    if (!pool) {
+      throw new Error('Database connection not available');
+    }
+
     const [gaSettings] = await pool.execute(`
       SELECT setting_key, setting_value
       FROM system_settings
@@ -108,6 +113,11 @@ const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
 // Função para buscar leads por fonte
 const getLeadsBySource = async (startDate, endDate) => {
   try {
+    const pool = getDB();
+    if (!pool) {
+      throw new Error('Database connection not available');
+    }
+
     const [rows] = await pool.execute(`
       SELECT
         COALESCE(origem_lead, 'Não especificado') as source,
@@ -129,6 +139,11 @@ const getLeadsBySource = async (startDate, endDate) => {
 // Função para buscar leads por status
 const getLeadsByStatus = async (startDate, endDate) => {
   try {
+    const pool = getDB();
+    if (!pool) {
+      throw new Error('Database connection not available');
+    }
+
     const [rows] = await pool.execute(`
       SELECT
         status,
@@ -150,6 +165,11 @@ const getLeadsByStatus = async (startDate, endDate) => {
 // Função para buscar métricas de pacientes
 const getPatientMetrics = async (startDate, endDate) => {
   try {
+    const pool = getDB();
+    if (!pool) {
+      throw new Error('Database connection not available');
+    }
+
     const [totalRows] = await pool.execute(`
       SELECT COUNT(*) as total
       FROM patient_leads
@@ -191,6 +211,11 @@ const getGrowthMetrics = async (currentStart, currentEnd, range) => {
   previousStart.setDate(previousStart.getDate() - rangeDays);
 
   try {
+    const pool = getDB();
+    if (!pool) {
+      throw new Error('Database connection not available');
+    }
+
     // Buscar dados do período atual
     const [currentPatients] = await pool.execute(`
       SELECT COUNT(*) as count FROM patient_leads
