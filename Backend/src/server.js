@@ -18,6 +18,7 @@ const orthodontistRoutes = require('./routes/orthodontistRoutes');
 const emailRoutes = require('./routes/emailRoutes');
 const systemRoutes = require('./routes/systemRoutes');
 const crmRoutes = require('./routes/crm');
+const marketingRoutes = require('./routes/marketingRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -216,6 +217,7 @@ app.use('/api/orthodontists', orthodontistRoutes);
 app.use('/api/emails', emailRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/crm', crmRoutes);
+app.use('/api/marketing', marketingRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
