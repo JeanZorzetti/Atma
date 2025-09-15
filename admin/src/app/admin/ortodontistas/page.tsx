@@ -178,7 +178,7 @@ export default function OrtodontistasPage() {
       setSelectedOrthodontist(null)
       refetch()
 
-    } catch (error) {
+    } catch {
       toast({
         title: "Erro ao atualizar",
         description: "Não foi possível salvar as alterações",
@@ -212,7 +212,7 @@ export default function OrtodontistasPage() {
       setSelectedOrthodontist(null)
       refetch()
 
-    } catch (error) {
+    } catch {
       toast({
         title: "Erro ao excluir",
         description: "Não foi possível remover o ortodontista",

@@ -10,16 +10,13 @@ import {
   TrendingUp,
   TrendingDown,
   Eye,
-  MousePointer,
   Target,
   DollarSign,
-  Calendar,
   Globe,
   Smartphone,
   Monitor,
   RefreshCw,
   Download,
-  Filter,
   Share2,
   Activity,
   Loader2,
@@ -32,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useMarketingMetrics, useGoogleAnalytics, useFacebookAds, useInstagramInsights, useEmailMarketing, useWhatsAppMetrics, useCampaignPerformance, useLeadSourceAnalysis } from '@/hooks/useApi'
+import { useMarketingMetrics } from '@/hooks/useApi'
 import { useToast } from '@/hooks/use-toast'
 
 // Fallback data para quando as APIs não estiverem disponíveis
@@ -122,14 +119,14 @@ export default function MarketingDashboard() {
   // Hook principal para métricas de marketing
   const { data: marketingData, loading: marketingLoading, error: marketingError, refetch: refetchMarketing } = useMarketingMetrics(dateRange)
 
-  // Hooks para dados específicos (podem ser null se API não disponível)
-  const { data: googleAnalytics, loading: gaLoading } = useGoogleAnalytics(['sessions', 'users', 'bounceRate'], dateRange)
-  const { data: facebookAds, loading: fbLoading } = useFacebookAds(dateRange)
-  const { data: instagramInsights, loading: igLoading } = useInstagramInsights(dateRange)
-  const { data: emailMarketing, loading: emailLoading } = useEmailMarketing(dateRange)
-  const { data: whatsappMetrics, loading: waLoading } = useWhatsAppMetrics(dateRange)
-  const { data: campaignPerformance, loading: campaignLoading } = useCampaignPerformance()
-  const { data: leadSourceAnalysis, loading: leadLoading } = useLeadSourceAnalysis(dateRange)
+  // Hooks para dados específicos (serão integrados quando APIs estiverem disponíveis)
+  // const { data: googleAnalytics } = useGoogleAnalytics(['sessions', 'users', 'bounceRate'], dateRange)
+  // const { data: facebookAds } = useFacebookAds(dateRange)
+  // const { data: instagramInsights } = useInstagramInsights(dateRange)
+  // const { data: emailMarketing } = useEmailMarketing(dateRange)
+  // const { data: whatsappMetrics } = useWhatsAppMetrics(dateRange)
+  // const { data: campaignPerformance } = useCampaignPerformance()
+  // const { data: leadSourceAnalysis } = useLeadSourceAnalysis(dateRange)
 
   // Usar dados reais se disponíveis, senão usar fallback
   const metrics = marketingData?.data || fallbackMetrics
@@ -142,7 +139,7 @@ export default function MarketingDashboard() {
         title: "Dados atualizados!",
         description: "As métricas de marketing foram atualizadas com sucesso.",
       })
-    } catch (error) {
+    } catch {
       toast({
         title: "Erro ao atualizar",
         description: "Não foi possível atualizar os dados. Usando dados de exemplo.",
@@ -169,7 +166,7 @@ export default function MarketingDashboard() {
     title: string
     value: number | string
     change?: number
-    icon: any
+    icon: React.ComponentType<{ className?: string }>
     prefix?: string
     suffix?: string
   }) => (

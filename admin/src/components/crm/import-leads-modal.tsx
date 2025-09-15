@@ -13,7 +13,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X, Download } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import { apiService } from '@/lib/api'
 import * as XLSX from 'xlsx'
 
 interface ImportLeadsModalProps {

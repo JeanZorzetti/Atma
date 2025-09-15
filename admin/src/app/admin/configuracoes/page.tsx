@@ -20,8 +20,7 @@ import {
   Key,
   Globe,
   Smartphone,
-  Loader2,
-  X
+  Loader2
 } from 'lucide-react'
 import {
   Dialog,
@@ -29,7 +28,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { useSettings } from '@/hooks/useApi'
 import { apiService } from '@/lib/api'
@@ -168,7 +166,7 @@ export default function ConfiguracoesPage() {
       })
 
       refetch()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Erro ao salvar',
         description: 'Não foi possível salvar as configurações. Tente novamente.',
@@ -201,7 +199,7 @@ export default function ConfiguracoesPage() {
       })
 
       refetch()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Erro ao salvar',
         description: 'Não foi possível salvar as configurações. Tente novamente.',
@@ -220,7 +218,7 @@ export default function ConfiguracoesPage() {
         description: `Atribuição automática ${checked ? 'ativada' : 'desativada'}.`,
       })
       refetch()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Erro ao atualizar',
         description: 'Não foi possível alterar a configuração.',
@@ -242,7 +240,7 @@ export default function ConfiguracoesPage() {
       })
       
       refetch()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Erro ao atualizar',
         description: 'Não foi possível alterar as notificações.',
@@ -272,7 +270,7 @@ export default function ConfiguracoesPage() {
       })
       
       refetch()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Erro ao salvar',
         description: 'Não foi possível salvar a preferência.',
@@ -297,7 +295,7 @@ export default function ConfiguracoesPage() {
       })
       
       refetch()
-    } catch (error) {
+    } catch {
       toast({
         title: "Erro ao salvar",
         description: "Não foi possível atualizar a integração.",
@@ -512,7 +510,7 @@ export default function ConfiguracoesPage() {
                   
                   refetch() // Recarregar dados
                   setIntegrationModal(null)
-                } catch (error) {
+                } catch {
                   toast({
                     title: "Erro ao salvar configuração",
                     description: "Não foi possível salvar as configurações da integração.",
@@ -549,7 +547,7 @@ export default function ConfiguracoesPage() {
       })
       
       refetch()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Erro ao configurar',
         description: 'Não foi possível alterar a configuração de backup.',
@@ -568,7 +566,7 @@ export default function ConfiguracoesPage() {
         title: 'Backup realizado!',
         description: 'Backup manual executado com sucesso.',
       })
-    } catch (error) {
+    } catch {
       toast({
         title: 'Erro no backup',
         description: 'Não foi possível realizar o backup.',
@@ -589,7 +587,7 @@ export default function ConfiguracoesPage() {
         title: 'Restauração iniciada!',
         description: 'O processo de restauração foi iniciado.',
       })
-    } catch (error) {
+    } catch {
       toast({
         title: 'Erro na restauração',
         description: 'Não foi possível restaurar o backup.',
