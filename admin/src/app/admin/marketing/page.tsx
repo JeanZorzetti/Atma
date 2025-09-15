@@ -32,85 +32,6 @@ import {
 import { useMarketingMetrics } from '@/hooks/useApi'
 import { useToast } from '@/hooks/use-toast'
 
-// Fallback data para quando as APIs não estiverem disponíveis
-const fallbackMetrics = {
-  overview: {
-    totalVisits: 12547,
-    conversionRate: 3.2,
-    leadGeneration: 401,
-    revenue: 89420,
-    growth: {
-      visits: 12.5,
-      conversion: -2.1,
-      leads: 18.7,
-      revenue: 25.3
-    }
-  },
-  traffic: {
-    sources: [
-      { name: 'Google Ads', visits: 4521, percentage: 36, growth: 15.2 },
-      { name: 'Facebook Ads', visits: 3012, percentage: 24, growth: -5.3 },
-      { name: 'Orgânico', visits: 2876, percentage: 23, growth: 8.7 },
-      { name: 'Instagram', visits: 1245, percentage: 10, growth: 22.1 },
-      { name: 'Direto', visits: 893, percentage: 7, growth: 3.4 }
-    ],
-    devices: [
-      { name: 'Mobile', visitors: 7528, percentage: 60 },
-      { name: 'Desktop', visitors: 3762, percentage: 30 },
-      { name: 'Tablet', visitors: 1257, percentage: 10 }
-    ]
-  },
-  leads: {
-    bySource: [
-      { source: 'Landing Page', count: 156, conversion: 4.2 },
-      { source: 'Google Ads', count: 134, conversion: 3.8 },
-      { source: 'Facebook', count: 78, conversion: 2.9 },
-      { source: 'Instagram', count: 33, conversion: 2.1 }
-    ],
-    byStatus: [
-      { status: 'Novo', count: 201, percentage: 50.1 },
-      { status: 'Contatado', count: 120, percentage: 29.9 },
-      { status: 'Agendado', count: 52, percentage: 13.0 },
-      { status: 'Convertido', count: 28, percentage: 7.0 }
-    ]
-  },
-  campaigns: [
-    {
-      name: 'Campanha Invisalign Q1',
-      status: 'Ativa',
-      budget: 15000,
-      spent: 8420,
-      clicks: 2341,
-      impressions: 89560,
-      ctr: 2.61,
-      cpc: 3.59,
-      conversions: 87
-    },
-    {
-      name: 'Retargeting Ortodontistas',
-      status: 'Ativa',
-      budget: 5000,
-      spent: 3240,
-      clicks: 892,
-      impressions: 45230,
-      ctr: 1.97,
-      cpc: 3.63,
-      conversions: 23
-    },
-    {
-      name: 'Brand Awareness',
-      status: 'Pausada',
-      budget: 8000,
-      spent: 8000,
-      clicks: 1560,
-      impressions: 125680,
-      ctr: 1.24,
-      cpc: 5.13,
-      conversions: 41
-    }
-  ]
-}
-
 export default function MarketingDashboard() {
   const [dateRange, setDateRange] = useState("30d")
   const [refreshing, setRefreshing] = useState(false)
@@ -128,8 +49,8 @@ export default function MarketingDashboard() {
   // const { data: campaignPerformance } = useCampaignPerformance()
   // const { data: leadSourceAnalysis } = useLeadSourceAnalysis(dateRange)
 
-  // Usar dados reais se disponíveis, senão usar fallback
-  const metrics = marketingData?.data || fallbackMetrics
+  // Usar apenas dados reais da API
+  const metrics = marketingData?.data
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -142,7 +63,7 @@ export default function MarketingDashboard() {
     } catch {
       toast({
         title: "Erro ao atualizar",
-        description: "Não foi possível atualizar os dados. Usando dados de exemplo.",
+        description: "Não foi possível atualizar os dados. Verifique a conexão com a API.",
         variant: "destructive"
       })
     } finally {
@@ -151,12 +72,42 @@ export default function MarketingDashboard() {
   }
 
   // Loading state
-  if (marketingLoading && !metrics) {
+  if (marketingLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
           <p className="text-gray-600">Carregando métricas de marketing...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // No data state
+  if (!metrics) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Marketing Dashboard</h1>
+            <p className="text-gray-600 mt-2">Análise completa de performance de marketing digital</p>
+          </div>
+          <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Tentando...' : 'Tentar Novamente'}
+          </Button>
+        </div>
+
+        <div className="flex flex-col items-center justify-center min-h-[400px] bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+          <AlertCircle className="h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum dado disponível</h3>
+          <p className="text-gray-600 text-center max-w-md mb-4">
+            Não foi possível carregar as métricas de marketing. Verifique se as APIs estão configuradas corretamente.
+          </p>
+          <Button onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Carregando...' : 'Recarregar Dados'}
+          </Button>
         </div>
       </div>
     )
@@ -200,9 +151,9 @@ export default function MarketingDashboard() {
         </div>
         <div className="flex gap-3">
           {marketingError && (
-            <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-2 rounded-lg">
+            <div className="flex items-center gap-2 text-red-600 bg-red-50 px-3 py-2 rounded-lg">
               <AlertCircle className="h-4 w-4" />
-              <span className="text-sm">Usando dados simulados</span>
+              <span className="text-sm">Erro ao carregar dados</span>
             </div>
           )}
           <Select value={dateRange} onValueChange={setDateRange}>
