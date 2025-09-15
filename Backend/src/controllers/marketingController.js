@@ -206,35 +206,14 @@ exports.getMarketingMetrics = async (req, res) => {
       getGrowthMetrics(startDate, endDate, range)
     ]);
 
-    // Simular dados de fontes de tráfego (em produção viria do Google Analytics)
-    const trafficSources = [
-      { name: 'Orgânico', visits: Math.floor(patientMetrics.totalLeads * 0.4), percentage: 40, growth: 8.7 },
-      { name: 'Google Ads', visits: Math.floor(patientMetrics.totalLeads * 0.3), percentage: 30, growth: 15.2 },
-      { name: 'Facebook', visits: Math.floor(patientMetrics.totalLeads * 0.2), percentage: 20, growth: -5.3 },
-      { name: 'Direto', visits: Math.floor(patientMetrics.totalLeads * 0.1), percentage: 10, growth: 3.4 }
-    ];
+    // Dados reais de fontes de tráfego (placeholders para integrações futuras)
+    const trafficSources = [];
 
-    // Simular dados de dispositivos
-    const deviceData = [
-      { name: 'Mobile', visitors: Math.floor(patientMetrics.totalLeads * 0.6), percentage: 60 },
-      { name: 'Desktop', visitors: Math.floor(patientMetrics.totalLeads * 0.3), percentage: 30 },
-      { name: 'Tablet', visitors: Math.floor(patientMetrics.totalLeads * 0.1), percentage: 10 }
-    ];
+    // Dados reais de dispositivos (placeholders para integrações futuras)
+    const deviceData = [];
 
-    // Simular campanhas (em produção viria de APIs de anúncios)
-    const campaigns = [
-      {
-        name: 'Ortodontia Digital',
-        status: 'Ativa',
-        budget: 5000,
-        spent: Math.floor(Math.random() * 4000 + 1000),
-        clicks: Math.floor(Math.random() * 1000 + 200),
-        impressions: Math.floor(Math.random() * 50000 + 10000),
-        ctr: (Math.random() * 3 + 1).toFixed(2),
-        cpc: (Math.random() * 5 + 2).toFixed(2),
-        conversions: Math.floor(Math.random() * 50 + 10)
-      }
-    ];
+    // Campanhas reais (placeholders para integrações futuras)
+    const campaigns = [];
 
     const response = {
       success: true,
@@ -263,10 +242,7 @@ exports.getMarketingMetrics = async (req, res) => {
           avgSessionDuration: googleAnalytics.avgSessionDuration,
           pagesPerSession: googleAnalytics.pagesPerSession,
           bounceRate: googleAnalytics.bounceRate,
-          socialMedia: [
-            { platform: 'Facebook', followers: 12500, engagement: 3.2 },
-            { platform: 'Instagram', followers: 8900, engagement: 5.7 }
-          ]
+          socialMedia: []
         }
       },
       timestamp: new Date().toISOString()

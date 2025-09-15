@@ -228,25 +228,33 @@ export default function MarketingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {metrics.traffic.sources.map((source, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium">{source.name}</span>
-                          <span className="text-sm text-gray-500">{source.visits.toLocaleString()}</span>
+                  {metrics.traffic.sources.length > 0 ? (
+                    metrics.traffic.sources.map((source, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium">{source.name}</span>
+                            <span className="text-sm text-gray-500">{source.visits.toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full"
+                              style={{ width: `${source.percentage}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-blue-600 h-2 rounded-full"
-                            style={{ width: `${source.percentage}%` }}
-                          />
-                        </div>
+                        <span className={`text-xs ml-3 ${source.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {source.growth >= 0 ? '+' : ''}{source.growth}%
+                        </span>
                       </div>
-                      <span className={`text-xs ml-3 ${source.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {source.growth >= 0 ? '+' : ''}{source.growth}%
-                      </span>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Globe className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm">Google Analytics não configurado</p>
+                      <p className="text-xs">Configure as integrações para ver dados de tráfego</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -261,20 +269,28 @@ export default function MarketingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {metrics.traffic.devices.map((device, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {device.name === 'Mobile' && <Smartphone className="h-4 w-4 text-blue-600" />}
-                        {device.name === 'Desktop' && <Monitor className="h-4 w-4 text-blue-600" />}
-                        {device.name === 'Tablet' && <Monitor className="h-4 w-4 text-blue-600" />}
-                        <span className="text-sm font-medium">{device.name}</span>
+                  {metrics.traffic.devices.length > 0 ? (
+                    metrics.traffic.devices.map((device, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {device.name === 'Mobile' && <Smartphone className="h-4 w-4 text-blue-600" />}
+                          {device.name === 'Desktop' && <Monitor className="h-4 w-4 text-blue-600" />}
+                          {device.name === 'Tablet' && <Monitor className="h-4 w-4 text-blue-600" />}
+                          <span className="text-sm font-medium">{device.name}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold">{device.visitors.toLocaleString()}</div>
+                          <div className="text-xs text-gray-500">{device.percentage}%</div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-sm font-semibold">{device.visitors.toLocaleString()}</div>
-                        <div className="text-xs text-gray-500">{device.percentage}%</div>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Monitor className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm">Dados de dispositivos não disponíveis</p>
+                      <p className="text-xs">Configure Google Analytics para ver dados de dispositivos</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -355,47 +371,60 @@ export default function MarketingDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {metrics.campaigns.map((campaign, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h3 className="font-semibold">{campaign.name}</h3>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          campaign.status === 'Ativa' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {campaign.status}
-                        </span>
+                {metrics.campaigns.length > 0 ? (
+                  metrics.campaigns.map((campaign, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold">{campaign.name}</h3>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            campaign.status === 'Ativa' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {campaign.status}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold">R$ {campaign.spent.toLocaleString()}</div>
+                          <div className="text-sm text-gray-500">de R$ {campaign.budget.toLocaleString()}</div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold">R$ {campaign.spent.toLocaleString()}</div>
-                        <div className="text-sm text-gray-500">de R$ {campaign.budget.toLocaleString()}</div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+                        <div>
+                          <div className="text-lg font-semibold">{campaign.impressions.toLocaleString()}</div>
+                          <div className="text-xs text-gray-500">Impressões</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-semibold">{campaign.clicks.toLocaleString()}</div>
+                          <div className="text-xs text-gray-500">Cliques</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-semibold">{campaign.ctr}%</div>
+                          <div className="text-xs text-gray-500">CTR</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-semibold">R$ {campaign.cpc}</div>
+                          <div className="text-xs text-gray-500">CPC</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-semibold text-green-600">{campaign.conversions}</div>
+                          <div className="text-xs text-gray-500">Conversões</div>
+                        </div>
                       </div>
                     </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-                      <div>
-                        <div className="text-lg font-semibold">{campaign.impressions.toLocaleString()}</div>
-                        <div className="text-xs text-gray-500">Impressões</div>
-                      </div>
-                      <div>
-                        <div className="text-lg font-semibold">{campaign.clicks.toLocaleString()}</div>
-                        <div className="text-xs text-gray-500">Cliques</div>
-                      </div>
-                      <div>
-                        <div className="text-lg font-semibold">{campaign.ctr}%</div>
-                        <div className="text-xs text-gray-500">CTR</div>
-                      </div>
-                      <div>
-                        <div className="text-lg font-semibold">R$ {campaign.cpc}</div>
-                        <div className="text-xs text-gray-500">CPC</div>
-                      </div>
-                      <div>
-                        <div className="text-lg font-semibold text-green-600">{campaign.conversions}</div>
-                        <div className="text-xs text-gray-500">Conversões</div>
-                      </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12 text-gray-500">
+                    <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Nenhuma campanha ativa</h3>
+                    <p className="text-sm mb-2">Configure suas integrações para ver campanhas:</p>
+                    <div className="text-xs space-y-1">
+                      <p>• Google Ads</p>
+                      <p>• Facebook Ads</p>
+                      <p>• LinkedIn Ads</p>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -413,20 +442,30 @@ export default function MarketingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">2:34</div>
-                      <div className="text-sm text-gray-600">Tempo Médio</div>
+                  {metrics.analytics.avgSessionDuration || metrics.analytics.pagesPerSession || metrics.analytics.bounceRate ? (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center p-3 bg-blue-50 rounded-lg">
+                          <div className="text-2xl font-bold text-blue-600">{metrics.analytics.avgSessionDuration || '0:00'}</div>
+                          <div className="text-sm text-gray-600">Tempo Médio</div>
+                        </div>
+                        <div className="text-center p-3 bg-green-50 rounded-lg">
+                          <div className="text-2xl font-bold text-green-600">{metrics.analytics.pagesPerSession || '0'}</div>
+                          <div className="text-sm text-gray-600">Páginas/Sessão</div>
+                        </div>
+                      </div>
+                      <div className="text-center p-3 bg-red-50 rounded-lg">
+                        <div className="text-2xl font-bold text-red-600">{metrics.analytics.bounceRate || '0'}%</div>
+                        <div className="text-sm text-gray-600">Taxa de Rejeição</div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Eye className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm">Google Analytics não configurado</p>
+                      <p className="text-xs">Configure Google Analytics para ver métricas de comportamento</p>
                     </div>
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">3.2</div>
-                      <div className="text-sm text-gray-600">Páginas/Sessão</div>
-                    </div>
-                  </div>
-                  <div className="text-center p-3 bg-red-50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">42%</div>
-                    <div className="text-sm text-gray-600">Taxa de Rejeição</div>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -441,27 +480,31 @@ export default function MarketingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <div>
-                      <div className="font-semibold">Facebook</div>
-                      <div className="text-sm text-gray-600">12.5K seguidores</div>
+                  {metrics.analytics.socialMedia.length > 0 ? (
+                    metrics.analytics.socialMedia.map((social, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                        <div>
+                          <div className="font-semibold">{social.platform}</div>
+                          <div className="text-sm text-gray-600">{social.followers?.toLocaleString()} seguidores</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-blue-600">{social.engagement}%</div>
+                          <div className="text-xs text-gray-500">Engagement</div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Share2 className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm">Redes sociais não configuradas</p>
+                      <p className="text-xs">Configure as integrações para ver métricas sociais:</p>
+                      <div className="text-xs mt-2 space-y-1">
+                        <p>• Facebook Business</p>
+                        <p>• Instagram Business</p>
+                        <p>• LinkedIn Company</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-blue-600">3.2%</div>
-                      <div className="text-xs text-gray-500">Engagement</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-pink-50 rounded-lg">
-                    <div>
-                      <div className="font-semibold">Instagram</div>
-                      <div className="text-sm text-gray-600">8.9K seguidores</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-pink-600">5.7%</div>
-                      <div className="text-xs text-gray-500">Engagement</div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
