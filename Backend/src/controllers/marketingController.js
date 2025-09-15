@@ -41,7 +41,7 @@ const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
     const [gaSettings] = await pool.execute(`
       SELECT setting_key, setting_value
       FROM system_settings
-      WHERE setting_key IN ('ga_measurement_id', 'ga_tracking_id', 'ga_api_secret', 'integration_google_analytics')
+      WHERE setting_key IN ('ga_measurement_id', 'ga_api_secret', 'integration_google_analytics')
     `);
 
     const settings = {};
@@ -92,14 +92,15 @@ const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
     };
 
   } catch (error) {
-    logger.error('Erro ao verificar configurações do Google Analytics:', error);
+    logger.error('Erro ao verificar configurações do Google Analytics:', error.message);
+    logger.error('Stack trace:', error.stack);
     return {
       totalVisits: 0,
       bounceRate: 0,
       avgSessionDuration: '0:00',
       pagesPerSession: 0,
       configured: false,
-      error: 'Erro ao verificar configurações'
+      error: `Erro ao verificar configurações: ${error.message}`
     };
   }
 };
