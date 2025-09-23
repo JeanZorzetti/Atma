@@ -65,7 +65,8 @@
       "Bash(robocopy:*)",
       "Bash(xcopy:*)",
       "Bash(copy:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "WebFetch(domain:atma.roilabs.com.br)"
     ],
     "deny": [],
     "ask": []
