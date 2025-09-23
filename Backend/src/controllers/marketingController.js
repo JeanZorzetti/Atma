@@ -1,5 +1,6 @@
 const { logger } = require('../utils/logger');
 const { getDB } = require('../config/database');
+const { BetaAnalyticsDataClient } = require('@google-analytics/data');
 
 /**
  * Controller para métricas de marketing
@@ -34,10 +35,10 @@ const getDateRange = (range) => {
   };
 };
 
-// Função para buscar métricas do Google Analytics (simulado)
+// Função para buscar métricas reais do Google Analytics Data API
 const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
   try {
-    // Verificar se o Google Analytics está configurado
+    // Verificar configurações no banco
     const pool = getDB();
     if (!pool) {
       throw new Error('Database connection not available');
@@ -46,7 +47,7 @@ const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
     const [gaSettings] = await pool.execute(`
       SELECT setting_key, setting_value
       FROM system_settings
-      WHERE setting_key IN ('ga_measurement_id', 'ga_api_secret', 'integration_google_analytics')
+      WHERE setting_key IN ('ga_property_id', 'ga_service_account_key', 'integration_google_analytics')
     `);
 
     const settings = {};
@@ -55,17 +56,33 @@ const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
     });
 
     const isGAEnabled = settings.integration_google_analytics === 'true';
-    const hasMeasurementId = settings.ga_measurement_id && settings.ga_measurement_id.trim() !== '';
-    const hasApiSecret = settings.ga_api_secret && settings.ga_api_secret.trim() !== '';
+    const hasPropertyId = settings.ga_property_id && settings.ga_property_id.trim() !== '';
+    const hasServiceAccount = settings.ga_service_account_key && settings.ga_service_account_key.trim() !== '';
 
-    logger.info(`🔍 Google Analytics Status:`, {
+    logger.info(`🔍 Google Analytics Data API Status:`, {
       enabled: isGAEnabled,
-      measurementId: hasMeasurementId ? `${settings.ga_measurement_id?.substring(0, 8)}...` : 'Não configurado',
-      apiSecret: hasApiSecret ? 'Configurado' : 'Não configurado',
-      fullyConfigured: isGAEnabled && hasMeasurementId && hasApiSecret
+      propertyId: hasPropertyId ? `${settings.ga_property_id?.substring(0, 8)}...` : 'Não configurado',
+      serviceAccount: hasServiceAccount ? 'Configurado' : 'Não configurado',
+      fullyConfigured: isGAEnabled && hasPropertyId && hasServiceAccount
     });
 
-    if (!isGAEnabled || !hasMeasurementId || !hasApiSecret) {
+    if (!isGAEnabled) {
+      return {
+        totalVisits: 0,
+        bounceRate: 0,
+        avgSessionDuration: '0:00',
+        pagesPerSession: 0,
+        configured: false,
+        configStatus: {
+          enabled: false,
+          propertyId: hasPropertyId,
+          serviceAccount: hasServiceAccount,
+          message: 'Integração Google Analytics não está ativada'
+        }
+      };
+    }
+
+    if (!hasPropertyId || !hasServiceAccount) {
       return {
         totalVisits: 0,
         bounceRate: 0,
@@ -74,27 +91,114 @@ const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
         configured: false,
         configStatus: {
           enabled: isGAEnabled,
-          measurementId: hasMeasurementId,
-          apiSecret: hasApiSecret
+          propertyId: hasPropertyId,
+          serviceAccount: hasServiceAccount,
+          message: 'Configuração incompleta - falta Property ID ou Service Account'
         }
       };
     }
 
-    // TODO: Implementar integração real com Google Analytics API
-    // Para agora, retornar dados que indicam que está configurado mas ainda sem implementação
-    return {
-      totalVisits: 0,
-      bounceRate: 0,
-      avgSessionDuration: '0:00',
-      pagesPerSession: 0,
-      configured: true,
-      configStatus: {
-        enabled: true,
-        measurementId: true,
-        apiSecret: true,
-        note: 'Configurado - Implementação da API em desenvolvimento'
+    // Tentar buscar dados reais do Google Analytics
+    try {
+      // Parse do Service Account JSON
+      const serviceAccountKey = JSON.parse(settings.ga_service_account_key);
+
+      // Criar cliente com credenciais
+      const analyticsDataClient = new BetaAnalyticsDataClient({
+        credentials: serviceAccountKey,
+        projectId: serviceAccountKey.project_id
+      });
+
+      const propertyId = settings.ga_property_id;
+
+      // Formatar datas para GA4
+      const formatDate = (date) => {
+        const d = new Date(date);
+        return d.toISOString().split('T')[0]; // YYYY-MM-DD
+      };
+
+      // Buscar métricas básicas
+      const [response] = await analyticsDataClient.runReport({
+        property: `properties/${propertyId}`,
+        dateRanges: [
+          {
+            startDate: formatDate(startDate),
+            endDate: formatDate(endDate),
+          },
+        ],
+        metrics: [
+          { name: 'sessions' },
+          { name: 'screenPageViews' },
+          { name: 'averageSessionDuration' },
+          { name: 'bounceRate' },
+          { name: 'engagementRate' }
+        ],
+      });
+
+      // Processar dados
+      const defaultMetrics = {
+        sessions: 0,
+        screenPageViews: 0,
+        averageSessionDuration: 0,
+        bounceRate: 0,
+        engagementRate: 0
+      };
+
+      if (response.rows && response.rows.length > 0) {
+        const metrics = response.rows[0].metricValues;
+        defaultMetrics.sessions = parseInt(metrics[0]?.value || '0');
+        defaultMetrics.screenPageViews = parseInt(metrics[1]?.value || '0');
+        defaultMetrics.averageSessionDuration = parseFloat(metrics[2]?.value || '0');
+        defaultMetrics.bounceRate = parseFloat(metrics[3]?.value || '0') * 100; // GA4 retorna como decimal
+        defaultMetrics.engagementRate = parseFloat(metrics[4]?.value || '0') * 100;
       }
-    };
+
+      // Converter duração média para formato legível
+      const formatDuration = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+      };
+
+      logger.info(`✅ Dados reais obtidos do Google Analytics:`, {
+        sessions: defaultMetrics.sessions,
+        pageViews: defaultMetrics.screenPageViews,
+        bounceRate: defaultMetrics.bounceRate.toFixed(1) + '%'
+      });
+
+      return {
+        totalVisits: defaultMetrics.sessions,
+        bounceRate: defaultMetrics.bounceRate.toFixed(1),
+        avgSessionDuration: formatDuration(defaultMetrics.averageSessionDuration),
+        pagesPerSession: defaultMetrics.sessions > 0 ? (defaultMetrics.screenPageViews / defaultMetrics.sessions).toFixed(1) : 0,
+        configured: true,
+        configStatus: {
+          enabled: true,
+          propertyId: true,
+          serviceAccount: true,
+          message: 'Dados reais obtidos do Google Analytics',
+          dataSource: 'Google Analytics Data API'
+        }
+      };
+
+    } catch (apiError) {
+      logger.error('Erro ao buscar dados da API do Google Analytics:', apiError.message);
+
+      return {
+        totalVisits: 0,
+        bounceRate: 0,
+        avgSessionDuration: '0:00',
+        pagesPerSession: 0,
+        configured: false,
+        configStatus: {
+          enabled: isGAEnabled,
+          propertyId: hasPropertyId,
+          serviceAccount: hasServiceAccount,
+          error: `Erro da API: ${apiError.message}`,
+          message: 'Configurado mas falha ao obter dados'
+        }
+      };
+    }
 
   } catch (error) {
     logger.error('Erro ao verificar configurações do Google Analytics:', error.message);

@@ -302,8 +302,13 @@ export interface MarketingMetricsResponse {
       configured?: boolean
       configStatus?: {
         enabled: boolean
-        measurementId: boolean
-        apiSecret: boolean
+        propertyId?: boolean
+        serviceAccount?: boolean
+        measurementId?: boolean
+        apiSecret?: boolean
+        message?: string
+        dataSource?: string
+        error?: string
         note?: string
       }
       error?: string

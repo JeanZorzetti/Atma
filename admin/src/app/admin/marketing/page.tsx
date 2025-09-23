@@ -475,12 +475,36 @@ export default function MarketingDashboard() {
                           <p className={metrics.analytics.configStatus.enabled ? 'text-green-600' : 'text-red-600'}>
                             {metrics.analytics.configStatus.enabled ? '✓' : '✗'} Integração ativada
                           </p>
-                          <p className={metrics.analytics.configStatus.measurementId ? 'text-green-600' : 'text-red-600'}>
-                            {metrics.analytics.configStatus.measurementId ? '✓' : '✗'} Measurement ID configurado
-                          </p>
-                          <p className={metrics.analytics.configStatus.apiSecret ? 'text-green-600' : 'text-red-600'}>
-                            {metrics.analytics.configStatus.apiSecret ? '✓' : '✗'} API Secret configurado
-                          </p>
+                          {metrics.analytics.configStatus.propertyId !== undefined && (
+                            <p className={metrics.analytics.configStatus.propertyId ? 'text-green-600' : 'text-red-600'}>
+                              {metrics.analytics.configStatus.propertyId ? '✓' : '✗'} Property ID configurado
+                            </p>
+                          )}
+                          {metrics.analytics.configStatus.serviceAccount !== undefined && (
+                            <p className={metrics.analytics.configStatus.serviceAccount ? 'text-green-600' : 'text-red-600'}>
+                              {metrics.analytics.configStatus.serviceAccount ? '✓' : '✗'} Service Account configurado
+                            </p>
+                          )}
+                          {metrics.analytics.configStatus.measurementId !== undefined && (
+                            <p className={metrics.analytics.configStatus.measurementId ? 'text-green-600' : 'text-red-600'}>
+                              {metrics.analytics.configStatus.measurementId ? '✓' : '✗'} Measurement ID configurado
+                            </p>
+                          )}
+                          {metrics.analytics.configStatus.apiSecret !== undefined && (
+                            <p className={metrics.analytics.configStatus.apiSecret ? 'text-green-600' : 'text-red-600'}>
+                              {metrics.analytics.configStatus.apiSecret ? '✓' : '✗'} API Secret configurado
+                            </p>
+                          )}
+                          {metrics.analytics.configStatus.message && (
+                            <p className="text-blue-600 font-medium mt-2">
+                              ℹ️ {metrics.analytics.configStatus.message}
+                            </p>
+                          )}
+                          {metrics.analytics.configStatus.error && (
+                            <p className="text-red-600 font-medium mt-2">
+                              ⚠️ {metrics.analytics.configStatus.error}
+                            </p>
+                          )}
                         </div>
                       )}
                       <p className="text-xs mt-3 text-blue-600">
