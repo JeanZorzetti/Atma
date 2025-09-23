@@ -57,7 +57,15 @@
       "Bash(where mysql mysqld)",
       "Bash(net start:*)",
       "Bash(set PORT=3002)",
-      "Bash(set PORT=3003)"
+      "Bash(set PORT=3003)",
+      "Bash(netstat:*)",
+      "Bash(del nul)",
+      "Bash(echo \"-- MIGRAÇÃO PARA PRODUÇÃO --\n-- Execute este comando no seu banco de produção:\n\nALTER TABLE patient_leads \nMODIFY COLUMN status ENUM(''novo'', ''contatado'', ''agendado'', ''convertido'', ''cancelado'', ''excluido'') DEFAULT ''novo'';\n\n-- Para verificar se deu certo:\nDESCRIBE patient_leads;\")",
+      "Bash(set PORT=3004)",
+      "Bash(robocopy:*)",
+      "Bash(xcopy:*)",
+      "Bash(copy:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
