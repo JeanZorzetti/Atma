@@ -994,17 +994,17 @@ const getCrmActivities = async (req, res, next) => {
     const offsetNum = Math.max(0, parseInt(offset) || 0);
 
     const query = `
-      SELECT 
+      SELECT
         a.*,
         l.nome as lead_nome,
         l.clinica as lead_clinica
       FROM crm_activities a
       LEFT JOIN crm_leads l ON a.crm_lead_id = l.id
       ORDER BY a.created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${limitNum} OFFSET ${offsetNum}
     `;
 
-    const activities = await executeQuery(query, [limitNum, offsetNum]);
+    const activities = await executeQuery(query);
 
     // Contar total para paginação
     const countQuery = 'SELECT COUNT(*) as total FROM crm_activities';

@@ -127,30 +127,144 @@ const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
           },
         ],
         metrics: [
+          // Traffic Metrics
           { name: 'sessions' },
           { name: 'screenPageViews' },
+          { name: 'totalUsers' },
+          { name: 'activeUsers' },
+          { name: 'newUsers' },
+
+          // Engagement Metrics
+          { name: 'engagementRate' },
           { name: 'averageSessionDuration' },
           { name: 'bounceRate' },
-          { name: 'engagementRate' }
+          { name: 'userEngagementDuration' },
+          { name: 'sessionsPerUser' },
+          { name: 'eventCount' },
+
+          // Conversion Metrics
+          { name: 'conversions' },
+          { name: 'sessionConversionRate' },
+
+          // E-commerce Metrics (if applicable)
+          { name: 'totalRevenue' },
+          { name: 'averageRevenuePerUser' },
+          { name: 'firstTimePurchasers' }
         ],
+        dimensions: [
+          { name: 'country' },
+          { name: 'deviceCategory' },
+          { name: 'sessionSource' },
+          { name: 'sessionMedium' }
+        ]
       });
 
-      // Processar dados
+      // Processar dados expandidos
       const defaultMetrics = {
+        // Traffic Metrics
         sessions: 0,
         screenPageViews: 0,
+        totalUsers: 0,
+        activeUsers: 0,
+        newUsers: 0,
+
+        // Engagement Metrics
+        engagementRate: 0,
         averageSessionDuration: 0,
         bounceRate: 0,
-        engagementRate: 0
+        userEngagementDuration: 0,
+        sessionsPerUser: 0,
+        eventCount: 0,
+
+        // Conversion Metrics
+        conversions: 0,
+        sessionConversionRate: 0,
+
+        // E-commerce Metrics
+        totalRevenue: 0,
+        averageRevenuePerUser: 0,
+        firstTimePurchasers: 0
       };
 
+      let countryData = [];
+      let deviceData = [];
+      let sourceData = [];
+
       if (response.rows && response.rows.length > 0) {
-        const metrics = response.rows[0].metricValues;
-        defaultMetrics.sessions = parseInt(metrics[0]?.value || '0');
-        defaultMetrics.screenPageViews = parseInt(metrics[1]?.value || '0');
-        defaultMetrics.averageSessionDuration = parseFloat(metrics[2]?.value || '0');
-        defaultMetrics.bounceRate = parseFloat(metrics[3]?.value || '0') * 100; // GA4 retorna como decimal
-        defaultMetrics.engagementRate = parseFloat(metrics[4]?.value || '0') * 100;
+        // Aggregate metrics from all rows
+        let totalSessions = 0;
+        let totalPageViews = 0;
+        let totalUsers = 0;
+        let totalActiveUsers = 0;
+        let totalNewUsers = 0;
+        let totalEngagementRate = 0;
+        let totalSessionDuration = 0;
+        let totalBounceRate = 0;
+        let totalUserEngagement = 0;
+        let totalSessionsPerUser = 0;
+        let totalEventCount = 0;
+        let totalConversions = 0;
+        let totalSessionConversionRate = 0;
+        let totalRevenue = 0;
+        let totalARPU = 0;
+        let totalFirstTimePurchasers = 0;
+
+        response.rows.forEach(row => {
+          const metrics = row.metricValues;
+          const dimensions = row.dimensionValues;
+
+          // Aggregate totals
+          totalSessions += parseInt(metrics[0]?.value || '0');
+          totalPageViews += parseInt(metrics[1]?.value || '0');
+          totalUsers += parseInt(metrics[2]?.value || '0');
+          totalActiveUsers += parseInt(metrics[3]?.value || '0');
+          totalNewUsers += parseInt(metrics[4]?.value || '0');
+          totalEngagementRate += parseFloat(metrics[5]?.value || '0');
+          totalSessionDuration += parseFloat(metrics[6]?.value || '0');
+          totalBounceRate += parseFloat(metrics[7]?.value || '0');
+          totalUserEngagement += parseFloat(metrics[8]?.value || '0');
+          totalSessionsPerUser += parseFloat(metrics[9]?.value || '0');
+          totalEventCount += parseInt(metrics[10]?.value || '0');
+          totalConversions += parseInt(metrics[11]?.value || '0');
+          totalSessionConversionRate += parseFloat(metrics[12]?.value || '0');
+          totalRevenue += parseFloat(metrics[13]?.value || '0');
+          totalARPU += parseFloat(metrics[14]?.value || '0');
+          totalFirstTimePurchasers += parseInt(metrics[15]?.value || '0');
+
+          // Collect dimension data
+          if (dimensions[0]) {
+            countryData.push({ country: dimensions[0].value, sessions: parseInt(metrics[0]?.value || '0') });
+          }
+          if (dimensions[1]) {
+            deviceData.push({ device: dimensions[1].value, sessions: parseInt(metrics[0]?.value || '0') });
+          }
+          if (dimensions[2] && dimensions[3]) {
+            sourceData.push({
+              source: dimensions[2].value,
+              medium: dimensions[3].value,
+              sessions: parseInt(metrics[0]?.value || '0')
+            });
+          }
+        });
+
+        // Calculate averages
+        const rowCount = response.rows.length;
+        defaultMetrics.sessions = totalSessions;
+        defaultMetrics.screenPageViews = totalPageViews;
+        defaultMetrics.totalUsers = totalUsers;
+        defaultMetrics.activeUsers = totalActiveUsers;
+        defaultMetrics.newUsers = totalNewUsers;
+        defaultMetrics.engagementRate = totalEngagementRate / rowCount * 100;
+        defaultMetrics.averageSessionDuration = totalSessionDuration / rowCount;
+        defaultMetrics.bounceRate = totalBounceRate / rowCount * 100;
+        defaultMetrics.userEngagementDuration = totalUserEngagement / rowCount;
+        defaultMetrics.sessionsPerUser = totalSessionsPerUser / rowCount;
+        defaultMetrics.eventCount = totalEventCount;
+        defaultMetrics.conversions = totalConversions;
+        defaultMetrics.sessionConversionRate = totalSessionConversionRate / rowCount * 100;
+        defaultMetrics.totalRevenue = totalRevenue;
+        defaultMetrics.averageRevenuePerUser = totalARPU / rowCount;
+        defaultMetrics.firstTimePurchasers = totalFirstTimePurchasers;
       }
 
       // Converter duração média para formato legível
@@ -167,17 +281,53 @@ const getGoogleAnalyticsMetrics = async (startDate, endDate) => {
       });
 
       return {
+        // Métricas básicas (compatibilidade)
         totalVisits: defaultMetrics.sessions,
         bounceRate: defaultMetrics.bounceRate.toFixed(1),
         avgSessionDuration: formatDuration(defaultMetrics.averageSessionDuration),
         pagesPerSession: defaultMetrics.sessions > 0 ? (defaultMetrics.screenPageViews / defaultMetrics.sessions).toFixed(1) : 0,
+
+        // Novas métricas GA4 expandidas
+        metrics: {
+          // Traffic Metrics
+          sessions: defaultMetrics.sessions,
+          pageViews: defaultMetrics.screenPageViews,
+          totalUsers: defaultMetrics.totalUsers,
+          activeUsers: defaultMetrics.activeUsers,
+          newUsers: defaultMetrics.newUsers,
+
+          // Engagement Metrics
+          engagementRate: defaultMetrics.engagementRate.toFixed(1),
+          averageSessionDuration: formatDuration(defaultMetrics.averageSessionDuration),
+          bounceRate: defaultMetrics.bounceRate.toFixed(1),
+          userEngagementDuration: formatDuration(defaultMetrics.userEngagementDuration),
+          sessionsPerUser: defaultMetrics.sessionsPerUser.toFixed(2),
+          eventCount: defaultMetrics.eventCount,
+
+          // Conversion Metrics
+          conversions: defaultMetrics.conversions,
+          sessionConversionRate: defaultMetrics.sessionConversionRate.toFixed(2),
+
+          // E-commerce Metrics
+          totalRevenue: defaultMetrics.totalRevenue.toFixed(2),
+          averageRevenuePerUser: defaultMetrics.averageRevenuePerUser.toFixed(2),
+          firstTimePurchasers: defaultMetrics.firstTimePurchasers
+        },
+
+        // Demographic & Device Data
+        demographics: {
+          countries: countryData.slice(0, 10), // Top 10 countries
+          devices: deviceData,
+          sources: sourceData.slice(0, 10) // Top 10 sources
+        },
+
         configured: true,
         configStatus: {
           enabled: true,
           propertyId: true,
           serviceAccount: true,
           message: 'Dados reais obtidos do Google Analytics',
-          dataSource: 'Google Analytics Data API'
+          dataSource: 'Google Analytics Data API v4'
         }
       };
 

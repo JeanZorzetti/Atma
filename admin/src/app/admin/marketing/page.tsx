@@ -178,42 +178,75 @@ export default function MarketingDashboard() {
         </div>
       </div>
 
-      {/* Métricas Principais */}
+      {/* Métricas Principais - GA4 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          title="Visitantes Únicos"
-          value={metrics.overview.totalVisits}
-          change={metrics.overview.growth.visits}
+          title="Total de Sessões"
+          value={metrics.analytics?.metrics?.sessions || metrics.overview?.totalVisits || 0}
+          change={metrics.overview?.growth?.visits}
+          icon={Eye}
+        />
+        <MetricCard
+          title="Usuários Ativos"
+          value={metrics.analytics?.metrics?.activeUsers || 0}
           icon={Users}
         />
         <MetricCard
-          title="Taxa de Conversão"
-          value={metrics.overview.conversionRate}
-          change={metrics.overview.growth.conversion}
+          title="Taxa de Engajamento"
+          value={metrics.analytics?.metrics?.engagementRate || 0}
           icon={Target}
           suffix="%"
         />
         <MetricCard
-          title="Leads Gerados"
-          value={metrics.overview.leadGeneration}
-          change={metrics.overview.growth.leads}
-          icon={TrendingUp}
+          title="Novos Usuários"
+          value={metrics.analytics?.metrics?.newUsers || 0}
+          icon={Users}
+        />
+      </div>
+
+      {/* Métricas Detalhadas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <MetricCard
+          title="Visualizações de Página"
+          value={metrics.analytics?.metrics?.pageViews || 0}
+          icon={Eye}
         />
         <MetricCard
-          title="Receita Atribuída"
-          value={metrics.overview.revenue}
-          change={metrics.overview.growth.revenue}
+          title="Duração Média da Sessão"
+          value={metrics.analytics?.metrics?.averageSessionDuration || metrics.analytics?.avgSessionDuration || '0:00'}
+          icon={Activity}
+        />
+        <MetricCard
+          title="Taxa de Rejeição"
+          value={metrics.analytics?.metrics?.bounceRate || metrics.analytics?.bounceRate || 0}
+          icon={TrendingDown}
+          suffix="%"
+        />
+        <MetricCard
+          title="Sessões por Usuário"
+          value={metrics.analytics?.metrics?.sessionsPerUser || 0}
+          icon={Users}
+        />
+        <MetricCard
+          title="Conversões"
+          value={metrics.analytics?.metrics?.conversions || 0}
+          icon={Target}
+        />
+        <MetricCard
+          title="Receita Total"
+          value={parseFloat(metrics.analytics?.metrics?.totalRevenue || 0).toLocaleString('pt-BR')}
           icon={DollarSign}
           prefix="R$ "
         />
       </div>
 
       <Tabs defaultValue="traffic" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="traffic">Tráfego</TabsTrigger>
           <TabsTrigger value="leads">Leads</TabsTrigger>
           <TabsTrigger value="campaigns">Campanhas</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="ga4">GA4 Detalhado</TabsTrigger>
         </TabsList>
 
         <TabsContent value="traffic" className="space-y-4">
@@ -228,7 +261,24 @@ export default function MarketingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {metrics.traffic.sources.length > 0 ? (
+                  {metrics.analytics?.demographics?.sources?.length > 0 ? (
+                    metrics.analytics.demographics.sources.map((source, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium">{source.source} ({source.medium})</span>
+                            <span className="text-sm text-gray-500">{source.sessions.toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full"
+                              style={{ width: `${Math.min(100, (source.sessions / Math.max(...metrics.analytics.demographics.sources.map(s => s.sessions))) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : metrics.traffic?.sources?.length > 0 ? (
                     metrics.traffic.sources.map((source, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex-1">
@@ -269,7 +319,24 @@ export default function MarketingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {metrics.traffic.devices.length > 0 ? (
+                  {metrics.analytics?.demographics?.devices?.length > 0 ? (
+                    metrics.analytics.demographics.devices.map((device, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {device.device === 'mobile' && <Smartphone className="h-4 w-4 text-blue-600" />}
+                          {device.device === 'desktop' && <Monitor className="h-4 w-4 text-blue-600" />}
+                          {device.device === 'tablet' && <Monitor className="h-4 w-4 text-blue-600" />}
+                          <span className="text-sm font-medium capitalize">{device.device}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold">{device.sessions.toLocaleString()}</div>
+                          <div className="text-xs text-gray-500">
+                            {Math.round((device.sessions / metrics.analytics.metrics.sessions) * 100)}%
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : metrics.traffic?.devices?.length > 0 ? (
                     metrics.traffic.devices.map((device, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -560,6 +627,226 @@ export default function MarketingDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="ga4" className="space-y-4">
+          <div className="space-y-6">
+            {/* Métricas de Usuários */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Métricas de Usuários (GA4)
+                </CardTitle>
+                <CardDescription>Análise detalhada de usuários do Google Analytics 4</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-3xl font-bold text-blue-600">{metrics.analytics?.metrics?.totalUsers?.toLocaleString() || '0'}</div>
+                    <div className="text-sm text-gray-600">Total de Usuários</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-3xl font-bold text-green-600">{metrics.analytics?.metrics?.activeUsers?.toLocaleString() || '0'}</div>
+                    <div className="text-sm text-gray-600">Usuários Ativos</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-3xl font-bold text-purple-600">{metrics.analytics?.metrics?.newUsers?.toLocaleString() || '0'}</div>
+                    <div className="text-sm text-gray-600">Novos Usuários</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Métricas de Engajamento */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Métricas de Engajamento
+                </CardTitle>
+                <CardDescription>Como os usuários interagem com seu site</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">{metrics.analytics?.metrics?.engagementRate || '0'}%</div>
+                    <div className="text-sm text-gray-600">Taxa de Engajamento</div>
+                  </div>
+                  <div className="text-center p-4 bg-indigo-50 rounded-lg">
+                    <div className="text-2xl font-bold text-indigo-600">{metrics.analytics?.metrics?.averageSessionDuration || '0:00'}</div>
+                    <div className="text-sm text-gray-600">Duração Média da Sessão</div>
+                  </div>
+                  <div className="text-center p-4 bg-red-50 rounded-lg">
+                    <div className="text-2xl font-bold text-red-600">{metrics.analytics?.metrics?.bounceRate || '0'}%</div>
+                    <div className="text-sm text-gray-600">Taxa de Rejeição</div>
+                  </div>
+                  <div className="text-center p-4 bg-teal-50 rounded-lg">
+                    <div className="text-2xl font-bold text-teal-600">{metrics.analytics?.metrics?.sessionsPerUser || '0'}</div>
+                    <div className="text-sm text-gray-600">Sessões por Usuário</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Métricas de Conversão e E-commerce */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Conversões
+                  </CardTitle>
+                  <CardDescription>Métricas de conversão do site</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="text-center p-4 bg-emerald-50 rounded-lg">
+                      <div className="text-3xl font-bold text-emerald-600">{metrics.analytics?.metrics?.conversions?.toLocaleString() || '0'}</div>
+                      <div className="text-sm text-gray-600">Total de Conversões</div>
+                    </div>
+                    <div className="text-center p-4 bg-cyan-50 rounded-lg">
+                      <div className="text-3xl font-bold text-cyan-600">{metrics.analytics?.metrics?.sessionConversionRate || '0'}%</div>
+                      <div className="text-sm text-gray-600">Taxa de Conversão de Sessão</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5" />
+                    E-commerce
+                  </CardTitle>
+                  <CardDescription>Métricas de receita e vendas</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">R$ {metrics.analytics?.metrics?.totalRevenue || '0'}</div>
+                      <div className="text-sm text-gray-600">Receita Total</div>
+                    </div>
+                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                      <div className="text-2xl font-bold text-yellow-600">R$ {metrics.analytics?.metrics?.averageRevenuePerUser || '0'}</div>
+                      <div className="text-sm text-gray-600">Receita Média por Usuário</div>
+                    </div>
+                    <div className="text-center p-4 bg-pink-50 rounded-lg">
+                      <div className="text-2xl font-bold text-pink-600">{metrics.analytics?.metrics?.firstTimePurchasers?.toLocaleString() || '0'}</div>
+                      <div className="text-sm text-gray-600">Primeiros Compradores</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Dados Demográficos */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    Países (Top 10)
+                  </CardTitle>
+                  <CardDescription>Distribuição geográfica dos usuários</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {metrics.analytics?.demographics?.countries?.length > 0 ? (
+                      metrics.analytics.demographics.countries.map((country, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <span className="text-sm font-medium">{country.country}</span>
+                          <span className="text-sm text-gray-500">{country.sessions.toLocaleString()}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-gray-500">
+                        <Globe className="h-6 w-6 mx-auto mb-2 text-gray-400" />
+                        <p className="text-sm">Dados de países não disponíveis</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Monitor className="h-5 w-5" />
+                    Dispositivos
+                  </CardTitle>
+                  <CardDescription>Distribuição por tipo de dispositivo</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {metrics.analytics?.demographics?.devices?.length > 0 ? (
+                      metrics.analytics.demographics.devices.map((device, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {device.device === 'mobile' && <Smartphone className="h-4 w-4 text-blue-600" />}
+                            {device.device === 'desktop' && <Monitor className="h-4 w-4 text-blue-600" />}
+                            {device.device === 'tablet' && <Monitor className="h-4 w-4 text-blue-600" />}
+                            <span className="text-sm font-medium capitalize">{device.device}</span>
+                          </div>
+                          <span className="text-sm text-gray-500">{device.sessions.toLocaleString()}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-gray-500">
+                        <Monitor className="h-6 w-6 mx-auto mb-2 text-gray-400" />
+                        <p className="text-sm">Dados de dispositivos não disponíveis</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Status da Configuração */}
+            {metrics.analytics?.configStatus && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5" />
+                    Status da Configuração GA4
+                  </CardTitle>
+                  <CardDescription>Detalhes da integração com Google Analytics 4</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <p className={`text-sm ${metrics.analytics.configStatus.enabled ? 'text-green-600' : 'text-red-600'}`}>
+                        {metrics.analytics.configStatus.enabled ? '✓' : '✗'} Integração ativada
+                      </p>
+                      <p className={`text-sm ${metrics.analytics.configStatus.propertyId ? 'text-green-600' : 'text-red-600'}`}>
+                        {metrics.analytics.configStatus.propertyId ? '✓' : '✗'} Property ID configurado
+                      </p>
+                      <p className={`text-sm ${metrics.analytics.configStatus.serviceAccount ? 'text-green-600' : 'text-red-600'}`}>
+                        {metrics.analytics.configStatus.serviceAccount ? '✓' : '✗'} Service Account configurado
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      {metrics.analytics.configStatus.dataSource && (
+                        <p className="text-sm text-blue-600">
+                          📊 Fonte: {metrics.analytics.configStatus.dataSource}
+                        </p>
+                      )}
+                      {metrics.analytics.configStatus.message && (
+                        <p className="text-sm text-gray-600">
+                          ℹ️ {metrics.analytics.configStatus.message}
+                        </p>
+                      )}
+                      {metrics.analytics.configStatus.error && (
+                        <p className="text-sm text-red-600">
+                          ⚠️ {metrics.analytics.configStatus.error}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </TabsContent>
       </Tabs>
