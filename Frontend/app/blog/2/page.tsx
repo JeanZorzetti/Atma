@@ -313,7 +313,7 @@ export default function Tecnologia3DOrtodontia() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-purple-800 mb-2">Retrabalho:</h4>
-                    <p className="text-purple-700">15-20% → <3%</p>
+                    <p className="text-purple-700">15-20% → &lt;3%</p>
                   </div>
                 </div>
               </Card>
@@ -326,7 +326,7 @@ export default function Tecnologia3DOrtodontia() {
               </h2>
 
               <p className="text-gray-700 mb-6">
-                A tecnologia continua evoluindo rapidamente. As próximas inovações prometen
+                A tecnologia continua evoluindo rapidamente. As próximas inovações prometem
                 tornar os tratamentos ainda mais precisos, rápidos e personalizados.
               </p>
 
