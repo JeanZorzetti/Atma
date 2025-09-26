@@ -324,7 +324,7 @@ export default function VantagensFinanceiras() {
               <Link href="/ortodontistas/seja-parceiro">Quero Ser Parceiro</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/ortodontistas/nossos-modelos-de-parceria">Comparar Modelos</Link>
+              <Link href="/ortodontistas/comparar-modelos">Comparar Modelos</Link>
             </Button>
           </div>
         </div>
