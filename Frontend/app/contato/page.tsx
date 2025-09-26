@@ -101,8 +101,7 @@ export default function ContatoPage() {
                     </div>
                     <div>
                       <h3 className="font-heading font-semibold mb-2">E-mail</h3>
-                      <p className="text-muted-foreground">contato@atmaalign.com.br</p>
-                      <p className="text-muted-foreground">comercial@atmaalign.com.br</p>
+                      <p className="text-muted-foreground">atma.aligner@gmail.com</p>
                     </div>
                   </div>
                 </CardContent>
@@ -116,8 +115,7 @@ export default function ContatoPage() {
                     </div>
                     <div>
                       <h3 className="font-heading font-semibold mb-2">Telefone</h3>
-                      <p className="text-muted-foreground">(11) 9999-9999</p>
-                      <p className="text-muted-foreground">WhatsApp: (11) 8888-8888</p>
+                      <p className="text-muted-foreground">(47) 9200-0924</p>
                     </div>
                   </div>
                 </CardContent>
@@ -131,7 +129,7 @@ export default function ContatoPage() {
                     </div>
                     <div>
                       <h3 className="font-heading font-semibold mb-2">Endereço</h3>
-                      <p className="text-muted-foreground">São Paulo, SP</p>
+                      <p className="text-muted-foreground">Passo Fundo, RS</p>
                       <p className="text-muted-foreground">Brasil</p>
                     </div>
                   </div>
@@ -163,7 +161,7 @@ export default function ContatoPage() {
                 </h3>
                 <div className="space-y-3">
                   <Button asChild className="w-full" variant="outline">
-                    <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer">
+                    <a href="https://wa.me/554792000924" target="_blank" rel="noopener noreferrer">
                       Falar no WhatsApp
                     </a>
                   </Button>

@@ -54,7 +54,7 @@ export default function EncontreDoutor() {
               </div>
               <p className="text-sm text-muted-foreground">
                 Dúvidas? Entre em contato conosco: <br />
-                <strong>contato@atmaalign.com.br</strong> | <strong>(11) 9999-9999</strong>
+                <strong>atma.aligner@gmail.com</strong> | <strong>(47) 9200-0924</strong>
               </p>
             </CardContent>
           </Card>
@@ -219,11 +219,11 @@ export default function EncontreDoutor() {
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
                       <Phone className="h-5 w-5 text-primary" />
-                      <span className="text-sm">(11) 9999-9999</span>
+                      <span className="text-sm">(47) 9200-0924</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Mail className="h-5 w-5 text-primary" />
-                      <span className="text-sm">contato@atmaalign.com.br</span>
+                      <span className="text-sm">atma.aligner@gmail.com</span>
                     </div>
                     <div className="flex items-start space-x-3">
                       <MapPin className="h-5 w-5 text-primary mt-0.5" />
