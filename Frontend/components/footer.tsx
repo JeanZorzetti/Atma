@@ -112,14 +112,6 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/ortodontistas/recursos"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Recursos Clínicos
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/ortodontistas/seja-parceiro"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >

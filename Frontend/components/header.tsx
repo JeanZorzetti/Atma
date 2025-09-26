@@ -62,9 +62,6 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link href="/ortodontistas/vantagens">Vantagens Financeiras</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/ortodontistas/recursos">Recursos Clínicos</Link>
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
