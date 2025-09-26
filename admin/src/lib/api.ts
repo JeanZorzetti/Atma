@@ -317,6 +317,48 @@ export interface MarketingMetricsResponse {
         followers: number
         engagement: number
       }>
+      // Novas métricas GA4 expandidas
+      metrics?: {
+        // Traffic Metrics
+        sessions: number
+        pageViews: number
+        totalUsers: number
+        activeUsers: number
+        newUsers: number
+
+        // Engagement Metrics
+        engagementRate: string
+        averageSessionDuration: string
+        bounceRate: string
+        userEngagementDuration: string
+        sessionsPerUser: string
+        eventCount: number
+
+        // Conversion Metrics
+        conversions: number
+        sessionConversionRate: string
+
+        // E-commerce Metrics
+        totalRevenue: string
+        averageRevenuePerUser: string
+        firstTimePurchasers: number
+      }
+      // Demographic & Device Data
+      demographics?: {
+        countries: Array<{
+          country: string
+          sessions: number
+        }>
+        devices: Array<{
+          device: string
+          sessions: number
+        }>
+        sources: Array<{
+          source: string
+          medium: string
+          sessions: number
+        }>
+      }
     }
   }
   timestamp: string
