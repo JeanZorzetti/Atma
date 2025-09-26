@@ -135,15 +135,15 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-primary" />
-                <span className="text-muted-foreground">contato@atmaalign.com.br</span>
+                <span className="text-muted-foreground">atma.aligner@gmail.com</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-primary" />
-                <span className="text-muted-foreground">(11) 9999-9999</span>
+                <span className="text-muted-foreground">(47) 9200-0924</span>
               </li>
               <li className="flex items-start space-x-2">
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                <span className="text-muted-foreground">São Paulo, SP</span>
+                <span className="text-muted-foreground">Passo Fundo, RS</span>
               </li>
             </ul>
           </div>
