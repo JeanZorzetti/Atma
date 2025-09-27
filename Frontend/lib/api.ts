@@ -44,13 +44,13 @@ class ApiService {
 
   // Patient lead methods
   async createPatientLead(data: {
-    name: string
+    nome: string
     email: string
-    phone: string
-    message?: string
-    preferredRegion?: string
+    telefone: string
+    cep: string
+    consentimento: boolean
   }) {
-    return this.request('/patients/lead', {
+    return this.request('/patients/leads', {
       method: 'POST',
       body: JSON.stringify(data),
     })

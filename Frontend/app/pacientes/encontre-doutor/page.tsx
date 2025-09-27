@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { MapPin, Phone, Mail, CheckCircle } from "lucide-react"
+import { MapPin, Phone, Mail, CheckCircle, Loader2, AlertCircle } from "lucide-react"
+import { apiService } from "@/lib/api"
 
 export default function EncontreDoutor() {
   const [formData, setFormData] = useState({
@@ -19,12 +20,23 @@ export default function EncontreDoutor() {
     consentimento: false,
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Aqui seria implementada a lógica de envio do formulário
-    console.log("Formulário enviado:", formData)
-    setIsSubmitted(true)
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      await apiService.createPatientLead(formData)
+      setIsSubmitted(true)
+    } catch (error) {
+      console.error("Erro ao enviar formulário:", error)
+      setError("Ocorreu um erro ao enviar sua solicitação. Tente novamente.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -145,8 +157,27 @@ export default function EncontreDoutor() {
                     </Label>
                   </div>
 
-                  <Button type="submit" className="w-full" size="lg" disabled={!formData.consentimento}>
-                    Encontrar ortodontista
+                  {error && (
+                    <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="text-sm">{error}</span>
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    size="lg"
+                    disabled={!formData.consentimento || isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      'Encontrar ortodontista'
+                    )}
                   </Button>
                 </form>
               </CardContent>
