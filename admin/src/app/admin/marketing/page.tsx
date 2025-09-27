@@ -234,7 +234,7 @@ export default function MarketingDashboard() {
         />
         <MetricCard
           title="Receita Total"
-          value={parseFloat(metrics.analytics?.metrics?.totalRevenue || 0).toLocaleString('pt-BR')}
+          value={parseFloat(String(metrics.analytics?.metrics?.totalRevenue || 0)).toLocaleString('pt-BR')}
           icon={DollarSign}
           prefix="R$ "
         />
@@ -261,8 +261,8 @@ export default function MarketingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {metrics.analytics?.demographics?.sources?.length > 0 ? (
-                    metrics.analytics.demographics.sources.map((source, index) => (
+                  {(metrics.analytics?.demographics?.sources?.length || 0) > 0 ? (
+                    metrics.analytics?.demographics?.sources?.map((source, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-1">
@@ -272,7 +272,7 @@ export default function MarketingDashboard() {
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
                               className="bg-blue-600 h-2 rounded-full"
-                              style={{ width: `${Math.min(100, (source.sessions / Math.max(...metrics.analytics.demographics.sources.map(s => s.sessions))) * 100)}%` }}
+                              style={{ width: `${Math.min(100, (source.sessions / Math.max(...(metrics.analytics?.demographics?.sources?.map(s => s.sessions) || [1]))) * 100)}%` }}
                             />
                           </div>
                         </div>
@@ -319,8 +319,8 @@ export default function MarketingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {metrics.analytics?.demographics?.devices?.length > 0 ? (
-                    metrics.analytics.demographics.devices.map((device, index) => (
+                  {(metrics.analytics?.demographics?.devices?.length || 0) > 0 ? (
+                    metrics.analytics?.demographics?.devices?.map((device, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           {device.device === 'mobile' && <Smartphone className="h-4 w-4 text-blue-600" />}
@@ -331,13 +331,13 @@ export default function MarketingDashboard() {
                         <div className="text-right">
                           <div className="text-sm font-semibold">{device.sessions.toLocaleString()}</div>
                           <div className="text-xs text-gray-500">
-                            {Math.round((device.sessions / metrics.analytics.metrics.sessions) * 100)}%
+                            {Math.round((device.sessions / (metrics.analytics?.metrics?.sessions || 1)) * 100)}%
                           </div>
                         </div>
                       </div>
                     ))
-                  ) : metrics.traffic?.devices?.length > 0 ? (
-                    metrics.traffic.devices.map((device, index) => (
+                  ) : (metrics.traffic?.devices?.length || 0) > 0 ? (
+                    metrics.traffic?.devices?.map((device, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           {device.name === 'Mobile' && <Smartphone className="h-4 w-4 text-blue-600" />}
@@ -753,8 +753,8 @@ export default function MarketingDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {metrics.analytics?.demographics?.countries?.length > 0 ? (
-                      metrics.analytics.demographics.countries.map((country, index) => (
+                    {(metrics.analytics?.demographics?.countries?.length || 0) > 0 ? (
+                      metrics.analytics?.demographics?.countries?.map((country, index) => (
                         <div key={index} className="flex items-center justify-between">
                           <span className="text-sm font-medium">{country.country}</span>
                           <span className="text-sm text-gray-500">{country.sessions.toLocaleString()}</span>
@@ -780,8 +780,8 @@ export default function MarketingDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {metrics.analytics?.demographics?.devices?.length > 0 ? (
-                      metrics.analytics.demographics.devices.map((device, index) => (
+                    {(metrics.analytics?.demographics?.devices?.length || 0) > 0 ? (
+                      metrics.analytics?.demographics?.devices?.map((device, index) => (
                         <div key={index} className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             {device.device === 'mobile' && <Smartphone className="h-4 w-4 text-blue-600" />}
