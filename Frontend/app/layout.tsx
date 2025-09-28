@@ -5,6 +5,7 @@ import "./globals.css"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { StructuredData } from "@/components/structured-data"
+import { Breadcrumbs } from "@/components/breadcrumbs"
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -96,6 +97,21 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${roboto.variable} ${montserrat.variable}`}>
       <head>
+        {/* Preload critical resources */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://atmaapi.roilabs.com.br" />
+
+        {/* PWA Icons */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <meta name="theme-color" content="#7c3aed" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="mobile-web-app-capable" content="yes" />
+
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-EMCS41DMSP"></script>
         <script
           dangerouslySetInnerHTML={{
@@ -111,6 +127,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col">
         <Header />
+        <Breadcrumbs />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>
