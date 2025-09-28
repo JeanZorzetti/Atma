@@ -4,6 +4,7 @@ import { Roboto, Montserrat } from "next/font/google"
 import "./globals.css"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { StructuredData } from "@/components/structured-data"
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -20,11 +21,71 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: "Atma Aligner - Alinhadores Premium Acessíveis",
-  description:
-    "Democratizando o acesso à ortodontia digital de ponta no Brasil. Tecnologia de classe mundial com acessibilidade financeira.",
-  keywords: "alinhadores, ortodontia, invisível, transparente, sorriso, dentes, tratamento ortodôntico, atma aligner",
-    generator: 'v0.app'
+  title: {
+    default: "Atma Aligner - Alinhadores Invisíveis Premium | Ortodontia Digital",
+    template: "%s | Atma Aligner"
+  },
+  description: "Democratize seu sorriso com alinhadores invisíveis premium e acessíveis. Tecnologia 3D avançada, IA para planejamento e ortodontistas especializados. Transforme seu sorriso em Passo Fundo, RS.",
+  keywords: [
+    "alinhadores invisíveis",
+    "ortodontia digital",
+    "aparelho transparente",
+    "tratamento ortodôntico",
+    "alinhador dental",
+    "ortodontista Passo Fundo",
+    "sorriso perfeito",
+    "dentição alinhada",
+    "ortodontia RS",
+    "Atma Aligner",
+    "aparelho removível",
+    "tecnologia 3D ortodontia"
+  ],
+  authors: [{ name: "Atma Aligner" }],
+  creator: "Atma Aligner",
+  publisher: "Atma Aligner",
+  metadataBase: new URL('https://atma.roilabs.com.br'),
+  alternates: {
+    canonical: "https://atma.roilabs.com.br"
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    url: 'https://atma.roilabs.com.br',
+    siteName: 'Atma Aligner',
+    title: 'Atma Aligner - Alinhadores Invisíveis Premium',
+    description: 'Democratize seu sorriso com alinhadores invisíveis premium e acessíveis. Tecnologia 3D avançada e ortodontistas especializados.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Atma Aligner - Alinhadores Invisíveis Premium'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@atma_aligner',
+    creator: '@atma_aligner',
+    title: 'Atma Aligner - Alinhadores Invisíveis Premium',
+    description: 'Democratize seu sorriso com alinhadores invisíveis premium e acessíveis.',
+    images: ['/og-image.jpg']
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code'
+  },
+  category: 'healthcare'
 }
 
 export default function RootLayout({
@@ -46,6 +107,7 @@ export default function RootLayout({
             `,
           }}
         />
+        <StructuredData />
       </head>
       <body className="min-h-screen flex flex-col">
         <Header />
