@@ -4,75 +4,83 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated to official Atma Aligner brand colors from manual */
-  --background: #ffffff;
-  --foreground: #1a1a1a;
-  --card: #f2f2f2;
-  --card-foreground: #1a1a1a;
+  /* Enhanced Atma Aligner brand colors with modern medical aesthetics */
+  --background: #fafbfc;
+  --foreground: #0f1419;
+  --card: #ffffff;
+  --card-foreground: #0f1419;
   --popover: #ffffff;
-  --popover-foreground: #1a1a1a;
-  --primary: #194a8a; /* Azul Atma */
+  --popover-foreground: #0f1419;
+  --primary: #1e40af; /* Modern medical blue */
   --primary-foreground: #ffffff;
-  --secondary: #5da9e9; /* Azul Claro */
-  --secondary-foreground: #1a1a1a;
-  --muted: #f2f2f2; /* Cinza Neutro */
-  --muted-foreground: #333333; /* Cinza Escuro */
-  --accent: #5da9e9;
+  --secondary: #3b82f6; /* Bright accent blue */
+  --secondary-foreground: #ffffff;
+  --muted: #f8fafc; /* Soft neutral background */
+  --muted-foreground: #64748b; /* Balanced gray text */
+  --accent: #06b6d4; /* Fresh teal accent */
   --accent-foreground: #ffffff;
-  --destructive: #be123c;
+  --success: #10b981; /* Medical success green */
+  --success-foreground: #ffffff;
+  --warning: #f59e0b; /* Professional warning */
+  --warning-foreground: #ffffff;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #f2f2f2;
+  --border: #e2e8f0;
   --input: #ffffff;
-  --ring: #194a8a;
-  --chart-1: #194a8a;
-  --chart-2: #5da9e9;
-  --chart-3: #f2f2f2;
-  --chart-4: #333333;
-  --chart-5: #be123c;
-  --radius: 0.5rem;
+  --ring: #1e40af;
+  --chart-1: #1e40af;
+  --chart-2: #3b82f6;
+  --chart-3: #06b6d4;
+  --chart-4: #10b981;
+  --chart-5: #f59e0b;
+  --radius: 0.75rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #1a1a1a;
-  --sidebar-primary: #194a8a;
+  --sidebar-foreground: #0f1419;
+  --sidebar-primary: #1e40af;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #5da9e9;
-  --sidebar-accent-foreground: #1a1a1a;
-  --sidebar-border: #f2f2f2;
-  --sidebar-ring: #194a8a;
+  --sidebar-accent: #06b6d4;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #1e40af;
 }
 
 .dark {
-  --background: #1a1a1a;
-  --foreground: #ffffff;
-  --card: #333333;
-  --card-foreground: #ffffff;
-  --popover: #333333;
-  --popover-foreground: #ffffff;
-  --primary: #5da9e9;
-  --primary-foreground: #1a1a1a;
-  --secondary: #194a8a;
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e40af;
   --secondary-foreground: #ffffff;
-  --muted: #333333;
-  --muted-foreground: #f2f2f2;
-  --accent: #5da9e9;
-  --accent-foreground: #1a1a1a;
-  --destructive: #dc2626;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #06b6d4;
+  --accent-foreground: #ffffff;
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #333333;
-  --input: #333333;
-  --ring: #5da9e9;
-  --chart-1: #5da9e9;
-  --chart-2: #194a8a;
-  --chart-3: #333333;
-  --chart-4: #1a1a1a;
-  --chart-5: #dc2626;
-  --sidebar: #333333;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #5da9e9;
-  --sidebar-primary-foreground: #1a1a1a;
-  --sidebar-accent: #194a8a;
+  --border: #334155;
+  --input: #1e293b;
+  --ring: #3b82f6;
+  --chart-1: #3b82f6;
+  --chart-2: #1e40af;
+  --chart-3: #06b6d4;
+  --chart-4: #10b981;
+  --chart-5: #f59e0b;
+  --sidebar: #1e293b;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #06b6d4;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #333333;
-  --sidebar-ring: #5da9e9;
+  --sidebar-border: #334155;
+  --sidebar-ring: #3b82f6;
 }
 
 @theme inline {
@@ -90,6 +98,10 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -112,18 +124,25 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  /* Updated to official brand typography: Roboto for body, Montserrat for headings */
-  --font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  /* Enhanced modern medical typography with improved readability */
+  --font-sans: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-heading: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-mono: "Fira Code", "Monaco", "Cascadia Code", "Segoe UI Mono", monospace;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground font-sans;
+    font-feature-settings: "liga" 1, "kern" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+
   h1,
   h2,
   h3,
@@ -132,5 +151,192 @@
   h6 {
     font-family: var(--font-heading);
     font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+    line-height: 1.1;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+    line-height: 1.2;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl lg:text-3xl;
+  }
+
+  p {
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  /* Enhanced readability for medical content */
+  .text-medical {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--muted-foreground);
+  }
+
+  /* Improved focus styles for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer utilities {
+  /* Modern animations and micro-interactions */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: calc(200px + 100%) 0;
+    }
+  }
+
+  @keyframes pulse-gentle {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .animate-fade-in-scale {
+    animation: fadeInScale 0.4s ease-out;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 100%
+    );
+    background-size: 200px 100%;
+  }
+
+  .animate-pulse-gentle {
+    animation: pulse-gentle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Smooth hover transitions */
+  .transition-modern {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-bounce {
+    transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Gradient backgrounds */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  }
+
+  .bg-gradient-secondary {
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  }
+
+  .bg-gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  }
+
+  /* Modern shadow effects */
+  .shadow-modern {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-modern-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-modern-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Interactive hover effects */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15),
+                0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  .hover-scale {
+    transition: transform 0.2s ease;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+
+  /* Medical theme specific utilities */
+  .text-gradient-primary {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-secondary {
+    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
