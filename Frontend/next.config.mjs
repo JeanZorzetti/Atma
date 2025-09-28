@@ -18,9 +18,8 @@ const nextConfig = {
   // Advanced Performance optimizations for Core Web Vitals
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
-    optimizeCss: true,
-    serverComponentsExternalPackages: ['sharp'],
   },
+  serverExternalPackages: ['sharp'],
   // Bundle Analysis
   webpack: (config, { dev, isServer }) => {
     // Optimize bundle size
