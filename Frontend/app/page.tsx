@@ -19,6 +19,7 @@ export default function HomePage() {
             </p>
 
             {/* Audience Segmentation */}
+            <h2 className="text-2xl font-heading font-semibold mb-8 text-center">Escolha seu caminho para o sorriso perfeito</h2>
             <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-primary">
                 <CardContent className="p-8 text-center">

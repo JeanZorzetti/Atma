@@ -19,6 +19,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Siga a Atma Aligner no Facebook"
               >
                 <Facebook className="h-5 w-5" />
               </Link>
@@ -27,6 +28,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Siga a Atma Aligner no Instagram"
               >
                 <Instagram className="h-5 w-5" />
               </Link>
@@ -35,6 +37,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Conecte-se com a Atma Aligner no LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
               </Link>
