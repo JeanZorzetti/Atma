@@ -297,6 +297,70 @@
     background: #ffffff;
   }
 
+  /* Skeleton Loading Animations - FASE 2 */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite ease-in-out;
+  }
+
+  /* Medical Progress Animations */
+  @keyframes medical-pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.02);
+    }
+  }
+
+  .animate-medical-pulse {
+    animation: medical-pulse 2s infinite ease-in-out;
+  }
+
+  /* Button Press Effect */
+  @keyframes button-press {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.95);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .animate-button-press {
+    animation: button-press 0.2s ease-in-out;
+  }
+
+  /* Form Validation Shake */
+  @keyframes form-shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-2px);
+    }
+    75% {
+      transform: translateX(2px);
+    }
+  }
+
+  .animate-form-shake {
+    animation: form-shake 0.3s ease-in-out;
+  }
+
   /* Screen Reader Only Content */
   .sr-only {
     position: absolute;
