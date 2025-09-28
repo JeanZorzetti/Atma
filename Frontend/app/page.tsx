@@ -48,62 +48,154 @@ export default function HomePage() {
               Escolha seu caminho para o sorriso perfeito
             </motion.h2>
 
-            <StaggeredCards className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto" staggerDelay={0.2}>
+            <StaggeredCards className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto" staggerDelay={0.2}>
+              {/* Card Paciente - Redesign Premium */}
               <AnimatedCard
                 variant="medical"
-                className="cursor-pointer bg-gradient-to-br from-white to-primary/5"
-                onClick={() => window.location.href = '/pacientes'}
+                className="group cursor-pointer relative overflow-hidden"
               >
-                <div className="p-8 text-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-blue-100/30 to-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-600/10" />
+
+                {/* Glow effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/5 to-blue-400/0"
+                  animate={{
+                    x: ['-100%', '100%'],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                />
+
+                <div className="relative p-10 text-center">
+                  {/* Ícone Premium */}
                   <motion.div
+                    className="relative inline-flex items-center justify-center w-20 h-20 mb-6"
+                    whileHover={{ scale: 1.1 }}
                     animate={{
-                      y: [0, -10, 0],
+                      y: [0, -8, 0],
                     }}
                     transition={{
-                      duration: 3,
+                      duration: 4,
                       repeat: Infinity,
                       ease: 'easeInOut',
                     }}
                   >
-                    <Users className="h-12 w-12 text-primary mx-auto mb-4" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg" />
+                    <div className="absolute inset-1 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl" />
+                    <Users className="relative h-10 w-10 text-white" />
                   </motion.div>
-                  <h3 className="text-xl font-heading font-semibold mb-2">SOU PACIENTE</h3>
-                  <p className="text-muted-foreground mb-4">
+
+                  <h3 className="text-2xl font-heading font-bold mb-3 text-slate-900">
+                    SOU PACIENTE
+                  </h3>
+                  <p className="text-slate-600 mb-6 leading-relaxed">
                     Descubra como conquistar o sorriso dos seus sonhos com parcelas que cabem no seu orçamento
                   </p>
-                  <AnimatedButton medical className="w-full" onClick={() => window.location.href = '/pacientes'}>
+
+                  {/* Benefícios */}
+                  <div className="mb-6 space-y-2 text-left">
+                    <div className="flex items-center text-sm text-slate-700">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
+                      Parcelas a partir de R$ 99/mês
+                    </div>
+                    <div className="flex items-center text-sm text-slate-700">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
+                      Consulta online gratuita
+                    </div>
+                    <div className="flex items-center text-sm text-slate-700">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
+                      Aprovação em 24h
+                    </div>
+                  </div>
+
+                  <AnimatedButton
+                    medical
+                    size="lg"
+                    className="w-full shadow-lg hover:shadow-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                    onClick={() => window.location.href = '/pacientes'}
+                  >
                     Quero transformar meu sorriso
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </AnimatedButton>
                 </div>
               </AnimatedCard>
 
+              {/* Card Ortodontista - Redesign Premium */}
               <AnimatedCard
                 variant="service"
-                className="cursor-pointer bg-gradient-to-br from-white to-accent/5"
-                onClick={() => window.location.href = '/ortodontistas'}
+                className="group cursor-pointer relative overflow-hidden"
               >
-                <div className="p-8 text-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-100/30 to-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-emerald-600/10" />
+
+                {/* Glow effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-teal-400/0 via-teal-400/5 to-teal-400/0"
+                  animate={{
+                    x: ['-100%', '100%'],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: 'linear',
+                    delay: 1.5,
+                  }}
+                />
+
+                <div className="relative p-10 text-center">
+                  {/* Ícone Premium */}
                   <motion.div
+                    className="relative inline-flex items-center justify-center w-20 h-20 mb-6"
+                    whileHover={{ scale: 1.1 }}
                     animate={{
-                      y: [0, -10, 0],
+                      y: [0, -8, 0],
                     }}
                     transition={{
-                      duration: 3,
+                      duration: 4,
                       repeat: Infinity,
                       ease: 'easeInOut',
-                      delay: 1,
+                      delay: 2,
                     }}
                   >
-                    <Award className="h-12 w-12 text-accent mx-auto mb-4" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl shadow-lg" />
+                    <div className="absolute inset-1 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl" />
+                    <Award className="relative h-10 w-10 text-white" />
                   </motion.div>
-                  <h3 className="text-xl font-heading font-semibold mb-2">SOU ORTODONTISTA</h3>
-                  <p className="text-muted-foreground mb-4">
+
+                  <h3 className="text-2xl font-heading font-bold mb-3 text-slate-900">
+                    SOU ORTODONTISTA
+                  </h3>
+                  <p className="text-slate-600 mb-6 leading-relaxed">
                     Seja nosso parceiro estratégico e revolucione sua clínica com tecnologia de ponta
                   </p>
-                  <AnimatedButton variant="secondary" className="w-full" onClick={() => window.location.href = '/ortodontistas'}>
+
+                  {/* Benefícios */}
+                  <div className="mb-6 space-y-2 text-left">
+                    <div className="flex items-center text-sm text-slate-700">
+                      <div className="w-2 h-2 bg-teal-500 rounded-full mr-3" />
+                      Aumento de 60% na receita
+                    </div>
+                    <div className="flex items-center text-sm text-slate-700">
+                      <div className="w-2 h-2 bg-teal-500 rounded-full mr-3" />
+                      Tecnologia de ponta incluída
+                    </div>
+                    <div className="flex items-center text-sm text-slate-700">
+                      <div className="w-2 h-2 bg-teal-500 rounded-full mr-3" />
+                      Suporte técnico completo
+                    </div>
+                  </div>
+
+                  <AnimatedButton
+                    size="lg"
+                    className="w-full shadow-lg hover:shadow-xl bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 text-white"
+                    onClick={() => window.location.href = '/ortodontistas'}
+                  >
                     Quero ser parceiro Atma
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </AnimatedButton>
                 </div>
               </AnimatedCard>
