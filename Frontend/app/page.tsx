@@ -119,7 +119,6 @@ export default function HomePage() {
                     onClick={() => window.location.href = '/pacientes'}
                   >
                     Quero transformar meu sorriso
-                    <ArrowRight className="ml-2 h-5 w-5" />
                   </AnimatedButton>
                 </div>
               </AnimatedCard>
@@ -195,7 +194,6 @@ export default function HomePage() {
                     onClick={() => window.location.href = '/ortodontistas'}
                   >
                     Quero ser parceiro Atma
-                    <ArrowRight className="ml-2 h-5 w-5" />
                   </AnimatedButton>
                 </div>
               </AnimatedCard>
