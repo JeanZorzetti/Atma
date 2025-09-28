@@ -97,11 +97,31 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${roboto.variable} ${montserrat.variable}`}>
       <head>
-        {/* Preload critical resources */}
+        {/* Advanced Resource Hints for Core Web Vitals */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://atmaapi.roilabs.com.br" />
+
+        {/* Preload critical fonts */}
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCtr6Ew-.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+
+        {/* Critical CSS inlining will be handled by Next.js */}
+        <link rel="modulepreload" href="/_next/static/chunks/main.js" />
+        <link rel="modulepreload" href="/_next/static/chunks/polyfills.js" />
 
         {/* PWA Icons */}
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -126,9 +146,19 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body className="min-h-screen flex flex-col">
+        {/* WCAG 2.2 Skip Navigation */}
+        <a href="#main-content" className="skip-nav">
+          Pular para o conteúdo principal
+        </a>
+        <a href="#footer" className="skip-nav">
+          Pular para o rodapé
+        </a>
+
         <Header />
         <Breadcrumbs />
-        <main className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1" role="main" aria-label="Conteúdo principal">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>
