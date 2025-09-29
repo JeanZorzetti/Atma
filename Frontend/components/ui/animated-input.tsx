@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { formVariants } from '@/lib/motion';
 import { useFormAnimation } from '@/hooks/use-motion';
-import { CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { CheckCircle, Star, Calendar, Users } from 'lucide-react';
 
 interface AnimatedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -91,10 +91,10 @@ const AnimatedInput = React.forwardRef<HTMLInputElement, AnimatedInputProps>(
 
     const getValidationIcon = () => {
       if (error || (!validationState.isValid && value)) {
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
+        return <Star className="h-5 w-5 text-red-500" />;
       }
       if (success || (validationState.isValid && value && validation)) {
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
       }
       return null;
     };
@@ -171,9 +171,9 @@ const AnimatedInput = React.forwardRef<HTMLInputElement, AnimatedInputProps>(
                     aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-slate-500" />
+                      <Calendar className="h-4 w-4 text-slate-500" />
                     ) : (
-                      <Eye className="h-4 w-4 text-slate-500" />
+                      <Users className="h-4 w-4 text-slate-500" />
                     )}
                   </button>
                 ) : (
@@ -215,10 +215,10 @@ const AnimatedInput = React.forwardRef<HTMLInputElement, AnimatedInputProps>(
                   transition={{ delay: 0.1 }}
                 >
                   {(error || (!validationState.isValid && value)) && (
-                    <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                    <Star className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
                   )}
                   {(success || (validationState.isValid && value && validation)) && (
-                    <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                   )}
                 </motion.div>
                 <span>{getValidationMessage()}</span>

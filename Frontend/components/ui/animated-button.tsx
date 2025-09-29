@@ -45,6 +45,12 @@ const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
     children,
     onClick,
     disabled,
+    onDrag,
+    onDragStart,
+    onDragEnd,
+    onAnimationStart,
+    onAnimationEnd,
+    onAnimationIteration,
     ...props
   }, ref) => {
     const { controls, isLoading, startLoading, stopLoading } = useLoadingAnimation();
