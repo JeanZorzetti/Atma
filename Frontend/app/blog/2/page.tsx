@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Calendar, Users, Star, CheckCircle, Zap, Layers, Settings, Gauge, Target } from "lucide-react"
+import { Calendar, Users, Star, CheckCircle } from "lucide-react"
 
 export default function Tecnologia3DOrtodontia() {
   return (
@@ -76,7 +76,7 @@ export default function Tecnologia3DOrtodontia() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Zap className="h-6 w-6 text-purple-600" />
+                <Star className="h-6 w-6 text-purple-600" />
                 Do Tradicional ao Digital: Uma Revolução Silenciosa
               </h2>
 
@@ -119,7 +119,7 @@ export default function Tecnologia3DOrtodontia() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Layers className="h-6 w-6 text-purple-600" />
+                <CheckCircle className="h-6 w-6 text-purple-600" />
                 O Processo Completo: Da Boca ao Alinhador
               </h2>
 
@@ -238,7 +238,7 @@ export default function Tecnologia3DOrtodontia() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Settings className="h-6 w-6 text-purple-600" />
+                <Star className="h-6 w-6 text-purple-600" />
                 Tecnologias Auxiliares Revolucionárias
               </h2>
 
@@ -275,7 +275,7 @@ export default function Tecnologia3DOrtodontia() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Gauge className="h-6 w-6 text-purple-600" />
+                <CheckCircle className="h-6 w-6 text-purple-600" />
                 Números que Impressionam
               </h2>
 
@@ -321,7 +321,7 @@ export default function Tecnologia3DOrtodontia() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Target className="h-6 w-6 text-purple-600" />
+                <Star className="h-6 w-6 text-purple-600" />
                 O Futuro da Tecnologia 3D na Ortodontia
               </h2>
 
