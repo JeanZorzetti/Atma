@@ -5,6 +5,14 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 
+// Type declarations for browser APIs (SSR-safe)
+declare global {
+  interface Window {
+    SpeechRecognition: any
+    webkitSpeechRecognition: any
+  }
+}
+
 interface VoiceSearchConfig {
   language: string
   continuous: boolean
@@ -94,7 +102,7 @@ export function useVoiceSearch(
     error: null
   })
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<any>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
 
   // Check for browser support

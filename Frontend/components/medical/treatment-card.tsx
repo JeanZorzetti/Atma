@@ -49,6 +49,19 @@ export function TreatmentCard({
   const config = statusConfig[status]
   const StatusIcon = config.icon
 
+  // Inject styles safely in useEffect
+  React.useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const existingStyle = document.getElementById('medical-card-styles')
+      if (!existingStyle) {
+        const style = document.createElement('style')
+        style.id = 'medical-card-styles'
+        style.textContent = medicalStyles
+        document.head.appendChild(style)
+      }
+    }
+  }, [])
+
   return (
     <Card className={cn("medical-card touch-target focus-enhanced", className)}>
       <CardHeader className="pb-3">
@@ -128,9 +141,3 @@ const medicalStyles = `
   }
 `
 
-// Inject styles
-if (typeof document !== 'undefined') {
-  const style = document.createElement('style')
-  style.textContent = medicalStyles
-  document.head.appendChild(style)
-}

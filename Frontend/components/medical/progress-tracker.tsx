@@ -28,6 +28,19 @@ export function ProgressTracker({
   const completedSteps = steps.filter(step => step.status === "completed").length
   const currentStep = steps.find(step => step.status === "current")
 
+  // Inject styles safely in useEffect
+  React.useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const existingStyle = document.getElementById('medical-progress-styles')
+      if (!existingStyle) {
+        const style = document.createElement('style')
+        style.id = 'medical-progress-styles'
+        style.textContent = progressStyles
+        document.head.appendChild(style)
+      }
+    }
+  }, [])
+
   return (
     <Card className={cn("medical-progress-card", className)}>
       <CardHeader>
@@ -180,9 +193,3 @@ const progressStyles = `
   }
 `
 
-// Inject styles
-if (typeof document !== 'undefined') {
-  const style = document.createElement('style')
-  style.textContent = progressStyles
-  document.head.appendChild(style)
-}

@@ -94,8 +94,11 @@ export default function NotFound() {
           <button
             className="flex items-center px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
             onClick={() => {
-              if (typeof window !== 'undefined') {
+              // Use Next.js router for better SSR compatibility
+              if (typeof window !== 'undefined' && window.history.length > 1) {
                 window.history.back()
+              } else {
+                window.location.href = '/'
               }
             }}
           >
