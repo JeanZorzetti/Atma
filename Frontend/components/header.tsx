@@ -201,7 +201,7 @@ export function Header() {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              ref={mobileMenuRef}
+              ref={mobileMenuRef as React.Ref<HTMLDivElement>}
               id="mobile-menu"
               className="md:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-md overflow-y-auto"
               role="navigation"

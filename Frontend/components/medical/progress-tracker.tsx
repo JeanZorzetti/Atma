@@ -2,7 +2,7 @@ import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { CheckCircle, Circle, Clock, Trophy } from "lucide-react"
+import { CheckCircle, Star, Calendar, Users } from "lucide-react"
 
 interface ProgressStep {
   id: string
@@ -33,7 +33,7 @@ export function ProgressTracker({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-primary" aria-hidden="true" />
+            <Star className="w-5 h-5 text-primary" aria-hidden="true" />
             {title}
           </CardTitle>
           <Badge variant="medical">
@@ -68,7 +68,7 @@ export function ProgressTracker({
           {steps.map((step, index) => {
             const isLast = index === steps.length - 1
             const StepIcon = step.status === "completed" ? CheckCircle :
-                           step.status === "current" ? Clock : Circle
+                           step.status === "current" ? Calendar : Star
 
             return (
               <div key={step.id} className="relative">
@@ -145,7 +145,7 @@ export function ProgressTracker({
         {currentStep && (
           <div className="mt-6 p-4 bg-secondary/10 rounded-lg border border-secondary/20">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-secondary" aria-hidden="true" />
+              <Calendar className="w-4 h-4 text-secondary" aria-hidden="true" />
               <span className="text-sm font-medium text-secondary">
                 Etapa Atual
               </span>

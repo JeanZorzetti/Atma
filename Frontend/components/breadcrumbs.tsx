@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ChevronRight, Home } from 'lucide-react'
+import { Star, CheckCircle } from 'lucide-react'
 
 interface BreadcrumbItem {
   label: string
@@ -83,7 +83,7 @@ export function Breadcrumbs() {
 
               return (
                 <li key={item.href} className="flex items-center">
-                  {index === 0 && <Home className="h-4 w-4 mr-1" />}
+                  {index === 0 && <CheckCircle className="h-4 w-4 mr-1" />}
 
                   {isLast ? (
                     <span className="text-gray-500 font-medium" aria-current="page">
@@ -97,7 +97,7 @@ export function Breadcrumbs() {
                       >
                         {item.label}
                       </Link>
-                      <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
+                      <Star className="h-4 w-4 mx-2 text-gray-400" />
                     </>
                   )}
                 </li>
