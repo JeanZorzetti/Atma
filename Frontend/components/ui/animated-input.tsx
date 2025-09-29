@@ -30,6 +30,12 @@ const AnimatedInput = React.forwardRef<HTMLInputElement, AnimatedInputProps>(
     showValidationIcon = true,
     className,
     type = 'text',
+    onDrag,
+    onDragStart,
+    onDragEnd,
+    onAnimationStart,
+    onAnimationEnd,
+    onAnimationIteration,
     ...props
   }, ref) => {
     const [value, setValue] = useState('');
