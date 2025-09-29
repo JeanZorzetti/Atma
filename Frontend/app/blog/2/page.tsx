@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Calendar, User, ArrowLeft, Printer, Zap, Layers, Settings, Gauge, Target } from "lucide-react"
+import { Calendar, Userss, ChevronLeft, Printer, Zap, Layers, Settings, Gauge, Target } from "lucide-react"
 
 export default function Tecnologia3DOrtodontia() {
   return (
@@ -12,7 +12,7 @@ export default function Tecnologia3DOrtodontia() {
         <div className="container mx-auto max-w-4xl">
           <Button asChild variant="ghost" size="sm">
             <Link href="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ChevronLeft className="h-4 w-4 mr-2" />
               Voltar ao Blog
             </Link>
           </Button>
@@ -35,7 +35,7 @@ export default function Tecnologia3DOrtodontia() {
               <span>10 de Janeiro de 2024</span>
             </div>
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
+              <Users className="h-4 w-4" />
               <span>Dr. Carlos Santos</span>
             </div>
           </div>
@@ -446,7 +446,7 @@ export default function Tecnologia3DOrtodontia() {
         <div className="text-center pb-12">
           <Button asChild variant="outline" size="lg">
             <Link href="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ChevronLeft className="h-4 w-4 mr-2" />
               Voltar para o Blog
             </Link>
           </Button>
