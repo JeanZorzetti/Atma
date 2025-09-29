@@ -2,18 +2,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import {
-  Zap,
-  Shield,
+  Star,
   CheckCircle,
-  Cpu,
-  Eye,
-  Gauge,
-  ArrowRight,
-  Play,
-  Award,
-  Target,
-  Clock,
-  Users
+  Calendar,
+  Users,
+  Phone,
+  Mail
 } from "lucide-react"
 
 export default function TecnologiaPage() {
@@ -34,12 +28,12 @@ export default function TecnologiaPage() {
               <Button size="lg" asChild>
                 <Link href="/ortodontistas/seja-parceiro">
                   Quero ser parceiro
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <Star className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="#video-demo">
-                  <Play className="mr-2 h-4 w-4" />
+                  <Star className="mr-2 h-4 w-4" />
                   Ver demonstração
                 </Link>
               </Button>
@@ -63,7 +57,7 @@ export default function TecnologiaPage() {
             <Card className="text-center">
               <CardContent className="p-8">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Zap className="h-8 w-8 text-primary" />
+                  <Star className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-heading font-semibold mb-4">IMPRESSÃO 3D FORMLABS</h3>
                 <p className="text-muted-foreground mb-4">
@@ -81,7 +75,7 @@ export default function TecnologiaPage() {
             <Card className="text-center">
               <CardContent className="p-8">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Cpu className="h-8 w-8 text-primary" />
+                  <CheckCircle className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-heading font-semibold mb-4">SOFTWARE INTELIGENTE</h3>
                 <p className="text-muted-foreground mb-4">
@@ -99,7 +93,7 @@ export default function TecnologiaPage() {
             <Card className="text-center">
               <CardContent className="p-8">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Shield className="h-8 w-8 text-primary" />
+                  <Star className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-heading font-semibold mb-4">MATERIAIS PREMIUM</h3>
                 <p className="text-muted-foreground mb-4">
@@ -190,7 +184,7 @@ export default function TecnologiaPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card>
               <CardContent className="p-6">
-                <Eye className="h-8 w-8 text-primary mb-4" />
+                <CheckCircle className="h-8 w-8 text-primary mb-4" />
                 <h3 className="font-heading font-semibold mb-2">TRANSPARÊNCIA SUPERIOR</h3>
                 <p className="text-muted-foreground text-sm">
                   Material ultra-transparente que se torna praticamente invisível
@@ -201,7 +195,7 @@ export default function TecnologiaPage() {
 
             <Card>
               <CardContent className="p-6">
-                <Gauge className="h-8 w-8 text-primary mb-4" />
+                <Star className="h-8 w-8 text-primary mb-4" />
                 <h3 className="font-heading font-semibold mb-2">PRECISÃO MICROMÉTRICA</h3>
                 <p className="text-muted-foreground text-sm">
                   Tolerâncias de produção de até 0,1mm garantem encaixe
@@ -212,7 +206,7 @@ export default function TecnologiaPage() {
 
             <Card>
               <CardContent className="p-6">
-                <Clock className="h-8 w-8 text-primary mb-4" />
+                <Calendar className="h-8 w-8 text-primary mb-4" />
                 <h3 className="font-heading font-semibold mb-2">TEMPO OTIMIZADO</h3>
                 <p className="text-muted-foreground text-sm">
                   Processo automatizado reduz tempo de produção
@@ -223,7 +217,7 @@ export default function TecnologiaPage() {
 
             <Card>
               <CardContent className="p-6">
-                <Target className="h-8 w-8 text-primary mb-4" />
+                <CheckCircle className="h-8 w-8 text-primary mb-4" />
                 <h3 className="font-heading font-semibold mb-2">RESULTADOS PREVISÍVEIS</h3>
                 <p className="text-muted-foreground text-sm">
                   Simulação 3D permite visualizar resultado final
@@ -234,7 +228,7 @@ export default function TecnologiaPage() {
 
             <Card>
               <CardContent className="p-6">
-                <Award className="h-8 w-8 text-primary mb-4" />
+                <Star className="h-8 w-8 text-primary mb-4" />
                 <h3 className="font-heading font-semibold mb-2">CERTIFICAÇÃO INTERNACIONAL</h3>
                 <p className="text-muted-foreground text-sm">
                   Todos os materiais possuem certificação FDA e ISO
@@ -272,7 +266,7 @@ export default function TecnologiaPage() {
               <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Play className="h-8 w-8 text-primary-foreground ml-1" />
+                    <Star className="h-8 w-8 text-primary-foreground ml-1" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Demonstração Tecnológica</h3>
                   <p className="text-muted-foreground">

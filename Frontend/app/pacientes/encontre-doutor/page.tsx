@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { MapPin, Phone, Mail, CheckCircle, Loader2, AlertCircle } from "lucide-react"
+import { MapPin, Phone, Mail, CheckCircle, Star, Calendar } from "lucide-react"
 import { apiService } from "@/lib/api"
 
 export default function EncontreDoutor() {
@@ -159,7 +159,7 @@ export default function EncontreDoutor() {
 
                   {error && (
                     <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg">
-                      <AlertCircle className="h-4 w-4" />
+                      <Star className="h-4 w-4" />
                       <span className="text-sm">{error}</span>
                     </div>
                   )}
@@ -172,7 +172,7 @@ export default function EncontreDoutor() {
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Calendar className="mr-2 h-4 w-4 animate-spin" />
                         Enviando...
                       </>
                     ) : (

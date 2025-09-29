@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
-import { MessageCircle } from "lucide-react"
+import { Star } from "lucide-react"
 import Link from "next/link"
 
 export default function FAQPage() {
@@ -158,7 +158,7 @@ export default function FAQPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
               <Link href="/pacientes/encontre-doutor">
-                <MessageCircle className="w-5 h-5 mr-2" />
+                <Star className="w-5 h-5 mr-2" />
                 Falar com Especialista
               </Link>
             </Button>
