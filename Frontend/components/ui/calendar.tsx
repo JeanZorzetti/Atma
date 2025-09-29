@@ -3,7 +3,7 @@
 import * as React from "react"
 import {
   Star,
-  Calendar,
+  Calendar as CalendarIcon,
   CheckCircle,
 } from "lucide-react"
 import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker"
@@ -152,7 +152,7 @@ function Calendar({
           }
 
           return (
-            <Calendar className={cn("size-4", className)} {...props} />
+            <CalendarIcon className={cn("size-4", className)} {...props} />
           )
         },
         DayButton: CalendarDayButton,
