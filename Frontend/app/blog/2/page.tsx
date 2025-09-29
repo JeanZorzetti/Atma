@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Calendar, Userss, ChevronLeft, Printer, Zap, Layers, Settings, Gauge, Target } from "lucide-react"
+import { Calendar, Users, ChevronLeft, Printer, Zap, Layers, Settings, Gauge, Target } from "lucide-react"
 
 export default function Tecnologia3DOrtodontia() {
   return (
