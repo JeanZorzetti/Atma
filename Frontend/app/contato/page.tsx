@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Mail, Phone, MapPin, Clock, MessageCircle, Users } from "lucide-react"
+import { Mail, Phone, MapPin, Clock, Star, Users } from "lucide-react"
 
 export default function ContatoPage() {
   return (
@@ -26,7 +26,7 @@ export default function ContatoPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <MessageCircle className="h-5 w-5 mr-2" />
+                  <Star className="h-5 w-5 mr-2" />
                   Envie sua Mensagem
                 </CardTitle>
               </CardHeader>

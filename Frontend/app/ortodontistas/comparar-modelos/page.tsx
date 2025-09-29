@@ -3,19 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import {
   CheckCircle,
-  XCircle,
-  TrendingUp,
-  DollarSign,
+  Star,
   Calendar,
-  PieChart,
-  Shield,
-  BarChart3,
   Users,
-  Settings,
-  CreditCard,
-  Target,
-  ArrowRight,
-  Calculator
+  Phone,
+  Mail
 } from "lucide-react"
 import Link from "next/link"
 
@@ -69,7 +61,7 @@ export default function CompararModelos() {
                 {/* Investimento Inicial */}
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-blue-600" />
+                    <Star className="h-5 w-5 text-blue-600" />
                     Estrutura de Investimento
                   </h4>
                   <div className="space-y-2 text-sm">
@@ -95,7 +87,7 @@ export default function CompararModelos() {
                 {/* Margem de Lucro */}
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-blue-600" />
+                    <CheckCircle className="h-5 w-5 text-blue-600" />
                     Margem de Lucratividade
                   </h4>
                   <div className="space-y-2 text-sm">
@@ -117,7 +109,7 @@ export default function CompararModelos() {
                 {/* ROI e Payback */}
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <Calculator className="h-5 w-5 text-blue-600" />
+                    <Calendar className="h-5 w-5 text-blue-600" />
                     Retorno do Investimento
                   </h4>
                   <div className="space-y-2 text-sm">
@@ -190,7 +182,7 @@ export default function CompararModelos() {
                 {/* Investimento Inicial */}
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-green-600" />
+                    <Star className="h-5 w-5 text-green-600" />
                     Estrutura de Investimento
                   </h4>
                   <div className="space-y-2 text-sm">
@@ -216,7 +208,7 @@ export default function CompararModelos() {
                 {/* Margem de Lucro */}
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-green-600" />
+                    <CheckCircle className="h-5 w-5 text-green-600" />
                     Margem de Lucratividade
                   </h4>
                   <div className="space-y-2 text-sm">
@@ -238,7 +230,7 @@ export default function CompararModelos() {
                 {/* ROI e Payback */}
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <Calculator className="h-5 w-5 text-green-600" />
+                    <Calendar className="h-5 w-5 text-green-600" />
                     Retorno do Investimento
                   </h4>
                   <div className="space-y-2 text-sm">
@@ -556,7 +548,7 @@ export default function CompararModelos() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-montserrat">
-                  <Shield className="h-5 w-5 text-green-600" />
+                  <CheckCircle className="h-5 w-5 text-green-600" />
                   Para Sua Clínica
                 </CardTitle>
               </CardHeader>
@@ -585,7 +577,7 @@ export default function CompararModelos() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-montserrat">
-                  <CreditCard className="h-5 w-5 text-blue-600" />
+                  <Star className="h-5 w-5 text-blue-600" />
                   Para Seus Pacientes
                 </CardTitle>
               </CardHeader>
@@ -648,13 +640,13 @@ export default function CompararModelos() {
             <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
               <Link href="/ortodontistas/seja-parceiro">
                 Quero Ser Parceiro Atma Aligner
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <Star className="h-4 w-4 ml-2" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="border-green-600 text-green-600 hover:bg-green-50">
               <Link href="/ortodontistas/seja-parceiro">
                 Interessado no Atma Labs
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <Star className="h-4 w-4 ml-2" />
               </Link>
             </Button>
           </div>

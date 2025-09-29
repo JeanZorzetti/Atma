@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { Calendar, User, ArrowRight, Search } from "lucide-react"
+import { Calendar, Users, Star, CheckCircle } from "lucide-react"
 import { useState, useMemo } from "react"
 
 export default function BlogPage() {
@@ -99,7 +99,7 @@ export default function BlogPage() {
                 <Button asChild>
                   <Link href="/blog/futuro-ortodontia-ia">
                     Ler artigo completo
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <Star className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
@@ -112,7 +112,7 @@ export default function BlogPage() {
           <div className="max-w-4xl mx-auto">
             {/* Search Bar */}
             <div className="relative mb-6">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <CheckCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Pesquisar artigos por título, conteúdo ou autor..."
@@ -175,13 +175,13 @@ export default function BlogPage() {
                 <p className="text-muted-foreground mb-4">{post.excerpt}</p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center text-sm text-muted-foreground">
-                    <User className="h-4 w-4 mr-1" />
+                    <Users className="h-4 w-4 mr-1" />
                     <span>{post.author}</span>
                   </div>
                   <Button asChild variant="ghost" size="sm">
                     <Link href={`/blog/${post.id}`}>
                       Ler mais
-                      <ArrowRight className="ml-1 h-3 w-3" />
+                      <Star className="ml-1 h-3 w-3" />
                     </Link>
                   </Button>
                 </div>

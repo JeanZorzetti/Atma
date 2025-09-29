@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { AnimatedButton } from "@/components/ui/animated-button"
-import { Wifi, WifiOff, RefreshCw, Home, Phone } from "lucide-react"
+import { Star, CheckCircle, Calendar, Phone } from "lucide-react"
 
 export default function OfflinePage() {
   const handleRetry = () => {
@@ -34,7 +34,7 @@ export default function OfflinePage() {
           }}
         >
           <div className="w-24 h-24 bg-gradient-to-br from-slate-400 to-slate-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
-            <WifiOff className="h-12 w-12 text-white" />
+            <Star className="h-12 w-12 text-white" />
           </div>
 
           {/* Pulse effect */}
@@ -81,7 +81,7 @@ export default function OfflinePage() {
           transition={{ delay: 0.4 }}
         >
           <h3 className="font-semibold text-slate-900 mb-4 flex items-center">
-            <Wifi className="h-5 w-5 mr-2 text-green-500" />
+            <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
             Disponível offline:
           </h3>
           <ul className="space-y-2 text-sm text-slate-600 text-left">
@@ -115,7 +115,7 @@ export default function OfflinePage() {
             onClick={handleRetry}
             className="w-full bg-blue-600 hover:bg-blue-700"
             size="lg"
-            icon={<RefreshCw className="h-5 w-5" />}
+            icon={<Calendar className="h-5 w-5" />}
           >
             Tentar Novamente
           </AnimatedButton>
@@ -125,7 +125,7 @@ export default function OfflinePage() {
             variant="outline"
             className="w-full"
             size="lg"
-            icon={<Home className="h-5 w-5" />}
+            icon={<Star className="h-5 w-5" />}
           >
             Ir para Página Inicial
           </AnimatedButton>

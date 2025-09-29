@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Calendar, User, ArrowLeft, Droplets, ShieldCheck, Sparkles, Clock, AlertTriangle, CheckCircle2, Thermometer } from "lucide-react"
+import { Calendar, Users, Star, CheckCircle } from "lucide-react"
 
 export default function CuidadosAlinhador() {
   return (
@@ -12,7 +12,7 @@ export default function CuidadosAlinhador() {
         <div className="container mx-auto max-w-4xl">
           <Button asChild variant="ghost" size="sm">
             <Link href="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <Star className="h-4 w-4 mr-2" />
               Voltar ao Blog
             </Link>
           </Button>
@@ -35,7 +35,7 @@ export default function CuidadosAlinhador() {
               <span>05 de Janeiro de 2024</span>
             </div>
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
+              <Users className="h-4 w-4" />
               <span>Dra. Maria Oliveira</span>
             </div>
           </div>
@@ -49,7 +49,7 @@ export default function CuidadosAlinhador() {
         <div className="mb-12">
           <Card className="overflow-hidden">
             <div className="bg-gradient-to-r from-teal-100 to-blue-100 p-16 text-center">
-              <Sparkles className="h-24 w-24 mx-auto text-teal-600 mb-4" />
+              <Star className="h-24 w-24 mx-auto text-teal-600 mb-4" />
               <p className="text-gray-600 font-medium">Cuidados com Alinhadores</p>
             </div>
           </Card>
@@ -75,7 +75,7 @@ export default function CuidadosAlinhador() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Droplets className="h-6 w-6 text-teal-600" />
+                <Star className="h-6 w-6 text-teal-600" />
                 Higienização Diária: O Fundamento do Cuidado
               </h2>
 
@@ -112,19 +112,19 @@ export default function CuidadosAlinhador() {
                   <h3 className="text-lg font-semibold text-green-700 mb-4">✅ Produtos Recomendados</h3>
                   <ul className="space-y-2 text-gray-700">
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
                       <span>Escova de dentes macia ou específica para alinhadores</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
                       <span>Sabão neutro sem fragrância forte</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
                       <span>Tablets de limpeza específicos</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
                       <span>Água morna (não quente)</span>
                     </li>
                   </ul>
@@ -134,23 +134,23 @@ export default function CuidadosAlinhador() {
                   <h3 className="text-lg font-semibold text-red-700 mb-4">❌ Nunca Use</h3>
                   <ul className="space-y-2 text-red-700">
                     <li className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
+                      <Star className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
                       <span>Água quente (deforma o material)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
+                      <Star className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
                       <span>Pasta de dente abrasiva</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
+                      <Star className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
                       <span>Enxaguantes com álcool</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
+                      <Star className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
                       <span>Produtos químicos agressivos</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
+                      <Star className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
                       <span>Escovas duras ou abrasivas</span>
                     </li>
                   </ul>
@@ -160,7 +160,7 @@ export default function CuidadosAlinhador() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <ShieldCheck className="h-6 w-6 text-teal-600" />
+                <CheckCircle className="h-6 w-6 text-teal-600" />
                 Armazenamento e Proteção
               </h2>
 
@@ -232,7 +232,7 @@ export default function CuidadosAlinhador() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Clock className="h-6 w-6 text-teal-600" />
+                <Calendar className="h-6 w-6 text-teal-600" />
                 Tempo de Uso e Cronograma
               </h2>
 
@@ -301,7 +301,7 @@ export default function CuidadosAlinhador() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Thermometer className="h-6 w-6 text-teal-600" />
+                <Star className="h-6 w-6 text-teal-600" />
                 Cuidados Especiais por Situação
               </h2>
 
@@ -530,7 +530,7 @@ export default function CuidadosAlinhador() {
         <div className="text-center pb-12">
           <Button asChild variant="outline" size="lg">
             <Link href="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <Star className="h-4 w-4 mr-2" />
               Voltar para o Blog
             </Link>
           </Button>

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Calendar, User, ArrowLeft, Brain, Zap, Target, Lightbulb } from "lucide-react"
+import { Calendar, Users, Star, CheckCircle } from "lucide-react"
 
 export default function FuturoOrtodontiaIA() {
   return (
@@ -12,7 +12,7 @@ export default function FuturoOrtodontiaIA() {
         <div className="container mx-auto max-w-4xl">
           <Button asChild variant="ghost" size="sm">
             <Link href="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <Star className="h-4 w-4 mr-2" />
               Voltar ao Blog
             </Link>
           </Button>
@@ -35,7 +35,7 @@ export default function FuturoOrtodontiaIA() {
               <span>15 de Janeiro de 2024</span>
             </div>
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
+              <Users className="h-4 w-4" />
               <span>Dr. Rafael Martins</span>
             </div>
           </div>
@@ -49,7 +49,7 @@ export default function FuturoOrtodontiaIA() {
         <div className="mb-12">
           <Card className="overflow-hidden">
             <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-16 text-center">
-              <Brain className="h-24 w-24 mx-auto text-blue-600 mb-4" />
+              <CheckCircle className="h-24 w-24 mx-auto text-blue-600 mb-4" />
               <p className="text-gray-600 font-medium">Inteligência Artificial na Ortodontia</p>
             </div>
           </Card>
@@ -71,7 +71,7 @@ export default function FuturoOrtodontiaIA() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Zap className="h-6 w-6 text-blue-600" />
+                <Star className="h-6 w-6 text-blue-600" />
                 Como a IA está Revolucionando os Diagnósticos
               </h2>
               <Card className="p-6 mb-6">
@@ -93,7 +93,7 @@ export default function FuturoOrtodontiaIA() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Target className="h-6 w-6 text-blue-600" />
+                <CheckCircle className="h-6 w-6 text-blue-600" />
                 Planejamento de Tratamento Inteligente
               </h2>
               <p className="text-gray-700 mb-4">
@@ -126,7 +126,7 @@ export default function FuturoOrtodontiaIA() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Lightbulb className="h-6 w-6 text-blue-600" />
+                <Star className="h-6 w-6 text-blue-600" />
                 Casos de Sucesso e Resultados
               </h2>
               <p className="text-gray-700 mb-6">
@@ -269,7 +269,7 @@ export default function FuturoOrtodontiaIA() {
         <div className="text-center pb-12">
           <Button asChild variant="outline" size="lg">
             <Link href="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <Star className="h-4 w-4 mr-2" />
               Voltar para o Blog
             </Link>
           </Button>

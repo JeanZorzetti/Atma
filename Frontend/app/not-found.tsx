@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Home, ArrowLeft, Search } from "lucide-react"
+import { Star, CheckCircle } from "lucide-react"
 import Link from "next/link"
 
 export default function NotFound() {
@@ -57,7 +57,7 @@ export default function NotFound() {
           transition={{ delay: 0.4 }}
         >
           <h3 className="font-semibold text-slate-900 mb-4 flex items-center">
-            <Search className="h-5 w-5 mr-2 text-blue-500" />
+            <CheckCircle className="h-5 w-5 mr-2 text-blue-500" />
             Links populares:
           </h3>
           <ul className="space-y-2 text-sm text-slate-600 text-left">
@@ -99,7 +99,7 @@ export default function NotFound() {
               }
             }}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <Star className="h-4 w-4 mr-2" />
             Voltar
           </button>
 
@@ -107,7 +107,7 @@ export default function NotFound() {
             href="/"
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"
           >
-            <Home className="h-4 w-4 mr-2" />
+            <Star className="h-4 w-4 mr-2" />
             Página Inicial
           </Link>
         </motion.div>

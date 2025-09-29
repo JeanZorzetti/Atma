@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CheckCircle, ArrowRight, ArrowLeft } from "lucide-react"
+import { CheckCircle, Star } from "lucide-react"
 
 export default function SejaParceiro() {
   const [currentStep, setCurrentStep] = useState(1)
@@ -348,14 +348,14 @@ export default function SejaParceiro() {
                 {/* Navigation Buttons */}
                 <div className="flex justify-between mt-8">
                   <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    <Star className="mr-2 h-4 w-4" />
                     Anterior
                   </Button>
 
                   {currentStep < 4 ? (
                     <Button type="button" onClick={nextStep}>
                       Próximo
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <Star className="ml-2 h-4 w-4" />
                     </Button>
                   ) : (
                     <Button type="submit">Enviar solicitação</Button>
