@@ -72,7 +72,8 @@
       "WebFetch(domain:agencyanalytics.com)",
       "WebFetch(domain:delmain.co)",
       "Bash(pkill:*)",
-      "Bash(set PORT=3015)"
+      "Bash(set PORT=3015)",
+      "Bash(npm ls:*)"
     ],
     "deny": [],
     "ask": []

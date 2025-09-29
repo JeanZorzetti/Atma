@@ -6,11 +6,15 @@ import { Star, CheckCircle, Calendar, Phone } from "lucide-react"
 
 export default function OfflinePage() {
   const handleRetry = () => {
-    window.location.reload()
+    if (typeof window !== 'undefined') {
+      window.location.reload()
+    }
   }
 
   const handleGoHome = () => {
-    window.location.href = '/'
+    if (typeof window !== 'undefined') {
+      window.location.href = '/'
+    }
   }
 
   return (

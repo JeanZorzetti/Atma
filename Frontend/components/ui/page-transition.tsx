@@ -37,7 +37,9 @@ const PageTransition: React.FC<PageTransitionProps> = ({
         exit="exit"
         onAnimationComplete={() => {
           // Scroll to top after page transition
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }}
       >
         {children}

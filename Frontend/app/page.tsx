@@ -116,7 +116,11 @@ export default function HomePage() {
                     medical
                     size="lg"
                     className="w-full shadow-lg hover:shadow-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-                    onClick={() => window.location.href = '/pacientes'}
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.location.href = '/pacientes'
+                      }
+                    }}
                   >
                     Quero transformar meu sorriso
                   </AnimatedButton>
@@ -191,7 +195,11 @@ export default function HomePage() {
                   <AnimatedButton
                     size="lg"
                     className="w-full shadow-lg hover:shadow-xl bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 text-white"
-                    onClick={() => window.location.href = '/ortodontistas'}
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.location.href = '/ortodontistas'
+                      }
+                    }}
                   >
                     Quero ser parceiro Atma
                   </AnimatedButton>
@@ -303,7 +311,11 @@ export default function HomePage() {
             <AnimatedButton
               size="lg"
               className="bg-white text-primary hover:bg-white/90 shadow-lg"
-              onClick={() => window.location.href = '/pacientes/encontre-doutor'}
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.location.href = '/pacientes/encontre-doutor'
+                }
+              }}
               medical
             >
               Encontre um doutor perto de você
@@ -312,7 +324,11 @@ export default function HomePage() {
               size="lg"
               variant="outline"
               className="bg-transparent border-white text-white hover:bg-white hover:text-primary"
-              onClick={() => window.location.href = '/pacientes/precos'}
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.location.href = '/pacientes/precos'
+                }
+              }}
             >
               Ver preços e financiamento
             </AnimatedButton>
