@@ -6,6 +6,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { StructuredData } from "@/components/structured-data"
 import { Breadcrumbs } from "@/components/breadcrumbs"
+import { QuickContactFAB } from "@/components/ui/floating-action-button"
+import { VoiceSearchButton } from "@/components/ui/voice-search-button"
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -156,10 +158,16 @@ export default function RootLayout({
 
         <Header />
         <Breadcrumbs />
-        <main id="main-content" className="flex-1" role="main" aria-label="Conteúdo principal">
+        <main id="main-content" className="flex-1 mobile-viewport" role="main" aria-label="Conteúdo principal">
           {children}
         </main>
         <Footer />
+
+        {/* One-handed optimized quick contact */}
+        <QuickContactFAB />
+
+        {/* Voice search FAB for mobile */}
+        <VoiceSearchButton variant="fab" />
       </body>
     </html>
   )

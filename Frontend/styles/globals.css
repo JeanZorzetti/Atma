@@ -121,3 +121,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile-First Touch Target Optimization */
+@layer utilities {
+  /* Standard touch targets - 44px minimum */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  /* Large touch targets for primary actions - 56px */
+  .touch-target-large {
+    @apply min-h-[56px] min-w-[56px] flex items-center justify-center;
+  }
+
+  /* Enhanced focus for keyboard navigation */
+  .focus-enhanced {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500;
+  }
+
+  /* Thumb zone optimization - content positioned for easy reach */
+  .thumb-zone {
+    @apply max-w-sm mx-auto;
+  }
+
+  /* Reduced motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-reduce-safe {
+      @apply transition-none;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .contrast-enhance {
+      @apply border-2 border-current;
+    }
+  }
+
+  /* Mobile-specific viewport optimizations */
+  @supports (height: 100dvh) {
+    .mobile-viewport {
+      @apply min-h-dvh;
+    }
+  }
+}

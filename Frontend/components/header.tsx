@@ -8,9 +8,30 @@ import { AnimatedButton } from "@/components/ui/animated-button"
 import { Menu, X, ChevronDown } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { HeaderLogo } from "@/components/ui/logo"
+import { VoiceSearchIcon } from "@/components/ui/voice-search-button"
+import { useTouchGestures } from "@/hooks/use-touch-gestures"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isSubMenuOpen, setIsSubMenuOpen] = useState<string | null>(null)
+
+  // Touch gesture support for mobile navigation
+  const { ref: mobileMenuRef } = useTouchGestures(
+    {
+      onSwipe: (gesture) => {
+        if (gesture.direction === 'up' && isMenuOpen) {
+          setIsMenuOpen(false)
+        }
+      },
+      onTap: () => {
+        // Close submenu when tapping outside
+        if (isSubMenuOpen) {
+          setIsSubMenuOpen(null)
+        }
+      }
+    },
+    { swipeThreshold: 50 }
+  )
 
   return (
     <motion.header
@@ -125,6 +146,7 @@ export function Header() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.5 }}
           >
+            <VoiceSearchIcon className="mr-2" />
             <AnimatedButton variant="outline" onClick={() => window.location.href = '/pacientes/encontre-doutor'}>
               Encontre um Doutor
             </AnimatedButton>
@@ -133,9 +155,9 @@ export function Header() {
             </AnimatedButton>
           </motion.div>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu button - Optimized for one-handed use */}
           <motion.button
-            className="md:hidden touch-target focus-enhanced"
+            className="md:hidden touch-target focus-enhanced fixed right-4 top-4 z-50 w-12 h-12 rounded-full bg-background/80 backdrop-blur-sm shadow-lg border flex items-center justify-center sm:relative sm:right-auto sm:top-auto sm:w-auto sm:h-auto sm:rounded-none sm:bg-transparent sm:backdrop-blur-none sm:shadow-none sm:border-0"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
             aria-expanded={isMenuOpen}
@@ -170,77 +192,177 @@ export function Header() {
           </motion.button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Redesigned for thumb accessibility */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
+              ref={mobileMenuRef}
               id="mobile-menu"
-              className="md:hidden py-4 border-t"
+              className="md:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-md overflow-y-auto"
               role="navigation"
               aria-label="Menu móvel"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <motion.nav
-                className="flex flex-col space-y-4"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: {
-                    opacity: 1,
-                    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-                  }
-                }}
-                initial="hidden"
-                animate="visible"
-              >
-                {[
-                  { href: "/pacientes", label: "Para Pacientes" },
-                  { href: "/ortodontistas", label: "Para Ortodontistas" },
-                  { href: "/sobre", label: "Sobre Nós" },
-                  { href: "/blog", label: "Blog" },
-                  { href: "/contato", label: "Contato" }
-                ].map((item, index) => (
-                  <motion.div
-                    key={item.href}
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      visible: { opacity: 1, x: 0 }
-                    }}
-                    whileHover={{ x: 10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Link href={item.href} className="text-foreground hover:text-primary transition-colors">
-                      {item.label}
-                    </Link>
-                  </motion.div>
-                ))}
-
-                <motion.div
-                  className="flex flex-col space-y-2 pt-4"
+              {/* Safe area for one-handed use - content positioned in thumb reach */}
+              <div className="pt-20 pb-8 px-4 min-h-full flex flex-col">
+                <motion.nav
+                  className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full"
                   variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: { opacity: 1, y: 0 }
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+                    }
                   }}
-                  transition={{ delay: 0.3 }}
+                  initial="hidden"
+                  animate="visible"
                 >
-                  <AnimatedButton
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => window.location.href = '/pacientes/encontre-doutor'}
+                  {/* Main navigation items - Large touch targets */}
+                  {[
+                    {
+                      href: "/pacientes",
+                      label: "Para Pacientes",
+                      submenu: [
+                        { href: "/pacientes", label: "Visão Geral" },
+                        { href: "/pacientes/encontre-doutor", label: "Encontre um Doutor" },
+                        { href: "/pacientes/precos", label: "Preços" }
+                      ]
+                    },
+                    {
+                      href: "/ortodontistas",
+                      label: "Para Ortodontistas",
+                      submenu: [
+                        { href: "/ortodontistas", label: "Visão Geral" },
+                        { href: "/ortodontistas/seja-parceiro", label: "Seja Parceiro" },
+                        { href: "/ortodontistas/tecnologia", label: "Tecnologia" }
+                      ]
+                    },
+                    { href: "/sobre", label: "Sobre Nós" },
+                    { href: "/blog", label: "Blog" },
+                    { href: "/contato", label: "Contato" }
+                  ].map((item) => (
+                    <motion.div
+                      key={item.href}
+                      className="mb-4"
+                      variants={{
+                        hidden: { opacity: 0, x: -20 },
+                        visible: { opacity: 1, x: 0 }
+                      }}
+                    >
+                      {item.submenu ? (
+                        <div>
+                          <motion.button
+                            className="w-full text-left py-4 px-6 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors text-lg font-medium text-slate-900 flex items-center justify-between touch-target-large"
+                            onClick={() => setIsSubMenuOpen(isSubMenuOpen === item.label ? null : item.label)}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {item.label}
+                            <motion.div
+                              animate={{ rotate: isSubMenuOpen === item.label ? 180 : 0 }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              <ChevronDown className="h-5 w-5" />
+                            </motion.div>
+                          </motion.button>
+
+                          <AnimatePresence>
+                            {isSubMenuOpen === item.label && (
+                              <motion.div
+                                className="mt-2 ml-4 space-y-2"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                {item.submenu.map((subItem) => (
+                                  <motion.div
+                                    key={subItem.href}
+                                    whileHover={{ x: 4 }}
+                                    transition={{ duration: 0.2 }}
+                                  >
+                                    <Link
+                                      href={subItem.href}
+                                      className="block py-3 px-4 rounded-xl hover:bg-blue-50 transition-colors text-slate-700 hover:text-blue-600 touch-target"
+                                      onClick={() => setIsMenuOpen(false)}
+                                    >
+                                      {subItem.label}
+                                    </Link>
+                                  </motion.div>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      ) : (
+                        <motion.div
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Link
+                            href={item.href}
+                            className="block w-full py-4 px-6 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors text-lg font-medium text-slate-900 touch-target-large"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            {item.label}
+                          </Link>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  ))}
+
+                  {/* CTA Buttons - Positioned for easy thumb access */}
+                  <motion.div
+                    className="mt-8 space-y-4"
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      visible: { opacity: 1, y: 0 }
+                    }}
+                    transition={{ delay: 0.3 }}
                   >
-                    Encontre um Doutor
-                  </AnimatedButton>
-                  <AnimatedButton
-                    medical
-                    className="w-full"
-                    onClick={() => window.location.href = '/ortodontistas/seja-parceiro'}
+                    <AnimatedButton
+                      medical
+                      size="lg"
+                      className="w-full h-14 text-lg rounded-2xl touch-target-large"
+                      onClick={() => {
+                        window.location.href = '/ortodontistas/seja-parceiro'
+                        setIsMenuOpen(false)
+                      }}
+                    >
+                      Seja Parceiro
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="outline"
+                      size="lg"
+                      className="w-full h-14 text-lg rounded-2xl touch-target-large"
+                      onClick={() => {
+                        window.location.href = '/pacientes/encontre-doutor'
+                        setIsMenuOpen(false)
+                      }}
+                    >
+                      Encontre um Doutor
+                    </AnimatedButton>
+                  </motion.div>
+                </motion.nav>
+
+                {/* Swipe indicator */}
+                <div className="text-center pb-4">
+                  <motion.div
+                    className="inline-flex items-center text-xs text-slate-500 space-x-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
                   >
-                    Seja Parceiro
-                  </AnimatedButton>
-                </motion.div>
-              </motion.nav>
+                    <div className="w-8 h-1 bg-slate-300 rounded-full" />
+                    <span>Deslize para cima para fechar</span>
+                  </motion.div>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
