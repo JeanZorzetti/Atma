@@ -10,15 +10,11 @@ import { progressVariants } from '@/lib/motion';
 import { useMedicalProgress } from '@/hooks/use-motion';
 import {
   Calendar,
-  Clock,
-  CheckCircle2,
-  Circle,
-  AlertCircle,
-  TrendingUp,
-  Heart,
-  Smile,
-  Target,
-  Award,
+  Star,
+  CheckCircle,
+  Users,
+  Phone,
+  Mail,
 } from 'lucide-react';
 
 interface TreatmentStage {
@@ -178,7 +174,7 @@ const TreatmentProgress: React.FC<TreatmentProgressProps> = ({
                     ease: 'easeInOut',
                   }}
                 >
-                  {isCompleted ? <CheckCircle2 className="h-6 w-6" /> : stage.icon}
+                  {isCompleted ? <CheckCircle className="h-6 w-6" /> : stage.icon}
                 </motion.div>
 
                 {/* Stage Content */}
@@ -188,7 +184,7 @@ const TreatmentProgress: React.FC<TreatmentProgressProps> = ({
                       {stage.title}
                     </h3>
                     <div className="flex items-center space-x-2 text-sm">
-                      <Clock className="h-4 w-4" />
+                      <Calendar className="h-4 w-4" />
                       <span>{stage.duration}</span>
                     </div>
                   </div>
@@ -266,14 +262,14 @@ const TreatmentProgress: React.FC<TreatmentProgressProps> = ({
                   transition={{ delay: 0.5 }}
                 >
                   {isCompleted && (
-                    <CheckCircle2 className="h-6 w-6 text-green-500" />
+                    <CheckCircle className="h-6 w-6 text-green-500" />
                   )}
                   {isCurrent && (
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                     >
-                      <Circle className="h-6 w-6 text-blue-500" />
+                      <Star className="h-6 w-6 text-blue-500" />
                     </motion.div>
                   )}
                 </motion.div>
@@ -311,7 +307,7 @@ const TreatmentProgress: React.FC<TreatmentProgressProps> = ({
                   ease: 'easeInOut',
                 }}
               >
-                <Award className="h-10 w-10 text-green-600" />
+                <Star className="h-10 w-10 text-green-600" />
               </motion.div>
 
               <h3 className="text-2xl font-bold text-slate-900 mb-4">
@@ -380,7 +376,7 @@ const TreatmentStats: React.FC<{
               {stat.icon}
             </div>
             {stat.trend && (
-              <TrendingUp
+              <CheckCircle
                 className={cn(
                   'h-4 w-4',
                   stat.trend === 'up' ? 'text-green-500' : 'text-red-500'
