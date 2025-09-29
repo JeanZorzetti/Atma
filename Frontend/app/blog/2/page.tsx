@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Calendar, Users, Star, Printer, Zap, Layers, Settings, Gauge, Target } from "lucide-react"
+import { Calendar, Users, Star, CheckCircle, Zap, Layers, Settings, Gauge, Target } from "lucide-react"
 
 export default function Tecnologia3DOrtodontia() {
   return (
@@ -49,7 +49,7 @@ export default function Tecnologia3DOrtodontia() {
         <div className="mb-12">
           <Card className="overflow-hidden">
             <div className="bg-gradient-to-r from-purple-100 to-blue-100 p-16 text-center">
-              <Printer className="h-24 w-24 mx-auto text-purple-600 mb-4" />
+              <CheckCircle className="h-24 w-24 mx-auto text-purple-600 mb-4" />
               <p className="text-gray-600 font-medium">Tecnologia 3D na Ortodontia</p>
             </div>
           </Card>
