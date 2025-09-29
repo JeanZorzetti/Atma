@@ -41,16 +41,16 @@ export function useOneHanded(config?: Partial<OneHandedConfig>) {
     ...config
   }
 
-  const [state, setState] = useState<OneHandedState>({
+  const [state, setState] = useState<OneHandedState>(() => ({
     isOneHanded: false,
     thumbZone: { top: 0, bottom: 0, left: 0, right: 0 },
     deviceMetrics: {
-      screenHeight: 0,
-      screenWidth: 0,
+      screenHeight: typeof window !== 'undefined' ? window.innerHeight : 0,
+      screenWidth: typeof window !== 'undefined' ? window.innerWidth : 0,
       isSmallDevice: false,
       isTallDevice: false
     }
-  })
+  }))
 
   const gestureRef = useRef<HTMLElement>(null)
 
@@ -78,6 +78,8 @@ export function useOneHanded(config?: Partial<OneHandedConfig>) {
 
   // Detect device characteristics
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const updateDeviceMetrics = () => {
       const width = window.innerWidth
       const height = window.innerHeight

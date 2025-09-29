@@ -147,10 +147,10 @@ export function Header() {
             transition={{ delay: 0.5, duration: 0.5 }}
           >
             <VoiceSearchIcon className="mr-2" />
-            <AnimatedButton variant="outline" onClick={() => window.location.href = '/pacientes/encontre-doutor'}>
+            <AnimatedButton variant="outline" onClick={() => typeof window !== 'undefined' && (window.location.href = '/pacientes/encontre-doutor')}>
               Encontre um Doutor
             </AnimatedButton>
-            <AnimatedButton medical onClick={() => window.location.href = '/ortodontistas/seja-parceiro'}>
+            <AnimatedButton medical onClick={() => typeof window !== 'undefined' && (window.location.href = '/ortodontistas/seja-parceiro')}>
               Seja Parceiro
             </AnimatedButton>
           </motion.div>
@@ -330,7 +330,9 @@ export function Header() {
                       size="lg"
                       className="w-full h-14 text-lg rounded-2xl touch-target-large"
                       onClick={() => {
-                        window.location.href = '/ortodontistas/seja-parceiro'
+                        if (typeof window !== 'undefined') {
+                          window.location.href = '/ortodontistas/seja-parceiro'
+                        }
                         setIsMenuOpen(false)
                       }}
                     >
@@ -341,7 +343,9 @@ export function Header() {
                       size="lg"
                       className="w-full h-14 text-lg rounded-2xl touch-target-large"
                       onClick={() => {
-                        window.location.href = '/pacientes/encontre-doutor'
+                        if (typeof window !== 'undefined') {
+                          window.location.href = '/pacientes/encontre-doutor'
+                        }
                         setIsMenuOpen(false)
                       }}
                     >

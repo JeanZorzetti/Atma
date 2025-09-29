@@ -40,32 +40,32 @@ interface VoiceSearchResult {
 const defaultCommands: VoiceCommand[] = [
   {
     patterns: ['encontrar ortodontista', 'buscar doutor', 'achar dentista'],
-    action: () => window.location.href = '/pacientes/encontre-doutor',
+    action: () => typeof window !== 'undefined' && (window.location.href = '/pacientes/encontre-doutor'),
     description: 'Encontrar ortodontista'
   },
   {
     patterns: ['ver preços', 'quanto custa', 'valores', 'preço'],
-    action: () => window.location.href = '/pacientes/precos',
+    action: () => typeof window !== 'undefined' && (window.location.href = '/pacientes/precos'),
     description: 'Ver preços e financiamento'
   },
   {
     patterns: ['agendar consulta', 'marcar consulta', 'contato'],
-    action: () => window.location.href = '/contato',
+    action: () => typeof window !== 'undefined' && (window.location.href = '/contato'),
     description: 'Agendar consulta'
   },
   {
     patterns: ['página inicial', 'home', 'início'],
-    action: () => window.location.href = '/',
+    action: () => typeof window !== 'undefined' && (window.location.href = '/'),
     description: 'Ir para página inicial'
   },
   {
     patterns: ['sobre atma', 'sobre nós', 'quem somos'],
-    action: () => window.location.href = '/sobre',
+    action: () => typeof window !== 'undefined' && (window.location.href = '/sobre'),
     description: 'Sobre a Atma Aligner'
   },
   {
     patterns: ['antes e depois', 'resultados', 'transformações'],
-    action: () => window.location.href = '/pacientes/antes-depois',
+    action: () => typeof window !== 'undefined' && (window.location.href = '/pacientes/antes-depois'),
     description: 'Ver resultados'
   }
 ]
@@ -330,17 +330,17 @@ export function useVoiceMedicalSearch() {
     ...defaultCommands,
     {
       patterns: ['alinhador invisível', 'aparelho transparente', 'invisalign'],
-      action: () => window.location.href = '/pacientes/tratamento',
+      action: () => typeof window !== 'undefined' && (window.location.href = '/pacientes/tratamento'),
       description: 'Informações sobre alinhadores'
     },
     {
       patterns: ['dor de dente', 'dor dental', 'urgência'],
-      action: () => window.open('tel:+551199999999'),
+      action: () => typeof window !== 'undefined' && window.open('tel:+551199999999'),
       description: 'Contato de emergência'
     },
     {
       patterns: ['whatsapp', 'mensagem', 'conversar'],
-      action: () => window.open('https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os alinhadores Atma.'),
+      action: () => typeof window !== 'undefined' && window.open('https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os alinhadores Atma.'),
       description: 'Abrir WhatsApp'
     }
   ]

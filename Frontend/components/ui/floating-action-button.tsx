@@ -23,25 +23,25 @@ const defaultActions: FloatingAction[] = [
   {
     icon: <Phone className="h-5 w-5" />,
     label: "Ligar",
-    action: () => window.open("tel:+551199999999"),
+    action: () => typeof window !== 'undefined' && window.open("tel:+551199999999"),
     color: "bg-green-500 hover:bg-green-600"
   },
   {
     icon: <MessageCircle className="h-5 w-5" />,
     label: "WhatsApp",
-    action: () => window.open("https://wa.me/5511999999999"),
+    action: () => typeof window !== 'undefined' && window.open("https://wa.me/5511999999999"),
     color: "bg-green-600 hover:bg-green-700"
   },
   {
     icon: <Calendar className="h-5 w-5" />,
     label: "Agendar",
-    action: () => window.location.href = "/contato",
+    action: () => typeof window !== 'undefined' && (window.location.href = "/contato"),
     color: "bg-blue-500 hover:bg-blue-600"
   },
   {
     icon: <MapPin className="h-5 w-5" />,
     label: "Localização",
-    action: () => window.location.href = "/pacientes/encontre-doutor",
+    action: () => typeof window !== 'undefined' && (window.location.href = "/pacientes/encontre-doutor"),
     color: "bg-purple-500 hover:bg-purple-600"
   }
 ]
@@ -173,13 +173,13 @@ export function QuickContactFAB() {
         {
           icon: <Phone className="h-5 w-5" />,
           label: "Ligar Agora",
-          action: () => window.open("tel:+551199999999"),
+          action: () => typeof window !== 'undefined' && window.open("tel:+551199999999"),
           color: "bg-green-500 hover:bg-green-600"
         },
         {
           icon: <MessageCircle className="h-5 w-5" />,
           label: "WhatsApp",
-          action: () => window.open("https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os alinhadores Atma."),
+          action: () => typeof window !== 'undefined' && window.open("https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os alinhadores Atma."),
           color: "bg-green-600 hover:bg-green-700"
         }
       ]}
