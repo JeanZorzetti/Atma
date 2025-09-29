@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/lib/motion';
 import { useLoadingAnimation } from '@/hooks/use-motion';
-import { Loader2, Check, X, ArrowRight } from 'lucide-react';
+import { Calendar, CheckCircle, Star, Users } from 'lucide-react';
 
 interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline';
@@ -107,7 +107,7 @@ const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Calendar className="h-4 w-4 animate-spin" />
             <span>{loadingText || 'Carregando...'}</span>
           </motion.div>
         );
@@ -121,7 +121,7 @@ const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
           >
-            <Check className="h-4 w-4" />
+            <CheckCircle className="h-4 w-4" />
             <span>{successText || 'Sucesso!'}</span>
           </motion.div>
         );
@@ -135,7 +135,7 @@ const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 10 }}
           >
-            <X className="h-4 w-4" />
+            <Star className="h-4 w-4" />
             <span>{errorText || 'Erro'}</span>
           </motion.div>
         );
@@ -168,7 +168,7 @@ const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <ArrowRight className="h-4 w-4" />
+              <Star className="h-4 w-4" />
             </motion.div>
           )}
         </div>
