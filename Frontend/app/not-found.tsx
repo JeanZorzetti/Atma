@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion"
 import { Home, ArrowLeft, Search } from "lucide-react"
-import { AnimatedButton } from "@/components/ui/animated-button"
 import Link from "next/link"
 
 export default function NotFound() {
@@ -92,20 +91,24 @@ export default function NotFound() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <AnimatedButton
-            variant="outline"
-            className="flex items-center"
-            onClick={() => typeof window !== 'undefined' && window.history.back()}
+          <button
+            className="flex items-center px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.history.back()
+              }
+            }}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
-          </AnimatedButton>
+          </button>
 
-          <Link href="/">
-            <AnimatedButton medical className="flex items-center w-full sm:w-auto">
-              <Home className="h-4 w-4 mr-2" />
-              Página Inicial
-            </AnimatedButton>
+          <Link
+            href="/"
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"
+          >
+            <Home className="h-4 w-4 mr-2" />
+            Página Inicial
           </Link>
         </motion.div>
 

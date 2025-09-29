@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Calendar, User, ArrowLeft, Smile, Clock, Eye, Shield, Star, CheckCircle } from "lucide-react"
+import { Calendar, Users, Smile, Clock, Shield, Star, CheckCircle } from "lucide-react"
 
 export default function BeneficiosAlinhadorAdultos() {
   return (
@@ -12,7 +12,6 @@ export default function BeneficiosAlinhadorAdultos() {
         <div className="container mx-auto max-w-4xl">
           <Button asChild variant="ghost" size="sm">
             <Link href="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar ao Blog
             </Link>
           </Button>
@@ -35,7 +34,7 @@ export default function BeneficiosAlinhadorAdultos() {
               <span>15 de Janeiro de 2024</span>
             </div>
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
+              <Users className="h-4 w-4" />
               <span>Dr. Ana Silva</span>
             </div>
           </div>
@@ -74,7 +73,7 @@ export default function BeneficiosAlinhadorAdultos() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Eye className="h-6 w-6 text-green-600" />
+                <Star className="h-6 w-6 text-green-600" />
                 Discrição: O Benefício Mais Valorizado
               </h2>
               <Card className="p-6 mb-6">
@@ -399,7 +398,6 @@ export default function BeneficiosAlinhadorAdultos() {
         <div className="text-center pb-12">
           <Button asChild variant="outline" size="lg">
             <Link href="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para o Blog
             </Link>
           </Button>

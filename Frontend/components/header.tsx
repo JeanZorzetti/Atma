@@ -146,13 +146,18 @@ export function Header() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.5 }}
           >
-            <VoiceSearchIcon className="mr-2" />
-            <AnimatedButton variant="outline" onClick={() => typeof window !== 'undefined' && (window.location.href = '/pacientes/encontre-doutor')}>
+            <Link
+              href="/pacientes/encontre-doutor"
+              className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-sm"
+            >
               Encontre um Doutor
-            </AnimatedButton>
-            <AnimatedButton medical onClick={() => typeof window !== 'undefined' && (window.location.href = '/ortodontistas/seja-parceiro')}>
+            </Link>
+            <Link
+              href="/ortodontistas/seja-parceiro"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
               Seja Parceiro
-            </AnimatedButton>
+            </Link>
           </motion.div>
 
           {/* Mobile menu button - Optimized for one-handed use */}
@@ -325,32 +330,20 @@ export function Header() {
                     }}
                     transition={{ delay: 0.3 }}
                   >
-                    <AnimatedButton
-                      medical
-                      size="lg"
-                      className="w-full h-14 text-lg rounded-2xl touch-target-large"
-                      onClick={() => {
-                        if (typeof window !== 'undefined') {
-                          window.location.href = '/ortodontistas/seja-parceiro'
-                        }
-                        setIsMenuOpen(false)
-                      }}
+                    <Link
+                      href="/ortodontistas/seja-parceiro"
+                      className="block w-full h-14 text-lg rounded-2xl touch-target-large bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center flex items-center justify-center"
+                      onClick={() => setIsMenuOpen(false)}
                     >
                       Seja Parceiro
-                    </AnimatedButton>
-                    <AnimatedButton
-                      variant="outline"
-                      size="lg"
-                      className="w-full h-14 text-lg rounded-2xl touch-target-large"
-                      onClick={() => {
-                        if (typeof window !== 'undefined') {
-                          window.location.href = '/pacientes/encontre-doutor'
-                        }
-                        setIsMenuOpen(false)
-                      }}
+                    </Link>
+                    <Link
+                      href="/pacientes/encontre-doutor"
+                      className="block w-full h-14 text-lg rounded-2xl touch-target-large border border-slate-300 hover:bg-slate-50 transition-colors text-center flex items-center justify-center"
+                      onClick={() => setIsMenuOpen(false)}
                     >
                       Encontre um Doutor
-                    </AnimatedButton>
+                    </Link>
                   </motion.div>
                 </motion.nav>
 
