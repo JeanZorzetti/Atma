@@ -2,7 +2,7 @@ import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { Calendar, Clock, CheckCircle, AlertCircle } from "lucide-react"
+import { Calendar, Star, CheckCircle, Users } from "lucide-react"
 
 interface TreatmentCardProps {
   title: string
@@ -17,7 +17,7 @@ interface TreatmentCardProps {
 const statusConfig = {
   active: {
     badge: "bg-blue-100 text-blue-800 border-blue-200",
-    icon: Clock,
+    icon: Calendar,
     label: "Em Andamento"
   },
   completed: {
@@ -27,12 +27,12 @@ const statusConfig = {
   },
   pending: {
     badge: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    icon: AlertCircle,
+    icon: Star,
     label: "Pendente"
   },
   cancelled: {
     badge: "bg-red-100 text-red-800 border-red-200",
-    icon: AlertCircle,
+    icon: Star,
     label: "Cancelado"
   }
 }
@@ -70,7 +70,7 @@ export function TreatmentCard({
 
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" aria-hidden="true" />
+            <Calendar className="w-4 h-4" aria-hidden="true" />
             <span>{duration}</span>
           </div>
 
