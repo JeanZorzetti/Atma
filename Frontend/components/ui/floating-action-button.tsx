@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
-import { Plus, X, Phone, MessageCircle, Calendar, MapPin } from "lucide-react"
+import { Star, CheckCircle, Calendar } from "lucide-react"
 import { AnimatedButton } from "./animated-button"
 import { cn } from "@/lib/utils"
 
@@ -21,13 +21,13 @@ interface FloatingActionButtonProps {
 
 const defaultActions: FloatingAction[] = [
   {
-    icon: <Phone className="h-5 w-5" />,
+    icon: <Calendar className="h-5 w-5" />,
     label: "Ligar",
     action: () => typeof window !== 'undefined' && window.open("tel:+551199999999"),
     color: "bg-green-500 hover:bg-green-600"
   },
   {
-    icon: <MessageCircle className="h-5 w-5" />,
+    icon: <Star className="h-5 w-5" />,
     label: "WhatsApp",
     action: () => typeof window !== 'undefined' && window.open("https://wa.me/5511999999999"),
     color: "bg-green-600 hover:bg-green-700"
@@ -39,7 +39,7 @@ const defaultActions: FloatingAction[] = [
     color: "bg-blue-500 hover:bg-blue-600"
   },
   {
-    icon: <MapPin className="h-5 w-5" />,
+    icon: <Calendar className="h-5 w-5" />,
     label: "Localização",
     action: () => typeof window !== 'undefined' && (window.location.href = "/pacientes/encontre-doutor"),
     color: "bg-purple-500 hover:bg-purple-600"
@@ -133,7 +133,7 @@ export function FloatingActionButton({
               exit={{ rotate: 90, opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <X className="h-6 w-6" />
+              <CheckCircle className="h-6 w-6" />
             </motion.div>
           ) : (
             <motion.div
@@ -143,7 +143,7 @@ export function FloatingActionButton({
               exit={{ rotate: -90, opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <Plus className="h-6 w-6" />
+              <Star className="h-6 w-6" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -171,13 +171,13 @@ export function QuickContactFAB() {
     <FloatingActionButton
       actions={[
         {
-          icon: <Phone className="h-5 w-5" />,
+          icon: <Calendar className="h-5 w-5" />,
           label: "Ligar Agora",
           action: () => typeof window !== 'undefined' && window.open("tel:+551199999999"),
           color: "bg-green-500 hover:bg-green-600"
         },
         {
-          icon: <MessageCircle className="h-5 w-5" />,
+          icon: <Star className="h-5 w-5" />,
           label: "WhatsApp",
           action: () => typeof window !== 'undefined' && window.open("https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os alinhadores Atma."),
           color: "bg-green-600 hover:bg-green-700"
