@@ -16,9 +16,9 @@ import {
 import { motion } from 'framer-motion'
 import { Eye, Zap, Film } from 'lucide-react'
 
-// Import Three.js component with SSR disabled
+// Import Three.js component with SSR disabled - direct import to avoid index.ts
 const TeethMovementVisualization = dynamic(
-  () => import('@/components/3d').then(mod => ({ default: mod.TeethMovementVisualization })),
+  () => import('@/components/3d/teeth-movement-viz').then(mod => ({ default: mod.TeethMovementVisualization })),
   {
     ssr: false,
     loading: () => (
