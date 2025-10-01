@@ -77,7 +77,10 @@
       "Bash(git pull:*)",
       "Bash(git reset:*)",
       "Bash(rm:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(gh api:*)",
+      "Bash(PORT=3015 npm run start)",
+      "Bash(PORT=3020 npm run start)"
     ],
     "deny": [],
     "ask": []
