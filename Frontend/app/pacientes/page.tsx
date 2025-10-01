@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { ArrowRight, Clock, Heart, Smile, DollarSign, CheckCircle, Star } from "lucide-react"
 
+export const dynamic = 'force-dynamic'
+
 export default function PacientesPage() {
   return (
     <div className="min-h-screen">

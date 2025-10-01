@@ -259,6 +259,12 @@ const AnimatedCounter: React.FC<{
   const [count, setCount] = useState(from);
 
   useEffect(() => {
+    // Skip animation during SSR
+    if (typeof window === 'undefined') {
+      setCount(to);
+      return;
+    }
+
     if (isInView) {
       const startTime = Date.now();
       const endTime = startTime + duration * 1000;
