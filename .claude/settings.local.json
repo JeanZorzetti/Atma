@@ -73,7 +73,11 @@
       "WebFetch(domain:delmain.co)",
       "Bash(pkill:*)",
       "Bash(set PORT=3015)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(git pull:*)",
+      "Bash(git reset:*)",
+      "Bash(rm:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []
