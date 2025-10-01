@@ -13,11 +13,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, ChevronLeft, Scan, Printer, Package, Smile } from 'lucide-react'
 import Lottie, { LottieRefCurrentProps } from 'lottie-react'
 
-// Dynamic imports for animations (client-only) to avoid SSR issues
-const scanAnimation = typeof window !== 'undefined' ? require('@/public/animations/scan-animation.json') : null
-const planningAnimation = typeof window !== 'undefined' ? require('@/public/animations/planning-animation.json') : null
-const productionAnimation = typeof window !== 'undefined' ? require('@/public/animations/production-animation.json') : null
-const treatmentAnimation = typeof window !== 'undefined' ? require('@/public/animations/treatment-animation.json') : null
+// Import animations directly - Next.js will handle them as static assets
+import scanAnimationData from '@/public/animations/scan-animation.json'
+import planningAnimationData from '@/public/animations/planning-animation.json'
+import productionAnimationData from '@/public/animations/production-animation.json'
+import treatmentAnimationData from '@/public/animations/treatment-animation.json'
 
 interface ProcessStep {
   id: string
@@ -38,7 +38,7 @@ const treatmentSteps: ProcessStep[] = [
     icon: Scan,
     color: 'from-blue-500 to-cyan-500',
     duration: '15 minutos',
-    animation: scanAnimation,
+    animation: scanAnimationData,
     details: [
       'Scanner intraoral sem desconforto',
       'Precisão de 20 microns',
@@ -53,7 +53,7 @@ const treatmentSteps: ProcessStep[] = [
     icon: Printer,
     color: 'from-purple-500 to-pink-500',
     duration: '2-3 dias',
-    animation: planningAnimation,
+    animation: planningAnimationData,
     details: [
       'Simulação 3D do resultado',
       'Cálculo de movimentos',
@@ -68,7 +68,7 @@ const treatmentSteps: ProcessStep[] = [
     icon: Package,
     color: 'from-orange-500 to-red-500',
     duration: '7-10 dias',
-    animation: productionAnimation,
+    animation: productionAnimationData,
     details: [
       'Impressão 3D de precisão',
       'Material biocompatível',
@@ -83,7 +83,7 @@ const treatmentSteps: ProcessStep[] = [
     icon: Smile,
     color: 'from-green-500 to-emerald-500',
     duration: '6-18 meses',
-    animation: treatmentAnimation,
+    animation: treatmentAnimationData,
     details: [
       'Troca quinzenal',
       '22h por dia de uso',
