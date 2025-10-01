@@ -45,35 +45,59 @@ interface VoiceSearchResult {
 }
 
 // Default medical/orthodontic voice commands
-const defaultCommands: VoiceCommand[] = [
+const createDefaultCommands = (): VoiceCommand[] => [
   {
     patterns: ['encontrar ortodontista', 'buscar doutor', 'achar dentista'],
-    action: () => typeof window !== 'undefined' && (window.location.href = '/pacientes/encontre-doutor'),
+    action: () => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/pacientes/encontre-doutor'
+      }
+    },
     description: 'Encontrar ortodontista'
   },
   {
     patterns: ['ver preços', 'quanto custa', 'valores', 'preço'],
-    action: () => typeof window !== 'undefined' && (window.location.href = '/pacientes/precos'),
+    action: () => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/pacientes/precos'
+      }
+    },
     description: 'Ver preços e financiamento'
   },
   {
     patterns: ['agendar consulta', 'marcar consulta', 'contato'],
-    action: () => typeof window !== 'undefined' && (window.location.href = '/contato'),
+    action: () => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/contato'
+      }
+    },
     description: 'Agendar consulta'
   },
   {
     patterns: ['página inicial', 'home', 'início'],
-    action: () => typeof window !== 'undefined' && (window.location.href = '/'),
+    action: () => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/'
+      }
+    },
     description: 'Ir para página inicial'
   },
   {
     patterns: ['sobre atma', 'sobre nós', 'quem somos'],
-    action: () => typeof window !== 'undefined' && (window.location.href = '/sobre'),
+    action: () => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/sobre'
+      }
+    },
     description: 'Sobre a Atma Aligner'
   },
   {
     patterns: ['antes e depois', 'resultados', 'transformações'],
-    action: () => typeof window !== 'undefined' && (window.location.href = '/pacientes/antes-depois'),
+    action: () => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/pacientes/antes-depois'
+      }
+    },
     description: 'Ver resultados'
   }
 ]
@@ -81,8 +105,9 @@ const defaultCommands: VoiceCommand[] = [
 export function useVoiceSearch(
   config?: Partial<VoiceSearchConfig>,
   onResult?: (result: VoiceSearchResult) => void,
-  commands: VoiceCommand[] = defaultCommands
+  commands: VoiceCommand[] = []
 ) {
+  const defaultCommands = createDefaultCommands()
   const defaultConfig: VoiceSearchConfig = {
     language: 'pt-BR',
     continuous: false,
@@ -131,8 +156,9 @@ export function useVoiceSearch(
   // Process voice commands
   const processCommand = useCallback((transcript: string) => {
     const normalizedTranscript = transcript.toLowerCase().trim()
+    const allCommands = commands.length > 0 ? commands : defaultCommands
 
-    for (const command of commands) {
+    for (const command of allCommands) {
       for (const pattern of command.patterns) {
         if (normalizedTranscript.includes(pattern.toLowerCase())) {
           console.log('[Voice Search] Command matched:', pattern)
@@ -142,7 +168,7 @@ export function useVoiceSearch(
       }
     }
     return false
-  }, [commands])
+  }, [commands, defaultCommands])
 
   // Start voice recognition
   const startListening = useCallback(() => {
@@ -325,30 +351,46 @@ export function useVoiceSearch(
     })),
 
     // Get available commands for UI display
-    getAvailableCommands: () => commands.map(cmd => ({
-      patterns: cmd.patterns,
-      description: cmd.description
-    }))
+    getAvailableCommands: () => {
+      const allCommands = commands.length > 0 ? commands : defaultCommands
+      return allCommands.map(cmd => ({
+        patterns: cmd.patterns,
+        description: cmd.description
+      }))
+    }
   }
 }
 
 // Specialized hook for medical search
 export function useVoiceMedicalSearch() {
+  const defaultCmds = createDefaultCommands()
   const medicalCommands: VoiceCommand[] = [
-    ...defaultCommands,
+    ...defaultCmds,
     {
       patterns: ['alinhador invisível', 'aparelho transparente', 'invisalign'],
-      action: () => typeof window !== 'undefined' && (window.location.href = '/pacientes/tratamento'),
+      action: () => {
+        if (typeof window !== 'undefined') {
+          window.location.href = '/pacientes/tratamento'
+        }
+      },
       description: 'Informações sobre alinhadores'
     },
     {
       patterns: ['dor de dente', 'dor dental', 'urgência'],
-      action: () => typeof window !== 'undefined' && window.open('tel:+551199999999'),
+      action: () => {
+        if (typeof window !== 'undefined') {
+          window.open('tel:+551199999999')
+        }
+      },
       description: 'Contato de emergência'
     },
     {
       patterns: ['whatsapp', 'mensagem', 'conversar'],
-      action: () => typeof window !== 'undefined' && window.open('https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os alinhadores Atma.'),
+      action: () => {
+        if (typeof window !== 'undefined') {
+          window.open('https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os alinhadores Atma.')
+        }
+      },
       description: 'Abrir WhatsApp'
     }
   ]
@@ -365,7 +407,7 @@ export function useVoiceMedicalSearch() {
       console.log('[Medical Voice Search]', result)
 
       // Could send to analytics service
-      if (typeof gtag !== 'undefined') {
+      if (typeof window !== 'undefined' && typeof gtag !== 'undefined') {
         gtag('event', 'voice_search', {
           search_term: result.query,
           confidence: result.confidence

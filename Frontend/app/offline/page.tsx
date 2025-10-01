@@ -3,8 +3,11 @@
 import { motion } from "framer-motion"
 import { AnimatedButton } from "@/components/ui/animated-button"
 import { Star, CheckCircle, Calendar, Phone } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function OfflinePage() {
+  const router = useRouter()
+
   const handleRetry = () => {
     if (typeof window !== 'undefined') {
       window.location.reload()
@@ -12,9 +15,7 @@ export default function OfflinePage() {
   }
 
   const handleGoHome = () => {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/'
-    }
+    router.push('/')
   }
 
   return (

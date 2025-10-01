@@ -3,10 +3,8 @@
 import { motion } from "framer-motion"
 import { Star, CheckCircle } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 export default function NotFound() {
-  const router = useRouter()
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
       <motion.div
@@ -93,14 +91,6 @@ export default function NotFound() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <button
-            className="flex items-center px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-            onClick={() => router.back()}
-          >
-            <Star className="h-4 w-4 mr-2" />
-            Voltar
-          </button>
-
           <Link
             href="/"
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"

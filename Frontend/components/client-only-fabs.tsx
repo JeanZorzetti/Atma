@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { QuickContactFAB } from '@/components/ui/floating-action-button'
-import { VoiceSearchButton } from '@/components/ui/voice-search-button'
+import { QuickContactFAB, VoiceSearchButton } from '@/components/ui/voice-search-dynamic'
 
 export function ClientOnlyFABs() {
   const [mounted, setMounted] = useState(false)

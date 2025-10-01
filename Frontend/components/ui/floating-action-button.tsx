@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Star, CheckCircle, Calendar } from "lucide-react"
 import { AnimatedButton } from "./animated-button"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 interface FloatingAction {
   icon: React.ReactNode
@@ -19,39 +20,40 @@ interface FloatingActionButtonProps {
   position?: "bottom-right" | "bottom-left" | "bottom-center"
 }
 
-const defaultActions: FloatingAction[] = [
-  {
-    icon: <Calendar className="h-5 w-5" />,
-    label: "Ligar",
-    action: () => typeof window !== 'undefined' && window.open("tel:+551199999999"),
-    color: "bg-green-500 hover:bg-green-600"
-  },
-  {
-    icon: <Star className="h-5 w-5" />,
-    label: "WhatsApp",
-    action: () => typeof window !== 'undefined' && window.open("https://wa.me/5511999999999"),
-    color: "bg-green-600 hover:bg-green-700"
-  },
-  {
-    icon: <Calendar className="h-5 w-5" />,
-    label: "Agendar",
-    action: () => typeof window !== 'undefined' && (window.location.href = "/contato"),
-    color: "bg-blue-500 hover:bg-blue-600"
-  },
-  {
-    icon: <Calendar className="h-5 w-5" />,
-    label: "Localização",
-    action: () => typeof window !== 'undefined' && (window.location.href = "/pacientes/encontre-doutor"),
-    color: "bg-purple-500 hover:bg-purple-600"
-  }
-]
-
 export function FloatingActionButton({
-  actions = defaultActions,
+  actions,
   className,
   position = "bottom-right"
 }: FloatingActionButtonProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
+
+  const defaultActions: FloatingAction[] = [
+    {
+      icon: <Calendar className="h-5 w-5" />,
+      label: "Ligar",
+      action: () => typeof window !== 'undefined' && window.open("tel:+551199999999"),
+      color: "bg-green-500 hover:bg-green-600"
+    },
+    {
+      icon: <Star className="h-5 w-5" />,
+      label: "WhatsApp",
+      action: () => typeof window !== 'undefined' && window.open("https://wa.me/5511999999999"),
+      color: "bg-green-600 hover:bg-green-700"
+    },
+    {
+      icon: <Calendar className="h-5 w-5" />,
+      label: "Agendar",
+      action: () => router.push("/contato"),
+      color: "bg-blue-500 hover:bg-blue-600"
+    },
+    {
+      icon: <Calendar className="h-5 w-5" />,
+      label: "Localização",
+      action: () => router.push("/pacientes/encontre-doutor"),
+      color: "bg-purple-500 hover:bg-purple-600"
+    }
+  ]
 
   const positionClasses = {
     "bottom-right": "bottom-6 right-6",
@@ -75,7 +77,7 @@ export function FloatingActionButton({
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
             transition={{ duration: 0.2, staggerChildren: 0.1 }}
           >
-            {actions.map((action, index) => (
+            {(actions || defaultActions).map((action, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: 20 }}
@@ -167,22 +169,24 @@ export function FloatingActionButton({
 
 // Quick contact FAB for mobile optimization
 export function QuickContactFAB() {
+  const quickActions: FloatingAction[] = [
+    {
+      icon: <Calendar className="h-5 w-5" />,
+      label: "Ligar Agora",
+      action: () => typeof window !== 'undefined' && window.open("tel:+551199999999"),
+      color: "bg-green-500 hover:bg-green-600"
+    },
+    {
+      icon: <Star className="h-5 w-5" />,
+      label: "WhatsApp",
+      action: () => typeof window !== 'undefined' && window.open("https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os alinhadores Atma."),
+      color: "bg-green-600 hover:bg-green-700"
+    }
+  ]
+
   return (
     <FloatingActionButton
-      actions={[
-        {
-          icon: <Calendar className="h-5 w-5" />,
-          label: "Ligar Agora",
-          action: () => typeof window !== 'undefined' && window.open("tel:+551199999999"),
-          color: "bg-green-500 hover:bg-green-600"
-        },
-        {
-          icon: <Star className="h-5 w-5" />,
-          label: "WhatsApp",
-          action: () => typeof window !== 'undefined' && window.open("https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os alinhadores Atma."),
-          color: "bg-green-600 hover:bg-green-700"
-        }
-      ]}
+      actions={quickActions}
       className="md:hidden" // Only show on mobile
     />
   )

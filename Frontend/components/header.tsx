@@ -8,7 +8,7 @@ import { AnimatedButton } from "@/components/ui/animated-button"
 import { Menu, X, ChevronDown } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { HeaderLogo } from "@/components/ui/logo"
-import { VoiceSearchIcon } from "@/components/ui/voice-search-button"
+import { VoiceSearchIcon } from "@/components/ui/voice-search-dynamic"
 import { useTouchGestures } from "@/hooks/use-touch-gestures"
 
 export function Header() {
