@@ -303,12 +303,12 @@ const TreatmentInfo = () => {
 ```
 
 #### **Implementações:**
-- [ ] Information hierarchy otimizada
-- [ ] Progressive disclosure em formulários
-- [ ] Terminology simplification
-- [ ] Context-aware help system
-- [ ] Cognitive load measurement
-- [ ] A/B testing para clarity
+- [x] 👌 Information hierarchy otimizada (ProgressiveDisclosure component)
+- [x] 👌 Progressive disclosure em formulários (SmartForm com dependsOn)
+- [x] 👌 Terminology simplification (MedicalTerm + Glossário com 14 termos)
+- [x] 👌 Context-aware help system (ContextHelp, FieldHelp, SmartTooltip)
+- [x] 👌 Cognitive load measurement (useCognitiveLoad hook completo)
+- [x] 👌 A/B testing para clarity (useABTest com 3 testes pré-configurados)
 
 ---
 
