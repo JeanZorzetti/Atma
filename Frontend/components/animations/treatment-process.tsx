@@ -8,14 +8,16 @@
  * Animações educativas do processo de tratamento ortodôntico
  */
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, ChevronLeft, Scan, Printer, Package, Smile } from 'lucide-react'
 import Lottie, { LottieRefCurrentProps } from 'lottie-react'
-import scanAnimation from '@/public/animations/scan-animation.json'
-import planningAnimation from '@/public/animations/planning-animation.json'
-import productionAnimation from '@/public/animations/production-animation.json'
-import treatmentAnimation from '@/public/animations/treatment-animation.json'
+
+// Dynamic imports for animations (client-only) to avoid SSR issues
+const scanAnimation = typeof window !== 'undefined' ? require('@/public/animations/scan-animation.json') : null
+const planningAnimation = typeof window !== 'undefined' ? require('@/public/animations/planning-animation.json') : null
+const productionAnimation = typeof window !== 'undefined' ? require('@/public/animations/production-animation.json') : null
+const treatmentAnimation = typeof window !== 'undefined' ? require('@/public/animations/treatment-animation.json') : null
 
 interface ProcessStep {
   id: string
