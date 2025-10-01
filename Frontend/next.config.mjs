@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Use Vercel's VERCEL_GIT_COMMIT_SHA or fallback to default
+  // This ensures consistent build IDs across all edge functions
+  generateBuildId: async () => {
+    return process.env.VERCEL_GIT_COMMIT_SHA || null;
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
