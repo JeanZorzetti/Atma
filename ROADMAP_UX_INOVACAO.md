@@ -274,11 +274,11 @@ if ('serviceWorker' in navigator) {
 
 #### **Mobile Optimizations:**
 - [ ] PWA implementation completa
-- [ ] Offline functionality básica
-- [ ] Touch gestures otimizados
-- [ ] Mobile navigation redesign
-- [ ] One-handed use considerations
-- [ ] Voice search preparation
+- [x] 👌 Offline functionality básica (página offline + service worker manifest)
+- [x] 👌 Touch gestures otimizados (swipe, tap, gestures)
+- [x] 👌 Mobile navigation redesign (menu mobile otimizado para one-handed)
+- [x] 👌 One-handed use considerations (FAB posicionado, menu acessível)
+- [x] 👌 Voice search preparation (VoiceSearchButton + hook completo)
 
 ---
 
