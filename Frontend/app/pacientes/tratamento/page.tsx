@@ -1,7 +1,14 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { ArrowRight, Clock, Shield, Zap, CheckCircle, Play, Star, Heart } from "lucide-react"
+import { TreatmentProcessAnimation } from "@/components/animations/treatment-process"
+import { TreatmentTimeline } from "@/components/animations/treatment-timeline"
+import { BeforeAfterMorph } from "@/components/animations/before-after-morph"
+import { MedicalTerm, GlossaryButton } from "@/components/cognitive/medical-glossary"
+import { ContextHelp } from "@/components/cognitive/context-help"
 
 export default function TratamentoPage() {
   return (
@@ -11,12 +18,14 @@ export default function TratamentoPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-6">
-              Tratamento ortodôntico <span className="text-primary">invisível e inteligente</span>
+              Tratamento <MedicalTerm term="ortodôntico">ortodôntico</MedicalTerm>{" "}
+              <span className="text-primary">invisível e inteligente</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Descubra como nossos alinhadores transparentes transformam sorrisos de forma discreta, confortável e
+              Descubra como nossos <MedicalTerm term="alinhadores">alinhadores</MedicalTerm> transparentes transformam sorrisos de forma discreta, confortável e
               previsível
             </p>
+            <GlossaryButton />
             <Button asChild size="lg">
               <Link href="/pacientes/encontre-doutor">
                 Comece seu tratamento hoje
@@ -71,13 +80,62 @@ export default function TratamentoPage() {
         </div>
       </section>
 
-      {/* Processo de Tratamento Detalhado */}
+      {/* Visualização 3D e Before/After */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-heading font-bold mb-4">Veja como funciona</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Visualize a transformação do seu sorriso
+            </p>
+          </div>
+          <BeforeAfterMorph />
+          <div className="text-center mt-8">
+            <Button asChild variant="outline" size="lg">
+              <Link href="/pacientes/visualizacao-3d">
+                Ver visualização 3D completa
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Processo de Tratamento Animado */}
       <section className="py-16 bg-muted">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-heading font-bold mb-4">Seu tratamento passo a passo</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Um processo transparente e previsível do primeiro dia até o sorriso dos seus sonhos
+            </p>
+          </div>
+
+          <TreatmentProcessAnimation />
+        </div>
+      </section>
+
+      {/* Timeline Interativo */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-heading font-bold mb-4">Acompanhe sua evolução</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Timeline interativo mostrando cada fase do seu tratamento
+            </p>
+          </div>
+
+          <TreatmentTimeline />
+        </div>
+      </section>
+
+      {/* Processo de Tratamento Detalhado */}
+      <section className="py-16 bg-muted">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-heading font-bold mb-4">Detalhes do processo</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Entenda cada etapa em profundidade
             </p>
           </div>
 
@@ -254,23 +312,23 @@ export default function TratamentoPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                title: "Dentes Apinhados",
+                title: <MedicalTerm term="apinhamento">Dentes Apinhados</MedicalTerm>,
                 description: "Quando não há espaço suficiente para todos os dentes se alinharem corretamente",
               },
               {
-                title: "Diastemas",
+                title: <MedicalTerm term="diastema">Diastemas</MedicalTerm>,
                 description: "Espaços indesejados entre os dentes que afetam a estética do sorriso",
               },
               {
-                title: "Sobremordida",
+                title: <MedicalTerm term="sobremordida">Sobremordida</MedicalTerm>,
                 description: "Quando os dentes superiores cobrem excessivamente os inferiores",
               },
               {
-                title: "Mordida Cruzada",
+                title: <MedicalTerm term="mordida cruzada">Mordida Cruzada</MedicalTerm>,
                 description: "Desalinhamento entre os dentes superiores e inferiores",
               },
               {
-                title: "Protrusão",
+                title: <MedicalTerm term="overjet">Protrusão</MedicalTerm>,
                 description: "Dentes anteriores muito projetados para frente",
               },
               {

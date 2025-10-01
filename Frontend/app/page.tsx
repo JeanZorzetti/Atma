@@ -7,6 +7,7 @@ import { AnimatedCounter, StaggeredCards } from "@/components/ui/scroll-animatio
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { Users, Award, Star } from "lucide-react"
+import { GlossaryButton, MedicalTerm } from "@/components/cognitive/medical-glossary"
 
 export default function HomePage() {
   const router = useRouter()
@@ -36,9 +37,18 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              Democratizamos o acesso à ortodontia digital de ponta no Brasil. Tecnologia de classe mundial com
+              Democratizamos o acesso à{" "}
+              <MedicalTerm term="ortodontia">ortodontia</MedicalTerm> digital de ponta no Brasil. Tecnologia de classe mundial com
               acessibilidade financeira para a nova classe média brasileira.
             </motion.p>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="mb-8"
+            >
+              <GlossaryButton />
+            </motion.div>
 
             {/* Audience Segmentation */}
             <motion.h2
@@ -102,7 +112,7 @@ export default function HomePage() {
                   <div className="mb-6 space-y-2 text-left">
                     <div className="flex items-center text-sm text-slate-700">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                      Parcelas a partir de R$ 99/mês
+                      <MedicalTerm term="alinhadores">Alinhadores</MedicalTerm> a partir de R$ 99/mês
                     </div>
                     <div className="flex items-center text-sm text-slate-700">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />

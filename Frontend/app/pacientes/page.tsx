@@ -1,9 +1,12 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { ArrowRight, Clock, Heart, Smile, DollarSign, CheckCircle, Star } from "lucide-react"
-
-export const dynamic = 'force-dynamic'
+import { ProgressiveDisclosure } from "@/components/cognitive/progressive-disclosure"
+import { MedicalTerm, GlossaryButton } from "@/components/cognitive/medical-glossary"
+import { ContextHelp } from "@/components/cognitive/context-help"
 
 export default function PacientesPage() {
   return (
@@ -19,12 +22,23 @@ export default function PacientesPage() {
               Descubra como conquistar o sorriso dos seus sonhos com parcelas que cabem no seu bolso. Tratamento
               discreto, confortável e com resultados garantidos.
             </p>
-            <Button asChild size="lg">
-              <Link href="/pacientes/encontre-doutor">
-                Descubra se o tratamento é para você
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            <div className="flex gap-4 justify-center items-center mb-4">
+              <Button asChild size="lg">
+                <Link href="/pacientes/encontre-doutor">
+                  Descubra se o tratamento é para você
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <GlossaryButton />
+            </div>
+            <ContextHelp
+              context="hero-pacientes"
+              title="💡 Primeira vez aqui?"
+              content="Explore nosso glossário de termos odontológicos para entender melhor o processo. Passe o mouse sobre palavras destacadas para ver explicações simples!"
+              type="tip"
+              triggerMode="auto"
+              delay={3000}
+            />
           </div>
         </div>
       </section>
@@ -37,6 +51,72 @@ export default function PacientesPage() {
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Um processo simples e transparente para transformar seu sorriso
             </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto mb-12">
+            <ProgressiveDisclosure
+              title="Entenda o processo completo"
+              basicContent={
+                <div className="space-y-4">
+                  <p>O tratamento com <MedicalTerm term="alinhadores">alinhadores</MedicalTerm> é simples e previsível:</p>
+                  <ul className="space-y-2">
+                    <li>✅ Consulta inicial com ortodontista</li>
+                    <li>✅ Planejamento digital do seu sorriso</li>
+                    <li>✅ Recebimento dos alinhadores personalizados</li>
+                    <li>✅ Acompanhamento até o resultado final</li>
+                  </ul>
+                </div>
+              }
+              detailedContent={
+                <div className="space-y-4">
+                  <p>Cada etapa é cuidadosamente planejada:</p>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2">1. Avaliação Inicial (60-90 min)</h4>
+                      <p className="text-sm text-muted-foreground">Exame clínico completo, radiografias e discussão dos objetivos do tratamento.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">2. Escaneamento 3D (15-20 min)</h4>
+                      <p className="text-sm text-muted-foreground">Scanner intraoral cria modelo digital preciso dos seus dentes.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">3. Planejamento (7-10 dias)</h4>
+                      <p className="text-sm text-muted-foreground">Nossa equipe cria simulação 3D mostrando cada movimento dentário.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">4. Produção (2-3 semanas)</h4>
+                      <p className="text-sm text-muted-foreground">Alinhadores fabricados com precisão usando impressão 3D e termoformagem.</p>
+                    </div>
+                  </div>
+                </div>
+              }
+              technicalContent={
+                <div className="space-y-4">
+                  <p className="font-semibold">Especificações Técnicas:</p>
+                  <div className="bg-muted p-4 rounded-lg space-y-3 text-sm">
+                    <div>
+                      <strong>Material:</strong> Poliuretano termoplástico biocompatível (0.75mm - 1.0mm de espessura)
+                    </div>
+                    <div>
+                      <strong>Precisão do Scanner:</strong> 20 microns (0.02mm) - tecnologia intraoral de última geração
+                    </div>
+                    <div>
+                      <strong>Software de Planejamento:</strong> Algoritmos proprietários baseados em IA para predição de movimento dentário
+                    </div>
+                    <div>
+                      <strong>Força Aplicada:</strong> 0.5-2.0N por dente (otimizada para conforto e eficácia)
+                    </div>
+                    <div>
+                      <strong>Tempo de Troca:</strong> 7-14 dias por alinhador (baseado em complexidade do caso)
+                    </div>
+                    <div>
+                      <strong>Protocolo de Uso:</strong> 22 horas/dia (remoção apenas para alimentação e higiene)
+                    </div>
+                  </div>
+                </div>
+              }
+              defaultLevel="basic"
+            />
           </div>
 
           <div className="grid md:grid-cols-4 gap-8">
@@ -206,10 +286,16 @@ export default function PacientesPage() {
             ))}
           </div>
 
-          <div className="text-center">
+          <div className="text-center flex gap-4 justify-center flex-wrap">
             <Button asChild variant="outline" size="lg">
               <Link href="/pacientes/antes-depois">
                 Ver mais transformações
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg">
+              <Link href="/pacientes/visualizacao-3d">
+                Ver visualização 3D interativa
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
