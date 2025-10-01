@@ -26,7 +26,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/:path((?!_next/static|_next/image|favicon.ico).*)',
         headers: [
           {
             key: 'X-Content-Type-Options',
