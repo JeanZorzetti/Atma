@@ -362,6 +362,78 @@ const TreatmentProcess = () => (
 
 ---
 
+### 🎨 **3.1.1 ANIMAÇÕES LOTTIE CUSTOMIZADAS**
+**⏱️ Duração**: 2 semanas | **🔥 Prioridade**: ALTA
+
+#### **Objetivo:**
+Criar animações Lottie personalizadas para cada etapa do processo de tratamento,
+substituindo os placeholders atuais por animações profissionais que realmente
+representam visualmente cada fase.
+
+#### **Animações a Criar:**
+
+**1. Escaneamento 3D (scan-animation.json)**
+- Scanner intraoral capturando modelo 3D dos dentes
+- Efeito de laser/luz azul percorrendo a arcada dentária
+- Modelo 3D sendo construído progressivamente
+- Duração: 3-4 segundos em loop
+
+**2. Planejamento Digital (planning-animation.json)**
+- Dentes sendo analisados em tela digital
+- Medições e cálculos aparecendo
+- Simulação de movimento dentário
+- Aprovação com checkmark
+- Duração: 4-5 segundos em loop
+
+**3. Produção de Alinhadores (production-animation.json)**
+- Impressora 3D criando molde
+- Termoformagem do alinhador
+- Corte e acabamento
+- Alinhador finalizado sendo embalado
+- Duração: 4-5 segundos em loop
+
+**4. Tratamento Ativo (treatment-animation.json)**
+- Paciente colocando alinhador
+- Dentes se movendo gradualmente
+- Calendário mostrando passagem do tempo
+- Progresso visual com checkmarks
+- Duração: 3-4 segundos em loop
+
+#### **Especificações Técnicas:**
+```json
+{
+  "format": "Lottie JSON",
+  "frameRate": 60,
+  "dimensions": "1000x1000px",
+  "colorScheme": {
+    "primary": "#0066CC",
+    "secondary": "#00A896",
+    "accent": "#FFB703",
+    "background": "transparent"
+  },
+  "optimization": {
+    "maxFileSize": "150KB",
+    "compression": "high",
+    "removeMetadata": true
+  }
+}
+```
+
+#### **Ferramentas:**
+- **Criação**: LottieFiles Creator / After Effects + Bodymovin
+- **Otimização**: LottieFiles Optimizer
+- **Testes**: lottie-react player
+
+#### **Deliverables:**
+- [x] 👌 Scan 3D animation (scan-animation.json - 3.2KB)
+- [x] 👌 Planning animation (planning-animation.json - 4.1KB)
+- [x] 👌 Production animation (production-animation.json - 5.8KB)
+- [x] 👌 Treatment animation (treatment-animation.json - 6.3KB)
+- [x] 👌 Integração nos componentes TreatmentProcessAnimation
+- [x] 👌 Testes de performance - todas < 10KB (meta 150KB)
+
+---
+
 ### 📊 **3.2 UX PREDITIVO & DASHBOARDS**
 **⏱️ Duração**: 8 semanas | **🔥 Prioridade**: MÉDIA
 

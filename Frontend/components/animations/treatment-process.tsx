@@ -3,13 +3,19 @@
 /**
  * Treatment Process Animations
  * FASE 3.1 - Motion Design Médico
+ * FASE 3.1.1 - Animações Lottie Customizadas
  *
  * Animações educativas do processo de tratamento ortodôntico
  */
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, ChevronLeft, Scan, Printer, Package, Smile } from 'lucide-react'
+import Lottie, { LottieRefCurrentProps } from 'lottie-react'
+import scanAnimation from '@/public/animations/scan-animation.json'
+import planningAnimation from '@/public/animations/planning-animation.json'
+import productionAnimation from '@/public/animations/production-animation.json'
+import treatmentAnimation from '@/public/animations/treatment-animation.json'
 
 interface ProcessStep {
   id: string
@@ -19,6 +25,7 @@ interface ProcessStep {
   color: string
   duration: string
   details: string[]
+  animation: any
 }
 
 const treatmentSteps: ProcessStep[] = [
@@ -29,6 +36,7 @@ const treatmentSteps: ProcessStep[] = [
     icon: Scan,
     color: 'from-blue-500 to-cyan-500',
     duration: '15 minutos',
+    animation: scanAnimation,
     details: [
       'Scanner intraoral sem desconforto',
       'Precisão de 20 microns',
@@ -43,6 +51,7 @@ const treatmentSteps: ProcessStep[] = [
     icon: Printer,
     color: 'from-purple-500 to-pink-500',
     duration: '2-3 dias',
+    animation: planningAnimation,
     details: [
       'Simulação 3D do resultado',
       'Cálculo de movimentos',
@@ -57,6 +66,7 @@ const treatmentSteps: ProcessStep[] = [
     icon: Package,
     color: 'from-orange-500 to-red-500',
     duration: '7-10 dias',
+    animation: productionAnimation,
     details: [
       'Impressão 3D de precisão',
       'Material biocompatível',
@@ -71,6 +81,7 @@ const treatmentSteps: ProcessStep[] = [
     icon: Smile,
     color: 'from-green-500 to-emerald-500',
     duration: '6-18 meses',
+    animation: treatmentAnimation,
     details: [
       'Troca quinzenal',
       '22h por dia de uso',
@@ -227,9 +238,16 @@ export function TreatmentProcessAnimation() {
                     ))}
                   </div>
 
-                  {/* Animated visual representation */}
+                  {/* Lottie Animation */}
                   <div className="mt-8">
-                    <ProcessVisual stepId={step.id} color={step.color} />
+                    <div className="w-full max-w-md mx-auto">
+                      <Lottie
+                        animationData={step.animation}
+                        loop={true}
+                        autoplay={true}
+                        style={{ width: '100%', height: 300 }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -273,106 +291,3 @@ export function TreatmentProcessAnimation() {
   )
 }
 
-// Visual representation for each step
-function ProcessVisual({ stepId, color }: { stepId: string; color: string }) {
-  switch (stepId) {
-    case 'scan':
-      return (
-        <div className="relative h-32 bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg overflow-hidden">
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200/50 to-transparent"
-            animate={{ x: [-200, 400] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          />
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              className="text-4xl"
-            >
-              📷
-            </motion.div>
-          </div>
-        </div>
-      )
-
-    case 'plan':
-      return (
-        <div className="relative h-32 bg-gradient-to-br from-slate-50 to-purple-50 rounded-lg p-4">
-          <div className="grid grid-cols-5 gap-2">
-            {[...Array(10)].map((_, i) => (
-              <motion.div
-                key={i}
-                className={`h-10 rounded bg-gradient-to-br ${color} opacity-30`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: [0.3, 0.7, 0.3], y: 0 }}
-                transition={{
-                  delay: i * 0.1,
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )
-
-    case 'production':
-      return (
-        <div className="relative h-32 bg-gradient-to-br from-slate-50 to-orange-50 rounded-lg overflow-hidden">
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-200">
-            <motion.div
-              className={`h-full bg-gradient-to-r ${color}`}
-              animate={{ width: ['0%', '100%'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </div>
-          <div className="flex items-center justify-center h-full space-x-4">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className={`w-16 h-20 rounded-lg bg-gradient-to-br ${color} opacity-50`}
-                animate={{
-                  y: [0, -10, 0],
-                  opacity: [0.3, 0.8, 0.3]
-                }}
-                transition={{
-                  delay: i * 0.3,
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )
-
-    case 'treatment':
-      return (
-        <div className="relative h-32 bg-gradient-to-br from-slate-50 to-green-50 rounded-lg">
-          <div className="flex items-center justify-center h-full">
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                rotate: [0, 10, 0, -10, 0]
-              }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="text-6xl"
-            >
-              😁
-            </motion.div>
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-green-200/30 to-transparent"
-              animate={{ x: [-200, 400] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            />
-          </div>
-        </div>
-      )
-
-    default:
-      return null
-  }
-}
