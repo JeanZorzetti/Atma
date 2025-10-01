@@ -5,7 +5,7 @@
  * FASE 3.1 - Exemplo Completo
  */
 
-import { TeethMovementVisualization } from '@/components/3d'
+import dynamic from 'next/dynamic'
 import {
   TreatmentProcessAnimation,
   TreatmentTimeline,
@@ -15,6 +15,22 @@ import {
 } from '@/components/animations'
 import { motion } from 'framer-motion'
 import { Eye, Zap, Film } from 'lucide-react'
+
+// Import Three.js component with SSR disabled
+const TeethMovementVisualization = dynamic(
+  () => import('@/components/3d').then(mod => ({ default: mod.TeethMovementVisualization })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[500px] bg-slate-100 rounded-2xl flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Carregando visualização 3D...</p>
+        </div>
+      </div>
+    )
+  }
+)
 
 export default function Visualizacao3DPage() {
   return (
