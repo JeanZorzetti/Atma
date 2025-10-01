@@ -1,14 +1,30 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { ArrowRight, Clock, Shield, Zap, CheckCircle, Play, Star, Heart } from "lucide-react"
-import { TreatmentProcessAnimation } from "@/components/animations/treatment-process"
 import { TreatmentTimeline } from "@/components/animations/treatment-timeline"
 import { BeforeAfterMorph } from "@/components/animations/before-after-morph"
 import { MedicalTerm, GlossaryButton } from "@/components/cognitive/medical-glossary"
 import { ContextHelp } from "@/components/cognitive/context-help"
+
+// Dynamic import for Lottie animations (client-only)
+const TreatmentProcessAnimation = dynamic(
+  () => import("@/components/animations/treatment-process").then(mod => ({ default: mod.TreatmentProcessAnimation })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[400px] bg-slate-100 rounded-2xl flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Carregando animações...</p>
+        </div>
+      </div>
+    )
+  }
+)
 
 export default function TratamentoPage() {
   return (
