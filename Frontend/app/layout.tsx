@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer"
 import { StructuredData } from "@/components/structured-data"
 import { Breadcrumbs } from "@/components/breadcrumbs"
 import { ClientOnlyFABs } from "@/components/client-only-fabs"
+import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 
 // Force dynamic rendering to avoid SSR issues with voice search and animations
 export const dynamic = 'force-dynamic'
@@ -136,20 +137,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="mobile-web-app-capable" content="yes" />
 
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-EMCS41DMSP"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-EMCS41DMSP');
-            `,
-          }}
-        />
         <StructuredData />
       </head>
       <body className="min-h-screen flex flex-col">
+        <GoogleAnalytics />
         {/* WCAG 2.2 Skip Navigation */}
         <a href="#main-content" className="skip-nav">
           Pular para o conteúdo principal

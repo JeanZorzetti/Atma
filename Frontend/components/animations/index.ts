@@ -1,3 +1,5 @@
+"use client"
+
 /**
  * Motion Design Medical Components - Export Index
  * FASE 3.1 - Motion Design Médico
