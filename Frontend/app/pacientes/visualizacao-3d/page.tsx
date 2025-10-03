@@ -7,7 +7,6 @@
 
 import dynamic from 'next/dynamic'
 import {
-  TreatmentProcessAnimation,
   TreatmentTimeline,
   BeforeAfterMorph,
   VisualProgressTracker,
@@ -26,6 +25,22 @@ const TeethMovementVisualization = dynamic(
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600">Carregando visualização 3D...</p>
+        </div>
+      </div>
+    )
+  }
+)
+
+// Import TreatmentProcessAnimation with SSR disabled (uses Lottie which needs window)
+const TreatmentProcessAnimation = dynamic(
+  () => import('@/components/animations/treatment-process').then(mod => ({ default: mod.TreatmentProcessAnimation })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[400px] bg-slate-100 rounded-2xl flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Carregando animações...</p>
         </div>
       </div>
     )
