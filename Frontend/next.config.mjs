@@ -25,6 +25,18 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
   serverExternalPackages: ['sharp'],
+  // Fix for Next.js 15 chunkhash/contenthash inconsistency
+  // This ensures buildManifest references correct chunk filenames
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Replace [chunkhash] with [contenthash] for deterministic builds
+      // See: https://github.com/vercel/next.js/issues/78756
+      if (config.output.filename) {
+        config.output.filename = config.output.filename.replace('[chunkhash]', '[contenthash]');
+      }
+    }
+    return config;
+  },
   // Compression
   compress: true,
   // Headers for better caching
