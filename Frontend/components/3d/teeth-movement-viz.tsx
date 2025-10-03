@@ -7,7 +7,7 @@
  * Visualização 3D interativa do movimento dentário com alinhadores
  */
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera, Environment, ContactShadows } from '@react-three/drei'
 import { motion } from 'framer-motion'
@@ -171,20 +171,39 @@ function MovementArrows({ visible = false }) {
   )
 }
 
+// Componente interno que controla a animação (precisa estar dentro do Canvas)
+function AnimationController({
+  isPlaying,
+  progress,
+  onProgressChange,
+  onPlayingChange
+}: {
+  isPlaying: boolean
+  progress: number
+  onProgressChange: (progress: number) => void
+  onPlayingChange: (isPlaying: boolean) => void
+}) {
+  useFrame(() => {
+    if (isPlaying && progress < 1) {
+      onProgressChange(Math.min(progress + 0.01, 1))
+    } else if (progress >= 1) {
+      onPlayingChange(false)
+    }
+  })
+
+  return null // Este componente não renderiza nada, apenas executa a animação
+}
+
 export function TeethMovementVisualization() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [showAligner, setShowAligner] = useState(true)
   const [showArrows, setShowArrows] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
-  // Controla animação
-  useFrame(() => {
-    if (isPlaying && progress < 1) {
-      setProgress(prev => Math.min(prev + 0.01, 1))
-    } else if (progress >= 1) {
-      setIsPlaying(false)
-    }
-  })
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const handlePlayPause = () => {
     if (progress >= 1) {
@@ -198,6 +217,17 @@ export function TeethMovementVisualization() {
     setIsPlaying(false)
   }
 
+  if (!isMounted) {
+    return (
+      <div className="relative w-full h-[500px] bg-gradient-to-br from-slate-900 to-blue-900 rounded-xl flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+          <p className="text-cyan-100">Carregando visualização 3D...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="relative w-full h-[500px] bg-gradient-to-br from-slate-900 to-blue-900 rounded-xl overflow-hidden">
       {/* Canvas 3D */}
@@ -208,6 +238,14 @@ export function TeethMovementVisualization() {
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
         <pointLight position={[-5, 5, -5]} intensity={0.5} color="#4dabf7" />
+
+        {/* Controlador de animação */}
+        <AnimationController
+          isPlaying={isPlaying}
+          progress={progress}
+          onProgressChange={setProgress}
+          onPlayingChange={setIsPlaying}
+        />
 
         {/* Cena */}
         <TeethArch animationProgress={progress} showMovement={isPlaying || progress > 0} />

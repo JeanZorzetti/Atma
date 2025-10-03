@@ -10,16 +10,16 @@ import { BeforeAfterMorph } from "@/components/animations/before-after-morph"
 import { MedicalTerm, GlossaryButton } from "@/components/cognitive/medical-glossary"
 import { ContextHelp } from "@/components/cognitive/context-help"
 
-// Dynamic import for Lottie animations (client-only)
-const TreatmentProcessAnimation = dynamic(
-  () => import("@/components/animations/treatment-process").then(mod => ({ default: mod.TreatmentProcessAnimation })),
+// Dynamic import for 3D teeth visualization (client-only - uses Three.js)
+const TeethMovementVisualization = dynamic(
+  () => import("@/components/3d/teeth-movement-viz").then(mod => ({ default: mod.TeethMovementVisualization })),
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-[400px] bg-slate-100 rounded-2xl flex items-center justify-center">
+      <div className="w-full h-[500px] bg-gradient-to-br from-slate-900 to-blue-900 rounded-2xl flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Carregando animações...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+          <p className="text-cyan-100">Carregando visualização 3D...</p>
         </div>
       </div>
     )
@@ -117,17 +117,21 @@ export default function TratamentoPage() {
         </div>
       </section>
 
-      {/* Processo de Tratamento Animado */}
+      {/* Visualização 3D do Movimento Dentário */}
       <section className="py-16 bg-muted">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-heading font-bold mb-4">Seu tratamento passo a passo</h2>
+            <h2 className="text-3xl font-heading font-bold mb-4">Veja seus dentes se alinhando</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Um processo transparente e previsível do primeiro dia até o sorriso dos seus sonhos
+              Visualização 3D interativa mostrando como os alinhadores movem seus dentes gradualmente
             </p>
           </div>
 
-          <TreatmentProcessAnimation />
+          <TeethMovementVisualization />
+
+          <p className="mt-6 text-center text-muted-foreground text-sm">
+            🖱️ Arraste para rotacionar • 🔍 Scroll para zoom • ▶️ Clique em "Iniciar" para ver a animação
+          </p>
         </div>
       </section>
 
