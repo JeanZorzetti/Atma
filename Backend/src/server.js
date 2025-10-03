@@ -65,11 +65,17 @@ const corsOptions = {
     }
     
     // Verificar patterns com wildcard (especificamente *.vercel.app)
-    const isVercelApp = origin && origin.endsWith('.vercel.app') && 
-                       allowedOrigins.some(allowed => allowed === 'https://*.vercel.app');
-    
+    // Aceitar qualquer subdomínio .vercel.app se o wildcard estiver na lista
+    const hasVercelWildcard = allowedOrigins.some(allowed =>
+      allowed === 'https://*.vercel.app' || allowed === 'http://*.vercel.app'
+    );
+    const isVercelApp = origin && (
+      origin.endsWith('.vercel.app') ||
+      origin.includes('.vercel.app/')
+    ) && hasVercelWildcard;
+
     if (isVercelApp) {
-      logger.info(`CORS permitido para Vercel app: ${origin}`);
+      logger.info(`✅ CORS permitido para Vercel app: ${origin}`);
       return callback(null, true);
     }
     
