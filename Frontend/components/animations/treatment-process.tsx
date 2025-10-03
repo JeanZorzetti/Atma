@@ -96,6 +96,11 @@ const treatmentSteps: ProcessStep[] = [
 export function TreatmentProcessAnimation() {
   const [currentStep, setCurrentStep] = useState(0)
   const [direction, setDirection] = useState(0)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const nextStep = () => {
     if (currentStep < treatmentSteps.length - 1) {
@@ -243,12 +248,22 @@ export function TreatmentProcessAnimation() {
                   {/* Lottie Animation */}
                   <div className="mt-8">
                     <div className="w-full max-w-md mx-auto">
-                      <Lottie
-                        animationData={step.animation}
-                        loop={true}
-                        autoplay={true}
-                        style={{ width: '100%', height: 300 }}
-                      />
+                      {isMounted ? (
+                        <Lottie
+                          animationData={step.animation}
+                          loop={true}
+                          autoplay={true}
+                          style={{ width: '100%', height: 300 }}
+                          rendererSettings={{
+                            preserveAspectRatio: 'xMidYMid slice',
+                            clearCanvas: true,
+                            progressiveLoad: false,
+                            hideOnTransparent: true
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-[300px] bg-slate-100 rounded-lg animate-pulse" />
+                      )}
                     </div>
                   </div>
                 </div>
