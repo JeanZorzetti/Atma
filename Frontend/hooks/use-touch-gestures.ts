@@ -295,7 +295,7 @@ export function useTouchGestures(
     state,
     // Utility functions
     isTouch: state.isTouch,
-    isMobile: 'ontouchstart' in window,
+    isMobile: typeof window !== 'undefined' && 'ontouchstart' in window,
   };
 }
 
