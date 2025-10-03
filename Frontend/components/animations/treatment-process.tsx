@@ -13,11 +13,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, ChevronLeft, Scan, Printer, Package, Smile } from 'lucide-react'
 import Lottie, { LottieRefCurrentProps } from 'lottie-react'
 
-// Import animations directly - Next.js will handle them as static assets
-import scanAnimationData from '@/public/animations/scan-animation.json'
-import planningAnimationData from '@/public/animations/planning-animation.json'
-import productionAnimationData from '@/public/animations/production-animation.json'
-import treatmentAnimationData from '@/public/animations/treatment-animation.json'
+// Import animations from data directory
+import scanAnimationData from './data/scan-animation.json'
+import planningAnimationData from './data/planning-animation.json'
+import productionAnimationData from './data/production-animation.json'
+import treatmentAnimationData from './data/treatment-animation.json'
 
 interface ProcessStep {
   id: string
