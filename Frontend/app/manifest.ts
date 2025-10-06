@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Atma Aligner - Ortodontia Digital Premium',
     short_name: 'Atma',
-    description: 'Revolucione seu sorriso com alinhadores invisíveis premium. Tecnologia 3D, ortodontistas especializados e parcelas acessíveis.',
+    description: 'Alinhadores invisíveis premium com tecnologia 3D. Ortodontistas especializados e preços acessíveis.',
     start_url: '/?utm_source=pwa',
     display: 'standalone',
     background_color: '#ffffff',

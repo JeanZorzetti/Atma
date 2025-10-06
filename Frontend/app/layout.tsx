@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     default: "Atma Aligner - Alinhadores Invisíveis Premium | Ortodontia Digital",
     template: "%s | Atma Aligner"
   },
-  description: "Democratize seu sorriso com alinhadores invisíveis premium e acessíveis. Tecnologia 3D avançada, IA para planejamento e ortodontistas especializados. Transforme seu sorriso em Passo Fundo, RS.",
+  description: "Alinhadores invisíveis premium com tecnologia 3D e IA. Ortodontistas especializados e preços acessíveis. Transforme seu sorriso!",
   keywords: [
     "alinhadores invisíveis",
     "ortodontia digital",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     url: 'https://atma.roilabs.com.br',
     siteName: 'Atma Aligner',
     title: 'Atma Aligner - Alinhadores Invisíveis Premium',
-    description: 'Democratize seu sorriso com alinhadores invisíveis premium e acessíveis. Tecnologia 3D avançada e ortodontistas especializados.',
+    description: 'Alinhadores invisíveis premium com tecnologia 3D e IA. Ortodontistas especializados e preços acessíveis.',
     images: [
       {
         url: '/og-image.jpg',
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     site: '@atma_aligner',
     creator: '@atma_aligner',
     title: 'Atma Aligner - Alinhadores Invisíveis Premium',
-    description: 'Democratize seu sorriso com alinhadores invisíveis premium e acessíveis.',
+    description: 'Alinhadores invisíveis premium com tecnologia 3D e IA. Transforme seu sorriso com preços acessíveis.',
     images: ['/og-image.jpg']
   },
   robots: {
