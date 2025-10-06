@@ -60,6 +60,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     },
+    {
+      url: `${baseUrl}/pacientes/qualidade-alemao`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
     // Páginas para Ortodontistas
     {
       url: `${baseUrl}/ortodontistas`,
@@ -80,13 +86,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/ortodontistas/vantagens-financeiras`,
+      url: `${baseUrl}/ortodontistas/tecnologia`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
-      priority: 0.8,
+      priority: 0.7,
     },
     {
-      url: `${baseUrl}/ortodontistas/tecnologia`,
+      url: `${baseUrl}/ortodontistas/qualidade-alemao`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.7,

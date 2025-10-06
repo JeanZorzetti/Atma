@@ -50,9 +50,6 @@ export const metadata: Metadata = {
   creator: "Atma Aligner",
   publisher: "Atma Aligner",
   metadataBase: new URL('https://atma.roilabs.com.br'),
-  alternates: {
-    canonical: "https://atma.roilabs.com.br"
-  },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
