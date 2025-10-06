@@ -104,6 +104,112 @@ export default function VantagensPage() {
         </div>
       </section>
 
+      {/* Vantagens Financeiras Detalhadas */}
+      <section className="py-16 px-4 bg-muted">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-heading font-bold mb-4">Vantagens Financeiras Comprovadas</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Números reais que transformam a lucratividade da sua clínica
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <TrendingUp className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="text-xl font-heading font-semibold mb-2">Aumento de Lucratividade</h3>
+                <p className="text-4xl font-heading font-bold text-primary mb-2">+35%</p>
+                <p className="text-muted-foreground text-sm">
+                  Margem média superior aos métodos tradicionais, com custos operacionais reduzidos
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <DollarSign className="h-12 w-12 text-secondary mx-auto mb-4" />
+                <h3 className="text-xl font-heading font-semibold mb-2">Fluxo de Caixa Otimizado</h3>
+                <p className="text-4xl font-heading font-bold text-secondary mb-2">60%</p>
+                <p className="text-muted-foreground text-sm">
+                  Redução no capital imobilizado, liberando recursos para crescimento
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <BarChart3 className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="text-xl font-heading font-semibold mb-2">ROI Acelerado</h3>
+                <p className="text-4xl font-heading font-bold text-primary mb-2">4-6</p>
+                <p className="text-muted-foreground text-sm">
+                  Meses para retorno do investimento, versus 12-18 meses do modelo tradicional
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="border-2 border-destructive/20 bg-destructive/5">
+              <CardHeader>
+                <CardTitle className="text-destructive flex items-center gap-2">
+                  <span>✗</span> Modelo Tradicional
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-destructive mt-1">✗</span>
+                    Lab fee alto pago antecipadamente
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-destructive mt-1">✗</span>
+                    Risco total do investimento na clínica
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-destructive mt-1">✗</span>
+                    Fluxo de caixa comprometido
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-destructive mt-1">✗</span>
+                    Sem flexibilidade para ajustes
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-primary bg-primary/5">
+              <CardHeader>
+                <CardTitle className="text-primary flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  Modelo Atma Aligner
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary mt-1" />
+                    <span>Pagamento faseado conforme entrega</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary mt-1" />
+                    <span>Risco compartilhado e mitigado</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary mt-1" />
+                    <span>Capital de giro preservado</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary mt-1" />
+                    <span>Flexibilidade total para mudanças</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Resultados Comprovados */}
       <section className="py-16 px-4 bg-muted">
         <div className="max-w-6xl mx-auto">
@@ -159,22 +265,21 @@ export default function VantagensPage() {
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-heading font-bold mb-4">Saiba Mais Sobre Nossas Soluções</h2>
-            <p className="text-muted-foreground">Explore em detalhes como podemos impulsionar sua clínica</p>
+            <h2 className="text-3xl font-heading font-bold mb-4">Próximos Passos</h2>
+            <p className="text-muted-foreground">Escolha como deseja aprofundar seu conhecimento</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <DollarSign className="h-8 w-8 text-primary mb-4" />
-                <h3 className="text-xl font-heading font-semibold mb-2">Vantagens Financeiras</h3>
+                <Users className="h-8 w-8 text-primary mb-4" />
+                <h3 className="text-xl font-heading font-semibold mb-2">Comparar Modelos</h3>
                 <p className="text-muted-foreground mb-4">
-                  Descubra como nosso modelo de pagamento faseado e parcerias com fintechs podem revolucionar suas
-                  finanças.
+                  Veja lado a lado as diferenças entre Atma Aligner e Atma Labs para escolher o modelo ideal.
                 </p>
                 <Button asChild variant="outline" className="w-full bg-transparent">
-                  <Link href="/ortodontistas/vantagens-financeiras">
-                    Ver Detalhes Financeiros
+                  <Link href="/ortodontistas/modelos-parceria">
+                    Ver Comparação
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -183,14 +288,14 @@ export default function VantagensPage() {
 
             <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <Users className="h-8 w-8 text-primary mb-4" />
-                <h3 className="text-xl font-heading font-semibold mb-2">Modelos de Parceria</h3>
+                <BarChart3 className="h-8 w-8 text-primary mb-4" />
+                <h3 className="text-xl font-heading font-semibold mb-2">Análise Financeira Detalhada</h3>
                 <p className="text-muted-foreground mb-4">
-                  Compare nossos modelos Atma Aligner e Atma Labs para escolher o ideal para sua clínica.
+                  Veja números detalhados, projeções de ROI e simulações de faturamento para sua clínica.
                 </p>
                 <Button asChild variant="outline" className="w-full bg-transparent">
-                  <Link href="/ortodontistas/modelos-parceria">
-                    Comparar Modelos
+                  <Link href="/ortodontistas/comparar-modelos">
+                    Ver Análise Completa
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>

@@ -112,13 +112,16 @@ export function Header() {
                   <Link href="/ortodontistas">Visão Geral</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link href="/ortodontistas/vantagens">Vantagens da Parceria</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/ortodontistas/modelos-parceria">Modelos de Parceria</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/ortodontistas/tecnologia">Nossa Tecnologia</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/ortodontistas/vantagens">Vantagens Financeiras</Link>
+                  <Link href="/ortodontistas/comparar-modelos">Análise Financeira Detalhada</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -241,8 +244,9 @@ export function Header() {
                       label: "Para Ortodontistas",
                       submenu: [
                         { href: "/ortodontistas", label: "Visão Geral" },
-                        { href: "/ortodontistas/seja-parceiro", label: "Seja Parceiro" },
-                        { href: "/ortodontistas/tecnologia", label: "Tecnologia" }
+                        { href: "/ortodontistas/vantagens", label: "Vantagens da Parceria" },
+                        { href: "/ortodontistas/modelos-parceria", label: "Modelos de Parceria" },
+                        { href: "/ortodontistas/seja-parceiro", label: "Seja Parceiro" }
                       ]
                     },
                     { href: "/sobre", label: "Sobre Nós" },

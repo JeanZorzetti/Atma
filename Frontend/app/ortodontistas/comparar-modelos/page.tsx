@@ -28,6 +28,15 @@ export default function CompararModelos() {
             Análise detalhada dos modelos Atma Aligner vs Atma Labs com dados financeiros,
             projeções de ROI e estruturas de investimento.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">
+            <Link href="/ortodontistas/vantagens" className="text-blue-600 hover:underline">
+              ← Ver Vantagens da Parceria
+            </Link>
+            <span className="hidden sm:block text-gray-400">|</span>
+            <Link href="/ortodontistas/modelos-parceria" className="text-blue-600 hover:underline">
+              ← Comparação Simplificada
+            </Link>
+          </div>
         </div>
       </section>
 
