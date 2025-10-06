@@ -5,9 +5,15 @@ export function StructuredData() {
     "name": "Atma Aligner",
     "description": "Alinhadores invisíveis premium e acessíveis com tecnologia 3D avançada",
     "url": "https://atma.roilabs.com.br",
-    "logo": "https://atma.roilabs.com.br/logo.png",
-    "image": "https://atma.roilabs.com.br/og-image.jpg",
-    "telephone": "(47) 9200-0924",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://atma.roilabs.com.br/logo.png"
+    },
+    "image": {
+      "@type": "ImageObject",
+      "url": "https://atma.roilabs.com.br/og-image.jpg"
+    },
+    "telephone": "+55-47-9200-0924",
     "email": "atma.aligner@gmail.com",
     "address": {
       "@type": "PostalAddress",
@@ -19,16 +25,7 @@ export function StructuredData() {
       "@type": "Country",
       "name": "Brasil"
     },
-    "medicalSpecialty": [
-      "Orthodontics",
-      "Digital Orthodontics",
-      "Clear Aligners"
-    ],
-    "serviceType": [
-      "Alinhadores Invisíveis",
-      "Ortodontia Digital",
-      "Tratamento Ortodôntico"
-    ],
+    "medicalSpecialty": "Orthodontics",
     "sameAs": [
       "https://www.facebook.com/people/Atma-Aligner/61581147385394/",
       "https://www.instagram.com/atma.aligner/",
@@ -38,7 +35,7 @@ export function StructuredData() {
       "@type": "Organization",
       "name": "ROI Labs"
     },
-    "foundingDate": "2024"
+    "foundingDate": "2024-01-01"
   }
 
   const websiteSchema = {
@@ -59,28 +56,16 @@ export function StructuredData() {
 
   const serviceSchema = {
     "@context": "https://schema.org",
-    "@type": "MedicalService",
+    "@type": "MedicalProcedure",
     "name": "Alinhadores Invisíveis",
     "description": "Tratamento ortodôntico com alinhadores transparentes personalizados usando tecnologia 3D",
-    "provider": {
-      "@type": "MedicalBusiness",
-      "name": "Atma Aligner"
+    "procedureType": "Orthodontic Treatment",
+    "bodyLocation": {
+      "@type": "AnatomicalStructure",
+      "name": "Dentes"
     },
-    "serviceType": "Orthodontic Treatment",
-    "medicalCode": {
-      "@type": "MedicalCode",
-      "code": "D8080",
-      "codingSystem": "CDT"
-    },
-    "areaServed": {
-      "@type": "Country",
-      "name": "Brasil"
-    },
-    "availableChannel": {
-      "@type": "ServiceChannel",
-      "serviceUrl": "https://atma.roilabs.com.br/pacientes/encontre-doutor",
-      "serviceName": "Encontre um Ortodontista"
-    }
+    "preparation": "Consulta inicial, scan 3D dos dentes e planejamento digital",
+    "followup": "Consultas de acompanhamento a cada 4-6 semanas"
   }
 
   const faqSchema = {
