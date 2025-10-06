@@ -86,6 +86,9 @@ export function Header() {
                   <Link href="/pacientes/antes-depois">Antes e Depois</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link href="/pacientes/qualidade-alemao">Qualidade Alemã</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/pacientes/precos">Preços e Financiamento</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -119,6 +122,9 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/ortodontistas/tecnologia">Nossa Tecnologia</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/ortodontistas/qualidade-alemao">Qualidade Alemã</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/ortodontistas/comparar-modelos">Análise Financeira Detalhada</Link>
@@ -235,6 +241,8 @@ export function Header() {
                       label: "Para Pacientes",
                       submenu: [
                         { href: "/pacientes", label: "Visão Geral" },
+                        { href: "/pacientes/tratamento", label: "O Tratamento" },
+                        { href: "/pacientes/qualidade-alemao", label: "Qualidade Alemã" },
                         { href: "/pacientes/encontre-doutor", label: "Encontre um Doutor" },
                         { href: "/pacientes/precos", label: "Preços" }
                       ]
@@ -245,7 +253,8 @@ export function Header() {
                       submenu: [
                         { href: "/ortodontistas", label: "Visão Geral" },
                         { href: "/ortodontistas/vantagens", label: "Vantagens da Parceria" },
-                        { href: "/ortodontistas/modelos-parceria", label: "Modelos de Parceria" },
+                        { href: "/ortodontistas/tecnologia", label: "Nossa Tecnologia" },
+                        { href: "/ortodontistas/qualidade-alemao", label: "Qualidade Alemã" },
                         { href: "/ortodontistas/seja-parceiro", label: "Seja Parceiro" }
                       ]
                     },
