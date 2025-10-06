@@ -36,12 +36,12 @@ export default function PrecosPage() {
             <Card className="border-2 hover:border-primary transition-colors">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-heading">Casos Simples</CardTitle>
-                <p className="text-muted-foreground">Pequenos ajustes e alinhamentos</p>
+                <p className="text-muted-foreground">Até 20 alinhadores</p>
               </CardHeader>
               <CardContent className="text-center">
                 <div className="mb-6">
-                  <div className="text-4xl font-heading font-bold text-primary mb-2">R$ 4.990</div>
-                  <p className="text-muted-foreground">ou 12x de R$ 399/mês*</p>
+                  <div className="text-4xl font-heading font-bold text-primary mb-2">R$ 3.990</div>
+                  <p className="text-muted-foreground">ou 12x de R$ 333/mês*</p>
                 </div>
                 <ul className="space-y-3 mb-8 text-left">
                   <li className="flex items-center">
@@ -50,7 +50,7 @@ export default function PrecosPage() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-primary mr-2" />
-                    <span>8-15 alinhadores</span>
+                    <span>Até 20 alinhadores</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-primary mr-2" />
@@ -74,12 +74,12 @@ export default function PrecosPage() {
                   MAIS POPULAR
                 </div>
                 <CardTitle className="text-2xl font-heading">Casos Moderados</CardTitle>
-                <p className="text-muted-foreground">Alinhamentos e correções médias</p>
+                <p className="text-muted-foreground">20-30 alinhadores</p>
               </CardHeader>
               <CardContent className="text-center">
                 <div className="mb-6">
-                  <div className="text-4xl font-heading font-bold text-secondary mb-2">R$ 7.990</div>
-                  <p className="text-muted-foreground">ou 18x de R$ 449/mês*</p>
+                  <div className="text-4xl font-heading font-bold text-secondary mb-2">R$ 5.990</div>
+                  <p className="text-muted-foreground">ou 18x de R$ 333/mês*</p>
                 </div>
                 <ul className="space-y-3 mb-8 text-left">
                   <li className="flex items-center">
@@ -88,7 +88,7 @@ export default function PrecosPage() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-secondary mr-2" />
-                    <span>15-25 alinhadores</span>
+                    <span>20-30 alinhadores</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-secondary mr-2" />
@@ -109,12 +109,12 @@ export default function PrecosPage() {
             <Card className="border-2 hover:border-primary transition-colors">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-heading">Casos Complexos</CardTitle>
-                <p className="text-muted-foreground">Correções extensas e detalhadas</p>
+                <p className="text-muted-foreground">30+ alinhadores</p>
               </CardHeader>
               <CardContent className="text-center">
                 <div className="mb-6">
-                  <div className="text-4xl font-heading font-bold text-primary mb-2">R$ 11.990</div>
-                  <p className="text-muted-foreground">ou 24x de R$ 499/mês*</p>
+                  <div className="text-4xl font-heading font-bold text-primary mb-2">R$ 8.990</div>
+                  <p className="text-muted-foreground">ou 24x de R$ 375/mês*</p>
                 </div>
                 <ul className="space-y-3 mb-8 text-left">
                   <li className="flex items-center">
@@ -123,7 +123,7 @@ export default function PrecosPage() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-primary mr-2" />
-                    <span>25+ alinhadores</span>
+                    <span>30+ alinhadores</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-primary mr-2" />
@@ -242,7 +242,7 @@ export default function PrecosPage() {
 
                   <div className="border-2 border-primary rounded-lg p-6 bg-primary/5">
                     <h3 className="text-xl font-heading font-semibold mb-4 text-primary">Alinhadores Atma Aligner</h3>
-                    <div className="text-2xl font-bold text-primary mb-2">R$ 4.990 - R$ 11.990</div>
+                    <div className="text-2xl font-bold text-primary mb-2">R$ 3.990 - R$ 8.990</div>
                     <ul className="text-sm space-y-2">
                       <li className="flex items-center justify-center">
                         <CheckCircle className="h-4 w-4 text-primary mr-1" />
