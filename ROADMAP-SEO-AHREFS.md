@@ -14,9 +14,12 @@
 **Prioridade:** ALTA - Impacto direto no ranking
 **Tempo estimado:** 30-45 min
 
-- [ ] **1.1** `duplicates.csv` - Conteúdo duplicado
-- [x] **1.2** `structured_data_issues.csv` - Erros de dados estruturados ✅ **CORRIGIDO**
-- [ ] **1.3** `overview.csv` - Visão geral de erros críticos
+- [x] **1.1** `duplicates.csv` - Conteúdo duplicado ✅ **CORRIGIDO** 👌
+- [x] **1.2** `structured_data_issues.csv` - Erros de dados estruturados ✅ **CORRIGIDO** 👌
+- [x] **1.3** `overview.csv` - Visão geral de erros críticos ✅ **SEM NOVOS PROBLEMAS** 👌
+  - Contém apenas homepage
+  - Confirma problemas já corrigidos (canonical, meta description)
+  - 22 páginas com título/description duplicados (relacionado ao canonical global já removido)
 
 ---
 

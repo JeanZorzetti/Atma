@@ -51,7 +51,7 @@ export default function ModelosParceriaPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Suporte técnico 24/7</span>
+                    <span>Suporte técnico especializado</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600" />
