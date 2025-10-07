@@ -25,7 +25,10 @@ export function StructuredData() {
       "@type": "Country",
       "name": "Brasil"
     },
-    "medicalSpecialty": "Orthodontics",
+    "medicalSpecialty": {
+      "@type": "MedicalSpecialty",
+      "@id": "https://schema.org/Dentistry"
+    },
     "sameAs": [
       "https://www.facebook.com/people/Atma-Aligner/61581147385394/",
       "https://www.instagram.com/atma.aligner/",
@@ -59,11 +62,11 @@ export function StructuredData() {
     "@type": "MedicalProcedure",
     "name": "Alinhadores Invisíveis",
     "description": "Tratamento ortodôntico com alinhadores transparentes personalizados usando tecnologia 3D",
-    "procedureType": "Orthodontic Treatment",
-    "bodyLocation": {
-      "@type": "AnatomicalStructure",
-      "name": "Dentes"
+    "procedureType": {
+      "@type": "MedicalProcedureType",
+      "@id": "https://schema.org/NoninvasiveProcedure"
     },
+    "bodyLocation": "Dentes e estruturas bucais",
     "preparation": "Consulta inicial, scan 3D dos dentes e planejamento digital",
     "followup": "Consultas de acompanhamento a cada 4-6 semanas"
   }
