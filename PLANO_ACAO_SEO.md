@@ -445,11 +445,28 @@ module.exports = {
 - [ ] Primeiro guest post publicado - PENDENTE (aguarda parcerias)
 
 ### Semana 7-8
-- [ ] Criar artigos 7-8
-- [ ] 5 backlinks obtidos
-- [ ] Schema LocalBusiness para parceiros
-- [ ] Otimizar snippet rich results
-- [ ] Análise GSC intermediária
+- [x] ✅ Criar artigos 7-8 - CONCLUÍDO (2.700+ palavras)
+  - Artigo 7: "Alinhadores com Tecnologia Alemã" (1.400+ palavras)
+    - URL: /blog/alinhadores-tecnologia-alema
+    - Target: "alinhador alemão" + "qualidade petg" (600+ buscas/mês)
+    - Especificações técnicas PETG alemão
+    - Certificações ISO 13485, CE, ANVISA
+    - Comparativo propriedades mecânicas
+    - Schema.org Article
+  - Artigo 8: "Como é Feito o Molde para Alinhador Invisível" (1.300+ palavras)
+    - URL: /blog/como-e-feito-molde-alinhador
+    - Target: "como funciona alinhador" + "molde alinhador" (800+ buscas/mês)
+    - 8 etapas detalhadas do processo
+    - Escaneamento 3D vs molde tradicional
+    - Linha do tempo completa (7-10 dias)
+    - Schema.org Article
+- [x] ✅ Sitemap atualizado com artigos 7-8 (total: 23 páginas)
+- [x] ✅ IndexNow: artigos 7-8 submetidos (3/3 engines notificados)
+- [x] ✅ Blog page atualizado (8 artigos estratégicos listados)
+- [ ] 5 backlinks obtidos - PENDENTE (requer parcerias externas)
+- [ ] Schema LocalBusiness para parceiros - PENDENTE (aguarda lista de parceiros)
+- [ ] Otimizar snippet rich results - EM ANDAMENTO (schemas implementados)
+- [ ] Análise GSC intermediária - PENDENTE (aguardar dados de 30 dias)
 
 ### Semana 9-10
 - [ ] Criar artigos 9-10

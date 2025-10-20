@@ -61,6 +61,22 @@ export default function BlogPage() {
       category: "Tratamento"
     },
     {
+      id: "alinhadores-tecnologia-alema",
+      title: "Alinhadores com Tecnologia Alemã: Diferença na Qualidade",
+      excerpt: "Descubra por que a tecnologia alemã PETG faz toda diferença: certificações ISO 13485, CE, precisão de ±0.2mm e durabilidade 40% superior.",
+      date: "2025-01-09",
+      author: "Dr. Carlos Santos",
+      category: "Tecnologia"
+    },
+    {
+      id: "como-e-feito-molde-alinhador",
+      title: "Passo a Passo: Como é Feito o Molde para Alinhador Invisível",
+      excerpt: "Do escaneamento 3D digital até a entrega: veja todas as 8 etapas tecnológicas da fabricação de alinhadores invisíveis.",
+      date: "2025-01-08",
+      author: "Dra. Ana Silva",
+      category: "Tecnologia"
+    },
+    {
       id: "futuro-ortodontia-ia",
       title: "O Futuro da Ortodontia: Como a IA está Transformando Tratamentos",
       excerpt: "Explore como a inteligência artificial está revolucionando o planejamento ortodôntico, tornando os tratamentos mais precisos e previsíveis.",

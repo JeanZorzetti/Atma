@@ -153,6 +153,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/blog/alinhadores-tecnologia-alema`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog/como-e-feito-molde-alinhador`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/blog/futuro-ortodontia-ia`,
       lastModified: new Date('2024-01-15'),
       changeFrequency: 'monthly' as const,
