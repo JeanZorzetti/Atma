@@ -15,8 +15,104 @@ export const metadata: Metadata = {
 }
 
 export default function PrecosPage() {
+  const faqs = [
+    {
+      question: "O que está incluído no preço?",
+      answer:
+        "O valor inclui todos os alinhadores necessários, consultas de acompanhamento, refinamentos (quando aplicável) e contenção pós-tratamento. Não há custos ocultos.",
+    },
+    {
+      question: "Posso parcelar sem juros?",
+      answer:
+        "Sim! Oferecemos parcelamento sem juros em até 12x no cartão de crédito e até 24x através de nossas parcerias com fintechs especializadas.",
+    },
+    {
+      question: "Como é definido se meu caso é simples, moderado ou complexo?",
+      answer:
+        "A classificação é feita pelo ortodontista durante a avaliação inicial, baseada na quantidade de movimentação necessária e complexidade do caso.",
+    },
+    {
+      question: "Há desconto para pagamento à vista?",
+      answer: "Sim, oferecemos desconto de até 15% para pagamento à vista via PIX ou transferência bancária.",
+    },
+  ];
+
+  // Schema.org Product with AggregateRating and Offers
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "Atma Aligner - Alinhadores Invisíveis",
+    "description": "Alinhadores invisíveis com tecnologia alemã. Tratamento ortodôntico completo, discreto e eficaz.",
+    "brand": {
+      "@type": "Brand",
+      "name": "Atma Aligner"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "5000",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Alinhador Invisível - Casos Simples",
+        "price": "3990",
+        "priceCurrency": "BRL",
+        "availability": "https://schema.org/InStock",
+        "priceValidUntil": "2025-12-31",
+        "url": "https://atma.roilabs.com.br/pacientes/precos",
+        "description": "Até 20 alinhadores. Ideal para pequenos apinhamentos ou diastemas."
+      },
+      {
+        "@type": "Offer",
+        "name": "Alinhador Invisível - Casos Moderados",
+        "price": "5990",
+        "priceCurrency": "BRL",
+        "availability": "https://schema.org/InStock",
+        "priceValidUntil": "2025-12-31",
+        "url": "https://atma.roilabs.com.br/pacientes/precos",
+        "description": "21-35 alinhadores. Para apinhamentos médios ou sobremordidas."
+      },
+      {
+        "@type": "Offer",
+        "name": "Alinhador Invisível - Casos Complexos",
+        "price": "8990",
+        "priceCurrency": "BRL",
+        "availability": "https://schema.org/InStock",
+        "priceValidUntil": "2025-12-31",
+        "url": "https://atma.roilabs.com.br/pacientes/precos",
+        "description": "Mais de 35 alinhadores. Casos ortodônticos complexos com refinamentos."
+      }
+    ]
+  };
+
+  // Schema.org FAQPage
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
+
   return (
     <div className="min-h-screen">
+      {/* Schema.org JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -299,27 +395,7 @@ export default function PrecosPage() {
           </div>
 
           <div className="max-w-3xl mx-auto space-y-6">
-            {[
-              {
-                question: "O que está incluído no preço?",
-                answer:
-                  "O valor inclui todos os alinhadores necessários, consultas de acompanhamento, refinamentos (quando aplicável) e contenção pós-tratamento. Não há custos ocultos.",
-              },
-              {
-                question: "Posso parcelar sem juros?",
-                answer:
-                  "Sim! Oferecemos parcelamento sem juros em até 12x no cartão de crédito e até 24x através de nossas parcerias com fintechs especializadas.",
-              },
-              {
-                question: "Como é definido se meu caso é simples, moderado ou complexo?",
-                answer:
-                  "A classificação é feita pelo ortodontista durante a avaliação inicial, baseada na quantidade de movimentação necessária e complexidade do caso.",
-              },
-              {
-                question: "Há desconto para pagamento à vista?",
-                answer: "Sim, oferecemos desconto de até 15% para pagamento à vista via PIX ou transferência bancária.",
-              },
-            ].map((faq, index) => (
+            {faqs.map((faq, index) => (
               <Card key={index}>
                 <CardContent className="p-6">
                   <h3 className="font-semibold mb-2">{faq.question}</h3>

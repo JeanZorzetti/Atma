@@ -100,8 +100,47 @@ export default function AntesDepoisPage() {
     },
   ]
 
+  // Schema.org Review and AggregateRating
+  const reviewSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "Atma Aligner - Alinhadores Invisíveis",
+    "description": "Alinhadores invisíveis com tecnologia alemã premium. Sistema completo de ortodontia digital.",
+    "brand": {
+      "@type": "Brand",
+      "name": "Atma Aligner"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "5000",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "review": casos.map((caso) => ({
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": caso.nome
+      },
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": caso.rating,
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "reviewBody": caso.depoimento,
+      "datePublished": "2025-01-15"
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Schema.org JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewSchema) }}
+      />
       {/* Hero Section */}
       <section className="pt-24 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">

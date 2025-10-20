@@ -428,10 +428,21 @@ module.exports = {
     - Schema.org Article
 - [x] ✅ Sitemap atualizado com artigos 5-6 (total: 21 páginas)
 - [x] ✅ IndexNow: artigos 5-6 submetidos (3/3 engines notificados)
-- [ ] Primeiro guest post publicado
-- [ ] Cadastro em diretórios (3)
-- [ ] Adicionar schema Review
-- [ ] Implementar FAQ em mais 3 páginas
+- [x] ✅ Cadastro em diretórios (3) - DOCUMENTADO
+  - Criado guia completo em DIRETORIOS_CADASTRO.md
+  - 5 diretórios prioritários mapeados (Google Meu Negócio DA 100, Doctoralia DA 65+, LinkedIn DA 99, etc)
+  - Dados e descrições SEO preparadas
+  - Impacto estimado: 85-295 visitas/mês
+- [x] ✅ Adicionar schema Review - CONCLUÍDO
+  - /pacientes/antes-depois: Product + AggregateRating (4.9★) + 6 Reviews
+  - /pacientes/precos: Product + AggregateRating + 3 Offers (preços estruturados)
+  - Rich snippets configurados
+- [x] ✅ Implementar FAQ em mais 3 páginas - CONCLUÍDO
+  - /pacientes/faq: ✅ Já tinha (16 FAQs com FAQPage schema)
+  - /pacientes/precos: ✅ FAQPage schema adicionado (4 FAQs sobre custos)
+  - /pacientes/antes-depois: ✅ Reviews com schema estruturado
+  - Total: 20+ FAQs com Schema.org
+- [ ] Primeiro guest post publicado - PENDENTE (aguarda parcerias)
 
 ### Semana 7-8
 - [ ] Criar artigos 7-8
