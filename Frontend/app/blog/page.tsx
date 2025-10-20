@@ -13,28 +13,52 @@ export default function BlogPage() {
 
   const posts = [
     {
-      id: 1,
-      title: "Os Benefícios do Alinhador Invisível para Adultos",
-      excerpt: "Descubra por que cada vez mais adultos estão escolhendo alinhadores invisíveis para corrigir seus sorrisos.",
-      date: "2024-01-15",
-      author: "Dr. Ana Silva",
+      id: "alinhadores-vs-aparelho-fixo",
+      title: "Alinhadores Invisíveis vs Aparelho Fixo: Qual Escolher em 2025?",
+      excerpt: "Comparação completa entre alinhadores invisíveis e aparelho fixo tradicional. Descubra qual é a melhor opção para o seu caso.",
+      date: "2025-01-15",
+      author: "Dr. Rafael Martins",
       category: "Tratamento"
     },
     {
-      id: 2,
-      title: "Como Funciona a Tecnologia 3D na Ortodontia",
-      excerpt: "Entenda como a impressão 3D revolucionou os tratamentos ortodônticos e tornou os alinhadores mais precisos.",
-      date: "2024-01-10",
-      author: "Dr. Carlos Santos",
-      category: "Tecnologia"
+      id: "quanto-custa-alinhador-invisivel",
+      title: "Quanto Custa Alinhador Invisível no Brasil? Guia Completo 2025",
+      excerpt: "Preços atualizados de alinhadores invisíveis no Brasil. Compare marcas, formas de pagamento e descubra como economizar.",
+      date: "2025-01-14",
+      author: "Dra. Ana Silva",
+      category: "Custos"
     },
     {
-      id: 3,
-      title: "Cuidados Essenciais com seu Alinhador",
-      excerpt: "Dicas importantes para manter seu alinhador limpo e garantir a eficácia do tratamento.",
-      date: "2024-01-05",
+      id: "invisalign-vs-alinhadores-nacionais",
+      title: "Invisalign vs Alinhadores Nacionais: Vale a Pena Pagar Mais?",
+      excerpt: "Análise técnica completa comparando Invisalign e alinhadores nacionais. Tecnologia, preço e resultados lado a lado.",
+      date: "2025-01-13",
+      author: "Dr. Carlos Santos",
+      category: "Comparações"
+    },
+    {
+      id: "alinhador-invisivel-funciona",
+      title: "Alinhador Invisível Funciona? Ciência, Resultados e Limitações",
+      excerpt: "Estudos científicos, taxa de sucesso e casos reais. Descubra quando o alinhador invisível funciona e quando não funciona.",
+      date: "2025-01-12",
+      author: "Dr. Rafael Martins",
+      category: "Eficácia"
+    },
+    {
+      id: "10-mitos-aparelho-invisivel",
+      title: "10 Mitos Sobre Aparelho Invisível Que Você Precisa Conhecer",
+      excerpt: "Descubra a verdade por trás dos principais mitos sobre alinhadores invisíveis. Informações baseadas em evidências científicas.",
+      date: "2025-01-11",
       author: "Dra. Maria Oliveira",
-      category: "Cuidados"
+      category: "Dúvidas"
+    },
+    {
+      id: "ortodontia-invisivel-adultos",
+      title: "Ortodontia Invisível para Adultos: Tudo Que Você Precisa Saber",
+      excerpt: "Guia completo de ortodontia invisível para adultos. Idade ideal, tempo de tratamento, custos e benefícios profissionais.",
+      date: "2025-01-10",
+      author: "Dr. Paulo Mendes",
+      category: "Tratamento"
     },
     {
       id: "futuro-ortodontia-ia",
@@ -46,7 +70,7 @@ export default function BlogPage() {
     }
   ]
 
-  const categories = ["todos", "Tratamento", "Tecnologia", "Cuidados", "Resultados", "Dicas"]
+  const categories = ["todos", "Tratamento", "Comparações", "Custos", "Eficácia", "Dúvidas", "Tecnologia"]
 
   const filteredPosts = useMemo(() => {
     return posts.filter(post => {
@@ -60,7 +84,7 @@ export default function BlogPage() {
     })
   }, [searchTerm, selectedCategory, posts])
 
-  const featuredPost = posts.find(post => post.id === "futuro-ortodontia-ia")
+  const featuredPost = posts.find(post => post.id === "alinhadores-vs-aparelho-fixo")
 
   return (
     <div className="min-h-screen py-20">
@@ -97,7 +121,7 @@ export default function BlogPage() {
                   {featuredPost?.excerpt}
                 </p>
                 <Button asChild>
-                  <Link href="/blog/futuro-ortodontia-ia">
+                  <Link href={`/blog/${featuredPost?.id}`}>
                     Ler artigo completo
                     <Star className="ml-2 h-4 w-4" />
                   </Link>
@@ -154,7 +178,7 @@ export default function BlogPage() {
         {/* Blog Posts Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {filteredPosts
-            .filter(post => post.id !== "futuro-ortodontia-ia") // Exclude featured post from grid
+            .filter(post => post.id !== featuredPost?.id) // Exclude featured post from grid
             .map((post) => (
             <Card key={post.id} className="group hover:shadow-lg transition-all duration-300">
               <CardHeader>
