@@ -28,10 +28,10 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    default: "Atma Aligner - Alinhadores Invisíveis Premium | Ortodontia Digital",
+    default: "Alinhadores Invisíveis | Preço 50% Menor | Atma Aligner Brasil",
     template: "%s | Atma Aligner"
   },
-  description: "Alinhadores invisíveis premium com tecnologia 3D e IA. Ortodontistas especializados e preços acessíveis. Transforme seu sorriso!",
+  description: "Alinhadores invisíveis com tecnologia alemã a partir de R$ 3.990. Parcele em até 12x sem juros. Ortodontistas especializados em todo Brasil. Agende consulta grátis!",
   keywords: [
     "alinhadores invisíveis",
     "ortodontia digital",
@@ -55,8 +55,8 @@ export const metadata: Metadata = {
     locale: 'pt_BR',
     url: 'https://atma.roilabs.com.br',
     siteName: 'Atma Aligner',
-    title: 'Atma Aligner - Alinhadores Invisíveis Premium',
-    description: 'Alinhadores invisíveis premium com tecnologia 3D e IA. Ortodontistas especializados e preços acessíveis.',
+    title: 'Alinhadores Invisíveis | Preço 50% Menor | Atma Aligner Brasil',
+    description: 'Alinhadores invisíveis com tecnologia alemã a partir de R$ 3.990. Parcele em até 12x sem juros. Ortodontistas especializados.',
     images: [
       {
         url: '/og-image.jpg',
@@ -70,8 +70,8 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@atma_aligner',
     creator: '@atma_aligner',
-    title: 'Atma Aligner - Alinhadores Invisíveis Premium',
-    description: 'Alinhadores invisíveis premium com tecnologia 3D e IA. Transforme seu sorriso com preços acessíveis.',
+    title: 'Alinhadores Invisíveis | Preço 50% Menor | Atma Aligner',
+    description: 'Alinhadores invisíveis a partir de R$ 3.990. Parcele em 12x. Tecnologia alemã premium.',
     images: ['/og-image.jpg']
   },
   robots: {

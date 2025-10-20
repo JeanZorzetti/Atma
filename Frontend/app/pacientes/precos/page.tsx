@@ -2,6 +2,17 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { ArrowRight, DollarSign, CheckCircle, CreditCard, Calendar, Shield } from "lucide-react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Preço de Alinhadores Invisíveis 2025 | A partir de R$ 3.990",
+  description: "Quanto custa alinhador invisível? Veja preços completos: R$ 3.990 (simples), R$ 5.990 (moderado), R$ 8.990 (complexo). Parcele em até 12x sem juros! Consulta grátis.",
+  keywords: ["quanto custa alinhador invisível", "preço alinhadores", "alinhador invisível valor", "financiamento ortodontia", "parcelas sem juros"],
+  openGraph: {
+    title: "Preço de Alinhadores Invisíveis 2025 | A partir de R$ 3.990",
+    description: "Quanto custa alinhador invisível? R$ 3.990 (simples), R$ 5.990 (moderado), R$ 8.990 (complexo). Parcele em 12x sem juros!",
+  }
+}
 
 export default function PrecosPage() {
   return (

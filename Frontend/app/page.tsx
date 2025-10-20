@@ -296,6 +296,86 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* SEO Content Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-heading font-bold mb-6 text-center">
+              Por Que Escolher Alinhadores Invisíveis Atma?
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              <div>
+                <h3 className="text-xl font-heading font-semibold mb-3">Tecnologia Alemã Premium</h3>
+                <p className="text-muted-foreground mb-4">
+                  Nossos alinhadores invisíveis são fabricados com <strong>PETG Duran® alemão</strong>, material de
+                  grau médico certificado ISO 10993. A mesma tecnologia usada pelas marcas premium internacionais,
+                  mas com preços até 50% menores. Cada alinhador é produzido sob medida usando escaneamento 3D de
+                  alta precisão e inteligência artificial para planejamento ortodôntico.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-heading font-semibold mb-3">Preços Acessíveis, Qualidade Mundial</h3>
+                <p className="text-muted-foreground mb-4">
+                  Democratizamos o acesso à ortodontia digital no Brasil. Enquanto tratamentos similares custam
+                  R$ 15.000 a R$ 20.000, oferecemos desde <strong>R$ 3.990</strong> com parcelamento em até 12x
+                  sem juros. Não abrimos mão da qualidade: mesma tecnologia 3D, mesmos padrões internacionais,
+                  acompanhamento profissional completo.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-heading font-semibold mb-3">Como Funciona o Tratamento</h3>
+                <p className="text-muted-foreground mb-4">
+                  O tratamento com alinhadores transparentes dura em média de 6 a 24 meses, dependendo da complexidade
+                  do caso. Você usará os alinhadores por 22 horas por dia, trocando para o próximo conjunto a cada
+                  duas semanas. Consultas de acompanhamento acontecem a cada 4-6 semanas com ortodontistas parceiros
+                  em todo Brasil. <strong>Processo 100% indolor e discreto.</strong>
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-heading font-semibold mb-3">Rede Nacional de Ortodontistas</h3>
+                <p className="text-muted-foreground mb-4">
+                  Mais de 500 ortodontistas parceiros capacitados em todo o Brasil. Nossa plataforma conecta você
+                  ao profissional mais próximo, garantindo acompanhamento presencial de qualidade. Cada ortodontista
+                  passa por treinamento especializado no sistema Atma e tem acesso a suporte técnico completo durante
+                  todo o tratamento.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-background p-6 rounded-lg border">
+              <h3 className="text-xl font-heading font-semibold mb-3">Perguntas Frequentes</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="font-semibold mb-2">Quanto tempo dura o tratamento com alinhadores invisíveis?</p>
+                  <p className="text-muted-foreground text-sm">
+                    O tratamento varia de 6 a 24 meses dependendo da complexidade do caso. Casos simples podem
+                    ser resolvidos em 6-12 meses, enquanto casos mais complexos levam 18-24 meses.
+                  </p>
+                </div>
+                <div>
+                  <p className="font-semibold mb-2">Qual a diferença entre Atma e marcas internacionais?</p>
+                  <p className="text-muted-foreground text-sm">
+                    Usamos a mesma tecnologia e materiais (PETG alemão, impressão 3D, IA), mas com preços 50%
+                    menores por eliminarmos intermediários e produzirmos localmente com padrões internacionais.
+                  </p>
+                </div>
+                <div>
+                  <p className="font-semibold mb-2">Posso financiar o tratamento?</p>
+                  <p className="text-muted-foreground text-sm">
+                    Sim! Oferecemos parcelamento em até 12x sem juros. Para casos simples, as parcelas começam
+                    em apenas R$ 333/mês, cabendo no orçamento da maioria das famílias brasileiras.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-primary relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
