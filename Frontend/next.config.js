@@ -49,7 +49,7 @@ const nextConfig = {
   },
 
   // Performance optimizations
-  swcMinify: true,
+  // swcMinify is enabled by default in Next.js 15+, no need to specify
 }
 
 module.exports = nextConfig
