@@ -412,7 +412,22 @@ module.exports = {
   - Alt texts otimizados em todas imagens
 
 ### Semana 5-6
-- [ ] Criar artigos 5-6
+- [x] ✅ Criar artigos 5-6 - CONCLUÍDO (3.600+ palavras)
+  - Artigo 5: "10 Mitos Sobre Aparelho Invisível" (1.700+ palavras)
+    - URL: /blog/10-mitos-aparelho-invisivel
+    - Target: "mitos alinhador invisível" (400+ buscas/mês)
+    - Formato listicle (10 mitos MITO/VERDADE)
+    - Evidências científicas
+    - Schema.org Article
+  - Artigo 6: "Ortodontia Invisível para Adultos" (1.900+ palavras)
+    - URL: /blog/ortodontia-invisivel-adultos
+    - Target: "ortodontia adulto" (880+ buscas/mês)
+    - 4 faixas etárias específicas (25-35, 35-45, 45-55, 55+)
+    - Análise de ROI profissional
+    - 3 depoimentos reais
+    - Schema.org Article
+- [x] ✅ Sitemap atualizado com artigos 5-6 (total: 21 páginas)
+- [x] ✅ IndexNow: artigos 5-6 submetidos (3/3 engines notificados)
 - [ ] Primeiro guest post publicado
 - [ ] Cadastro em diretórios (3)
 - [ ] Adicionar schema Review
