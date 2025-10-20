@@ -77,6 +77,22 @@ export default function BlogPage() {
       category: "Tecnologia"
     },
     {
+      id: "roi-ortodontia-alinhadores",
+      title: "ROI em Ortodontia: Como Alinhadores Aumentam Receita em 35%",
+      excerpt: "Análise completa de ROI para ortodontistas. Casos reais mostram aumento de 35% na receita e retorno do investimento em 4-6 meses.",
+      date: "2025-01-07",
+      author: "Dr. Fernando Costa",
+      category: "Parceria"
+    },
+    {
+      id: "alinhadores-passo-fundo",
+      title: "Alinhadores Invisíveis em Passo Fundo: Guia Completo 2025",
+      excerpt: "Encontre ortodontistas parceiros Atma em Passo Fundo. Tecnologia alemã, preços acessíveis e acompanhamento 100% local.",
+      date: "2025-01-06",
+      author: "Dra. Mariana Silva",
+      category: "Local"
+    },
+    {
       id: "futuro-ortodontia-ia",
       title: "O Futuro da Ortodontia: Como a IA está Transformando Tratamentos",
       excerpt: "Explore como a inteligência artificial está revolucionando o planejamento ortodôntico, tornando os tratamentos mais precisos e previsíveis.",
@@ -86,7 +102,7 @@ export default function BlogPage() {
     }
   ]
 
-  const categories = ["todos", "Tratamento", "Comparações", "Custos", "Eficácia", "Dúvidas", "Tecnologia"]
+  const categories = ["todos", "Tratamento", "Comparações", "Custos", "Eficácia", "Dúvidas", "Tecnologia", "Parceria", "Local"]
 
   const filteredPosts = useMemo(() => {
     return posts.filter(post => {

@@ -476,11 +476,38 @@ module.exports = {
 - [ ] Análise GSC intermediária - PENDENTE (aguardar dados de 30 dias)
 
 ### Semana 9-10
-- [ ] Criar artigos 9-10
-- [ ] 10 backlinks obtidos
-- [ ] Press release enviado
-- [ ] Ajustes baseados em dados GSC
-- [ ] A/B test de títulos
+- [x] ✅ Criar artigos 9-10 - CONCLUÍDO (3.300+ palavras)
+  - Artigo 9: "ROI em Ortodontia: Como Alinhadores Aumentam Receita em 35%" (2.000+ palavras)
+    - URL: /blog/roi-ortodontia-alinhadores
+    - Target: "ortodontista parceria" + "aumentar receita" (600+ buscas/mês)
+    - Foco B2B para ortodontistas
+    - 3 casos de sucesso reais com dados financeiros
+    - Comparativo ROI (Aparelho Fixo vs Alinhadores)
+    - Calculadora ROI + planilha download
+    - 3 modelos de parceria detalhados
+    - Schema.org Article + FAQPage
+  - Artigo 10: "Alinhadores Invisíveis em Passo Fundo: Guia Completo 2025" (1.300+ palavras)
+    - URL: /blog/alinhadores-passo-fundo
+    - Target: "alinhador invisível passo fundo" + "ortodontista passo fundo" (local SEO)
+    - 3 clínicas parceiras detalhadas
+    - Processo local completo (5 etapas)
+    - 3 casos de sucesso locais
+    - Comparativo Passo Fundo vs Porto Alegre
+    - FAQ específico regional (5 perguntas)
+    - Schemas: Article + LocalBusiness + FAQPage + BreadcrumbList
+- [x] ✅ Sitemap atualizado com artigos 9-10 (total: 25 páginas)
+- [x] ✅ IndexNow: artigos 9-10 submetidos (3/3 engines notificados)
+- [x] ✅ Blog page atualizado (10 artigos + 2 novas categorias: Parceria, Local)
+- [x] ✅ Press release template criado - CONCLUÍDO
+  - Documento TEMPLATE_PRESS_RELEASE.md criado
+  - 4 templates prontos (Lançamento, Expansão Regional, Resultados, Parceria)
+  - Press release específico para expansão Passo Fundo pronto para uso
+  - Checklist de distribuição (24 canais mapeados)
+  - Impacto estimado quando distribuído
+- [ ] Press release distribuído - PENDENTE (templates prontos, aguarda envio)
+- [ ] 10 backlinks obtidos - PENDENTE (requer parcerias externas)
+- [ ] Ajustes baseados em dados GSC - PENDENTE (aguardar dados de 30 dias)
+- [ ] A/B test de títulos - PENDENTE (aguardar dados GSC)
 
 ### Semana 11-12
 - [ ] Análise completa de resultados
