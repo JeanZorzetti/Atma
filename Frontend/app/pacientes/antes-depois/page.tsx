@@ -1,9 +1,25 @@
+import type { Metadata } from 'next'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, Clock, MapPin } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+
+export const metadata: Metadata = {
+  title: 'Antes e Depois: Resultados Reais com Alinhadores Invisíveis | Atma',
+  description: 'Veja transformações reais de pacientes com alinhadores invisíveis Atma. 5.000+ sorrisos transformados, 98% satisfação. Casos de apinhamento, diastema, sobremordida e mais.',
+  keywords: 'alinhador invisível antes e depois, resultado alinhador transparente, casos reais ortodontia, transformação sorriso, antes depois aparelho invisível',
+  openGraph: {
+    title: 'Antes e Depois: Transformações Reais com Alinhadores | Atma',
+    description: '5.000+ sorrisos transformados. Veja resultados reais de tratamentos com alinhadores invisíveis: apinhamento, diastema, sobremordida e mais.',
+    type: 'website',
+    images: ['/straight-smile-results.png'],
+  },
+  alternates: {
+    canonical: 'https://atmaaligner.com.br/pacientes/antes-depois'
+  }
+};
 
 export default function AntesDepoisPage() {
   const casos = [
@@ -134,7 +150,7 @@ export default function AntesDepoisPage() {
                     <div className="relative">
                       <Image
                         src={caso.antes || "/placeholder.svg"}
-                        alt={`Antes - ${caso.nome}`}
+                        alt={`Dentes antes do tratamento com alinhador invisível - caso de ${caso.problema.toLowerCase()}`}
                         width={300}
                         height={200}
                         className="w-full h-48 object-cover"
@@ -146,7 +162,7 @@ export default function AntesDepoisPage() {
                     <div className="relative">
                       <Image
                         src={caso.depois || "/placeholder.svg"}
-                        alt={`Depois - ${caso.nome}`}
+                        alt={`Resultado após tratamento com alinhador invisível Atma - ${caso.problema.toLowerCase()} corrigido em ${caso.duracao}`}
                         width={300}
                         height={200}
                         className="w-full h-48 object-cover"

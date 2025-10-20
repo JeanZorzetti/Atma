@@ -1,8 +1,23 @@
+import type { Metadata } from 'next'
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Star } from "lucide-react"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: 'Perguntas Frequentes sobre Alinhadores Invisíveis | FAQ Atma',
+  description: 'Tire suas dúvidas sobre alinhadores invisíveis: quanto tempo dura, preços, como usar, cuidados e elegibilidade. Respostas de ortodontistas especializados.',
+  keywords: 'alinhador invisível dúvidas, faq aparelho transparente, perguntas alinhadores, quanto tempo alinhador, preço alinhador, como usar alinhadores',
+  openGraph: {
+    title: 'FAQ: Tudo sobre Alinhadores Invisíveis | Atma Aligner',
+    description: 'Respostas para as 16 perguntas mais frequentes sobre alinhadores invisíveis: tratamento, uso, cuidados, elegibilidade e financiamento.',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://atmaaligner.com.br/pacientes/faq'
+  }
+};
 
 export default function FAQPage() {
   const faqs = [
@@ -168,6 +183,27 @@ export default function FAQPage() {
           </div>
         </div>
       </section>
+
+      {/* Schema.org FAQPage JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqs.flatMap(categoria =>
+              categoria.perguntas.map(faq => ({
+                "@type": "Question",
+                "name": faq.pergunta,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": faq.resposta
+                }
+              }))
+            )
+          })
+        }}
+      />
     </div>
   )
 }
