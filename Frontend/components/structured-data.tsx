@@ -41,10 +41,7 @@ export function StructuredData() {
     "currenciesAccepted": "BRL",
     "paymentAccepted": "Cartão de Crédito, PIX, Boleto, Financiamento",
     "openingHours": "Mo-Fr 09:00-18:00",
-    "medicalSpecialty": {
-      "@type": "MedicalSpecialty",
-      "@id": "https://schema.org/Dentistry"
-    },
+    "medicalSpecialty": "https://schema.org/Dentistry",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
@@ -152,42 +149,7 @@ export function StructuredData() {
     "bodyLocation": "Dentes, gengivas e estruturas bucais",
     "preparation": "Consulta inicial gratuita, escaneamento intraoral 3D digital (sem massa), análise ortodôntica completa e planejamento digital com simulação 3D do resultado final",
     "howPerformed": "Alinhadores removíveis transparentes trocados a cada 7-14 dias, uso de 20-22 horas por dia, sem restrições alimentares, higiene normal mantida",
-    "followup": "Consultas de acompanhamento presenciais ou online a cada 4-6 semanas para monitoramento do progresso e entrega de novos alinhadores",
-    "expectedPrognosis": "Taxa de sucesso de 96.8% em casos tratáveis com alinhadores. Tempo médio de tratamento: 6-18 meses dependendo da complexidade",
-    "risks": "Desconforto leve nos primeiros dias de cada alinhador novo, possível necessidade de refinamentos adicionais em 15-20% dos casos",
-    "typicalTest": "Radiografias panorâmicas e periapicais, fotografias intra e extraorais, escaneamento 3D digital",
-    "contraindication": "Periodontite severa não tratada, doença óssea ativa, problemas de mordida severos que requerem cirurgia ortognática"
-  }
-
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "O que são alinhadores invisíveis?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Alinhadores invisíveis são aparelhos ortodônticos transparentes e removíveis que corrigem a posição dos dentes gradualmente. São feitos sob medida usando tecnologia 3D."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Quanto tempo dura o tratamento com alinhadores?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "O tratamento varia de 6 a 24 meses, dependendo da complexidade do caso. A maioria dos pacientes vê resultados em 3-6 meses."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Os alinhadores são realmente invisíveis?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sim, os alinhadores são praticamente invisíveis quando usados. São feitos de material transparente de alta qualidade que se adapta perfeitamente aos dentes."
-        }
-      }
-    ]
+    "followup": "Consultas de acompanhamento presenciais ou online a cada 4-6 semanas para monitoramento do progresso e entrega de novos alinhadores"
   }
 
   return (
@@ -203,10 +165,6 @@ export function StructuredData() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
     </>
   )
