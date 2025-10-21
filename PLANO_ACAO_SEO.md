@@ -520,29 +520,100 @@ module.exports = {
 
 ## 📊 KPIs e Monitoramento
 
-### Métricas Semanais (Google Search Console)
-- Impressões totais
-- Cliques totais
-- CTR médio
-- Posição média
-- Novas palavras-chave rankiadas
-- Taxa de crescimento semanal
+### 📈 Dados Reais do Google Search Console
 
-### Métricas Mensais
-- Páginas indexadas
-- Backlinks novos (Ahrefs/GSC)
-- Domain Authority
-- Core Web Vitals
-- Taxa de conversão orgânica
-- ROI do tráfego orgânico
+#### Setembro 2024 (Baseline)
+- **Impressões totais:** 9
+- **Cliques totais:** 3
+- **CTR médio:** 33,3%
+- **Posição média:** 2,2
+- **Novas palavras-chave rankiadas:** 0
+- **Taxa de crescimento semanal:** N/A (baseline)
+
+#### Outubro 2024 (Parcial até 20/10)
+- **Impressões totais:** 25 (+178% vs setembro)
+- **Cliques totais:** 5 (+67% vs setembro)
+- **CTR médio:** 20% (-13,3pp vs setembro)
+- **Posição média:** 6 (+3,8 posições - PIOR)
+- **Novas palavras-chave rankiadas:** 1 palavra ("atatimas alinhadores")
+- **Taxa de crescimento semanal:** Em observação
+
+**⚠️ Análise Preliminar (20/10):**
+- ✅ Impressões crescendo (+178%)
+- ✅ Cliques crescendo (+67%)
+- ⚠️ Posição média piorando (2,2 → 6)
+- ⚠️ CTR caindo (33% → 20%)
+- ❌ Apenas 1 nova palavra-chave (esperado: mais após indexação dos 10 artigos)
+
+**🎯 Próxima Medição:** 20/11/2024 (30 dias após publicação artigos 9-10)
+
+### Métricas Mensais (até 20/10/2024)
+- **Páginas indexadas:** 25 (meta atingida ✅)
+- **Backlinks novos:** 0 (meta: 10-20)
+- **Domain Authority:** 0 (aguardando primeira medição Ahrefs)
+- **Core Web Vitals:**
+  - Performance: 76/100 ⚠️
+  - Accessibility: 100/100 ✅
+  - Best Practices: 100/100 ✅
+  - SEO: 100/100 ✅
+- **Taxa de conversão orgânica:** 0% (sem conversões rastreadas ainda)
+- **ROI do tráfego orgânico:** R$ 0,00 (fase de construção)
 
 ### Ferramentas de Monitoramento
+
 - ✅ Google Search Console (primária)
 - ✅ Google Analytics 4
 - ⏳ Ahrefs (análise competitiva)
 - ⏳ SEMrush (pesquisa keywords)
 - ✅ PageSpeed Insights
 - ✅ Schema Markup Validator
+
+### ⚠️ Schema Markup Validator - Avisos Identificados (20/10/2024)
+
+**Avisos em MedicalProcedure Schema:**
+
+1. **expectedPrognosis** (propriedade não reconhecida)
+   - Mensagem: "Taxa de sucesso de 96.8% em casos tratáveis com alinhadores"
+   - Status: ⚠️ Aviso (não é erro crítico)
+   - Ação: Propriedade válida mas não reconhecida oficialmente pelo schema.org
+
+2. **risks** (propriedade não reconhecida)
+   - Mensagem: "Desconforto leve nos primeiros dias de cada alinhador novo..."
+   - Status: ⚠️ Aviso (não é erro crítico)
+   - Ação: Propriedade válida mas não reconhecida oficialmente
+
+3. **typicalTest** (propriedade não reconhecida)
+   - Mensagem: "Radiografias panorâmicas e periapicais, fotografias intra e extraorais..."
+   - Status: ⚠️ Aviso (não é erro crítico)
+   - Ação: Propriedade válida mas não reconhecida oficialmente
+
+4. **contraindication** (propriedade não reconhecida)
+   - Mensagem: "Periodontite severa não tratada, doença óssea ativa..."
+   - Status: ⚠️ Aviso (não é erro crítico)
+   - Ação: Propriedade válida mas não reconhecida oficialmente
+
+5. **medicalSpecialty** (propriedade não reconhecida em MedicalBusiness)
+   - Valor: "MedicalSpecialty"
+   - Status: ⚠️ Aviso (não é erro crítico)
+   - Ação: Schema esperava mais detalhes sobre a especialidade
+
+**Avisos de Imagens:**
+
+6. **image** (aviso genérico)
+   - Localização: Schemas que usam propriedade "image"
+   - Status: ⚠️ 2 avisos sobre imagens
+   - Possível causa: Falta de dimensões específicas ou formato não otimizado
+   - Ação recomendada: Adicionar propriedades width/height nas imagens dos schemas
+
+**📊 Resumo:**
+- ✅ **0 erros críticos** (schemas funcionando!)
+- ⚠️ **6 avisos** (melhorias opcionais)
+- 🎯 **Rich snippets ativos** (avisos não impedem exibição)
+
+**🔧 Próximas Ações:**
+- [ ] Considerar remover propriedades não-reconhecidas para limpar avisos
+- [ ] Adicionar dimensões (width/height) nas imagens dos schemas
+- [ ] Aguardar dados do GSC sobre exibição de rich snippets (30 dias)
 
 ---
 
