@@ -4,16 +4,33 @@ const emailService = require('./emailService');
 
 class NotificationService {
   constructor() {
-    this.settings = {};
+    this.settings = {
+      emailEnabled: false,
+      smsEnabled: false,
+      types: {
+        newPatients: false,
+        appointments: false,
+        payments: false,
+        weeklyReports: false,
+        systemAlerts: false
+      }
+    };
     this.notificationQueue = [];
     this.processing = false;
-    this.loadSettings();
+    this.settingsLoaded = false;
+
+    // Carregar settings de forma assíncrona sem bloquear o constructor
+    this.loadSettings().catch(err => {
+      logger.warn('⚠️ Não foi possível carregar configurações de notificação na inicialização:', err.message);
+      logger.info('💡 As configurações serão carregadas na primeira notificação enviada');
+    });
   }
 
   async loadSettings() {
     try {
       const settings = await executeQuery('SELECT * FROM system_settings WHERE setting_key LIKE "notification%"');
 
+      // Resetar para defaults
       this.settings = {
         emailEnabled: false,
         smsEnabled: false,
@@ -41,10 +58,13 @@ class NotificationService {
         }
       });
 
+      this.settingsLoaded = true;
       logger.info('✅ Configurações de notificação carregadas', this.settings);
 
     } catch (error) {
-      logger.error('Erro ao carregar configurações de notificação:', error);
+      logger.warn('⚠️ Erro ao carregar configurações de notificação:', error.message);
+      logger.info('💡 Usando configurações padrão (todas desabilitadas)');
+      // Mantém settings padrão (todas desabilitadas)
     }
   }
 
@@ -61,6 +81,12 @@ class NotificationService {
    */
   async sendNotification(notification) {
     try {
+      // Tentar carregar settings se ainda não foram carregadas
+      if (!this.settingsLoaded) {
+        logger.info('⏳ Settings não carregadas ainda, tentando carregar agora...');
+        await this.loadSettings();
+      }
+
       // Verificar se o tipo de notificação está habilitado
       if (!this.settings.types[notification.type]) {
         logger.debug(`Notificação do tipo '${notification.type}' está desabilitada - ignorando`);
