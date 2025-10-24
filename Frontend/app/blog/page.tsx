@@ -13,6 +13,14 @@ export default function BlogPage() {
 
   const posts = [
     {
+      id: "bruxismo-causas-sintomas-tratamento",
+      title: "Bruxismo: Causas, Sintomas e Tratamento Completo 2025",
+      excerpt: "Guia completo sobre bruxismo: o que é, causas, sintomas e tratamentos modernos. Descubra como alinhadores invisíveis podem tratar bruxismo.",
+      date: "2025-10-24",
+      author: "Dr. Rafael Martins",
+      category: "Saúde Bucal"
+    },
+    {
       id: "alinhadores-vs-aparelho-fixo",
       title: "Alinhadores Invisíveis vs Aparelho Fixo: Qual Escolher em 2025?",
       excerpt: "Comparação completa entre alinhadores invisíveis e aparelho fixo tradicional. Descubra qual é a melhor opção para o seu caso.",
@@ -102,7 +110,7 @@ export default function BlogPage() {
     }
   ]
 
-  const categories = ["todos", "Tratamento", "Comparações", "Custos", "Eficácia", "Dúvidas", "Tecnologia", "Parceria", "Local"]
+  const categories = ["todos", "Saúde Bucal", "Tratamento", "Comparações", "Custos", "Eficácia", "Dúvidas", "Tecnologia", "Parceria", "Local"]
 
   const filteredPosts = useMemo(() => {
     return posts.filter(post => {
@@ -116,7 +124,7 @@ export default function BlogPage() {
     })
   }, [searchTerm, selectedCategory, posts])
 
-  const featuredPost = posts.find(post => post.id === "alinhadores-vs-aparelho-fixo")
+  const featuredPost = posts.find(post => post.id === "bruxismo-causas-sintomas-tratamento")
 
   return (
     <div className="min-h-screen py-20">
@@ -143,7 +151,7 @@ export default function BlogPage() {
                   <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Destaque</span>
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
-                    <span>15 Jan 2024</span>
+                    <span>{featuredPost?.date ? new Date(featuredPost.date).toLocaleDateString('pt-BR') : ''}</span>
                   </div>
                 </div>
                 <h2 className="text-2xl font-heading font-bold mb-4">
