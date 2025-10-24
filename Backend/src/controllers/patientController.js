@@ -2,6 +2,7 @@ const { executeQuery } = require('../config/database');
 const { logger, logDBOperation } = require('../utils/logger');
 const emailService = require('../services/emailService');
 const orthodontistService = require('../services/orthodontistService');
+const notificationService = require('../services/notificationService');
 const { withDbErrorHandling } = require('../middleware/dbErrorHandler');
 
 // Criar novo lead de paciente
@@ -71,7 +72,20 @@ const createPatientLead = async (req, res, next) => {
       logger.error('Erro ao enviar email de confirmação:', error.message);
       // Não falha o processo se o email não for enviado
     }
-    
+
+    // Notificar admin sobre novo paciente
+    try {
+      await notificationService.notifyNewPatient({
+        id: leadId,
+        name: nome,
+        email,
+        phone: telefone
+      });
+    } catch (error) {
+      logger.error('Erro ao enviar notificação de novo paciente:', error.message);
+      // Não falha o processo se a notificação não for enviada
+    }
+
     // Buscar o lead criado com informações completas
     const createdLead = await executeQuery(
       `SELECT pl.*, o.nome as ortodontista_nome, o.clinica as ortodontista_clinica

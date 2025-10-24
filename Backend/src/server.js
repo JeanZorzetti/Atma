@@ -19,6 +19,7 @@ const emailRoutes = require('./routes/emailRoutes');
 const systemRoutes = require('./routes/systemRoutes');
 const crmRoutes = require('./routes/crm');
 const marketingRoutes = require('./routes/marketingRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -225,6 +226,7 @@ app.use('/api/emails', emailRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/crm', crmRoutes);
 app.use('/api/marketing', marketingRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
