@@ -60,8 +60,8 @@ export default function BruxismoArticle() {
       {/* Featured Image */}
       <div className="relative w-full h-[400px] mb-12 rounded-2xl overflow-hidden">
         <Image
-          src="/images/blog/bruxismo-hero.jpg"
-          alt="Ilustração de pessoa com bruxismo rangendo os dentes durante o sono"
+          src="/images/blog/bruxismo-dentes-ranger.jpg"
+          alt="Pessoa com bruxismo mostrando os dentes - sinais de desgaste por ranger durante o sono"
           fill
           className="object-cover"
           priority
