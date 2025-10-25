@@ -49,11 +49,16 @@ class NotificationService {
         } else if (setting.setting_key === 'notification_sms') {
           this.settings.smsEnabled = setting.setting_value === 'true';
         } else if (setting.setting_key.startsWith('notification_type_')) {
-          const type = setting.setting_key.replace('notification_type_', '').replace(/_/g, '');
-          // Converter snake_case para camelCase
+          // Remover prefixo 'notification_type_' e converter snake_case para camelCase
+          const type = setting.setting_key.replace('notification_type_', '');
+          // Converter snake_case para camelCase: new_patients -> newPatients
           const camelCaseType = type.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+
           if (this.settings.types.hasOwnProperty(camelCaseType)) {
             this.settings.types[camelCaseType] = setting.setting_value === 'true';
+            logger.debug(`Setting loaded: ${setting.setting_key} (${type}) -> ${camelCaseType} = ${setting.setting_value}`);
+          } else {
+            logger.warn(`Unknown notification type: ${camelCaseType} (from ${setting.setting_key})`);
           }
         }
       });
