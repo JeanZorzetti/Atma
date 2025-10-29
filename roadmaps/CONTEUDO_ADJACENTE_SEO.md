@@ -36,10 +36,10 @@ Criar conteúdo sobre temas **adjacentes** aos alinhadores invisíveis que:
 | # | Artigo | Volume/Mês | Palavras | Status | Data | Prioridade |
 |---|--------|------------|----------|--------|------|------------|
 | 1 | **Bruxismo: Causas, Sintomas e Tratamento Completo 2025** | 90.500 | 2.800+ | ✅ **PUBLICADO** | 24/10/25 | 🔥🔥🔥🔥🔥 |
-| 2 | **Dor de Cabeça Constante? Pode Ser Má Oclusão Dentária** | 27.100 | 2.000+ | ⏳ Pendente | - | 🔥🔥🔥🔥 |
+| 2 | **Dor de Cabeça Constante? Pode Ser Má Oclusão Dentária** | 27.100 | 2.500+ | ✅ **PUBLICADO** | 29/10/25 | 🔥🔥🔥🔥 |
 | 3 | **Como Ter um Sorriso Perfeito: 15 Dicas Comprovadas** | 14.800 | 2.200+ | ⏳ Pendente | - | 🔥🔥🔥🔥 |
 
-**Total Fase 1:** 132.400 buscas/mês | **Concluídos:** 1/3 (33%)
+**Total Fase 1:** 132.400 buscas/mês | **Concluídos:** 2/3 (67%)
 
 **Correlação com Alinhadores:**
 - **Bruxismo:** Alinhadores tratam bruxismo leve/moderado + protegem dentes

@@ -13,6 +13,14 @@ export default function BlogPage() {
 
   const posts = [
     {
+      id: "dor-cabeca-ma-oclusao",
+      title: "Dor de Cabeça Constante? Pode Ser Má Oclusão Dentária",
+      excerpt: "Dor de cabeça todos os dias? Descubra como má oclusão dentária (DTM) pode causar dor crônica e como ortodontia invisível resolve o problema.",
+      date: "2025-10-29",
+      author: "Dr. Rafael Martins",
+      category: "Saúde Bucal"
+    },
+    {
       id: "bruxismo-causas-sintomas-tratamento",
       title: "Bruxismo: Causas, Sintomas e Tratamento Completo 2025",
       excerpt: "Guia completo sobre bruxismo: o que é, causas, sintomas e tratamentos modernos. Descubra como alinhadores invisíveis podem tratar bruxismo.",
@@ -124,7 +132,7 @@ export default function BlogPage() {
     })
   }, [searchTerm, selectedCategory, posts])
 
-  const featuredPost = posts.find(post => post.id === "bruxismo-causas-sintomas-tratamento")
+  const featuredPost = posts.find(post => post.id === "dor-cabeca-ma-oclusao")
 
   return (
     <div className="min-h-screen py-20">
