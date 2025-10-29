@@ -14,9 +14,9 @@ export const metadata: Metadata = {
     authors: ['Atma Aligner'],
     images: [
       {
-        url: '/images/blog/dor-cabeca-dtm.jpg',
-        width: 1200,
-        height: 630,
+        url: '/images/blog/dor-cabeca-destaque.png',
+        width: 1080,
+        height: 628,
         alt: 'Pessoa com dor de cabeça causada por má oclusão dentária (DTM)'
       }
     ]
@@ -59,10 +59,14 @@ export default function DorCabecaArticle() {
       </header>
 
       {/* Featured Image */}
-      <div className="relative w-full h-[400px] mb-12 rounded-2xl overflow-hidden bg-gray-200">
-        <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-          <p className="text-sm">Imagem: Pessoa com dor de cabeça (DTM)</p>
-        </div>
+      <div className="relative w-full h-[400px] mb-12 rounded-2xl overflow-hidden">
+        <Image
+          src="/images/blog/dor-cabeca-destaque.png"
+          alt="Pessoa com dor de cabeça crônica causada por má oclusão dentária (DTM)"
+          fill
+          className="object-cover"
+          priority
+        />
       </div>
 
       {/* Alert Box */}
@@ -980,7 +984,7 @@ export default function DorCabecaArticle() {
             "@type": "Article",
             "headline": "Dor de Cabeça Constante? Pode Ser Má Oclusão Dentária",
             "description": "Guia completo sobre como má oclusão dentária e DTM causam dor de cabeça crônica, incluindo teste diagnóstico e tratamentos eficazes com ortodontia invisível.",
-            "image": "https://atma.roilabs.com.br/images/blog/dor-cabeca-dtm.jpg",
+            "image": "https://atma.roilabs.com.br/images/blog/dor-cabeca-destaque.png",
             "author": {
               "@type": "Organization",
               "name": "Atma Aligner"
