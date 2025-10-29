@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
+import Image from "next/image"
 import { Calendar, Users, Star, CheckCircle } from "lucide-react"
 import { useState, useMemo } from "react"
 
@@ -151,8 +152,14 @@ export default function BlogPage() {
         <div className="mb-16">
           <Card className="overflow-hidden">
             <div className="md:flex">
-              <div className="md:w-1/2 bg-gradient-to-br from-primary/10 to-secondary/10 p-8 flex items-center justify-center">
-                <div className="text-6xl font-bold text-primary opacity-20">BLOG</div>
+              <div className="md:w-1/2 relative h-[400px] md:h-auto">
+                <Image
+                  src="/images/blog/dor-cabeca-destaque.png"
+                  alt={featuredPost?.title || "Artigo em destaque"}
+                  fill
+                  className="object-cover"
+                  priority
+                />
               </div>
               <div className="md:w-1/2 p-8">
                 <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-4">
