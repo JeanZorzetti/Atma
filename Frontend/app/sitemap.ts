@@ -183,6 +183,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0,
     },
     {
+    {
+      url: `${baseUrl}/blog/sorriso-perfeito-15-dicas`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 1.0,
+    },
       url: `${baseUrl}/blog/dor-cabeca-ma-oclusao`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,

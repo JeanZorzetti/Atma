@@ -14,6 +14,14 @@ export default function BlogPage() {
 
   const posts = [
     {
+      id: "sorriso-perfeito-15-dicas",
+      title: "Como Ter um Sorriso Perfeito: 15 Dicas Comprovadas",
+      excerpt: "15 dicas cientificamente comprovadas para conquistar o sorriso perfeito: higiene, estética, alinhamento dental e hábitos saudáveis. Guia completo 2025!",
+      date: "2025-10-31",
+      author: "Dr. Rafael Martins",
+      category: "Guia Completo"
+    },
+    {
       id: "dor-cabeca-ma-oclusao",
       title: "Dor de Cabeça Constante? Pode Ser Má Oclusão Dentária",
       excerpt: "Dor de cabeça todos os dias? Descubra como má oclusão dentária (DTM) pode causar dor crônica e como ortodontia invisível resolve o problema.",
@@ -133,7 +141,7 @@ export default function BlogPage() {
     })
   }, [searchTerm, selectedCategory, posts])
 
-  const featuredPost = posts.find(post => post.id === "dor-cabeca-ma-oclusao")
+  const featuredPost = posts.find(post => post.id === "sorriso-perfeito-15-dicas")
 
   return (
     <div className="min-h-screen py-20">
