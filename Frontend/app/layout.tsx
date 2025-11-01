@@ -9,8 +9,6 @@ import { Breadcrumbs } from "@/components/breadcrumbs"
 import { ClientOnlyFABs } from "@/components/client-only-fabs"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 
-// Force dynamic rendering to avoid SSR issues with voice search and animations
-export const dynamic = 'force-dynamic'
 
 const roboto = Roboto({
   subsets: ["latin"],
