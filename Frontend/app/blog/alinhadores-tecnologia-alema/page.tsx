@@ -555,13 +555,22 @@ export default function TecnologiaAlemaPage() {
           <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
             Descubra como alinhadores com PETG alemão podem transformar seu sorriso em menos tempo e com mais conforto
           </p>
-          <Link
-            href="/pacientes/encontre-doutor"
-            className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            Agendar Consulta Gratuita
-            <ArrowLeft className="ml-2 h-5 w-5 rotate-180" />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/pacientes/encontre-doutor"
+              className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              Agendar Consulta Gratuita
+              <ArrowLeft className="ml-2 h-5 w-5 rotate-180" />
+            </Link>
+            <Link
+              href="/pacientes/qualidade-alemao"
+              className="inline-flex items-center px-8 py-4 bg-blue-700 text-white font-semibold rounded-lg hover:bg-blue-800 transition-colors"
+            >
+              Detalhes da Qualidade Alemã
+              <ArrowLeft className="ml-2 h-5 w-5 rotate-180" />
+            </Link>
+          </div>
         </div>
       </div>
 

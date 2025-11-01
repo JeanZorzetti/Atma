@@ -820,7 +820,10 @@ export default function AlinhadoresPassoFundo() {
                 </ul>
                 <p>
                   <strong>Material:</strong> PETG (Polietileno Tereftalato Glicol) de grau médico, fabricado na Alemanha.
-                  É o mesmo material usado pelas marcas premium internacionais.
+                  É o mesmo material usado pelas marcas premium internacionais.{" "}
+                  <Link href="/pacientes/qualidade-alemao" className="text-purple-600 hover:text-purple-700 underline font-semibold">
+                    Saiba mais sobre nossa qualidade alemã →
+                  </Link>
                 </p>
                 <p>
                   <strong>Ortodontistas:</strong> Todos os profissionais parceiros em Passo Fundo são devidamente

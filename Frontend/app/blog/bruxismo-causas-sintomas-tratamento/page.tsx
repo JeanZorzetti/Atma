@@ -554,7 +554,10 @@ export default function BruxismoArticle() {
               </p>
 
               <p className="text-gray-700 mb-6">
-                Os alinhadores invisíveis modernos, feitos de material PETG de alta resistência, funcionam como
+                Os alinhadores invisíveis modernos, feitos de{" "}
+                <Link href="/pacientes/qualidade-alemao" className="text-purple-600 hover:text-purple-700 underline font-semibold">
+                  material PETG alemão de alta resistência
+                </Link>, funcionam como
                 <strong> placa de mordida durante a noite</strong> enquanto <strong>corrigem a posição dos dentes</strong>
                 durante o dia.
               </p>

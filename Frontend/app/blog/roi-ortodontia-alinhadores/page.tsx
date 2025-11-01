@@ -423,13 +423,22 @@ export default function ROIOrtodontiaPage() {
           <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
             Veja na prática como a Atma pode aumentar o faturamento da sua clínica em 35%
           </p>
-          <Link
-            href="/ortodontistas/seja-parceiro"
-            className="inline-flex items-center px-8 py-4 bg-white text-green-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors text-lg"
-          >
-            <Award className="mr-2 h-6 w-6" />
-            Quero Ser Parceiro Atma
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/ortodontistas/seja-parceiro"
+              className="inline-flex items-center px-8 py-4 bg-white text-green-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors text-lg"
+            >
+              <Award className="mr-2 h-6 w-6" />
+              Quero Ser Parceiro Atma
+            </Link>
+            <Link
+              href="/ortodontistas/qualidade-alemao"
+              className="inline-flex items-center px-8 py-4 bg-green-700 text-white font-semibold rounded-lg hover:bg-green-800 transition-colors text-lg"
+            >
+              <Shield className="mr-2 h-6 w-6" />
+              Nossa Qualidade Alemã
+            </Link>
+          </div>
           <p className="text-sm opacity-75 mt-4">
             + Baixe planilha ROI gratuita | Sem compromisso
           </p>
