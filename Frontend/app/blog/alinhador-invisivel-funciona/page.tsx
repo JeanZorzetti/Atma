@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     tags: ['ciência', 'ortodontia', 'alinhadores', 'estudos', 'eficácia'],
   },
   alternates: {
-    canonical: 'https://atmaaligner.com.br/blog/alinhador-invisivel-funciona'
+    canonical: 'https://atma.roilabs.com.br/blog/alinhador-invisivel-funciona'
   }
 };
 
@@ -932,7 +932,7 @@ export default function AlinhadorFuncionaPage() {
               "@type": "Article",
               "headline": "Alinhador Invisível Funciona? Ciência, Resultados e Limitações",
               "description": "Análise científica completa baseada em 15+ estudos: alinhadores invisíveis têm 95-98% taxa de sucesso. Veja evidências, casos reais e limitações.",
-              "image": "https://atmaaligner.com.br/og-image-funciona.jpg",
+              "image": "https://atma.roilabs.com.br/og-image-funciona.jpg",
               "author": {
                 "@type": "Organization",
                 "name": "Atma Aligner"
@@ -942,7 +942,7 @@ export default function AlinhadorFuncionaPage() {
                 "name": "Atma Aligner",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://atmaaligner.com.br/logo.png"
+                  "url": "https://atma.roilabs.com.br/logo.png"
                 }
               },
               "datePublished": "2025-01-20T16:00:00Z",

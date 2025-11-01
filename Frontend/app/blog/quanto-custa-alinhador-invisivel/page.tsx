@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     tags: ['preços', 'ortodontia', 'alinhadores invisíveis', 'custo-benefício'],
   },
   alternates: {
-    canonical: 'https://atmaaligner.com.br/blog/quanto-custa-alinhador-invisivel'
+    canonical: 'https://atma.roilabs.com.br/blog/quanto-custa-alinhador-invisivel'
   }
 };
 
@@ -844,7 +844,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
               "@type": "Article",
               "headline": "Quanto Custa Alinhador Invisível em 2025? Guia Completo de Preços",
               "description": "Guia completo sobre preços de alinhadores invisíveis no Brasil: compare Atma, Invisalign, ClearCorrect e outras marcas. Inclui calculadora de parcelas e dicas para economizar.",
-              "image": "https://atmaaligner.com.br/og-image-precos.jpg",
+              "image": "https://atma.roilabs.com.br/og-image-precos.jpg",
               "author": {
                 "@type": "Organization",
                 "name": "Atma Aligner"
@@ -854,7 +854,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
                 "name": "Atma Aligner",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://atmaaligner.com.br/logo.png"
+                  "url": "https://atma.roilabs.com.br/logo.png"
                 }
               },
               "datePublished": "2025-01-20T10:00:00Z",

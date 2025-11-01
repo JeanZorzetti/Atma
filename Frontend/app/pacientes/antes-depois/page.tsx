@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     images: ['/straight-smile-results.png'],
   },
   alternates: {
-    canonical: 'https://atmaaligner.com.br/pacientes/antes-depois'
+    canonical: 'https://atma.roilabs.com.br/pacientes/antes-depois'
   }
 };
 

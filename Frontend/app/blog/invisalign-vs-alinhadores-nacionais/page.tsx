@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     tags: ['comparação', 'invisalign', 'alinhadores', 'custo-benefício'],
   },
   alternates: {
-    canonical: 'https://atmaaligner.com.br/blog/invisalign-vs-alinhadores-nacionais'
+    canonical: 'https://atma.roilabs.com.br/blog/invisalign-vs-alinhadores-nacionais'
   }
 };
 
@@ -800,7 +800,7 @@ export default function InvisalignVsNacionaisPage() {
               "@type": "Article",
               "headline": "Invisalign vs Alinhadores Nacionais: Vale a Pena Pagar 3x Mais?",
               "description": "Análise técnica completa comparando Invisalign com alinhadores nacionais premium: qualidade, resultados, custos e custo-benefício real.",
-              "image": "https://atmaaligner.com.br/og-image-comparacao.jpg",
+              "image": "https://atma.roilabs.com.br/og-image-comparacao.jpg",
               "author": {
                 "@type": "Organization",
                 "name": "Atma Aligner"
@@ -810,7 +810,7 @@ export default function InvisalignVsNacionaisPage() {
                 "name": "Atma Aligner",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://atmaaligner.com.br/logo.png"
+                  "url": "https://atma.roilabs.com.br/logo.png"
                 }
               },
               "datePublished": "2025-01-20T14:00:00Z",

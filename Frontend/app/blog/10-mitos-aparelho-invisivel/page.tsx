@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     tags: ['mitos', 'verdades', 'alinhadores', 'dúvidas'],
   },
   alternates: {
-    canonical: 'https://atmaaligner.com.br/blog/10-mitos-aparelho-invisivel'
+    canonical: 'https://atma.roilabs.com.br/blog/10-mitos-aparelho-invisivel'
   }
 };
 
@@ -657,7 +657,7 @@ export default function MitosAparelhoInvisivelPage() {
               "@type": "Article",
               "headline": "10 Mitos Sobre Aparelho Invisível Que Você Precisa Conhecer",
               "description": "Desmentindo os 10 maiores mitos sobre alinhadores invisíveis com evidências científicas e dados reais.",
-              "image": "https://atmaaligner.com.br/og-image-mitos.jpg",
+              "image": "https://atma.roilabs.com.br/og-image-mitos.jpg",
               "author": {
                 "@type": "Organization",
                 "name": "Atma Aligner"
@@ -667,7 +667,7 @@ export default function MitosAparelhoInvisivelPage() {
                 "name": "Atma Aligner",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://atmaaligner.com.br/logo.png"
+                  "url": "https://atma.roilabs.com.br/logo.png"
                 }
               },
               "datePublished": "2025-01-20T18:00:00Z",

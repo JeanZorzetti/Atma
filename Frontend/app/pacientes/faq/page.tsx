@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   alternates: {
-    canonical: 'https://atmaaligner.com.br/pacientes/faq'
+    canonical: 'https://atma.roilabs.com.br/pacientes/faq'
   }
 };
 

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     tags: ['adultos', 'ortodontia', 'idade', 'profissionais'],
   },
   alternates: {
-    canonical: 'https://atmaaligner.com.br/blog/ortodontia-invisivel-adultos'
+    canonical: 'https://atma.roilabs.com.br/blog/ortodontia-invisivel-adultos'
   }
 };
 
@@ -660,7 +660,7 @@ export default function OrtodontiaAdultosPage() {
               "@type": "Article",
               "headline": "Ortodontia Invisível para Adultos: Nunca É Tarde Para Ter o Sorriso Perfeito",
               "description": "Guia completo sobre ortodontia invisível para adultos: benefícios, custos, tempo, resultados. 45% dos pacientes têm 35+ anos.",
-              "image": "https://atmaaligner.com.br/og-image-adultos.jpg",
+              "image": "https://atma.roilabs.com.br/og-image-adultos.jpg",
               "author": {
                 "@type": "Organization",
                 "name": "Atma Aligner"
@@ -670,7 +670,7 @@ export default function OrtodontiaAdultosPage() {
                 "name": "Atma Aligner",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://atmaaligner.com.br/logo.png"
+                  "url": "https://atma.roilabs.com.br/logo.png"
                 }
               },
               "datePublished": "2025-01-20T20:00:00Z",
