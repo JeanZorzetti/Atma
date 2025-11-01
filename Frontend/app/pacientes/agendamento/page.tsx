@@ -93,10 +93,39 @@ export default function AgendamentoPage() {
   ]
 
   const handleSubmit = async (data: Record<string, string>) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    console.log('Form submitted:', data)
-    trackConversion()
+    try {
+      // Send lead data to backend API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/leads`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nome: data.nome,
+          email: data.email,
+          telefone: data.telefone,
+          cidade: data.cidade,
+          preferencia_horario: data.preferencia,
+          motivo_consulta: data.motivo,
+          observacoes: data.observacoes || '',
+          origem: 'website',
+          pagina: '/pacientes/agendamento',
+          tipo: 'agendamento_consulta',
+          data_cadastro: new Date().toISOString()
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+
+      const result = await response.json()
+      console.log('Lead submitted successfully:', result)
+      trackConversion()
+    } catch (error) {
+      console.error('Error submitting lead:', error)
+      throw error // Re-throw to show error to user
+    }
   }
 
   return (
