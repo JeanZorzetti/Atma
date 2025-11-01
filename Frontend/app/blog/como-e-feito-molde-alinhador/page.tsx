@@ -18,19 +18,18 @@ export const metadata: Metadata = {
     title: 'Como é Feito o Molde para Alinhador Invisível? Processo Completo',
     description: 'Do escaneamento 3D à entrega: veja todas as etapas da fabricação de alinhadores invisíveis',
     type: 'article',
-  },
-  alternates: {
-    canonical: 'https://atma.roilabs.com.br/blog/como-e-feito-molde-alinhador'
-    type: "article",
     url: "https://atma.roilabs.com.br/blog/como-e-feito-molde-alinhador",
     images: [
       {
         url: "https://atma.roilabs.com.br/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "como-e-feito-molde-alinhador"
+        alt: "Como é Feito o Molde Digital do Alinhador"
       }
     ]
+  },
+  alternates: {
+    canonical: 'https://atma.roilabs.com.br/blog/como-e-feito-molde-alinhador'
   }
 }
 

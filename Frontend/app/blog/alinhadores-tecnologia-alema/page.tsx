@@ -18,19 +18,18 @@ export const metadata: Metadata = {
     title: 'Alinhadores com Tecnologia Alemã: A Diferença na Qualidade',
     description: 'Tecnologia alemã PETG: certificações internacionais, precisão de ±0.2mm e durabilidade superior',
     type: 'article',
-  },
-  alternates: {
-    canonical: 'https://atma.roilabs.com.br/blog/alinhadores-tecnologia-alema'
-    type: "article",
     url: "https://atma.roilabs.com.br/blog/alinhadores-tecnologia-alema",
     images: [
       {
         url: "https://atma.roilabs.com.br/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "alinhadores-tecnologia-alema"
+        alt: "Alinhadores com Tecnologia Alemã"
       }
     ]
+  },
+  alternates: {
+    canonical: 'https://atma.roilabs.com.br/blog/alinhadores-tecnologia-alema'
   }
 }
 

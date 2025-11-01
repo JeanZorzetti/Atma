@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, TrendingUp, DollarSign, Users, Calendar, Award } from 'lucide-react'
+import { ArrowLeft, TrendingUp, DollarSign, Users, Calendar, Award, Shield } from 'lucide-react'
 import { RelatedArticles } from '@/components/blog/related-articles'
 
 export const metadata: Metadata = {
@@ -18,19 +18,18 @@ export const metadata: Metadata = {
     title: 'ROI em Ortodontia: +35% de Receita em 4 Meses com Alinhadores',
     description: 'Casos reais de ortodontistas que aumentaram receita com alinhadores Atma',
     type: 'article',
-  },
-  alternates: {
-    canonical: 'https://atma.roilabs.com.br/blog/roi-ortodontia-alinhadores'
-    type: "article",
     url: "https://atma.roilabs.com.br/blog/roi-ortodontia-alinhadores",
     images: [
       {
         url: "https://atma.roilabs.com.br/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "roi-ortodontia-alinhadores"
+        alt: "ROI em Ortodontia com Alinhadores"
       }
     ]
+  },
+  alternates: {
+    canonical: 'https://atma.roilabs.com.br/blog/roi-ortodontia-alinhadores'
   }
 }
 
