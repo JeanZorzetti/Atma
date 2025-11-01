@@ -96,7 +96,7 @@ export default function AgendamentoPage() {
     try {
       // Send lead data to backend API
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://atmaapi.roilabs.com.br/api'
-      const response = await fetch(`${API_URL}/leads`, {
+      const response = await fetch(`${API_URL}/patients/leads`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -105,19 +105,24 @@ export default function AgendamentoPage() {
           nome: data.nome,
           email: data.email,
           telefone: data.telefone,
-          cidade: data.cidade,
-          preferencia_horario: data.preferencia,
-          motivo_consulta: data.motivo,
-          observacoes: data.observacoes || '',
-          origem: 'website',
-          pagina: '/pacientes/agendamento',
-          tipo: 'agendamento_consulta',
-          data_cadastro: new Date().toISOString()
+          cep: data.cidade, // Using cidade as cep fallback
+          consentimento: true, // User filled form, implicit consent
+          // Additional metadata for internal tracking
+          _metadata: {
+            preferencia_horario: data.preferencia,
+            motivo_consulta: data.motivo,
+            observacoes: data.observacoes || '',
+            origem: 'website',
+            pagina: '/pacientes/agendamento',
+            tipo: 'agendamento_consulta',
+            data_cadastro: new Date().toISOString()
+          }
         })
       })
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error?.message || `API error: ${response.status}`)
       }
 
       const result = await response.json()
