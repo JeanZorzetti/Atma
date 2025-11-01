@@ -95,7 +95,8 @@ export default function AgendamentoPage() {
   const handleSubmit = async (data: Record<string, string>) => {
     try {
       // Send lead data to backend API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/leads`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://atmaapi.roilabs.com.br/api'
+      const response = await fetch(`${API_URL}/leads`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
