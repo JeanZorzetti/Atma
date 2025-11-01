@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { ArrowLeft, CheckCircle2, Sparkles, Star, Shield, Calendar } from 'lucide-react'
 import { RelatedArticles } from '@/components/blog/related-articles'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Como Ter um Sorriso Perfeito: 15 Dicas Comprovadas [2025]',
   description: 'Descubra 15 dicas cientificamente comprovadas para ter um sorriso perfeito: higiene, estética, alinhamento dental e hábitos saudáveis. Guia completo 2025!',

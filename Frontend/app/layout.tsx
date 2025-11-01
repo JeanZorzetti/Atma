@@ -119,9 +119,9 @@ export default function RootLayout({
         <meta name="ICBM" content="-28.2620, -52.4080" />
 
         <StructuredData />
+        <GoogleAnalytics />
       </head>
       <body className="min-h-screen flex flex-col">
-        <GoogleAnalytics />
         {/* WCAG 2.2 Skip Navigation */}
         <a href="#main-content" className="skip-nav">
           Pular para o conteúdo principal
