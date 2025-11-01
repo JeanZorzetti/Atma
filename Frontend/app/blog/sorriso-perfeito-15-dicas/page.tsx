@@ -4,8 +4,6 @@ import Image from 'next/image'
 import { ArrowLeft, CheckCircle2, Sparkles, Star, Shield, Calendar } from 'lucide-react'
 import { RelatedArticles } from '@/components/blog/related-articles'
 
-export const dynamic = 'force-dynamic'
-
 export const metadata: Metadata = {
   title: 'Como Ter um Sorriso Perfeito: 15 Dicas Comprovadas [2025]',
   description: 'Descubra 15 dicas cientificamente comprovadas para ter um sorriso perfeito: higiene, estética, alinhamento dental e hábitos saudáveis. Guia completo 2025!',
@@ -537,16 +535,22 @@ export default function SorrisoPerfeitoArticle() {
           <RelatedArticles
             articles={[
               {
-                slug: 'alinhadores-vs-aparelho-fixo',
-                title: 'Alinhadores vs Aparelho Fixo: Qual Escolher?'
+                href: '/blog/alinhadores-vs-aparelho-fixo',
+                title: 'Alinhadores vs Aparelho Fixo: Qual Escolher?',
+                description: 'Compare alinhadores invisíveis e aparelho fixo: vantagens, desvantagens, preços e qual é melhor para seu caso.',
+                tag: 'Comparação'
               },
               {
-                slug: 'quanto-custa-alinhador-invisivel',
-                title: 'Quanto Custa Alinhador Invisível em 2025?'
+                href: '/blog/quanto-custa-alinhador-invisivel',
+                title: 'Quanto Custa Alinhador Invisível em 2025?',
+                description: 'Guia completo de preços: descubra quanto custa alinhador invisível, formas de pagamento e como economizar até 50%.',
+                tag: 'Custos'
               },
               {
-                slug: 'bruxismo-causas-sintomas-tratamento',
-                title: 'Bruxismo: Causas, Sintomas e Tratamento'
+                href: '/blog/bruxismo-causas-sintomas-tratamento',
+                title: 'Bruxismo: Causas, Sintomas e Tratamento',
+                description: 'Tudo sobre bruxismo: o que é, causas, sintomas e como tratar com alinhadores invisíveis e placa de mordida.',
+                tag: 'Saúde Bucal'
               }
             ]}
           />
