@@ -662,7 +662,7 @@ export default function BruxismoArticle() {
 
               <div className="mt-6 text-center">
                 <Link
-                  href="/pacientes/avaliacao"
+                  href="/pacientes/agendamento"
                   className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-full text-lg shadow-xl transition-all hover:scale-105"
                 >
                   Descubra Se Alinhadores Podem Tratar Seu Bruxismo →
@@ -916,7 +916,7 @@ export default function BruxismoArticle() {
                   e receba um plano de tratamento personalizado em até 48 horas.
                 </p>
                 <Link
-                  href="/pacientes/avaliacao"
+                  href="/pacientes/agendamento"
                   className="inline-block mt-4 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
                 >
                   Fazer Avaliação Gratuita →
@@ -1090,7 +1090,7 @@ export default function BruxismoArticle() {
             Avaliação 100% gratuita e online.
           </p>
           <Link
-            href="/pacientes/avaliacao"
+            href="/pacientes/agendamento"
             className="inline-block bg-white text-purple-600 font-bold py-4 px-10 rounded-full text-lg shadow-xl hover:shadow-2xl transition-all hover:scale-105"
           >
             Fazer Avaliação Gratuita Agora →

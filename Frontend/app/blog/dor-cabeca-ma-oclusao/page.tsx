@@ -750,7 +750,7 @@ export default function DorCabecaArticle() {
 
               <div className="mt-6 text-center">
                 <Link
-                  href="/pacientes/avaliacao"
+                  href="/pacientes/agendamento"
                   className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all"
                 >
                   Acabar com Minha Dor de Cabeça →
@@ -935,7 +935,7 @@ export default function DorCabecaArticle() {
             Descubra se má oclusão é a causa e resolva definitivamente com ortodontia invisível.
           </p>
           <Link
-            href="/pacientes/avaliacao"
+            href="/pacientes/agendamento"
             className="inline-block bg-white text-purple-600 hover:bg-gray-100 font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all"
           >
             Agendar Avaliação Gratuita →

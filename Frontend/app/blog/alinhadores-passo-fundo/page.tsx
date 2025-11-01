@@ -348,7 +348,7 @@ export default function AlinhadoresPassoFundo() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/pacientes/avaliacao"
+              href="/pacientes/agendamento"
               className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-center"
             >
               Agendar Avaliação Gratuita
@@ -453,7 +453,7 @@ export default function AlinhadoresPassoFundo() {
                 </div>
 
                 <Link
-                  href="/pacientes/avaliacao"
+                  href="/pacientes/agendamento"
                   className="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
                 >
                   Agendar Avaliação Gratuita
@@ -844,7 +844,7 @@ export default function AlinhadoresPassoFundo() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/pacientes/avaliacao"
+                href="/pacientes/agendamento"
                 className="bg-white text-purple-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors inline-block"
               >
                 Agendar Avaliação Gratuita
