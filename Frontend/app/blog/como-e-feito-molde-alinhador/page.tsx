@@ -21,6 +21,16 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://atma.roilabs.com.br/blog/como-e-feito-molde-alinhador'
+    type: "article",
+    url: "https://atma.roilabs.com.br/blog/como-e-feito-molde-alinhador",
+    images: [
+      {
+        url: "https://atma.roilabs.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "como-e-feito-molde-alinhador"
+      }
+    ]
   }
 }
 

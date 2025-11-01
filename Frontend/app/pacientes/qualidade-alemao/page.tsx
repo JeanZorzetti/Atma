@@ -1,8 +1,29 @@
+import type { Metadata } from "next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Shield, Award, Zap, Heart, Clock, ArrowRight, AlertCircle } from "lucide-react"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "Qualidade Alemã | Placas PETG Premium | Atma Aligner",
+  description: "Descubra por que usamos placas alemãs PETG de grau médico. Certificações ISO 13485, CE e ANVISA. Precisão de ±0.2mm e durabilidade 40% superior.",
+  keywords: ["PETG alemão", "qualidade alemã", "placas premium", "certificação ISO", "material ortodôntico"],
+  openGraph: {
+    title: "Qualidade Alemã | Placas PETG Premium | Atma Aligner",
+    description: "Material PETG alemão de grau médico. Certificações internacionais e durabilidade superior.",
+    type: "website",
+    url: "https://atma.roilabs.com.br/pacientes/qualidade-alemao",
+    images: [
+      {
+        url: "https://atma.roilabs.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Qualidade Alemã - Placas PETG Premium Atma Aligner"
+      }
+    ]
+  }
+}
 
 export default function QualidadeAlemaoPacientesPage() {
   return (

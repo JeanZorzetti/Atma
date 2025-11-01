@@ -7,6 +7,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alinhadores Invisíveis para Pacientes | Atma Aligner",
     description: "Transforme seu sorriso com alinhadores invisíveis a partir de R$ 3.990. Parcele em 12x. Consulta grátis!",
+    type: "website",
+    url: "https://atma.roilabs.com.br/pacientes",
+    images: [
+      {
+        url: "https://atma.roilabs.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Alinhadores Invisíveis Atma - Transforme seu sorriso"
+      }
+    ]
   }
 }
 

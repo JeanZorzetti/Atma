@@ -21,6 +21,16 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://atma.roilabs.com.br/blog/roi-ortodontia-alinhadores'
+    type: "article",
+    url: "https://atma.roilabs.com.br/blog/roi-ortodontia-alinhadores",
+    images: [
+      {
+        url: "https://atma.roilabs.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "roi-ortodontia-alinhadores"
+      }
+    ]
   }
 }
 

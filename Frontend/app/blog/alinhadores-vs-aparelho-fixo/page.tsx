@@ -13,6 +13,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alinhadores Invisíveis vs Aparelho Fixo: Comparação Completa 2025",
     description: "Preço, conforto, duração e eficácia. Veja a tabela comparativa completa e descubra qual tratamento é ideal para você!",
+    type: "article",
+    url: "https://atma.roilabs.com.br/blog/alinhadores-vs-aparelho-fixo",
+    images: [
+      {
+        url: "https://atma.roilabs.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "alinhadores-vs-aparelho-fixo"
+      }
+    ]
   }
 }
 

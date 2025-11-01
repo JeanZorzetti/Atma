@@ -7,6 +7,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Como Funciona o Alinhador Invisível | Guia Completo",
     description: "Duração 6-24 meses, consultas a cada 6 semanas, 22h/dia de uso. Veja o passo a passo completo!",
+    type: "website",
+    url: "https://atma.roilabs.com.br/pacientes/tratamento",
+    images: [
+      {
+        url: "https://atma.roilabs.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Como funciona o alinhador invisível - passo a passo completo"
+      }
+    ]
   }
 }
 

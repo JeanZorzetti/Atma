@@ -21,6 +21,16 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://atma.roilabs.com.br/blog/alinhadores-tecnologia-alema'
+    type: "article",
+    url: "https://atma.roilabs.com.br/blog/alinhadores-tecnologia-alema",
+    images: [
+      {
+        url: "https://atma.roilabs.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "alinhadores-tecnologia-alema"
+      }
+    ]
   }
 }
 

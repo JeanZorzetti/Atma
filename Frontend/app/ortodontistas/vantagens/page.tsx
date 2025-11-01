@@ -1,8 +1,29 @@
+import type { Metadata } from "next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, TrendingUp, DollarSign, Zap, Users, BarChart3, ArrowRight } from "lucide-react"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "Parceria Ortodontista | +35% Receita em 4 meses | Atma Aligner",
+  description: "Aumente 35% sua receita com alinhadores invisíveis. Sistema chave na mão, ROI em 4-6 meses. Tecnologia alemã premium.",
+  keywords: ["parceria ortodontista", "aumentar receita", "alinhadores invisíveis", "ROI ortodontia", "white label"],
+  openGraph: {
+    title: "Parceria Ortodontista | +35% Receita | Atma Aligner",
+    description: "Aumente 35% sua receita com alinhadores invisíveis. Sistema chave na mão, ROI em 4-6 meses. Tecnologia alemã premium.",
+    type: "website",
+    url: "https://atma.roilabs.com.br/ortodontistas/vantagens",
+    images: [
+      {
+        url: "https://atma.roilabs.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Parceria Ortodontista Atma Aligner - Aumente sua receita"
+      }
+    ]
+  }
+}
 
 export default function VantagensPage() {
   return (

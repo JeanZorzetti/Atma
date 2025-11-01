@@ -11,6 +11,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Preço de Alinhadores Invisíveis 2025 | A partir de R$ 3.990",
     description: "Quanto custa alinhador invisível? R$ 3.990 (simples), R$ 5.990 (moderado), R$ 8.990 (complexo). Parcele em 12x sem juros!",
+    type: "website",
+    url: "https://atma.roilabs.com.br/pacientes/precos",
+    images: [
+      {
+        url: "https://atma.roilabs.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Preços de Alinhadores Invisíveis - A partir de R$ 3.990"
+      }
+    ]
   }
 }
 
