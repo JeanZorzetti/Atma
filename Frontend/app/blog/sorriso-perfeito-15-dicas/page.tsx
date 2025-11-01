@@ -319,10 +319,10 @@ export default function SorrisoPerfeitoArticle() {
 
             <div className="text-center">
               <Link
-                href="/pacientes/agendamento"
+                href="/pacientes/encontre-doutor"
                 className="inline-block bg-white text-purple-600 hover:bg-purple-50 font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all"
               >
-                Ver Meu Sorriso em 3D Grátis →
+                Encontre um Doutor →
               </Link>
               <p className="text-sm mt-3 opacity-90">
                 Avaliação + Simulação 3D do resultado • Sem compromisso
