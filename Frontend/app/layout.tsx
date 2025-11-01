@@ -112,6 +112,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="mobile-web-app-capable" content="yes" />
 
+        {/* Geographic Targeting - Força Google a entender que é Brasil */}
+        <meta name="geo.region" content="BR" />
+        <meta name="geo.placename" content="Brasil" />
+        <meta name="geo.position" content="-28.2620;-52.4080" />
+        <meta name="ICBM" content="-28.2620, -52.4080" />
+
         <StructuredData />
       </head>
       <body className="min-h-screen flex flex-col">
