@@ -489,7 +489,7 @@ class ApiService {
   }
 
   // Patient methods (corrigido para usar /patients/leads)
-  async getPatients(page = 1, limit = 10): Promise<PatientsResponse> {
+  async getPatients(page = 1, limit = 100): Promise<PatientsResponse> {
     return this.request<PatientsResponse>(`/patients/leads?page=${page}&limit=${limit}`)
   }
 
