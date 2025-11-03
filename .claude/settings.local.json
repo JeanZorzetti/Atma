@@ -32,9 +32,21 @@
       "Bash(npm run:*)",
       "Read(//c/Users/jeanz/OneDrive/Desktop/ROI Labs/Atma/**)",
       "Bash(node -e:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(git push:*)",
+      "Bash(node update-blog-cta.js:*)",
+      "Bash(curl:*)",
+      "Bash(node restore-force-dynamic.js:*)",
+      "Bash(node update-settings.js:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [
+      "Edit(Frontend/app/layout.tsx)",
+      "Write(Frontend/app/layout.tsx)",
+      "Edit(Frontend/public/robots.txt)",
+      "Write(Frontend/public/robots.txt)",
+      "Edit(Frontend/app/sitemap.ts)",
+      "Write(Frontend/app/sitemap.ts)"
+    ]
   }
 }
