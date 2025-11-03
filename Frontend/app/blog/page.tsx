@@ -162,7 +162,7 @@ export default function BlogPage() {
             <div className="md:flex">
               <div className="md:w-1/2 relative h-[400px] md:h-auto">
                 <Image
-                  src="/images/blog/dor-cabeca-destaque.png"
+                  src="/blog/sorriso-perfeito-featured.webp"
                   alt={featuredPost?.title || "Artigo em destaque"}
                   fill
                   className="object-cover"
