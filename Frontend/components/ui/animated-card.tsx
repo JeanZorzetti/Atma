@@ -36,14 +36,14 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
   const componentProps = href ? { href } : {};
 
   const baseClasses = cn(
-    'relative overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-300',
+    'relative overflow-hidden rounded-xl border shadow-sm transition-all duration-300',
     'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
     {
       'cursor-pointer': interactive || onClick || href,
-      'border-slate-200 hover:border-slate-300': variant === 'default',
-      'border-blue-200 hover:border-blue-300 bg-gradient-to-br from-blue-50 to-white':
+      'border-slate-200 hover:border-slate-300 bg-white': variant === 'default',
+      'border-blue-200 hover:border-blue-300':
         variant === 'medical' || medical,
-      'border-green-200 hover:border-green-300 bg-gradient-to-br from-green-50 to-white':
+      'border-green-200 hover:border-green-300':
         variant === 'service',
       'border-purple-200 hover:border-purple-300 bg-gradient-to-br from-purple-50 to-white':
         variant === 'testimonial',
