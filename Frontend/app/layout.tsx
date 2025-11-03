@@ -9,6 +9,11 @@ import { Breadcrumbs } from "@/components/breadcrumbs"
 import { ClientOnlyFABs } from "@/components/client-only-fabs"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 
+// TEMPORARY: Force dynamic rendering to fix Google indexation issue (Nov 3, 2025)
+// This will force Vercel to bust cache and allow Google to recrawl fresh pages
+// Plan: Keep for 7-14 days until Google re-indexes, then remove again
+export const dynamic = 'force-dynamic'
+
 
 const roboto = Roboto({
   subsets: ["latin"],
