@@ -101,27 +101,6 @@ export default function TratamentoPage() {
         </div>
       </section>
 
-      {/* Visualização 3D e Before/After */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-heading font-bold mb-4">Veja como funciona</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Visualize a transformação do seu sorriso
-            </p>
-          </div>
-          <BeforeAfterMorph />
-          <div className="text-center mt-8">
-            <Button asChild variant="outline" size="lg">
-              <Link href="/pacientes/visualizacao-3d">
-                Ver visualização 3D completa
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* Visualização 3D do Movimento Dentário */}
       <section className="py-16 bg-muted">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
