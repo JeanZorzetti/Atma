@@ -28,12 +28,12 @@ export default function HomePage() {
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
+            className="absolute inset-0 w-full h-full object-cover opacity-40"
           >
             <source src="/videos/hero-background.mp4" type="video/mp4" />
           </video>
           {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/60 to-blue-800/70" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-purple-900/40 to-blue-800/50" />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -79,9 +79,9 @@ export default function HomePage() {
               {/* Card Paciente - Redesign Premium */}
               <AnimatedCard
                 variant="medical"
-                className="group cursor-pointer relative overflow-hidden"
+                className="group cursor-pointer relative overflow-hidden backdrop-blur-sm bg-white/80"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-blue-100/30 to-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-blue-100/20 to-white/70" />
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-600/10" />
 
                 {/* Glow effect */}
@@ -153,9 +153,9 @@ export default function HomePage() {
               {/* Card Ortodontista - Redesign Premium */}
               <AnimatedCard
                 variant="service"
-                className="group cursor-pointer relative overflow-hidden"
+                className="group cursor-pointer relative overflow-hidden backdrop-blur-sm bg-white/80"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-100/30 to-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-teal-100/20 to-white/70" />
                 <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-emerald-600/10" />
 
                 {/* Glow effect */}
