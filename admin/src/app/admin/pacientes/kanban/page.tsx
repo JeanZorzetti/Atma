@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useOptimistic } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -23,8 +23,6 @@ import {
   MoreVertical,
   Phone,
   Mail,
-  Calendar,
-  MapPin,
   User,
   Edit,
   Trash2,
@@ -109,6 +107,7 @@ export default function PacientesKanbanPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const { toast } = useToast()
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: patientsData, loading, refetch } = usePatients()
 
   const serverPatients = React.useMemo(() => patientsData?.patients || [], [patientsData?.patients])

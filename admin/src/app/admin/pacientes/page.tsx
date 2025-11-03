@@ -9,7 +9,6 @@ import {
   UserCheck,
   Calendar,
   CheckCircle,
-  Plus,
   Search,
   Phone,
   Mail,
@@ -21,7 +20,16 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePatients } from '@/hooks/useApi'
-import { apiService, CrmActivity } from '@/lib/api'
+import { CrmActivity } from '@/lib/api'
+
+interface Patient {
+  id: number
+  name: string
+  email: string
+  phone?: string
+  status: string
+  registrationDate?: string
+}
 
 interface PatientStats {
   total_pacientes: number
@@ -49,24 +57,24 @@ export default function PacientesCRMPage() {
   // Calculate stats from patients data
   const stats: PatientStats = {
     total_pacientes: patients.length,
-    novos_mes: patients.filter((p: any) => {
+    novos_mes: patients.filter((p: Patient) => {
       if (!p.registrationDate) return false
       const regDate = new Date(p.registrationDate)
       const now = new Date()
       return regDate.getMonth() === now.getMonth() && regDate.getFullYear() === now.getFullYear()
     }).length,
-    em_tratamento: patients.filter((p: any) => p.status === 'atribuido').length,
-    concluidos: patients.filter((p: any) => p.status === 'convertido').length,
+    em_tratamento: patients.filter((p: Patient) => p.status === 'atribuido').length,
+    concluidos: patients.filter((p: Patient) => p.status === 'convertido').length,
     taxa_conversao: patients.length > 0
-      ? ((patients.filter((p: any) => p.status === 'convertido').length / patients.length) * 100).toFixed(1)
+      ? parseFloat(((patients.filter((p: Patient) => p.status === 'convertido').length / patients.length) * 100).toFixed(1))
       : 0,
     pipeline: {
-      novo: patients.filter((p: any) => p.status === 'novo').length,
-      contatado: patients.filter((p: any) => p.status === 'contatado').length,
-      agendado: patients.filter((p: any) => p.status === 'agendado').length,
+      novo: patients.filter((p: Patient) => p.status === 'novo').length,
+      contatado: patients.filter((p: Patient) => p.status === 'contatado').length,
+      agendado: patients.filter((p: Patient) => p.status === 'agendado').length,
       avaliacao_inicial: 0, // Placeholder
-      em_tratamento: patients.filter((p: any) => p.status === 'atribuido').length,
-      concluido: patients.filter((p: any) => p.status === 'convertido').length
+      em_tratamento: patients.filter((p: Patient) => p.status === 'atribuido').length,
+      concluido: patients.filter((p: Patient) => p.status === 'convertido').length
     }
   }
 
