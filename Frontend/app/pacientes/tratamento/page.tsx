@@ -86,11 +86,16 @@ export default function TratamentoPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg p-8 text-center">
-              <div className="w-32 h-32 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Play className="h-16 w-16 text-primary" />
-              </div>
-              <p className="text-muted-foreground">Vídeo: Como funcionam os alinhadores</p>
+            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg p-4 overflow-hidden">
+              <video
+                controls
+                className="w-full h-auto rounded-lg shadow-lg"
+                preload="metadata"
+              >
+                <source src="/videos/como-funcionam-alinhadores.mp4" type="video/mp4" />
+                Seu navegador não suporta a reprodução de vídeos.
+              </video>
+              <p className="text-center text-muted-foreground mt-4">Vídeo: Como funcionam os alinhadores</p>
             </div>
           </div>
         </div>
