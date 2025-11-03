@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Quanto Custa Alinhador Invisível em 2025? Guia Completo de Preços',
     description: 'Compare preços de alinhadores invisíveis: Atma (R$ 3.990-8.990), Invisalign (R$ 12.000-18.000) e mais. Calculadora de parcelas inclusa.',
     type: 'article',
-    publishedTime: '2025-01-20T10:00:00Z',
+    publishedTime: '2025-10-20T10:00:00Z',
     authors: ['Equipe Atma Aligner'],
     tags: ['preços', 'ortodontia', 'alinhadores invisíveis', 'custo-benefício'],
   },
@@ -43,7 +43,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
           <div className="flex flex-wrap gap-6 text-sm text-blue-100">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span>20 de janeiro de 2025</span>
+              <span>20 de outubro de 2025</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
@@ -857,8 +857,8 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
                   "url": "https://atma.roilabs.com.br/logo.png"
                 }
               },
-              "datePublished": "2025-01-20T10:00:00Z",
-              "dateModified": "2025-01-20T10:00:00Z"
+              "datePublished": "2025-10-20T10:00:00Z",
+              "dateModified": "2025-10-20T10:00:00Z"
             })
           }}
         />
