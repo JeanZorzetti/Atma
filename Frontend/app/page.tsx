@@ -79,9 +79,9 @@ export default function HomePage() {
               {/* Card Paciente - Redesign Premium */}
               <AnimatedCard
                 variant="medical"
-                className="group cursor-pointer relative overflow-hidden backdrop-blur-sm bg-white/80"
+                className="group cursor-pointer relative overflow-hidden backdrop-blur-md bg-white/30"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-blue-100/20 to-white/70" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-blue-100/10 to-white/30" />
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-600/10" />
 
                 {/* Glow effect */}
@@ -153,9 +153,9 @@ export default function HomePage() {
               {/* Card Ortodontista - Redesign Premium */}
               <AnimatedCard
                 variant="service"
-                className="group cursor-pointer relative overflow-hidden backdrop-blur-sm bg-white/80"
+                className="group cursor-pointer relative overflow-hidden backdrop-blur-md bg-white/30"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-teal-100/20 to-white/70" />
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/20 via-teal-100/10 to-white/30" />
                 <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-emerald-600/10" />
 
                 {/* Glow effect */}
