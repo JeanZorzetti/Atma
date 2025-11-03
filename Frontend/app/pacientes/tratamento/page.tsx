@@ -101,38 +101,6 @@ export default function TratamentoPage() {
         </div>
       </section>
 
-      {/* Visualização 3D do Movimento Dentário */}
-      <section className="py-16 bg-muted">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-heading font-bold mb-4">Veja seus dentes se alinhando</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Visualização 3D interativa mostrando como os alinhadores movem seus dentes gradualmente
-            </p>
-          </div>
-
-          <TeethMovementVisualization />
-
-          <p className="mt-6 text-center text-muted-foreground text-sm">
-            🖱️ Arraste para rotacionar • 🔍 Scroll para zoom • ▶️ Clique em "Iniciar" para ver a animação
-          </p>
-        </div>
-      </section>
-
-      {/* Timeline Interativo */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-heading font-bold mb-4">Acompanhe sua evolução</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Timeline interativo mostrando cada fase do seu tratamento
-            </p>
-          </div>
-
-          <TreatmentTimeline />
-        </div>
-      </section>
-
       {/* Processo de Tratamento Detalhado */}
       <section className="py-16 bg-muted">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
