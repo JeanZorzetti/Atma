@@ -14,31 +14,46 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section with Video Background */}
       <motion.section
-        className="relative bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 py-20 lg:py-32 overflow-hidden"
+        className="relative py-20 lg:py-32 overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+        {/* Video Background */}
+        <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-20"
+          >
+            <source src="/videos/hero-background.mp4" type="video/mp4" />
+          </video>
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/60 to-blue-800/70" />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <motion.h1
-              className="text-4xl md:text-6xl font-heading font-bold text-foreground mb-6"
+              className="text-4xl md:text-6xl font-heading font-bold text-white mb-6"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              A transformação do seu sorriso, <span className="text-gradient-primary">agora ao seu alcance</span>
+              A transformação do seu sorriso, <span className="text-yellow-300">agora ao seu alcance</span>
             </motion.h1>
             <motion.p
-              className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
+              className="text-xl text-white/90 mb-8 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               Democratizamos o acesso à{" "}
-              <MedicalTerm term="ortodontia">ortodontia</MedicalTerm> digital de ponta no Brasil. Tecnologia de classe mundial com
+              <span className="text-yellow-300 font-semibold">ortodontia</span> digital de ponta no Brasil. Tecnologia de classe mundial com
               acessibilidade financeira para a nova classe média brasileira.
             </motion.p>
             <motion.div
@@ -52,7 +67,7 @@ export default function HomePage() {
 
             {/* Audience Segmentation */}
             <motion.h2
-              className="text-2xl font-heading font-semibold mb-8 text-center"
+              className="text-2xl font-heading font-semibold mb-8 text-center text-white"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
