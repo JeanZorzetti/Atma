@@ -14,6 +14,15 @@ export default function BlogPage() {
 
   const posts = [
     {
+      id: "alinhador-invisivel-formatura-casamento-2026",
+      title: "Alinhador Invisível para Formatura e Casamento 2026: Ainda Dá Tempo?",
+      excerpt: "⏰ URGENTE: Vai se formar ou casar em 2026? Descubra se dá tempo de usar alinhador (6-18 meses). Timeline completa, preços, casos reais. Prazo crítico: início até 15/dez!",
+      date: "2025-11-05",
+      author: "Equipe Atma Aligner",
+      category: "Eventos",
+      featured: true
+    },
+    {
       id: "sorriso-perfeito-15-dicas",
       title: "Como Ter um Sorriso Perfeito: 15 Dicas Comprovadas",
       excerpt: "15 dicas cientificamente comprovadas para conquistar o sorriso perfeito: higiene, estética, alinhamento dental e hábitos saudáveis. Guia completo 2025!",
@@ -127,7 +136,7 @@ export default function BlogPage() {
     }
   ]
 
-  const categories = ["todos", "Saúde Bucal", "Tratamento", "Comparações", "Custos", "Eficácia", "Dúvidas", "Tecnologia", "Parceria", "Local"]
+  const categories = ["todos", "Eventos", "Saúde Bucal", "Tratamento", "Comparações", "Custos", "Eficácia", "Dúvidas", "Tecnologia", "Parceria", "Local"]
 
   const filteredPosts = useMemo(() => {
     return posts.filter(post => {
@@ -141,7 +150,7 @@ export default function BlogPage() {
     })
   }, [searchTerm, selectedCategory, posts])
 
-  const featuredPost = posts.find(post => post.id === "sorriso-perfeito-15-dicas")
+  const featuredPost = posts.find(post => post.id === "alinhador-invisivel-formatura-casamento-2026")
 
   return (
     <div className="min-h-screen py-20">

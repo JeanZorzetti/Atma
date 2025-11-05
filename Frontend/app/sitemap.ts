@@ -177,6 +177,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/blog/alinhador-invisivel-formatura-casamento-2026`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 1.0,
+    },
+    {
       url: `${baseUrl}/blog/bruxismo-causas-sintomas-tratamento`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
