@@ -21,6 +21,7 @@ const crmRoutes = require('./routes/crm');
 const marketingRoutes = require('./routes/marketingRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const diagnosticRoutes = require('./routes/diagnosticRoutes');
+const searchConsoleRoutes = require('./routes/searchConsoleRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -229,6 +230,7 @@ app.use('/api/crm', crmRoutes);
 app.use('/api/marketing', marketingRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/diagnostic', diagnosticRoutes);
+app.use('/api/search-console', searchConsoleRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

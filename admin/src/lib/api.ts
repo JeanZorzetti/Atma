@@ -846,6 +846,91 @@ class ApiService {
   async getLeadSourceAnalysis(dateRange: string) {
     return this.request(`/marketing/leads/sources?range=${dateRange}`)
   }
+
+  // Search Console methods
+  searchConsole = {
+    getAuthStatus: async () => {
+      return this.request('/search-console/auth/status')
+    },
+
+    getAuthUrl: async () => {
+      return this.request('/search-console/auth/url')
+    },
+
+    revokeAuth: async () => {
+      return this.request('/search-console/auth/revoke', { method: 'DELETE' })
+    },
+
+    getMetrics: async (days: number = 30) => {
+      return this.request(`/search-console/metrics?days=${days}`)
+    },
+
+    getMetricsHistory: async (params?: {
+      startDate?: string
+      endDate?: string
+      limit?: number
+    }) => {
+      const searchParams = new URLSearchParams()
+      if (params?.startDate) searchParams.append('startDate', params.startDate)
+      if (params?.endDate) searchParams.append('endDate', params.endDate)
+      if (params?.limit) searchParams.append('limit', params.limit.toString())
+
+      const queryString = searchParams.toString()
+      const url = queryString ? `/search-console/metrics/history?${queryString}` : '/search-console/metrics/history'
+      return this.request(url)
+    },
+
+    syncMetrics: async (options?: {
+      date?: string
+      startDate?: string
+      endDate?: string
+    }) => {
+      return this.request('/search-console/metrics/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(options || {})
+      })
+    },
+
+    getTopKeywords: async (date?: string, limit: number = 20) => {
+      const params = new URLSearchParams({ limit: limit.toString() })
+      if (date) params.append('date', date)
+      return this.request(`/search-console/keywords?${params.toString()}`)
+    },
+
+    getTopPages: async (date?: string, limit: number = 20) => {
+      const params = new URLSearchParams({ limit: limit.toString() })
+      if (date) params.append('date', date)
+      return this.request(`/search-console/pages?${params.toString()}`)
+    },
+
+    getAlerts: async (params?: {
+      limit?: number
+      offset?: number
+      severity?: string
+    }) => {
+      const searchParams = new URLSearchParams()
+      if (params?.limit) searchParams.append('limit', params.limit.toString())
+      if (params?.offset) searchParams.append('offset', params.offset.toString())
+      if (params?.severity) searchParams.append('severity', params.severity)
+
+      const queryString = searchParams.toString()
+      const url = queryString ? `/search-console/alerts?${queryString}` : '/search-console/alerts'
+      return this.request(url)
+    },
+
+    getUnresolvedAlerts: async () => {
+      return this.request('/search-console/alerts/unresolved')
+    },
+
+    resolveAlert: async (alertId: number) => {
+      return this.request(`/search-console/alerts/${alertId}/resolve`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      })
+    }
+  }
 }
 
 export const apiService = new ApiService()
