@@ -10,7 +10,8 @@ import {
   LogOut,
   Menu,
   PhoneCall,
-  TrendingUp
+  TrendingUp,
+  Search
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -48,6 +49,11 @@ const sidebarItems = [
     title: 'Marketing',
     href: '/admin/marketing',
     icon: TrendingUp
+  },
+  {
+    title: 'SEO',
+    href: '/admin/seo',
+    icon: Search
   },
   {
     title: 'Relatórios',
