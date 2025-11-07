@@ -96,16 +96,21 @@ function SEODashboardContent() {
   const handleSync = async () => {
     setSyncing(true)
     try {
-      // Sync yesterday's data
-      const yesterday = new Date()
-      yesterday.setDate(yesterday.getDate() - 1)
-      const dateStr = yesterday.toISOString().split('T')[0]
+      // Sync last 7 days (GSC has 2-3 day delay)
+      const endDate = new Date()
+      endDate.setDate(endDate.getDate() - 3) // 3 days ago (most recent reliable data)
 
-      await syncMetrics({ date: dateStr })
+      const startDate = new Date()
+      startDate.setDate(startDate.getDate() - 9) // 9 days ago (last 7 days)
+
+      const startDateStr = startDate.toISOString().split('T')[0]
+      const endDateStr = endDate.toISOString().split('T')[0]
+
+      await syncMetrics({ startDate: startDateStr, endDate: endDateStr })
 
       toast({
         title: "Sincronização concluída!",
-        description: "Dados do Search Console atualizados com sucesso.",
+        description: `Dados sincronizados de ${startDateStr} até ${endDateStr}`,
       })
     } catch (error) {
       toast({
