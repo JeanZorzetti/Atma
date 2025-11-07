@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const db = require('../config/database');
+const { executeQuery } = require('../config/database');
 const { logger } = require('../utils/logger');
 
 /**
@@ -43,7 +43,7 @@ class GoogleSearchConsoleService {
    */
   async getStoredTokens() {
     try {
-      const [rows] = await db.query(
+      const rows = await executeQuery(
         'SELECT * FROM google_auth_tokens ORDER BY created_at DESC LIMIT 1'
       );
 
@@ -86,7 +86,7 @@ class GoogleSearchConsoleService {
       const { credentials } = await this.oauth2Client.refreshAccessToken();
 
       // Update database with new access token
-      await db.query(
+      await executeQuery(
         `UPDATE google_auth_tokens
          SET access_token = ?, expires_at = ?, updated_at = NOW()
          WHERE refresh_token = ?`,
@@ -192,7 +192,7 @@ class GoogleSearchConsoleService {
       }));
 
       // Insert or update database
-      await db.query(
+      await executeQuery(
         `INSERT INTO seo_metrics_history
           (date, impressions, clicks, ctr, position, top_keywords, top_pages, synced_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
@@ -352,7 +352,7 @@ class GoogleSearchConsoleService {
 
       // Insert alerts into database
       for (const alert of alerts) {
-        await db.query(
+        await executeQuery(
           `INSERT INTO seo_alerts
             (type, severity, message, metric_name, metric_value, previous_value, change_percentage, date)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -383,7 +383,7 @@ class GoogleSearchConsoleService {
    */
   async getMetricsSummary(days = 30) {
     try {
-      const [rows] = await db.query(
+      const rows = await executeQuery(
         `SELECT
           date,
           impressions,
@@ -432,7 +432,7 @@ class GoogleSearchConsoleService {
    */
   async getUnresolvedAlerts() {
     try {
-      const [rows] = await db.query(
+      const rows = await executeQuery(
         `SELECT * FROM seo_alerts
          WHERE resolved = FALSE
          ORDER BY created_at DESC
@@ -455,7 +455,7 @@ class GoogleSearchConsoleService {
    */
   async resolveAlert(alertId, userId = null) {
     try {
-      await db.query(
+      await executeQuery(
         `UPDATE seo_alerts
          SET resolved = TRUE, resolved_at = NOW(), resolved_by = ?
          WHERE id = ?`,

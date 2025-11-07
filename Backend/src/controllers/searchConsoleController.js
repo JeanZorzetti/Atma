@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const db = require('../config/database');
+const { executeQuery } = require('../config/database');
 const { logger } = require('../utils/logger');
 
 // =============================================================================
@@ -23,8 +23,9 @@ const SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly'];
  */
 async function getStoredTokens() {
   try {
-    const [rows] = await db.query(
-      'SELECT * FROM google_auth_tokens ORDER BY created_at DESC LIMIT 1'
+    const rows = await executeQuery(
+      'SELECT * FROM google_auth_tokens ORDER BY created_at DESC LIMIT 1',
+      []
     );
 
     if (rows.length === 0) {
@@ -66,7 +67,7 @@ async function refreshAccessToken(refreshToken) {
     const { credentials } = await oauth2Client.refreshAccessToken();
 
     // Update database with new access token
-    await db.query(
+    await executeQuery(
       `UPDATE google_auth_tokens
        SET access_token = ?, expires_at = ?, updated_at = NOW()
        WHERE refresh_token = ?`,
@@ -89,7 +90,7 @@ async function saveTokens(tokens, userId = null) {
   try {
     const expiresAt = new Date(tokens.expiry_date);
 
-    await db.query(
+    await executeQuery(
       `INSERT INTO google_auth_tokens (user_id, access_token, refresh_token, token_type, expires_at, scope)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [
@@ -218,7 +219,7 @@ exports.revokeAuth = async (req, res) => {
     }
 
     // Delete all tokens from database
-    await db.query('DELETE FROM google_auth_tokens');
+    await executeQuery('DELETE FROM google_auth_tokens');
 
     logger.info('✅ Google OAuth tokens revoked');
 
@@ -287,7 +288,7 @@ exports.getMetricsHistory = async (req, res) => {
     query += ' ORDER BY date DESC LIMIT ?';
     params.push(parseInt(limit));
 
-    const [rows] = await db.query(query, params);
+    const rows = await executeQuery(query, params);
 
     res.json({
       success: true,
@@ -358,7 +359,7 @@ exports.getTopKeywords = async (req, res) => {
       params = [];
     }
 
-    const [rows] = await db.query(query, params);
+    const rows = await executeQuery(query, params);
 
     if (rows.length === 0) {
       return res.json({
@@ -404,7 +405,7 @@ exports.getTopPages = async (req, res) => {
       params = [];
     }
 
-    const [rows] = await db.query(query, params);
+    const rows = await executeQuery(query, params);
 
     if (rows.length === 0) {
       return res.json({
@@ -450,7 +451,7 @@ exports.getAlerts = async (req, res) => {
     query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
     params.push(parseInt(limit), parseInt(offset));
 
-    const [rows] = await db.query(query, params);
+    const rows = await executeQuery(query, params);
 
     res.json({
       success: true,
