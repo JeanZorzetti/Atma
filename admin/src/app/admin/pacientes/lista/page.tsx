@@ -82,10 +82,11 @@ export default function PacientesPage() {
 
     const matchesStatus = !statusFilter || statusFilter === 'all' || patient.status === statusFilter
 
-    // Filtro de data (created_at convertido para São Paulo GMT-3)
+    // Filtro de data (created_at ou registrationDate convertido para São Paulo GMT-3)
     let matchesDate = true
-    if (patient.created_at && (startDate || endDate)) {
-      const patientDateSP = convertToSaoPauloTime(patient.created_at)
+    const dateField = patient.created_at || patient.registrationDate
+    if (dateField && (startDate || endDate)) {
+      const patientDateSP = convertToSaoPauloTime(dateField)
 
       if (startDate) {
         const start = new Date(startDate)
@@ -458,9 +459,10 @@ export default function PacientesPage() {
               </TableHeader>
               <TableBody>
                 {filteredPatients.map((patient: Patient) => {
-                  // Converte created_at para timezone de São Paulo
-                  const createdAtSP = patient.created_at
-                    ? formatDateBR(convertToSaoPauloTime(patient.created_at))
+                  // Converte created_at ou registrationDate para timezone de São Paulo
+                  const dateField = patient.created_at || patient.registrationDate
+                  const createdAtSP = dateField
+                    ? formatDateBR(convertToSaoPauloTime(dateField))
                     : 'N/A'
 
                   return (

@@ -10,6 +10,8 @@ export interface PatientsResponse {
     status: string
     treatmentStage?: string
     orthodontist?: string
+    created_at?: string
+    registrationDate?: string
   }>
   total: number
 }
