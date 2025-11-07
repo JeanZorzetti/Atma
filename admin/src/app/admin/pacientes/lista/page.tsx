@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import { Search, Plus, Edit, Eye, Filter, Loader2, AlertCircle, Trash2, Ban, X } from 'lucide-react'
+import { Search, Plus, Edit, Eye, Filter, Loader2, AlertCircle, Trash2, Ban, X, Calendar } from 'lucide-react'
 import { usePatients } from '@/hooks/useApi'
 import { apiService } from '@/lib/api'
 
@@ -25,6 +25,29 @@ interface Patient {
   treatmentStage?: string
   orthodontist?: string
   registrationDate?: string
+  created_at?: string
+}
+
+// Função para converter UTC para timezone de São Paulo (GMT-3)
+function convertToSaoPauloTime(utcDateString: string): Date {
+  const utcDate = new Date(utcDateString)
+  // São Paulo está em GMT-3
+  const saoPauloOffset = -3 * 60 // -180 minutos
+  const localOffset = utcDate.getTimezoneOffset() // offset do sistema em minutos
+  const offsetDifference = localOffset - saoPauloOffset
+
+  return new Date(utcDate.getTime() + offsetDifference * 60 * 1000)
+}
+
+// Função para formatar data no formato brasileiro
+function formatDateBR(date: Date): string {
+  const day = date.getDate().toString().padStart(2, '0')
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const year = date.getFullYear()
+  const hours = date.getHours().toString().padStart(2, '0')
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+
+  return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
 export default function PacientesPage() {
@@ -37,6 +60,8 @@ export default function PacientesPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('')
+  const [startDate, setStartDate] = useState<string>('')
+  const [endDate, setEndDate] = useState<string>('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -54,10 +79,32 @@ export default function PacientesPage() {
     const matchesSearch = (patient.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
                          (patient.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
                          (patient.cpf && patient.cpf.includes(searchTerm))
-    
+
     const matchesStatus = !statusFilter || statusFilter === 'all' || patient.status === statusFilter
-    
-    return matchesSearch && matchesStatus
+
+    // Filtro de data (created_at convertido para São Paulo GMT-3)
+    let matchesDate = true
+    if (patient.created_at && (startDate || endDate)) {
+      const patientDateSP = convertToSaoPauloTime(patient.created_at)
+
+      if (startDate) {
+        const start = new Date(startDate)
+        start.setHours(0, 0, 0, 0)
+        if (patientDateSP < start) {
+          matchesDate = false
+        }
+      }
+
+      if (endDate) {
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999)
+        if (patientDateSP > end) {
+          matchesDate = false
+        }
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesDate
   })
 
   // Reset form data
@@ -310,11 +357,15 @@ export default function PacientesPage() {
               <Filter className="mr-2 h-4 w-4" />
               Filtros
             </Button>
-            {statusFilter && (
-              <Button 
-                variant="outline" 
+            {(statusFilter || startDate || endDate) && (
+              <Button
+                variant="outline"
                 size="sm"
-                onClick={() => setStatusFilter('')}
+                onClick={() => {
+                  setStatusFilter('')
+                  setStartDate('')
+                  setEndDate('')
+                }}
                 className="text-red-600 hover:text-red-700"
               >
                 <X className="mr-1 h-3 w-3" />
@@ -344,7 +395,34 @@ export default function PacientesPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <Label className="text-sm font-medium flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    Data Inicial (Cadastro)
+                  </Label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    Data Final (Cadastro)
+                  </Label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
               </div>
+              <p className="text-xs text-gray-500 mt-2">
+                * Datas são filtradas no fuso horário de São Paulo (GMT-3)
+              </p>
             </div>
           )}
         </CardContent>
@@ -372,21 +450,29 @@ export default function PacientesPage() {
                   <TableHead>Email</TableHead>
                   <TableHead>CPF</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Data Cadastro (SP)</TableHead>
                   <TableHead>Etapa do Tratamento</TableHead>
                   <TableHead>Ortodontista</TableHead>
                   <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPatients.map((patient: Patient) => (
-                  <TableRow key={patient.id}>
-                    <TableCell className="font-medium">{patient.name}</TableCell>
-                    <TableCell>{patient.email}</TableCell>
-                    <TableCell>{patient.cpf || 'N/A'}</TableCell>
-                    <TableCell>{getStatusBadge(patient.status)}</TableCell>
-                    <TableCell>{patient.treatmentStage || 'N/A'}</TableCell>
-                    <TableCell>{patient.orthodontist || 'N/A'}</TableCell>
-                    <TableCell>
+                {filteredPatients.map((patient: Patient) => {
+                  // Converte created_at para timezone de São Paulo
+                  const createdAtSP = patient.created_at
+                    ? formatDateBR(convertToSaoPauloTime(patient.created_at))
+                    : 'N/A'
+
+                  return (
+                    <TableRow key={patient.id}>
+                      <TableCell className="font-medium">{patient.name}</TableCell>
+                      <TableCell>{patient.email}</TableCell>
+                      <TableCell>{patient.cpf || 'N/A'}</TableCell>
+                      <TableCell>{getStatusBadge(patient.status)}</TableCell>
+                      <TableCell className="text-sm text-gray-600">{createdAtSP}</TableCell>
+                      <TableCell>{patient.treatmentStage || 'N/A'}</TableCell>
+                      <TableCell>{patient.orthodontist || 'N/A'}</TableCell>
+                      <TableCell>
                       <div className="flex gap-1">
                         <Button 
                           variant="ghost" 
@@ -427,7 +513,8 @@ export default function PacientesPage() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                  )
+                })}
               </TableBody>
             </Table>
           )}
