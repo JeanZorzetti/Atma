@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   TrendingUp,
-  TrendingDown,
   Eye,
   MousePointerClick,
   Target,
@@ -31,7 +30,7 @@ import {
   useSearchConsoleAlerts
 } from '@/hooks/useSearchConsole'
 
-export default function SEODashboard() {
+function SEODashboardContent() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const [syncing, setSyncing] = useState(false)
@@ -40,7 +39,7 @@ export default function SEODashboard() {
   const { authStatus, loading: authLoading, getAuthUrl, revokeAuth } = useSearchConsoleAuth()
 
   // Data hooks (only active if authenticated)
-  const { metrics, summary, loading: metricsLoading, syncMetrics } = useSearchConsoleMetrics(30)
+  const { summary, loading: metricsLoading, syncMetrics } = useSearchConsoleMetrics(30)
   const { keywords, loading: keywordsLoading } = useSearchConsoleKeywords(undefined, 10)
   const { pages, loading: pagesLoading } = useSearchConsolePages(undefined, 10)
   const { alerts, loading: alertsLoading, resolveAlert } = useSearchConsoleAlerts(true)
@@ -532,5 +531,19 @@ export default function SEODashboard() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+// Export with Suspense boundary (required for useSearchParams in Next.js 15)
+export default function SEODashboard() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <p className="text-gray-600 ml-2 mt-4">Carregando dashboard SEO...</p>
+      </div>
+    }>
+      <SEODashboardContent />
+    </Suspense>
   )
 }
