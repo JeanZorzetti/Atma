@@ -71,7 +71,7 @@ export function useSearchConsoleAuth() {
     try {
       setLoading(true)
       setError(null)
-      const response = await apiService.searchConsole.getAuthStatus()
+      const response = await apiService.searchConsole.getAuthStatus() as AuthStatus
       setAuthStatus(response)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to check auth status')
@@ -82,7 +82,7 @@ export function useSearchConsoleAuth() {
 
   const getAuthUrl = useCallback(async () => {
     try {
-      const response = await apiService.searchConsole.getAuthUrl()
+      const response = await apiService.searchConsole.getAuthUrl() as { authUrl: string }
       return response.authUrl
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : 'Failed to get auth URL')
@@ -130,7 +130,12 @@ export function useSearchConsoleMetrics(days: number = 30) {
     try {
       setLoading(true)
       setError(null)
-      const response = await apiService.searchConsole.getMetrics(days)
+      const response = await apiService.searchConsole.getMetrics(days) as {
+        success: boolean
+        data?: SearchConsoleMetrics[]
+        summary?: MetricsSummary
+        error?: string
+      }
 
       if (response.success) {
         setMetrics(response.data || [])
@@ -152,7 +157,10 @@ export function useSearchConsoleMetrics(days: number = 30) {
   }) => {
     try {
       setLoading(true)
-      const response = await apiService.searchConsole.syncMetrics(options)
+      const response = await apiService.searchConsole.syncMetrics(options) as {
+        success: boolean
+        error?: string
+      }
 
       if (response.success) {
         // Refresh metrics after sync
@@ -196,7 +204,11 @@ export function useSearchConsoleKeywords(date?: string, limit: number = 20) {
     try {
       setLoading(true)
       setError(null)
-      const response = await apiService.searchConsole.getTopKeywords(date, limit)
+      const response = await apiService.searchConsole.getTopKeywords(date, limit) as {
+        success: boolean
+        keywords?: SearchConsoleMetrics['top_keywords']
+        error?: string
+      }
 
       if (response.success) {
         setKeywords(response.keywords || [])
@@ -235,7 +247,11 @@ export function useSearchConsolePages(date?: string, limit: number = 20) {
     try {
       setLoading(true)
       setError(null)
-      const response = await apiService.searchConsole.getTopPages(date, limit)
+      const response = await apiService.searchConsole.getTopPages(date, limit) as {
+        success: boolean
+        pages?: SearchConsoleMetrics['top_pages']
+        error?: string
+      }
 
       if (response.success) {
         setPages(response.pages || [])
@@ -276,8 +292,8 @@ export function useSearchConsoleAlerts(unresolvedOnly: boolean = false) {
       setError(null)
 
       const response = unresolvedOnly
-        ? await apiService.searchConsole.getUnresolvedAlerts()
-        : await apiService.searchConsole.getAlerts()
+        ? await apiService.searchConsole.getUnresolvedAlerts() as { success: boolean; alerts?: SearchConsoleAlert[]; error?: string }
+        : await apiService.searchConsole.getAlerts() as { success: boolean; alerts?: SearchConsoleAlert[]; error?: string }
 
       if (response.success) {
         setAlerts(response.alerts || [])
