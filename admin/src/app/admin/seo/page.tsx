@@ -2,10 +2,13 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { DateRange } from 'react-day-picker'
+import { addDays, subDays } from 'date-fns'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
 import {
   TrendingUp,
   Eye,
@@ -34,6 +37,12 @@ function SEODashboardContent() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const [syncing, setSyncing] = useState(false)
+
+  // Date range state (default: last 7 days, accounting for GSC delay)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 9), // 9 days ago
+    to: subDays(new Date(), 3),   // 3 days ago (accounting for GSC delay)
+  })
 
   // Authentication hook
   const { authStatus, loading: authLoading, getAuthUrl, revokeAuth } = useSearchConsoleAuth()
@@ -94,17 +103,19 @@ function SEODashboardContent() {
   }
 
   const handleSync = async () => {
+    if (!dateRange?.from || !dateRange?.to) {
+      toast({
+        title: "Selecione um período",
+        description: "Por favor, selecione as datas de início e fim para sincronizar.",
+        variant: "destructive"
+      })
+      return
+    }
+
     setSyncing(true)
     try {
-      // Sync last 7 days (GSC has 2-3 day delay)
-      const endDate = new Date()
-      endDate.setDate(endDate.getDate() - 3) // 3 days ago (most recent reliable data)
-
-      const startDate = new Date()
-      startDate.setDate(startDate.getDate() - 9) // 9 days ago (last 7 days)
-
-      const startDateStr = startDate.toISOString().split('T')[0]
-      const endDateStr = endDate.toISOString().split('T')[0]
+      const startDateStr = dateRange.from.toISOString().split('T')[0]
+      const endDateStr = dateRange.to.toISOString().split('T')[0]
 
       await syncMetrics({ startDate: startDateStr, endDate: endDateStr })
 
@@ -226,7 +237,7 @@ function SEODashboardContent() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard SEO</h1>
-          <p className="text-gray-600 mt-2">Google Search Console - Últimos 30 dias</p>
+          <p className="text-gray-600 mt-2">Google Search Console</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -250,6 +261,18 @@ function SEODashboardContent() {
             Desconectar
           </Button>
         </div>
+      </div>
+
+      {/* Date Range Picker */}
+      <div className="flex items-center gap-4">
+        <DateRangePicker
+          date={dateRange}
+          onDateChange={setDateRange}
+          disabled={syncing}
+        />
+        <p className="text-sm text-gray-500">
+          Selecione o período para sincronizar ou visualizar métricas
+        </p>
       </div>
 
       {/* Alerts */}
