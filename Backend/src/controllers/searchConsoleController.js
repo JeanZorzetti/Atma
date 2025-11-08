@@ -372,7 +372,12 @@ exports.getTopKeywords = async (req, res) => {
       });
     }
 
-    const keywords = JSON.parse(rows[0].top_keywords || '[]').slice(0, limit);
+    // top_keywords might be a JSON string or already parsed object
+    const topKeywordsRaw = rows[0].top_keywords;
+    const keywords = (typeof topKeywordsRaw === 'string'
+      ? JSON.parse(topKeywordsRaw || '[]')
+      : topKeywordsRaw || []
+    ).slice(0, limit);
 
     res.json({
       success: true,
@@ -418,7 +423,12 @@ exports.getTopPages = async (req, res) => {
       });
     }
 
-    const pages = JSON.parse(rows[0].top_pages || '[]').slice(0, limit);
+    // top_pages might be a JSON string or already parsed object
+    const topPagesRaw = rows[0].top_pages;
+    const pages = (typeof topPagesRaw === 'string'
+      ? JSON.parse(topPagesRaw || '[]')
+      : topPagesRaw || []
+    ).slice(0, limit);
 
     res.json({
       success: true,
