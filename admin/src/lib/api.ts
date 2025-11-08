@@ -861,8 +861,12 @@ class ApiService {
       return this.request('/search-console/auth/revoke', { method: 'DELETE' })
     },
 
-    getMetrics: async (days: number = 30) => {
-      return this.request(`/search-console/metrics?days=${days}`)
+    getMetrics: async (days: number = 30, startDate?: string, endDate?: string) => {
+      let url = `/search-console/metrics?days=${days}`
+      if (startDate && endDate) {
+        url = `/search-console/metrics?startDate=${startDate}&endDate=${endDate}`
+      }
+      return this.request(url)
     },
 
     getMetricsHistory: async (params?: {

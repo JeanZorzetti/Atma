@@ -120,7 +120,7 @@ export function useSearchConsoleAuth() {
 // useSearchConsoleMetrics - Metrics data and summary
 // =============================================================================
 
-export function useSearchConsoleMetrics(days: number = 30) {
+export function useSearchConsoleMetrics(days: number = 30, startDate?: string, endDate?: string) {
   const [metrics, setMetrics] = useState<SearchConsoleMetrics[]>([])
   const [summary, setSummary] = useState<MetricsSummary | null>(null)
   const [loading, setLoading] = useState(true)
@@ -130,7 +130,7 @@ export function useSearchConsoleMetrics(days: number = 30) {
     try {
       setLoading(true)
       setError(null)
-      const response = await apiService.searchConsole.getMetrics(days) as {
+      const response = await apiService.searchConsole.getMetrics(days, startDate, endDate) as {
         success: boolean
         data?: SearchConsoleMetrics[]
         summary?: MetricsSummary
@@ -148,7 +148,7 @@ export function useSearchConsoleMetrics(days: number = 30) {
     } finally {
       setLoading(false)
     }
-  }, [days])
+  }, [days, startDate, endDate])
 
   const syncMetrics = useCallback(async (options?: {
     date?: string

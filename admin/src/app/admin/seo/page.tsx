@@ -47,8 +47,12 @@ function SEODashboardContent() {
   // Authentication hook
   const { authStatus, loading: authLoading, getAuthUrl, revokeAuth } = useSearchConsoleAuth()
 
-  // Data hooks (only active if authenticated)
-  const { summary, loading: metricsLoading, syncMetrics } = useSearchConsoleMetrics(30)
+  // Convert dateRange to strings for API
+  const startDateStr = dateRange?.from?.toISOString().split('T')[0]
+  const endDateStr = dateRange?.to?.toISOString().split('T')[0]
+
+  // Data hooks (only active if authenticated) - pass date range
+  const { summary, loading: metricsLoading, syncMetrics } = useSearchConsoleMetrics(30, startDateStr, endDateStr)
   const { keywords, loading: keywordsLoading } = useSearchConsoleKeywords(undefined, 10)
   const { pages, loading: pagesLoading } = useSearchConsolePages(undefined, 10)
   const { alerts, loading: alertsLoading, resolveAlert } = useSearchConsoleAlerts(true)

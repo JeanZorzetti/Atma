@@ -245,12 +245,15 @@ const gscService = require('../services/googleSearchConsoleService');
 
 /**
  * GET /api/search-console/metrics
- * Get SEO metrics summary (last 30 days by default)
+ * Get SEO metrics summary (last 30 days by default or custom date range)
+ * Query params: days (number) OR startDate + endDate (YYYY-MM-DD)
  */
 exports.getMetrics = async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 30;
-    const result = await gscService.getMetricsSummary(days);
+    const { startDate, endDate } = req.query;
+
+    const result = await gscService.getMetricsSummary(days, startDate, endDate);
 
     res.json(result);
   } catch (error) {

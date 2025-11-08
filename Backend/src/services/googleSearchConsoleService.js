@@ -380,11 +380,28 @@ class GoogleSearchConsoleService {
    * Get metrics summary for dashboard
    *
    * @param {number} days - Number of days to include (default: 30)
+   * @param {string} startDate - Optional start date (YYYY-MM-DD)
+   * @param {string} endDate - Optional end date (YYYY-MM-DD)
    */
-  async getMetricsSummary(days = 30) {
+  async getMetricsSummary(days = 30, startDate = null, endDate = null) {
     try {
-      const rows = await executeQuery(
-        `SELECT
+      let query;
+      let params;
+
+      // If specific dates provided, use them; otherwise use days from current date
+      if (startDate && endDate) {
+        query = `SELECT
+          date,
+          impressions,
+          clicks,
+          ctr,
+          position
+         FROM seo_metrics_history
+         WHERE date >= ? AND date <= ?
+         ORDER BY date DESC`;
+        params = [startDate, endDate];
+      } else {
+        query = `SELECT
           date,
           impressions,
           clicks,
@@ -392,9 +409,11 @@ class GoogleSearchConsoleService {
           position
          FROM seo_metrics_history
          WHERE date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
-         ORDER BY date DESC`,
-        [days]
-      );
+         ORDER BY date DESC`;
+        params = [days];
+      }
+
+      const rows = await executeQuery(query, params);
 
       if (rows.length === 0) {
         return {
