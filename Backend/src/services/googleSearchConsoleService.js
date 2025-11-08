@@ -426,7 +426,8 @@ class GoogleSearchConsoleService {
       // Calculate summary statistics
       const totalImpressions = rows.reduce((sum, row) => sum + row.impressions, 0);
       const totalClicks = rows.reduce((sum, row) => sum + row.clicks, 0);
-      const avgCtr = rows.reduce((sum, row) => sum + parseFloat(row.ctr), 0) / rows.length;
+      // Calculate actual CTR from totals (not average of daily CTRs)
+      const actualCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
       const avgPosition = rows.reduce((sum, row) => sum + parseFloat(row.position), 0) / rows.length;
 
       return {
@@ -435,7 +436,7 @@ class GoogleSearchConsoleService {
         summary: {
           totalImpressions,
           totalClicks,
-          avgCtr: avgCtr.toFixed(2),
+          avgCtr: actualCtr.toFixed(2),
           avgPosition: avgPosition.toFixed(2),
           days: rows.length
         }
