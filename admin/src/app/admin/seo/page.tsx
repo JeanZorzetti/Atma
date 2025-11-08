@@ -138,6 +138,40 @@ function SEODashboardContent() {
     }
   }
 
+  const handleSync90Days = async () => {
+    setSyncing(true)
+    try {
+      const endDate = subDays(new Date(), 3) // 3 days ago (GSC delay)
+      const startDate = subDays(new Date(), 93) // 90 days before that
+
+      const startDateStr = startDate.toISOString().split('T')[0]
+      const endDateStr = endDate.toISOString().split('T')[0]
+
+      // Update date range picker to show what we're syncing
+      setDateRange({ from: startDate, to: endDate })
+
+      toast({
+        title: "Sincronizando últimos 90 dias...",
+        description: "Isso pode levar ~2 minutos. Aguarde...",
+      })
+
+      await syncMetrics({ startDate: startDateStr, endDate: endDateStr })
+
+      toast({
+        title: "Sincronização completa!",
+        description: `90 dias de dados importados com sucesso (${startDateStr} a ${endDateStr})`,
+      })
+    } catch (error) {
+      toast({
+        title: "Erro na sincronização",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+        variant: "destructive"
+      })
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   const handleResolveAlert = async (alertId: number) => {
     try {
       await resolveAlert(alertId)
@@ -258,9 +292,24 @@ function SEODashboardContent() {
             Sincronizar
           </Button>
           <Button
+            variant="default"
+            size="sm"
+            onClick={handleSync90Days}
+            disabled={syncing}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {syncing ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-4 w-4" />
+            )}
+            Sincronizar 90 dias
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={handleRevoke}
+            disabled={syncing}
           >
             Desconectar
           </Button>
