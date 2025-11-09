@@ -3,7 +3,19 @@
 -- Date: 2025-11-07
 -- Description: Aligns status ENUM with frontend interfaces (Kanban, Leads)
 
--- Add 'parceria_fechada' to status ENUM
+-- Step 1: Check current status values
+-- SELECT DISTINCT status FROM patients_leads;
+
+-- Step 2: Fix any invalid or NULL status values BEFORE modifying ENUM
+UPDATE patients_leads
+SET status = 'prospeccao'
+WHERE status IS NULL OR status = '' OR status NOT IN ('prospeccao', 'contato_inicial', 'apresentacao', 'negociacao');
+
+-- Step 3: Temporarily change column to VARCHAR to avoid truncation
+ALTER TABLE patients_leads
+MODIFY COLUMN status VARCHAR(50) DEFAULT 'prospeccao';
+
+-- Step 4: Now safely add the new status to ENUM
 ALTER TABLE patients_leads
 MODIFY COLUMN status ENUM(
   'prospeccao',
@@ -14,15 +26,10 @@ MODIFY COLUMN status ENUM(
 ) DEFAULT 'prospeccao'
 COMMENT 'Pipeline status: prospeccao → contato_inicial → apresentacao → negociacao → parceria_fechada';
 
--- Update any existing NULL status to 'prospeccao'
-UPDATE patients_leads
-SET status = 'prospeccao'
-WHERE status IS NULL;
+-- Step 5: Add index for faster status filtering (if not exists)
+CREATE INDEX IF NOT EXISTS idx_patients_leads_status ON patients_leads(status);
 
--- Add index for faster status filtering
-CREATE INDEX idx_patients_leads_status ON patients_leads(status);
-
--- Verification query
+-- Step 6: Verification query
 SELECT
   status,
   COUNT(*) as count
