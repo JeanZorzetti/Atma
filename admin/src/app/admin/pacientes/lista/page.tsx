@@ -297,8 +297,10 @@ export default function PacientesPage() {
         return <Badge className="bg-yellow-100 text-yellow-800">Contatado</Badge>
       case 'agendado':
         return <Badge className="bg-purple-100 text-purple-800">Agendado</Badge>
+      case 'avaliacao_inicial':
+        return <Badge className="bg-indigo-100 text-indigo-800">Avaliação Inicial</Badge>
       case 'atribuido':
-        return <Badge className="bg-green-100 text-green-800">Em Andamento</Badge>
+        return <Badge className="bg-green-100 text-green-800">Em Tratamento</Badge>
       case 'convertido':
         return <Badge className="bg-emerald-100 text-emerald-800">Convertido</Badge>
       case 'cancelado':
@@ -390,7 +392,8 @@ export default function PacientesPage() {
                       <SelectItem value="novo">Novo</SelectItem>
                       <SelectItem value="contatado">Contatado</SelectItem>
                       <SelectItem value="agendado">Agendado</SelectItem>
-                      <SelectItem value="atribuido">Em Andamento</SelectItem>
+                      <SelectItem value="avaliacao_inicial">Avaliação Inicial</SelectItem>
+                      <SelectItem value="atribuido">Em Tratamento</SelectItem>
                       <SelectItem value="convertido">Convertido</SelectItem>
                       <SelectItem value="cancelado">Cancelado</SelectItem>
                     </SelectContent>
@@ -643,7 +646,8 @@ export default function PacientesPage() {
                   <SelectItem value="novo">Novo</SelectItem>
                   <SelectItem value="contatado">Contatado</SelectItem>
                   <SelectItem value="agendado">Agendado</SelectItem>
-                  <SelectItem value="atribuido">Em Andamento</SelectItem>
+                  <SelectItem value="avaliacao_inicial">Avaliação Inicial</SelectItem>
+                  <SelectItem value="atribuido">Em Tratamento</SelectItem>
                   <SelectItem value="convertido">Convertido</SelectItem>
                   <SelectItem value="cancelado">Cancelado</SelectItem>
                 </SelectContent>
