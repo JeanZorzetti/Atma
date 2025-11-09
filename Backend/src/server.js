@@ -23,6 +23,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const diagnosticRoutes = require('./routes/diagnosticRoutes');
 const searchConsoleRoutes = require('./routes/searchConsoleRoutes');
 const conversionFunnelRoutes = require('./routes/conversionFunnelRoutes');
+const marketBenchmarksRoutes = require('./routes/marketBenchmarks');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -233,6 +234,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/diagnostic', diagnosticRoutes);
 app.use('/api/search-console', searchConsoleRoutes);
 app.use('/api/conversion-funnel', conversionFunnelRoutes);
+app.use('/api/market-benchmarks', marketBenchmarksRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

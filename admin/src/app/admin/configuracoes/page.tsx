@@ -32,6 +32,7 @@ import {
 import { useSettings } from '@/hooks/useApi'
 import { apiService } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
+import { BenchmarkEditor } from '@/components/benchmark-editor'
 
 export default function ConfiguracoesPage() {
   const { data: settingsData, loading, error, refetch } = useSettings()
@@ -653,12 +654,13 @@ export default function ConfiguracoesPage() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="general">Geral</TabsTrigger>
           <TabsTrigger value="notifications">Notificações</TabsTrigger>
           <TabsTrigger value="security">Segurança</TabsTrigger>
           <TabsTrigger value="integrations">Integrações</TabsTrigger>
           <TabsTrigger value="backup">Backup</TabsTrigger>
+          <TabsTrigger value="benchmarks">Benchmarks</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-4">
@@ -1236,6 +1238,10 @@ export default function ConfiguracoesPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="benchmarks" className="space-y-4">
+          <BenchmarkEditor />
         </TabsContent>
       </Tabs>
       {renderIntegrationModal()}
