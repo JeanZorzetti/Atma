@@ -91,49 +91,91 @@ class ConversionFunnelService {
 
   /**
    * Get CRM metrics (registrations, appointments, attendance, cancellations)
+   * Now includes detailed status breakdown from patient_leads table
    */
   async getCRMMetrics(startDate, endDate) {
     try {
-      // Get patient registrations in period
+      // Get patient registrations in period (all new leads)
       const registrations = await executeQuery(
         `SELECT COUNT(*) as count
-         FROM patients
+         FROM patient_leads
          WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?`,
         [startDate, endDate]
       );
 
-      // Get appointments scheduled in period
-      const appointments = await executeQuery(
-        `SELECT COUNT(*) as count
-         FROM appointments
-         WHERE DATE(scheduled_date) >= ? AND DATE(scheduled_date) <= ?
-         AND status != 'cancelled'`,
+      // Get status breakdown for detailed funnel
+      const statusBreakdown = await executeQuery(
+        `SELECT
+          status,
+          COUNT(*) as count
+         FROM patient_leads
+         WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?
+         GROUP BY status`,
         [startDate, endDate]
       );
 
-      // Get appointments attended (confirmed/completed)
-      const attendance = await executeQuery(
-        `SELECT COUNT(*) as count
-         FROM appointments
-         WHERE DATE(scheduled_date) >= ? AND DATE(scheduled_date) <= ?
-         AND status IN ('confirmed', 'completed')`,
-        [startDate, endDate]
-      );
+      // Convert status breakdown to object
+      const statusCounts = {
+        novo: 0,
+        contatado: 0,
+        agendado: 0,
+        avaliacao_inicial: 0,
+        atribuido: 0,
+        convertido: 0,
+        cancelado: 0
+      };
 
-      // Get cancellations
-      const cancellations = await executeQuery(
-        `SELECT COUNT(*) as count
-         FROM appointments
-         WHERE DATE(scheduled_date) >= ? AND DATE(scheduled_date) <= ?
-         AND status = 'cancelled'`,
-        [startDate, endDate]
-      );
+      statusBreakdown.forEach(row => {
+        statusCounts[row.status] = parseInt(row.count) || 0;
+      });
+
+      // Legacy appointments table support (if it exists)
+      let appointments = 0;
+      let attendance = 0;
+      let cancellations = 0;
+
+      try {
+        const appointmentsResult = await executeQuery(
+          `SELECT COUNT(*) as count
+           FROM appointments
+           WHERE DATE(scheduled_date) >= ? AND DATE(scheduled_date) <= ?
+           AND status != 'cancelled'`,
+          [startDate, endDate]
+        );
+        appointments = parseInt(appointmentsResult[0]?.count) || 0;
+
+        const attendanceResult = await executeQuery(
+          `SELECT COUNT(*) as count
+           FROM appointments
+           WHERE DATE(scheduled_date) >= ? AND DATE(scheduled_date) <= ?
+           AND status IN ('confirmed', 'completed')`,
+          [startDate, endDate]
+        );
+        attendance = parseInt(attendanceResult[0]?.count) || 0;
+
+        const cancellationsResult = await executeQuery(
+          `SELECT COUNT(*) as count
+           FROM appointments
+           WHERE DATE(scheduled_date) >= ? AND DATE(scheduled_date) <= ?
+           AND status = 'cancelled'`,
+          [startDate, endDate]
+        );
+        cancellations = parseInt(cancellationsResult[0]?.count) || 0;
+      } catch (err) {
+        // Appointments table doesn't exist, use status counts instead
+        logger.warn('Appointments table not found, using patient_leads status');
+        appointments = statusCounts.agendado;
+        attendance = statusCounts.atribuido + statusCounts.convertido;
+        cancellations = statusCounts.cancelado;
+      }
 
       return {
         registrations: parseInt(registrations[0]?.count) || 0,
-        appointments: parseInt(appointments[0]?.count) || 0,
-        attendance: parseInt(attendance[0]?.count) || 0,
-        cancellations: parseInt(cancellations[0]?.count) || 0
+        appointments: appointments || statusCounts.agendado,
+        attendance: attendance || (statusCounts.atribuido + statusCounts.convertido),
+        cancellations: cancellations || statusCounts.cancelado,
+        // New detailed status breakdown
+        statusBreakdown: statusCounts
       };
     } catch (error) {
       logger.error('Error getting CRM metrics:', error);
@@ -143,13 +185,46 @@ class ConversionFunnelService {
 
   /**
    * Calculate conversion rates for each funnel step
+   * Now includes detailed B2C patient journey stages
    */
   calculateConversionRates(seo, crm) {
-    // Calculate conversion rates (handle division by zero)
+    const status = crm.statusBreakdown || {};
+
+    // SEO to CRM conversion (top of funnel)
+    const impressionToClick = seo.impressions > 0
+      ? (seo.clicks / seo.impressions) * 100
+      : 0;
+
     const clickToRegistration = seo.clicks > 0
       ? (crm.registrations / seo.clicks) * 100
       : 0;
 
+    const impressionToRegistration = seo.impressions > 0
+      ? (crm.registrations / seo.impressions) * 100
+      : 0;
+
+    // New detailed B2C patient journey conversion rates
+    const novoToContatado = crm.registrations > 0
+      ? (status.contatado / crm.registrations) * 100
+      : 0;
+
+    const contatadoToAgendado = status.contatado > 0
+      ? (status.agendado / status.contatado) * 100
+      : 0;
+
+    const agendadoToAvaliacaoInicial = status.agendado > 0
+      ? (status.avaliacao_inicial / status.agendado) * 100
+      : 0;
+
+    const avaliacaoInicialToAtribuido = status.avaliacao_inicial > 0
+      ? (status.atribuido / status.avaliacao_inicial) * 100
+      : 0;
+
+    const atribuidoToConvertido = status.atribuido > 0
+      ? (status.convertido / status.atribuido) * 100
+      : 0;
+
+    // Legacy metrics (backward compatibility)
     const registrationToAppointment = crm.registrations > 0
       ? (crm.appointments / crm.registrations) * 100
       : 0;
@@ -158,33 +233,35 @@ class ConversionFunnelService {
       ? (crm.attendance / crm.appointments) * 100
       : 0;
 
-    const impressionToClick = seo.impressions > 0
-      ? (seo.clicks / seo.impressions) * 100
-      : 0;
-
-    const impressionToRegistration = seo.impressions > 0
-      ? (crm.registrations / seo.impressions) * 100
-      : 0;
-
     const clickToAttendance = seo.clicks > 0
       ? (crm.attendance / seo.clicks) * 100
       : 0;
 
+    // Cancellation rate
+    const cancellationRate = crm.registrations > 0
+      ? (status.cancelado / crm.registrations) * 100
+      : 0;
+
     return {
-      // Step-by-step conversion rates
+      // SEO funnel (legacy)
       impressionToClick: parseFloat(impressionToClick.toFixed(2)),
       clickToRegistration: parseFloat(clickToRegistration.toFixed(2)),
+      impressionToRegistration: parseFloat(impressionToRegistration.toFixed(2)),
+
+      // Legacy CRM funnel
       registrationToAppointment: parseFloat(registrationToAppointment.toFixed(2)),
       appointmentToAttendance: parseFloat(appointmentToAttendance.toFixed(2)),
-
-      // Overall conversion rates
-      impressionToRegistration: parseFloat(impressionToRegistration.toFixed(2)),
       clickToAttendance: parseFloat(clickToAttendance.toFixed(2)),
 
+      // New detailed B2C patient journey (7 stages)
+      novoToContatado: parseFloat(novoToContatado.toFixed(2)),
+      contatadoToAgendado: parseFloat(contatadoToAgendado.toFixed(2)),
+      agendadoToAvaliacaoInicial: parseFloat(agendadoToAvaliacaoInicial.toFixed(2)),
+      avaliacaoInicialToAtribuido: parseFloat(avaliacaoInicialToAtribuido.toFixed(2)),
+      atribuidoToConvertido: parseFloat(atribuidoToConvertido.toFixed(2)),
+
       // Cancellation rate
-      cancellationRate: crm.appointments > 0
-        ? parseFloat(((crm.cancellations / crm.appointments) * 100).toFixed(2))
-        : 0
+      cancellationRate: parseFloat(cancellationRate.toFixed(2))
     };
   }
 
@@ -218,30 +295,48 @@ class ConversionFunnelService {
         [startDate, endDate]
       );
 
-      // Get daily registrations
+      // Get daily registrations from patient_leads
       const registrationsDaily = await executeQuery(
         `SELECT
           DATE(created_at) as date,
           COUNT(*) as count
-         FROM patients
+         FROM patient_leads
          WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?
          GROUP BY DATE(created_at)
          ORDER BY date ASC`,
         [startDate, endDate]
       );
 
-      // Get daily appointments
-      const appointmentsDaily = await executeQuery(
+      // Get daily status breakdown from patient_leads
+      const statusDaily = await executeQuery(
         `SELECT
-          DATE(scheduled_date) as date,
+          DATE(created_at) as date,
+          status,
           COUNT(*) as count
-         FROM appointments
-         WHERE DATE(scheduled_date) >= ? AND DATE(scheduled_date) <= ?
-         AND status != 'cancelled'
-         GROUP BY DATE(scheduled_date)
+         FROM patient_leads
+         WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?
+         GROUP BY DATE(created_at), status
          ORDER BY date ASC`,
         [startDate, endDate]
       );
+
+      // Get daily appointments (legacy support)
+      let appointmentsDaily = [];
+      try {
+        appointmentsDaily = await executeQuery(
+          `SELECT
+            DATE(scheduled_date) as date,
+            COUNT(*) as count
+           FROM appointments
+           WHERE DATE(scheduled_date) >= ? AND DATE(scheduled_date) <= ?
+           AND status != 'cancelled'
+           GROUP BY DATE(scheduled_date)
+           ORDER BY date ASC`,
+          [startDate, endDate]
+        );
+      } catch (err) {
+        logger.warn('Appointments table not found for daily breakdown');
+      }
 
       // Merge all daily data
       const dailyMap = new Map();
@@ -255,7 +350,17 @@ class ConversionFunnelService {
           ctr: parseFloat(row.ctr) || 0,
           position: parseFloat(row.position) || 0,
           registrations: 0,
-          appointments: 0
+          appointments: 0,
+          // New detailed status breakdown
+          statusBreakdown: {
+            novo: 0,
+            contatado: 0,
+            agendado: 0,
+            avaliacao_inicial: 0,
+            atribuido: 0,
+            convertido: 0,
+            cancelado: 0
+          }
         });
       });
 
@@ -263,6 +368,34 @@ class ConversionFunnelService {
         const dateStr = row.date.toISOString().split('T')[0];
         if (dailyMap.has(dateStr)) {
           dailyMap.get(dateStr).registrations = row.count;
+        } else {
+          // Create entry if not exists (in case there's CRM data but no SEO data for that day)
+          dailyMap.set(dateStr, {
+            date: dateStr,
+            impressions: 0,
+            clicks: 0,
+            ctr: 0,
+            position: 0,
+            registrations: row.count,
+            appointments: 0,
+            statusBreakdown: {
+              novo: 0,
+              contatado: 0,
+              agendado: 0,
+              avaliacao_inicial: 0,
+              atribuido: 0,
+              convertido: 0,
+              cancelado: 0
+            }
+          });
+        }
+      });
+
+      // Add status breakdown to each day
+      statusDaily.forEach(row => {
+        const dateStr = row.date.toISOString().split('T')[0];
+        if (dailyMap.has(dateStr)) {
+          dailyMap.get(dateStr).statusBreakdown[row.status] = row.count;
         }
       });
 
