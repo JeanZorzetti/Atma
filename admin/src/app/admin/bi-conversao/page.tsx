@@ -34,6 +34,15 @@ interface FunnelMetrics {
     appointments: number
     attendance: number
     cancellations: number
+    statusBreakdown?: {
+      novo: number
+      contatado: number
+      agendado: number
+      avaliacao_inicial: number
+      atribuido: number
+      convertido: number
+      cancelado: number
+    }
   }
   funnel: {
     impressionToClick: number
@@ -43,6 +52,12 @@ interface FunnelMetrics {
     impressionToRegistration: number
     clickToAttendance: number
     cancellationRate: number
+    // New B2C detailed funnel
+    novoToContatado?: number
+    contatadoToAgendado?: number
+    agendadoToAvaliacaoInicial?: number
+    avaliacaoInicialToAtribuido?: number
+    atribuidoToConvertido?: number
   }
   period: {
     startDate: string
@@ -100,7 +115,7 @@ export default function BIConversaoPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">BI de Conversão</h1>
-          <p className="text-gray-600 mt-2">Funil completo: SEO → Cadastro → Agendamento → Comparecimento</p>
+          <p className="text-gray-600 mt-2">Funil completo: SEO → Cadastro → Agendamento → Avaliação Inicial → Em Tratamento</p>
         </div>
         <Button
           variant="outline"
@@ -143,7 +158,7 @@ export default function BIConversaoPage() {
             <CardHeader>
               <CardTitle>Funil de Conversão</CardTitle>
               <CardDescription>
-                Jornada completa do usuário: da busca no Google até o comparecimento
+                Jornada completa do usuário: da busca no Google até a avaliação inicial
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -242,31 +257,31 @@ export default function BIConversaoPage() {
                   </div>
                 </div>
 
-                {/* Step 4: Agendamentos → Comparecimentos */}
+                {/* Step 4: Agendamentos → Avaliação Inicial */}
                 <div className="flex items-center gap-4">
                   <div className="flex-1" />
 
                   <div className="flex flex-col items-center justify-center px-4">
                     <ArrowRight className="h-8 w-8 text-gray-400 mb-2" />
                     <div className="text-center">
-                      <div className="text-lg font-bold text-teal-600">
-                        {metrics.funnel.appointmentToAttendance}%
+                      <div className="text-lg font-bold text-indigo-600">
+                        {metrics.funnel.agendadoToAvaliacaoInicial || metrics.funnel.appointmentToAttendance}%
                       </div>
                       <div className="text-xs text-gray-500">Compareceram</div>
                     </div>
                   </div>
 
-                  <div className="flex-1 bg-teal-100 rounded-lg p-6 border-2 border-teal-300">
+                  <div className="flex-1 bg-indigo-100 rounded-lg p-6 border-2 border-indigo-300">
                     <div className="flex items-center gap-3 mb-2">
-                      <CheckCircle2 className="h-6 w-6 text-teal-600" />
+                      <CheckCircle2 className="h-6 w-6 text-indigo-600" />
                       <div>
-                        <div className="text-sm text-gray-600">Comparecimentos</div>
+                        <div className="text-sm text-gray-600">Avaliação Inicial</div>
                         <div className="text-2xl font-bold text-gray-900">
-                          {metrics.crm.attendance.toLocaleString('pt-BR')}
+                          {metrics.crm.statusBreakdown?.avaliacao_inicial || metrics.crm.attendance}
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-red-600">
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
                       <XCircle className="h-3 w-3" />
                       {metrics.crm.cancellations} cancelamentos ({metrics.funnel.cancellationRate}%)
                     </div>
@@ -286,7 +301,7 @@ export default function BIConversaoPage() {
               <CardContent>
                 <div className="text-2xl font-bold">{metrics.funnel.clickToAttendance}%</div>
                 <p className="text-xs text-muted-foreground">
-                  Cliques → Comparecimentos
+                  Cliques → Avaliação Inicial
                 </p>
               </CardContent>
             </Card>
@@ -375,8 +390,8 @@ export default function BIConversaoPage() {
                       <span className="font-medium">{metrics.crm.appointments.toLocaleString('pt-BR')}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Comparecimentos:</span>
-                      <span className="font-medium">{metrics.crm.attendance.toLocaleString('pt-BR')}</span>
+                      <span className="text-gray-600">Avaliação Inicial:</span>
+                      <span className="font-medium">{(metrics.crm.statusBreakdown?.avaliacao_inicial || metrics.crm.attendance).toLocaleString('pt-BR')}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Cancelamentos:</span>
