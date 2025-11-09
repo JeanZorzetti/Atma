@@ -122,17 +122,35 @@ export default function BenchmarkMercadoPage() {
       const benchmarksData = await benchmarksRes.json()
       const metricsData = await metricsRes.json()
 
+      console.log('Benchmarks response:', benchmarksData)
+      console.log('Metrics response:', metricsData)
+
       if (benchmarksData.success && benchmarksData.data) {
+        console.log('Setting benchmarks:', benchmarksData.data.length, 'items')
         setBenchmarks(benchmarksData.data)
+      } else {
+        console.error('Benchmarks data invalid:', benchmarksData)
       }
 
-      if (metricsData.success && metricsData.data) {
-        setAtmaMetrics(metricsData.data)
+      if (metricsData.success) {
+        // The conversion funnel API returns data at root level (seo, crm, funnel)
+        // Not nested inside a 'data' property
+        const metrics: AtmaMetrics = {
+          seo: metricsData.seo,
+          crm: metricsData.crm,
+          funnel: metricsData.funnel
+        }
+
+        console.log('Setting metrics:', metrics)
+        setAtmaMetrics(metrics)
 
         // Only generate comparisons if we have both datasets
         if (benchmarksData.success && benchmarksData.data) {
-          generateComparisons(benchmarksData.data, metricsData.data)
+          console.log('Generating comparisons...')
+          generateComparisons(benchmarksData.data, metrics)
         }
+      } else {
+        console.error('Metrics data invalid:', metricsData)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
