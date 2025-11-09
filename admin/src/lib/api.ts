@@ -934,12 +934,12 @@ class ApiService {
         body: JSON.stringify({})
       })
     }
-  },
+  }
 
   // =============================================================================
   // Conversion Funnel (SEO + Commercial BI)
   // =============================================================================
-  conversionFunnel: {
+  conversionFunnel = {
     getFunnelMetrics: async (startDate: string, endDate: string) => {
       return this.request(`/conversion-funnel/metrics?startDate=${startDate}&endDate=${endDate}`)
     },
