@@ -90,7 +90,8 @@ export default function CrmLeadsListPage() {
       'prospeccao': { label: 'Prospecção', color: 'bg-gray-100 text-gray-800' },
       'contato_inicial': { label: 'Contato', color: 'bg-blue-100 text-blue-800' },
       'apresentacao': { label: 'Apresentação', color: 'bg-yellow-100 text-yellow-800' },
-      'negociacao': { label: 'Negociação', color: 'bg-orange-100 text-orange-800' }
+      'negociacao': { label: 'Negociação', color: 'bg-orange-100 text-orange-800' },
+      'parceria_fechada': { label: 'Parceria Fechada', color: 'bg-green-100 text-green-800' }
     }
     const badge = badges[status as keyof typeof badges] || badges['prospeccao']
     return (
@@ -420,6 +421,9 @@ export default function CrmLeadsListPage() {
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleStatusChange(lead.id, 'negociacao')}>
                               Negociação
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusChange(lead.id, 'parceria_fechada')}>
+                              Parceria Fechada
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
