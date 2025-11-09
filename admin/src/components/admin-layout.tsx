@@ -10,7 +10,6 @@ import {
   LogOut,
   Menu,
   PhoneCall,
-  TrendingUp,
   Search,
   LineChart
 } from 'lucide-react'
@@ -45,11 +44,6 @@ const sidebarItems = [
     title: 'CRM B2B',
     href: '/admin/crm',
     icon: PhoneCall
-  },
-  {
-    title: 'Marketing',
-    href: '/admin/marketing',
-    icon: TrendingUp
   },
   {
     title: 'SEO',
