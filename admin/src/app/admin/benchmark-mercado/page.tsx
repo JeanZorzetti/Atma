@@ -28,6 +28,7 @@ import {
   ArrowRight,
   BarChart3
 } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
@@ -94,6 +95,7 @@ export default function BenchmarkMercadoPage() {
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState('15') // days
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchData()
@@ -120,16 +122,25 @@ export default function BenchmarkMercadoPage() {
       const benchmarksData = await benchmarksRes.json()
       const metricsData = await metricsRes.json()
 
-      if (benchmarksData.success) {
+      if (benchmarksData.success && benchmarksData.data) {
         setBenchmarks(benchmarksData.data)
       }
 
-      if (metricsData.success) {
+      if (metricsData.success && metricsData.data) {
         setAtmaMetrics(metricsData.data)
-        generateComparisons(benchmarksData.data, metricsData.data)
+
+        // Only generate comparisons if we have both datasets
+        if (benchmarksData.success && benchmarksData.data) {
+          generateComparisons(benchmarksData.data, metricsData.data)
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error)
+      toast({
+        title: 'Erro',
+        description: 'Falha ao carregar dados de comparação',
+        variant: 'destructive'
+      })
     } finally {
       setLoading(false)
     }
