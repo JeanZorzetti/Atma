@@ -11,7 +11,8 @@ import {
   Menu,
   PhoneCall,
   TrendingUp,
-  Search
+  Search,
+  LineChart
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -54,6 +55,11 @@ const sidebarItems = [
     title: 'SEO',
     href: '/admin/seo',
     icon: Search
+  },
+  {
+    title: 'BI Conversão',
+    href: '/admin/bi-conversao',
+    icon: LineChart
   },
   {
     title: 'Relatórios',
