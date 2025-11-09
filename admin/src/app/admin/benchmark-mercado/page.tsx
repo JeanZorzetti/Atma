@@ -185,7 +185,8 @@ export default function BenchmarkMercadoPage() {
       if (!mapping) return
 
       const atmaValue = mapping.value
-      const benchmarkValue = benchmark.metric_value
+      // Convert benchmark value to number (comes as string from MySQL DECIMAL)
+      const benchmarkValue = parseFloat(benchmark.metric_value.toString())
       const difference = atmaValue - benchmarkValue
       const percentDiff = benchmarkValue !== 0
         ? ((atmaValue - benchmarkValue) / benchmarkValue) * 100
