@@ -29,7 +29,7 @@ import {
   BarChart3
 } from 'lucide-react'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
 interface Benchmark {
   id: number
@@ -113,8 +113,8 @@ export default function BenchmarkMercadoPage() {
 
       // Fetch benchmarks and Atma metrics in parallel
       const [benchmarksRes, metricsRes] = await Promise.all([
-        fetch(`${API_URL}/api/market-benchmarks`),
-        fetch(`${API_URL}/api/conversion-funnel/metrics?startDate=${startDateStr}&endDate=${endDateStr}`)
+        fetch(`${API_URL}/market-benchmarks`),
+        fetch(`${API_URL}/conversion-funnel/metrics?startDate=${startDateStr}&endDate=${endDateStr}`)
       ])
 
       const benchmarksData = await benchmarksRes.json()

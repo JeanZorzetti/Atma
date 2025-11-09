@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Loader2, Save, TrendingUp, RefreshCw } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
 interface Benchmark {
   id: number
@@ -48,7 +48,7 @@ export function BenchmarkEditor() {
   const fetchBenchmarks = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${API_URL}/api/market-benchmarks`)
+      const response = await fetch(`${API_URL}/market-benchmarks`)
       const data = await response.json()
 
       if (data.success) {
@@ -95,7 +95,7 @@ export function BenchmarkEditor() {
 
     try {
       setSaving(true)
-      const response = await fetch(`${API_URL}/api/market-benchmarks/${benchmark.id}`, {
+      const response = await fetch(`${API_URL}/market-benchmarks/${benchmark.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
@@ -149,7 +149,7 @@ export function BenchmarkEditor() {
         ...values
       }))
 
-      const response = await fetch(`${API_URL}/api/market-benchmarks/bulk-update`, {
+      const response = await fetch(`${API_URL}/market-benchmarks/bulk-update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ benchmarks: updates })
