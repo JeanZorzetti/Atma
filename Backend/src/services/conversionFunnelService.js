@@ -234,7 +234,7 @@ class ConversionFunnelService {
       : 0;
 
     const clickToAttendance = seo.clicks > 0
-      ? (crm.attendance / seo.clicks) * 100
+      ? (status.avaliacao_inicial / seo.clicks) * 100
       : 0;
 
     // Cancellation rate
