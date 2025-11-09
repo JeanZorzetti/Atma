@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const searchConsoleController = require('../controllers/searchConsoleController');
+const { adminLimiter } = require('../middleware/rateLimiter');
+
+// Apply admin limiter (60 req/min instead of general 100 req/15min)
+router.use(adminLimiter);
 
 // =============================================================================
 // OAuth 2.0 Authentication Routes

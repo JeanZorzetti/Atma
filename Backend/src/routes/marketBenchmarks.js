@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { executeQuery } = require('../config/database');
+const { adminLimiter } = require('../middleware/rateLimiter');
+
+// Apply admin limiter (60 req/min instead of general 100 req/15min)
+router.use(adminLimiter);
 
 /**
  * GET /api/market-benchmarks

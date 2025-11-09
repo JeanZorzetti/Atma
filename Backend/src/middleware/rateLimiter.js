@@ -63,7 +63,30 @@ const authLimiter = rateLimit({
       attemptedEmail: req.body.email,
       timestamp: new Date().toISOString()
     });
-    
+
+    res.status(options.statusCode).json(options.message);
+  }
+});
+
+// Rate limiter para admin/BI endpoints (mais generoso para uso interno)
+const adminLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 60, // máximo 60 requests por minuto por IP
+  message: {
+    error: 'Rate limited. Server is busy. Please try again later.',
+    retryAfter: 60
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    logger.warn('Admin rate limit exceeded', {
+      ip: req.ip,
+      url: req.originalUrl,
+      method: req.method,
+      userAgent: req.get('User-Agent'),
+      timestamp: new Date().toISOString()
+    });
+
     res.status(options.statusCode).json(options.message);
   }
 });
@@ -71,5 +94,6 @@ const authLimiter = rateLimit({
 module.exports = {
   generalLimiter,
   contactLimiter,
-  authLimiter
+  authLimiter,
+  adminLimiter
 };
