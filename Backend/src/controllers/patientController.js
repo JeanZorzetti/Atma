@@ -553,7 +553,7 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
     }
 
     // Build query with direct substitution to avoid binding issues
-    let finalQuery = `SELECT pl.id, pl.nome as name, pl.email, pl.telefone as phone, '' as cpf, pl.status, 'Avaliação Inicial' as treatmentStage, 'Não atribuído' as orthodontist, pl.created_at as registrationDate FROM patient_leads pl`;
+    let finalQuery = `SELECT pl.id, pl.nome as name, pl.email, pl.telefone as phone, '' as cpf, pl.status, pl.cidade, pl.bairro, pl.observacoes, 'Avaliação Inicial' as treatmentStage, 'Não atribuído' as orthodontist, pl.created_at as registrationDate FROM patient_leads pl`;
     let finalCountQuery = `SELECT COUNT(*) as total FROM patient_leads pl`;
     
     const queryParams = [];
@@ -660,14 +660,14 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
 // Atualizar informações completas do paciente
 const updatePatientLead = async (req, res, next) => {
   const startTime = Date.now();
-  
+
   try {
     const { id } = req.params;
-    const { nome, email, telefone, cep, status, observacoes } = req.body;
-    
+    const { nome, email, telefone, cep, cidade, bairro, status, observacoes } = req.body;
+
     // Verificar se lead existe
     const existingLead = await executeQuery('SELECT * FROM patient_leads WHERE id = ?', [id]);
-    
+
     if (existingLead.length === 0) {
       return res.status(404).json({
         success: false,
@@ -675,19 +675,21 @@ const updatePatientLead = async (req, res, next) => {
         timestamp: new Date().toISOString()
       });
     }
-    
+
     // Atualizar informações
     const updateQuery = `
-      UPDATE patient_leads 
-      SET nome = ?, email = ?, telefone = ?, cep = ?, status = ?, observacoes = ?, updated_at = CURRENT_TIMESTAMP
+      UPDATE patient_leads
+      SET nome = ?, email = ?, telefone = ?, cep = ?, cidade = ?, bairro = ?, status = ?, observacoes = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `;
-    
+
     const result = await executeQuery(updateQuery, [
       nome || existingLead[0].nome,
-      email || existingLead[0].email, 
+      email || existingLead[0].email,
       telefone || existingLead[0].telefone,
       cep || existingLead[0].cep,
+      cidade || existingLead[0].cidade,
+      bairro || existingLead[0].bairro,
       status || existingLead[0].status,
       observacoes,
       id
@@ -699,14 +701,17 @@ const updatePatientLead = async (req, res, next) => {
     
     // Buscar dados atualizados
     const updatedLead = await executeQuery(`
-      SELECT 
+      SELECT
         pl.id,
         pl.nome as name,
         pl.email,
         pl.telefone as phone,
         '' as cpf,
         pl.status,
-        CASE 
+        pl.cidade,
+        pl.bairro,
+        pl.observacoes,
+        CASE
           WHEN pl.status = 'novo' THEN 'Avaliação Inicial'
           WHEN pl.status = 'contatado' THEN 'Contatado'
           WHEN pl.status = 'agendado' THEN 'Consulta Agendada'

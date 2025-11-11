@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -26,6 +27,9 @@ interface Patient {
   orthodontist?: string
   registrationDate?: string
   created_at?: string
+  cidade?: string
+  bairro?: string
+  observacoes?: string
 }
 
 // Função para converter UTC para timezone de São Paulo (GMT-3)
@@ -67,6 +71,9 @@ export default function PacientesPage() {
     email: '',
     phone: '',
     cep: '',
+    cidade: '',
+    bairro: '',
+    observacoes: '',
     status: 'novo'
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -115,6 +122,9 @@ export default function PacientesPage() {
       email: '',
       phone: '',
       cep: '',
+      cidade: '',
+      bairro: '',
+      observacoes: '',
       status: 'novo'
     })
   }
@@ -178,6 +188,9 @@ export default function PacientesPage() {
         email: formData.email,
         telefone: formData.phone,
         cep: formData.cep,
+        cidade: formData.cidade,
+        bairro: formData.bairro,
+        observacoes: formData.observacoes,
         status: formData.status
       }) as { success: boolean }
 
@@ -272,6 +285,9 @@ export default function PacientesPage() {
       email: patient.email,
       phone: patient.phone || '',
       cep: '',
+      cidade: patient.cidade || '',
+      bairro: patient.bairro || '',
+      observacoes: patient.observacoes || '',
       status: patient.status
     })
     setIsEditDialogOpen(true)
@@ -597,7 +613,7 @@ export default function PacientesPage() {
 
       {/* Edit Patient Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Paciente</DialogTitle>
             <DialogDescription>
@@ -626,17 +642,48 @@ export default function PacientesPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-phone">Telefone</Label>
-              <Input 
-                id="edit-phone" 
+              <Input
+                id="edit-phone"
                 placeholder="(11) 99999-9999"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-cidade">Cidade</Label>
+                <Input
+                  id="edit-cidade"
+                  placeholder="Ex: São Paulo"
+                  value={formData.cidade}
+                  onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-bairro">Bairro</Label>
+                <Input
+                  id="edit-bairro"
+                  placeholder="Ex: Centro"
+                  value={formData.bairro}
+                  onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-observacoes">Observações</Label>
+              <Textarea
+                id="edit-observacoes"
+                placeholder="Adicione observações sobre o paciente..."
+                value={formData.observacoes}
+                onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                rows={3}
+                className="resize-none"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="edit-status">Status</Label>
-              <Select 
-                value={formData.status} 
+              <Select
+                value={formData.status}
                 onValueChange={(value) => setFormData({ ...formData, status: value })}
               >
                 <SelectTrigger>
