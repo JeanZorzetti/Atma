@@ -53,6 +53,22 @@ export const metadata: Metadata = {
   creator: "Atma Aligner",
   publisher: "Atma Aligner",
   metadataBase: new URL('https://atma.roilabs.com.br'),
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' }
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+    ],
+    other: [
+      {
+        rel: 'icon',
+        url: '/assets/logos/atma/Atma.png',
+      }
+    ]
+  },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
@@ -66,6 +82,12 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: 'Atma Aligner - Alinhadores Invisíveis Premium'
+      },
+      {
+        url: '/assets/logos/atma/Atma.png',
+        width: 280,
+        height: 70,
+        alt: 'Logo Atma Aligner'
       }
     ]
   },
