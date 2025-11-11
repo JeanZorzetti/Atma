@@ -57,16 +57,12 @@ export const metadata: Metadata = {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/atma-logo-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/atma-logo-512x512.png', sizes: '512x512', type: 'image/png' },
       { url: '/favicon.ico', sizes: 'any' }
     ],
     apple: [
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
-    ],
-    other: [
-      {
-        rel: 'icon',
-        url: '/assets/logos/atma/Atma.png',
-      }
     ]
   },
   openGraph: {
@@ -84,9 +80,9 @@ export const metadata: Metadata = {
         alt: 'Atma Aligner - Alinhadores Invisíveis Premium'
       },
       {
-        url: '/assets/logos/atma/Atma.png',
-        width: 280,
-        height: 70,
+        url: '/atma-logo-512x512.png',
+        width: 512,
+        height: 512,
         alt: 'Logo Atma Aligner'
       }
     ]

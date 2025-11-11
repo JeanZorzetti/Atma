@@ -8,9 +8,9 @@ export function StructuredData() {
     "url": "https://atma.roilabs.com.br",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://atma.roilabs.com.br/assets/logos/atma/Atma.png",
-      "width": "280",
-      "height": "70"
+      "url": "https://atma.roilabs.com.br/atma-logo-512x512.png",
+      "width": "512",
+      "height": "512"
     },
     "image": {
       "@type": "ImageObject",
@@ -126,9 +126,9 @@ export function StructuredData() {
       "name": "Atma Aligner",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://atma.roilabs.com.br/assets/logos/atma/Atma.png",
-        "width": "280",
-        "height": "70"
+        "url": "https://atma.roilabs.com.br/atma-logo-512x512.png",
+        "width": "512",
+        "height": "512"
       }
     },
     "copyrightYear": "2024",
