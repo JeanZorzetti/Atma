@@ -28,7 +28,7 @@ const treatmentSteps = [
     step: 1,
     title: "Consulta Gratuita",
     description: "Agende sua avaliação sem compromisso. Escaneamento 3D indolor e simulação do resultado final.",
-    image: "/assets/images/products/alinhador-invisível-mitos-e-verdades.jpg",
+    image: "/assets/images/products/alinhador-invisivel-mitos-e-verdades.jpg",
     details: [
       "Sem necessidade de massa (escaneamento digital)",
       "Simulação 3D do resultado em minutos",
