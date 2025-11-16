@@ -1,431 +1,523 @@
-"use client"
-
-import { AnimatedButton } from "@/components/ui/animated-button"
-import { AnimatedCard } from "@/components/ui/animated-card"
+import { Metadata } from "next"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { AnimatedCounter, StaggeredCards } from "@/components/ui/scroll-animations"
-import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { Users, Award, Star } from "lucide-react"
-import { GlossaryButton, MedicalTerm } from "@/components/cognitive/medical-glossary"
+import { Badge } from "@/components/ui/badge"
+import { TickerTape } from "@/components/ui/ticker-tape"
+import { StepCarousel } from "@/components/ui/step-carousel"
+import { DoctorLocator } from "@/components/ui/doctor-locator"
+import { Check, Star, Clock, DollarSign, Award, Users, Sparkles, ChevronRight } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { StructuredData } from "@/components/structured-data"
+
+export const metadata: Metadata = {
+  title: "Atma Aligner - Alinhadores Invisíveis com Tecnologia Alemã | 50% Mais Barato",
+  description: "Transforme seu sorriso com alinhadores invisíveis premium. Tecnologia PETG Duran® alemã, certificado ISO 13485. A partir de R$ 3.990. Consulta gratuita.",
+  keywords: "alinhador invisível, aparelho invisível, ortodontia invisível, atma aligner, alinhadores transparentes, preço alinhador",
+}
+
+const tickerMessages = [
+  "✨ Consulta de Avaliação 100% GRATUITA - Agende Agora!",
+  "🎯 15.000+ Sorrisos Transformados em Todo Brasil",
+  "💰 Até 50% Mais Barato que Concorrentes Internacionais",
+  "🇩🇪 Tecnologia Alemã Certificada ISO 13485 + CE + ANVISA"
+]
+
+const treatmentSteps = [
+  {
+    step: 1,
+    title: "Consulta Gratuita",
+    description: "Agende sua avaliação sem compromisso. Escaneamento 3D indolor e simulação do resultado final.",
+    image: "/placeholder-scan.jpg", // TODO: Adicionar foto real do escaneamento 3D
+    details: [
+      "Sem necessidade de massa (escaneamento digital)",
+      "Simulação 3D do resultado em minutos",
+      "Avaliação ortodôntica completa",
+      "Plano de tratamento personalizado"
+    ]
+  },
+  {
+    step: 2,
+    title: "Receba Seus Alinhadores",
+    description: "Fabricados sob medida com PETG alemão de grau médico. Entrega em 2-3 semanas.",
+    image: "/placeholder-aligners.jpg", // TODO: Adicionar foto dos alinhadores Atma
+    details: [
+      "Produção 100% personalizada",
+      "Material certificado para uso médico",
+      "Kit completo com estojo e instruções",
+      "Acompanhamento por aplicativo"
+    ]
+  },
+  {
+    step: 3,
+    title: "Acompanhamento e Resultado",
+    description: "Consultas a cada 4-6 semanas. Veja seu sorriso evoluir semana após semana.",
+    image: "/placeholder-result.jpg", // TODO: Adicionar antes/depois real
+    details: [
+      "Consultas presenciais ou online",
+      "Troca de alinhadores a cada 7-14 dias",
+      "Monitoramento com IA do progresso",
+      "Garantia de satisfação"
+    ]
+  }
+]
 
 export default function HomePage() {
-  const router = useRouter()
-
   return (
-    <div className="min-h-screen">
-      {/* Hero Section with Video Background */}
-      <motion.section
-        className="relative py-20 lg:py-32 overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        {/* Video Background */}
-        <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-40"
-          >
-            <source src="/videos/hero-background.mp4" type="video/mp4" />
-          </video>
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-purple-900/40 to-blue-800/50" />
-        </div>
+    <>
+      <StructuredData />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <motion.h1
-              className="text-4xl md:text-6xl font-heading font-bold text-white mb-6"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              A transformação do seu sorriso, <span className="text-yellow-300">agora ao seu alcance</span>
-            </motion.h1>
-            <motion.p
-              className="text-xl text-white/90 mb-8 max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              Democratizamos o acesso à{" "}
-              <span className="text-yellow-300 font-semibold">ortodontia</span> digital de ponta no Brasil. Tecnologia de classe mundial com
-              acessibilidade financeira para a nova classe média brasileira.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="mb-8"
-            >
-              <GlossaryButton />
-            </motion.div>
+      {/* Ticker Tape - Mensagens Rotativas */}
+      <TickerTape messages={tickerMessages} />
 
-            {/* Audience Segmentation */}
-            <motion.h2
-              className="text-2xl font-heading font-semibold mb-8 text-center text-white"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
-              Escolha seu caminho para o sorriso perfeito
-            </motion.h2>
+      {/* SEÇÃO 1: HERO - Paciente Real + Benefícios */}
+      <section className="relative bg-gradient-to-br from-blue-50 via-white to-blue-50 pt-20 pb-16 md:pt-28 md:pb-24">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Coluna Esquerda - Copy */}
+            <div className="space-y-8">
+              <div>
+                <Badge className="mb-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2">
+                  🇩🇪 Tecnologia Alemã Certificada
+                </Badge>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-gray-900 leading-tight mb-6">
+                  Transforme Seu Sorriso<br />
+                  <span className="text-blue-600">Sem Que Ninguém Perceba</span>
+                </h1>
+                <p className="text-xl text-gray-600 leading-relaxed">
+                  Alinhadores invisíveis premium com tecnologia alemã PETG Duran®.
+                  Resultados comprovados, preço justo brasileiro.
+                </p>
+              </div>
 
-            <StaggeredCards className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto" staggerDelay={0.2}>
-              {/* Card Paciente - Redesign Premium */}
-              <AnimatedCard
-                variant="medical"
-                className="group cursor-pointer relative overflow-hidden backdrop-blur-md bg-white/30"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-blue-100/10 to-white/30" />
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-600/10" />
+              {/* Lista de Benefícios */}
+              <ul className="space-y-4">
+                {[
+                  "Invisível - ninguém vai notar que você está usando",
+                  "Removível - coma o que quiser, sem restrições",
+                  "Confortável - sem fios ou brackets que machucam",
+                  "Rápido - resultados visíveis em 3-6 meses",
+                  "Acessível - até 50% mais barato que Invisalign®"
+                ].map((benefit, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <div className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                    <span className="text-lg text-gray-700">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
 
-                {/* Glow effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/5 to-blue-400/0"
-                  animate={{
-                    x: ['-100%', '100%'],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: 'linear',
-                  }}
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  size="lg"
+                  className="text-lg px-8 py-6 bg-blue-600 hover:bg-blue-700 shadow-xl hover:shadow-2xl transition-all"
+                  asChild
+                >
+                  <Link href="/pacientes/agendar">
+                    Agendar Consulta Gratuita
+                    <ChevronRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-lg px-8 py-6 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                  asChild
+                >
+                  <Link href="/quiz">
+                    Fazer Quiz de 2 Minutos
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Social Proof Compacto */}
+              <div className="flex items-center gap-6 pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-2">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white" />
+                    ))}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      {[1,2,3,4,5].map(i => (
+                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="text-sm text-gray-600 font-medium">15.000+ pacientes felizes</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Coluna Direita - Imagem */}
+            <div className="relative">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                {/* TODO: SUBSTITUIR por foto real de paciente usando alinhador Atma */}
+                <Image
+                  src="/placeholder-patient-smiling.jpg"
+                  alt="Paciente feliz usando alinhador invisível Atma"
+                  width={600}
+                  height={700}
+                  className="w-full h-auto"
+                  priority
                 />
-
-                <div className="relative p-10 text-center">
-                  {/* Ícone Premium */}
-                  <motion.div
-                    className="relative inline-flex items-center justify-center w-20 h-20 mb-6"
-                    whileHover={{ scale: 1.1 }}
-                    animate={{
-                      y: [0, -8, 0],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg" />
-                    <div className="absolute inset-1 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl" />
-                    <Users className="relative h-10 w-10 text-white" />
-                  </motion.div>
-
-                  <h3 className="text-2xl font-heading font-bold mb-3 text-slate-900">
-                    SOU PACIENTE
-                  </h3>
-                  <p className="text-slate-600 mb-6 leading-relaxed">
-                    Descubra como conquistar o sorriso dos seus sonhos com parcelas que cabem no seu orçamento
-                  </p>
-
-                  {/* Benefícios */}
-                  <div className="mb-6 space-y-2 text-left">
-                    <div className="flex items-center text-sm text-slate-700">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                      <MedicalTerm term="alinhadores">Alinhadores</MedicalTerm> a partir de R$ 99/mês
+                {/* Badge Flutuante */}
+                <div className="absolute bottom-8 left-8 bg-white rounded-2xl shadow-xl p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                      <Check className="h-6 w-6 text-green-600" />
                     </div>
-                    <div className="flex items-center text-sm text-slate-700">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                      Consulta online gratuita
-                    </div>
-                    <div className="flex items-center text-sm text-slate-700">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                      Aprovação em 24h
+                    <div>
+                      <p className="font-bold text-gray-900">Tratamento Concluído</p>
+                      <p className="text-sm text-gray-600">Em apenas 8 meses</p>
                     </div>
                   </div>
-
-                  <AnimatedButton
-                    medical
-                    size="lg"
-                    className="w-full shadow-lg hover:shadow-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-                    onClick={() => router.push('/pacientes')}
-                  >
-                    Quero transformar meu sorriso
-                  </AnimatedButton>
                 </div>
-              </AnimatedCard>
-
-              {/* Card Ortodontista - Redesign Premium */}
-              <AnimatedCard
-                variant="service"
-                className="group cursor-pointer relative overflow-hidden backdrop-blur-md bg-white/30"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/20 via-teal-100/10 to-white/30" />
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-emerald-600/10" />
-
-                {/* Glow effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-teal-400/0 via-teal-400/5 to-teal-400/0"
-                  animate={{
-                    x: ['-100%', '100%'],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: 'linear',
-                    delay: 1.5,
-                  }}
-                />
-
-                <div className="relative p-10 text-center">
-                  {/* Ícone Premium */}
-                  <motion.div
-                    className="relative inline-flex items-center justify-center w-20 h-20 mb-6"
-                    whileHover={{ scale: 1.1 }}
-                    animate={{
-                      y: [0, -8, 0],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                      delay: 2,
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl shadow-lg" />
-                    <div className="absolute inset-1 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl" />
-                    <Award className="relative h-10 w-10 text-white" />
-                  </motion.div>
-
-                  <h3 className="text-2xl font-heading font-bold mb-3 text-slate-900">
-                    SOU ORTODONTISTA
-                  </h3>
-                  <p className="text-slate-600 mb-6 leading-relaxed">
-                    Seja nosso parceiro estratégico e revolucione sua clínica com tecnologia de ponta
-                  </p>
-
-                  {/* Benefícios */}
-                  <div className="mb-6 space-y-2 text-left">
-                    <div className="flex items-center text-sm text-slate-700">
-                      <div className="w-2 h-2 bg-teal-500 rounded-full mr-3" />
-                      Aumento de 60% na receita
-                    </div>
-                    <div className="flex items-center text-sm text-slate-700">
-                      <div className="w-2 h-2 bg-teal-500 rounded-full mr-3" />
-                      Tecnologia de ponta incluída
-                    </div>
-                    <div className="flex items-center text-sm text-slate-700">
-                      <div className="w-2 h-2 bg-teal-500 rounded-full mr-3" />
-                      Suporte técnico completo
-                    </div>
-                  </div>
-
-                  <AnimatedButton
-                    size="lg"
-                    className="w-full shadow-lg hover:shadow-xl bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 text-white"
-                    onClick={() => router.push('/ortodontistas')}
-                  >
-                    Quero ser parceiro Atma
-                  </AnimatedButton>
-                </div>
-              </AnimatedCard>
-            </StaggeredCards>
+              </div>
+            </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Social Proof Section */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {/* SEÇÃO 2: QUANTO CUSTA - Preços Transparentes */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-heading font-bold mb-4">TRANSFORMANDO SORRISOS EM TODO O BRASIL</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Milhares de brasileiros já conquistaram o sorriso dos sonhos com a tecnologia Atma Aligner
+            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full mb-4">
+              <DollarSign className="h-5 w-5" />
+              <span className="font-semibold">Preços Transparentes</span>
+            </div>
+            <h2 className="text-4xl font-heading font-bold text-gray-900 mb-4">
+              Quanto Custa o Tratamento?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Até <strong className="text-blue-600">50% mais barato</strong> que concorrentes internacionais.
+              Parcelamento facilitado em até 24x.
             </p>
           </div>
 
-          <StaggeredCards className="grid md:grid-cols-3 gap-8 mb-12" staggerDelay={0.3}>
-            <motion.div className="text-center" whileHover={{ scale: 1.05 }}>
-              <div className="text-4xl font-heading font-bold text-primary mb-2">
-                <AnimatedCounter from={0} to={15000} suffix="+" />
-              </div>
-              <p className="text-muted-foreground">Sorrisos transformados</p>
-            </motion.div>
-            <motion.div className="text-center" whileHover={{ scale: 1.05 }}>
-              <div className="text-4xl font-heading font-bold text-primary mb-2">
-                <AnimatedCounter from={0} to={500} suffix="+" />
-              </div>
-              <p className="text-muted-foreground">Ortodontistas parceiros</p>
-            </motion.div>
-            <motion.div className="text-center" whileHover={{ scale: 1.05 }}>
-              <div className="text-4xl font-heading font-bold text-primary mb-2">
-                <AnimatedCounter from={0} to={98} suffix="%" />
-              </div>
-              <p className="text-muted-foreground">Satisfação dos pacientes</p>
-            </motion.div>
-          </StaggeredCards>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              { name: "Casos Simples", aligners: "Até 20", price: "3.990", monthly: "166", time: "6-12 meses" },
+              { name: "Casos Moderados", aligners: "21-35", price: "5.990", monthly: "250", time: "9-15 meses", featured: true },
+              { name: "Casos Complexos", aligners: "36+", price: "8.990", monthly: "375", time: "12-18 meses" }
+            ].map((plan, i) => (
+              <Card key={i} className={`relative ${plan.featured ? 'border-4 border-blue-600 shadow-2xl scale-105' : 'border-2'}`}>
+                {plan.featured && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-blue-600 text-white px-4 py-1">Mais Popular</Badge>
+                  </div>
+                )}
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                  <p className="text-gray-600 mb-6">{plan.aligners} alinhadores</p>
 
-          {/* Testimonials */}
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  "Sempre sonhei em ter dentes alinhados, mas achava que seria impossível financeiramente. Com a Atma
-                  Align consegui parcelar em 24x sem juros e hoje tenho a autoestima que sempre quis!"
-                </p>
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
-                    <span className="text-primary font-semibold">M</span>
+                  <div className="mb-6">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-gray-600">R$</span>
+                      <span className="text-5xl font-bold text-gray-900">{plan.price}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">
+                      ou <strong>12x de R$ {plan.monthly}</strong> sem juros
+                    </p>
                   </div>
-                  <div>
-                    <p className="font-semibold">Mariana Santos</p>
-                    <p className="text-sm text-muted-foreground">Professora - São Paulo, SP</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  "A parceria com a Atma Aligner transformou minha clínica. Aumentei minha receita em 60% e posso oferecer
-                  tratamentos de alta qualidade com preços acessíveis aos meus pacientes."
-                </p>
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3">
-                    <span className="text-primary font-semibold">Dr</span>
+                  <div className="flex items-center gap-2 text-gray-700 mb-6">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                    <span>Duração: {plan.time}</span>
                   </div>
-                  <div>
-                    <p className="font-semibold">Dr. Lucas Mendes</p>
-                    <p className="text-sm text-muted-foreground">Ortodontista Empreendedor - Campinas, SP</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
+                  <Button className={`w-full ${plan.featured ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-900 hover:bg-gray-800'}`} asChild>
+                    <Link href="/pacientes/agendar">Agendar Avaliação</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </div>
-      </section>
 
-      {/* SEO Content Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-heading font-bold mb-6 text-center">
-              Por Que Escolher Alinhadores Invisíveis Atma?
-            </h2>
-
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <div>
-                <h3 className="text-xl font-heading font-semibold mb-3">Tecnologia Alemã Premium</h3>
-                <p className="text-muted-foreground mb-4">
-                  Nossos alinhadores invisíveis são fabricados com <strong>PETG Duran® alemão</strong>, material de
-                  grau médico certificado ISO 10993. A mesma tecnologia usada pelas marcas premium internacionais,
-                  mas com preços até 50% menores. Cada alinhador é produzido sob medida usando escaneamento 3D de
-                  alta precisão e inteligência artificial para planejamento ortodôntico.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-heading font-semibold mb-3">Preços Acessíveis, Qualidade Mundial</h3>
-                <p className="text-muted-foreground mb-4">
-                  Democratizamos o acesso à ortodontia digital no Brasil. Enquanto tratamentos similares custam
-                  R$ 15.000 a R$ 20.000, oferecemos desde <strong>R$ 3.990</strong> com parcelamento em até 12x
-                  sem juros. Não abrimos mão da qualidade: mesma tecnologia 3D, mesmos padrões internacionais,
-                  acompanhamento profissional completo.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-heading font-semibold mb-3">Como Funciona o Tratamento</h3>
-                <p className="text-muted-foreground mb-4">
-                  O tratamento com alinhadores transparentes dura em média de 6 a 24 meses, dependendo da complexidade
-                  do caso. Você usará os alinhadores por 22 horas por dia, trocando para o próximo conjunto a cada
-                  duas semanas. Consultas de acompanhamento acontecem a cada 4-6 semanas com ortodontistas parceiros
-                  em todo Brasil. <strong>Processo 100% indolor e discreto.</strong>
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-heading font-semibold mb-3">Rede Nacional de Ortodontistas</h3>
-                <p className="text-muted-foreground mb-4">
-                  Mais de 500 ortodontistas parceiros capacitados em todo o Brasil. Nossa plataforma conecta você
-                  ao profissional mais próximo, garantindo acompanhamento presencial de qualidade. Cada ortodontista
-                  passa por treinamento especializado no sistema Atma e tem acesso a suporte técnico completo durante
-                  todo o tratamento.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-background p-6 rounded-lg border">
-              <h3 className="text-xl font-heading font-semibold mb-3">Perguntas Frequentes</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="font-semibold mb-2">Quanto tempo dura o tratamento com alinhadores invisíveis?</p>
-                  <p className="text-muted-foreground text-sm">
-                    O tratamento varia de 6 a 24 meses dependendo da complexidade do caso. Casos simples podem
-                    ser resolvidos em 6-12 meses, enquanto casos mais complexos levam 18-24 meses.
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold mb-2">Qual a diferença entre Atma e marcas internacionais?</p>
-                  <p className="text-muted-foreground text-sm">
-                    Usamos a mesma tecnologia e materiais (PETG alemão, impressão 3D, IA), mas com preços 50%
-                    menores por eliminarmos intermediários e produzirmos localmente com padrões internacionais.
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold mb-2">Posso financiar o tratamento?</p>
-                  <p className="text-muted-foreground text-sm">
-                    Sim! Oferecemos parcelamento em até 12x sem juros. Para casos simples, as parcelas começam
-                    em apenas R$ 333/mês, cabendo no orçamento da maioria das famílias brasileiras.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-primary relative overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-white">
-            PRONTO PARA <span className="text-gradient-secondary">TRANSFORMAR</span> SEU SORRISO?
-          </h2>
-          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto text-white">
-            Junte-se a milhares de brasileiros que já conquistaram o sorriso dos sonhos com parcelas que cabem no
-            orçamento
+          <p className="text-center text-gray-500 mt-8">
+            💰 <strong>Compare:</strong> Invisalign® custa entre R$ 15.000 - R$ 20.000
           </p>
-          <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-          >
-            <AnimatedButton
-              size="lg"
-              className="bg-white text-primary hover:bg-white/90 shadow-lg"
-              onClick={() => router.push('/pacientes/encontre-doutor')}
-              medical
-            >
-              Encontre um doutor perto de você
-            </AnimatedButton>
-            <AnimatedButton
-              size="lg"
-              variant="outline"
-              className="bg-transparent border-white text-white hover:bg-white hover:text-primary"
-              onClick={() => router.push('/pacientes/precos')}
-            >
-              Ver preços e financiamento
-            </AnimatedButton>
-          </motion.div>
         </div>
       </section>
-    </div>
+
+      {/* SEÇÃO 3: CARROSSEL DE 3 ETAPAS */}
+      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-heading font-bold text-gray-900 mb-4">
+              Como Funciona o Tratamento
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Do escaneamento 3D ao sorriso dos sonhos em apenas 3 passos simples
+            </p>
+          </div>
+
+          <StepCarousel steps={treatmentSteps} />
+        </div>
+      </section>
+
+      {/* SEÇÃO 4: SOCIAL PROOF - Pacientes Reais */}
+      <section className="py-16 md:py-24 bg-blue-600 text-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-4">
+              <Users className="h-5 w-5" />
+              <span className="font-semibold">Resultados Comprovados</span>
+            </div>
+            <h2 className="text-4xl font-heading font-bold mb-4">
+              15.000+ Sorrisos Transformados
+            </h2>
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+              Pacientes reais compartilham suas jornadas de transformação
+            </p>
+          </div>
+
+          {/* TODO: Criar carrossel de antes/depois com fotos reais autorizadas */}
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              { name: "Ana Carolina, 28", time: "8 meses", rating: 5 },
+              { name: "Pedro Silva, 34", time: "10 meses", rating: 5 },
+              { name: "Juliana Santos, 42", time: "12 meses", rating: 5 }
+            ].map((patient, i) => (
+              <Card key={i} className="bg-white/10 backdrop-blur border-white/20">
+                <CardContent className="p-6">
+                  {/* TODO: Adicionar foto antes/depois */}
+                  <div className="aspect-square bg-white/20 rounded-lg mb-4" />
+                  <div className="flex gap-1 mb-3">
+                    {[...Array(patient.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-white/90 mb-4 italic">
+                    "Resultado incrível! Muito mais barato que Invisalign e qualidade impecável."
+                  </p>
+                  <p className="font-semibold">{patient.name}</p>
+                  <p className="text-sm text-blue-200">Tratamento em {patient.time}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/pacientes/antes-depois">
+                Ver Todos os Resultados
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO 5: SEGMENTAÇÃO POR IDADE */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-heading font-bold text-gray-900 mb-4">
+              Tratamento Para Todas as Idades
+            </h2>
+            <p className="text-xl text-gray-600">
+              Soluções personalizadas para cada fase da vida
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                age: "Crianças",
+                range: "6-12 anos",
+                icon: "🧒",
+                benefits: ["Crescimento guiado", "Previne problemas futuros", "Confortável para crianças"],
+                link: "/pacientes/criancas"
+              },
+              {
+                age: "Adolescentes",
+                range: "13-17 anos",
+                icon: "👦",
+                benefits: ["Discreto na escola", "Sem metal ou fios", "Autoestima preservada"],
+                link: "/pacientes/adolescentes"
+              },
+              {
+                age: "Adultos",
+                range: "18+ anos",
+                icon: "👨‍💼",
+                benefits: ["Invisível no trabalho", "Sem limitações sociais", "Nunca é tarde demais"],
+                link: "/pacientes/adultos"
+              }
+            ].map((segment, i) => (
+              <Card key={i} className="hover:shadow-xl transition-shadow border-2 hover:border-blue-600">
+                <CardContent className="p-8">
+                  <div className="text-6xl mb-4 text-center">{segment.icon}</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2 text-center">{segment.age}</h3>
+                  <p className="text-gray-600 text-center mb-6">{segment.range}</p>
+
+                  <ul className="space-y-3 mb-6">
+                    {segment.benefits.map((benefit, j) => (
+                      <li key={j} className="flex items-start gap-2">
+                        <Check className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50" asChild>
+                    <Link href={segment.link}>Saiba Mais</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO 6: TECNOLOGIA ALEMÃ */}
+      <section className="py-16 md:py-24 bg-gradient-to-br from-blue-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              {/* TODO: Adicionar foto do material PETG + certificações */}
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <Image
+                  src="/placeholder-technology.jpg"
+                  alt="Material PETG Duran alemão com certificações"
+                  width={600}
+                  height={400}
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <Badge className="mb-4 bg-blue-600 text-white">
+                  <Award className="h-4 w-4 mr-2" />
+                  Certificações Internacionais
+                </Badge>
+                <h2 className="text-4xl font-heading font-bold text-gray-900 mb-4">
+                  Tecnologia PETG Duran® Alemã
+                </h2>
+                <p className="text-xl text-gray-600">
+                  Material de grau médico certificado ISO 13485, CE e ANVISA.
+                  A mesma qualidade premium internacional, com preço brasileiro.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { icon: "🇩🇪", title: "Fabricado na Alemanha", desc: "Importado direto, sem intermediários" },
+                  { icon: "🔬", title: "Grau Médico", desc: "Certificado para contato prolongado com tecidos bucais" },
+                  { icon: "✅", title: "ISO 13485 + CE", desc: "Padrão ouro em dispositivos médicos" },
+                  { icon: "🏆", title: "ANVISA Aprovado", desc: "Regulamentado e seguro para uso no Brasil" }
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-4 items-start bg-white p-4 rounded-lg shadow-sm">
+                    <div className="text-3xl">{item.icon}</div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">{item.title}</h4>
+                      <p className="text-gray-600">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
+                <Link href="/tecnologia">
+                  Conheça Nossa Tecnologia
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO 7: LOCALIZADOR DE ORTODONTISTAS */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <DoctorLocator />
+        </div>
+      </section>
+
+      {/* SEÇÃO 8: CTA PARA ORTODONTISTAS */}
+      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full mb-6">
+              <Sparkles className="h-5 w-5" />
+              <span className="font-semibold">Para Ortodontistas</span>
+            </div>
+
+            <h2 className="text-4xl font-heading font-bold mb-4">
+              Seja um Parceiro Atma
+            </h2>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+              Junte-se a <strong>500+ ortodontistas</strong> que já oferecem tecnologia premium
+              aos seus pacientes. <strong>Sem investimento inicial</strong>, suporte completo e
+              margens competitivas.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
+              {[
+                { icon: "💰", title: "Margens Atrativas", desc: "Lucre mais que com laboratórios tradicionais" },
+                { icon: "📦", title: "Estoque Zero", desc: "Produção sob demanda, sem investimento" },
+                { icon: "🎓", title: "Treinamento Completo", desc: "Suporte técnico e capacitação contínua" }
+              ].map((item, i) => (
+                <div key={i} className="bg-white/5 backdrop-blur rounded-xl p-6 border border-white/10">
+                  <div className="text-4xl mb-3">{item.icon}</div>
+                  <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                  <p className="text-gray-400 text-sm">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
+                <Link href="/ortodontistas/parceria">
+                  Quero Ser Parceiro
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8 border-white text-white hover:bg-white/10" asChild>
+                <Link href="/ortodontistas/login">
+                  Já Sou Parceiro - Login
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO 9: CTA FINAL FORTE */}
+      <section className="py-16 md:py-24 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
+            Pronto Para Transformar Seu Sorriso?
+          </h2>
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+            Agende sua <strong>consulta de avaliação 100% gratuita</strong> e descubra
+            como os alinhadores Atma podem mudar sua vida.
+          </p>
+
+          <Button
+            size="lg"
+            variant="secondary"
+            className="text-xl px-12 py-8 shadow-2xl hover:shadow-3xl transition-all"
+            asChild
+          >
+            <Link href="/pacientes/agendar">
+              Agendar Consulta Gratuita Agora
+              <ChevronRight className="ml-2 h-6 w-6" />
+            </Link>
+          </Button>
+
+          <p className="text-sm text-blue-200 mt-6">
+            ✨ Sem compromisso • Avaliação completa • Simulação 3D incluída
+          </p>
+        </div>
+      </section>
+    </>
   )
 }
