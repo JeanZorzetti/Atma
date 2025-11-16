@@ -287,7 +287,7 @@ class GoogleSearchConsoleService {
   async checkForAlerts(date, currentMetrics) {
     try {
       // Get previous day metrics
-      const [previousRows] = await db.query(
+      const previousRows = await executeQuery(
         `SELECT * FROM seo_metrics_history
          WHERE date < ?
          ORDER BY date DESC

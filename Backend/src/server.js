@@ -95,6 +95,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
 // Request tracking middleware
 app.use((req, res, next) => {
   serviceMonitor.recordRequest();
