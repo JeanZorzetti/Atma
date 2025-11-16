@@ -194,18 +194,10 @@ export default function QuizPage() {
                 <Button
                   size="lg"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
-                  onClick={() => router.push('/pacientes/agendar')}
-                >
-                  Agendar Consulta Gratuita Agora
-                  <ChevronRight className="ml-2 h-5 w-5" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
                   onClick={() => router.push('/pacientes/encontre-doutor')}
                 >
                   Encontrar Ortodontista Perto de Mim
+                  <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
 
