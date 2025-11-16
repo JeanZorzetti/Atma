@@ -28,7 +28,7 @@ const treatmentSteps = [
     step: 1,
     title: "Consulta Gratuita",
     description: "Agende sua avaliação sem compromisso. Escaneamento 3D indolor e simulação do resultado final.",
-    image: "/placeholder-scan.jpg", // TODO: Adicionar foto real do escaneamento 3D
+    image: "/assets/images/products/alinhador-invisível-mitos-e-verdades.jpg",
     details: [
       "Sem necessidade de massa (escaneamento digital)",
       "Simulação 3D do resultado em minutos",
@@ -40,7 +40,7 @@ const treatmentSteps = [
     step: 2,
     title: "Receba Seus Alinhadores",
     description: "Fabricados sob medida com PETG alemão de grau médico. Entrega em 2-3 semanas.",
-    image: "/placeholder-aligners.jpg", // TODO: Adicionar foto dos alinhadores Atma
+    image: "/assets/images/products/Gemini_Generated_Image_ktkv4fktkv4fktkv.png",
     details: [
       "Produção 100% personalizada",
       "Material certificado para uso médico",
@@ -52,7 +52,7 @@ const treatmentSteps = [
     step: 3,
     title: "Acompanhamento e Resultado",
     description: "Consultas a cada 4-6 semanas. Veja seu sorriso evoluir semana após semana.",
-    image: "/placeholder-result.jpg", // TODO: Adicionar antes/depois real
+    image: "/assets/images/patients/3G8XV52i8e0ieAwhSgisebS4Yvy0dTS3Bf80K0Aj.jpeg",
     details: [
       "Consultas presenciais ou online",
       "Troca de alinhadores a cada 7-14 dias",
@@ -155,9 +155,8 @@ export default function HomePage() {
             {/* Coluna Direita - Imagem */}
             <div className="relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                {/* TODO: SUBSTITUIR por foto real de paciente usando alinhador Atma */}
                 <Image
-                  src="/placeholder-patient-smiling.jpg"
+                  src="/assets/images/patients/alinhadores-invisiveis-avaliacao-gratuita.jpg"
                   alt="Paciente feliz usando alinhador invisível Atma"
                   width={600}
                   height={700}
@@ -379,10 +378,9 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              {/* TODO: Adicionar foto do material PETG + certificações */}
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/placeholder-technology.jpg"
+                  src="/assets/images/patients/alinhadores-transparentes-1000x667.jpg_0.webp"
                   alt="Material PETG Duran alemão com certificações"
                   width={600}
                   height={400}

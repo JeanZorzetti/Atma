@@ -70,7 +70,7 @@ export default function AdultosPage() {
             <div className="relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/placeholder-adult-professional.jpg"
+                  src="/assets/images/patients/alinhadores-invisiveis-avaliacao-gratuita.jpg"
                   alt="Adulto profissional com sorriso confiante"
                   width={600}
                   height={700}
