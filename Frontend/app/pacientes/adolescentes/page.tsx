@@ -94,7 +94,7 @@ export default function AdolescentesPage() {
             <div className="relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/assets/images/patients/alinhadores-invisiveis-avaliacao-gratuita.jpg"
+                  src="/images/patients/alinhadores-invisiveis-avaliacao-gratuita.jpg"
                   alt="Adolescente feliz com alinhador invisível"
                   width={600}
                   height={700}

@@ -78,7 +78,7 @@ export default function CriancasPage() {
             <div className="relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/assets/images/patients/alinhadores-invisiveis-avaliacao-gratuita.jpg"
+                  src="/images/patients/alinhadores-invisiveis-avaliacao-gratuita.jpg"
                   alt="Criança feliz com alinhador invisível"
                   width={600}
                   height={700}
@@ -244,7 +244,7 @@ export default function CriancasPage() {
 
             <div className="relative">
               <Image
-                src="/assets/images/patients/3G8XV52i8e0ieAwhSgisebS4Yvy0dTS3Bf80K0Aj.jpeg"
+                src="/images/patients/3G8XV52i8e0ieAwhSgisebS4Yvy0dTS3Bf80K0Aj.jpeg"
                 alt="Criança escovando dentes com alinhador"
                 width={600}
                 height={600}

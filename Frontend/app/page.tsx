@@ -28,7 +28,7 @@ const treatmentSteps = [
     step: 1,
     title: "Consulta Gratuita",
     description: "Agende sua avaliação sem compromisso. Escaneamento 3D indolor e simulação do resultado final.",
-    image: "/assets/images/products/alinhador-invisivel-mitos-e-verdades.jpg",
+    image: "/images/products/alinhador-invisivel-mitos-e-verdades.jpg",
     details: [
       "Sem necessidade de massa (escaneamento digital)",
       "Simulação 3D do resultado em minutos",
@@ -40,7 +40,7 @@ const treatmentSteps = [
     step: 2,
     title: "Receba Seus Alinhadores",
     description: "Fabricados sob medida com PETG alemão de grau médico. Entrega em 2-3 semanas.",
-    image: "/assets/images/products/Gemini_Generated_Image_ktkv4fktkv4fktkv.png",
+    image: "/images/products/Gemini_Generated_Image_ktkv4fktkv4fktkv.png",
     details: [
       "Produção 100% personalizada",
       "Material certificado para uso médico",
@@ -52,7 +52,7 @@ const treatmentSteps = [
     step: 3,
     title: "Acompanhamento e Resultado",
     description: "Consultas a cada 4-6 semanas. Veja seu sorriso evoluir semana após semana.",
-    image: "/assets/images/patients/3G8XV52i8e0ieAwhSgisebS4Yvy0dTS3Bf80K0Aj.jpeg",
+    image: "/images/patients/3G8XV52i8e0ieAwhSgisebS4Yvy0dTS3Bf80K0Aj.jpeg",
     details: [
       "Consultas presenciais ou online",
       "Troca de alinhadores a cada 7-14 dias",
@@ -156,7 +156,7 @@ export default function HomePage() {
             <div className="relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/assets/images/patients/alinhadores-invisiveis-avaliacao-gratuita.jpg"
+                  src="/images/patients/alinhadores-invisiveis-avaliacao-gratuita.jpg"
                   alt="Paciente feliz usando alinhador invisível Atma"
                   width={600}
                   height={700}
@@ -380,7 +380,7 @@ export default function HomePage() {
             <div>
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/assets/images/patients/alinhadores-transparentes-1000x667.jpg_0.webp"
+                  src="/images/patients/alinhadores-transparentes-1000x667.jpg_0.webp"
                   alt="Material PETG Duran alemão com certificações"
                   width={600}
                   height={400}

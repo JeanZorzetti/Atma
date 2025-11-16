@@ -81,7 +81,7 @@ export default function TecnologiaPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
             <div>
               <Image
-                src="/assets/images/patients/alinhadores-transparentes-1000x667.jpg_0.webp"
+                src="/images/patients/alinhadores-transparentes-1000x667.jpg_0.webp"
                 alt="Material PETG Duran alemão"
                 width={600}
                 height={600}
