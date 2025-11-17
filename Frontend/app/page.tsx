@@ -278,14 +278,21 @@ export default function HomePage() {
           {/* TODO: Criar carrossel de antes/depois com fotos reais autorizadas */}
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
-              { name: "Ana Carolina, 28", time: "8 meses", rating: 5 },
-              { name: "Pedro Silva, 34", time: "10 meses", rating: 5 },
-              { name: "Juliana Santos, 42", time: "12 meses", rating: 5 }
+              { name: "Ana Carolina, 28", time: "8 meses", rating: 5, image: "/images/testimonials/como-ter-um-sorriso-bonito.jpg" },
+              { name: "Pedro Silva, 34", time: "10 meses", rating: 5, image: "/images/testimonials/homem-bonito-posando-e-sorrindo_23-2149396133.avif" },
+              { name: "Juliana Santos, 42", time: "12 meses", rating: 5, image: "/images/testimonials/SorrisosOdontologia-1643897220voce-gostaria-de-ter-um-sorriso-bonito-.webp" }
             ].map((patient, i) => (
               <Card key={i} className="bg-white/10 backdrop-blur border-white/20">
                 <CardContent className="p-6">
-                  {/* TODO: Adicionar foto antes/depois */}
-                  <div className="aspect-square bg-white/20 rounded-lg mb-4" />
+                  <div className="aspect-square bg-white/20 rounded-lg mb-4 overflow-hidden">
+                    <Image
+                      src={patient.image}
+                      alt={`Paciente ${patient.name} - Resultado do tratamento`}
+                      width={400}
+                      height={400}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <div className="flex gap-1 mb-3">
                     {[...Array(patient.rating)].map((_, i) => (
                       <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
