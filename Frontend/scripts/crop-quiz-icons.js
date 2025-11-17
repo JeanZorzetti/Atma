@@ -35,6 +35,11 @@ async function cropIcons() {
     try {
       const outputPath = path.join(outputDir, `${icon.name}.png`);
 
+      // Margens muito generosas para remover TUDO: bordas, textos, cantos arredondados
+      const topMargin = 50;     // Remover texto superior + margem
+      const bottomMargin = 38;  // Remover borda inferior + margem
+      const sideMargin = 35;    // Remover bordas laterais + cantos arredondados
+
       // Recortar e remover bordas/fundo
       await sharp(inputImage)
         .extract({
@@ -43,15 +48,23 @@ async function cropIcons() {
           width: icon.width,
           height: icon.height
         })
-        // Adicionar margem interna para cortar as bordas azuis (15px de cada lado)
+        // Cortar margens internas para remover bordas e textos
         .extract({
-          left: 15,
-          top: 15,
-          width: icon.width - 30,
-          height: icon.height - 30
+          left: sideMargin,
+          top: topMargin,
+          width: icon.width - (sideMargin * 2),
+          height: icon.height - topMargin - bottomMargin
         })
-        // Remover fundo branco/claro e manter apenas a ilustração preta
+        // Remover fundo e manter apenas ilustração
         .flatten({ background: { r: 255, g: 255, b: 255 } })
+        // Adicionar pequeno padding branco ao redor
+        .extend({
+          top: 10,
+          bottom: 10,
+          left: 10,
+          right: 10,
+          background: { r: 255, g: 255, b: 255, alpha: 1 }
+        })
         .toFile(outputPath);
 
       console.log(`✅ ${icon.label}: ${icon.name}.png`);
