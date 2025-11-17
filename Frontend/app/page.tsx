@@ -230,7 +230,7 @@ export default function HomePage() {
                   </div>
 
                   <Button className={`w-full ${plan.featured ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-900 hover:bg-gray-800'}`} asChild>
-                    <Link href="/pacientes/agendar">Agendar Avaliação</Link>
+                    <Link href="/pacientes/encontre-doutor">Agendar Avaliação</Link>
                   </Button>
                 </CardContent>
               </Card>
