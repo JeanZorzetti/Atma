@@ -446,55 +446,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SEÇÃO 8: CTA PARA ORTODONTISTAS */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full mb-6">
-              <Sparkles className="h-5 w-5" />
-              <span className="font-semibold">Para Ortodontistas</span>
-            </div>
-
-            <h2 className="text-4xl font-heading font-bold mb-4">
-              Seja um Parceiro Atma
-            </h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Junte-se a <strong>500+ ortodontistas</strong> que já oferecem tecnologia premium
-              aos seus pacientes. <strong>Sem investimento inicial</strong>, suporte completo e
-              margens competitivas.
-            </p>
-
-            <div className="grid md:grid-cols-3 gap-6 mb-10">
-              {[
-                { icon: "💰", title: "Margens Atrativas", desc: "Lucre mais que com laboratórios tradicionais" },
-                { icon: "📦", title: "Estoque Zero", desc: "Produção sob demanda, sem investimento" },
-                { icon: "🎓", title: "Treinamento Completo", desc: "Suporte técnico e capacitação contínua" }
-              ].map((item, i) => (
-                <div key={i} className="bg-white/5 backdrop-blur rounded-xl p-6 border border-white/10">
-                  <div className="text-4xl mb-3">{item.icon}</div>
-                  <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                  <p className="text-gray-400 text-sm">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
-                <Link href="/ortodontistas/parceria">
-                  Quero Ser Parceiro
-                  <ChevronRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 border-white text-white hover:bg-white/10" asChild>
-                <Link href="/ortodontistas/login">
-                  Já Sou Parceiro - Login
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* SEÇÃO 9: CTA FINAL FORTE */}
       <section className="py-16 md:py-24 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <div className="container mx-auto px-4 text-center">
