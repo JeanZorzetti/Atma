@@ -115,7 +115,7 @@ export default function HomePage() {
                   className="text-lg px-8 py-6 bg-blue-600 hover:bg-blue-700 shadow-xl hover:shadow-2xl transition-all"
                   asChild
                 >
-                  <Link href="/pacientes/agendar">
+                  <Link href="/pacientes/encontre-doutor">
                     Agendar Consulta Gratuita
                     <ChevronRight className="ml-2 h-5 w-5" />
                   </Link>
