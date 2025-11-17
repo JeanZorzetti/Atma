@@ -29,12 +29,13 @@ const icons = [
 ];
 
 async function cropIcons() {
-  console.log('📸 Iniciando recorte dos ícones dentais...\n');
+  console.log('📸 Iniciando recorte e limpeza dos ícones dentais...\n');
 
   for (const icon of icons) {
     try {
       const outputPath = path.join(outputDir, `${icon.name}.png`);
 
+      // Recortar e remover bordas/fundo
       await sharp(inputImage)
         .extract({
           left: icon.left,
@@ -42,15 +43,24 @@ async function cropIcons() {
           width: icon.width,
           height: icon.height
         })
+        // Adicionar margem interna para cortar as bordas azuis (15px de cada lado)
+        .extract({
+          left: 15,
+          top: 15,
+          width: icon.width - 30,
+          height: icon.height - 30
+        })
+        // Remover fundo branco/claro e manter apenas a ilustração preta
+        .flatten({ background: { r: 255, g: 255, b: 255 } })
         .toFile(outputPath);
 
       console.log(`✅ ${icon.label}: ${icon.name}.png`);
     } catch (error) {
-      console.error(`❌ Erro ao recortar ${icon.label}:`, error.message);
+      console.error(`❌ Erro ao processar ${icon.label}:`, error.message);
     }
   }
 
-  console.log('\n🎉 Recorte concluído! Imagens salvas em:', outputDir);
+  console.log('\n🎉 Recorte e limpeza concluídos! Imagens salvas em:', outputDir);
 }
 
 cropIcons();
