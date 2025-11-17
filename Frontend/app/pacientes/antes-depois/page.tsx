@@ -33,8 +33,8 @@ export default function AntesDepoisPage() {
       rating: 5,
       depoimento:
         "Não acreditava que seria possível ter um sorriso tão bonito. O tratamento foi muito mais fácil do que imaginava!",
-      antes: "/teeth-before-crowding.png",
-      depois: "/straight-smile-results.png",
+      antes: "/images/resultados/160315144855-amos-dudley-before-after-780x439-1.jpg",
+      depois: "/images/resultados/160315144855-amos-dudley-before-after-780x439-1.jpg",
     },
     {
       id: 2,
@@ -45,8 +45,8 @@ export default function AntesDepoisPage() {
       problema: "Diastema central",
       rating: 5,
       depoimento: "Fechei o espaço entre os dentes sem ninguém perceber que estava fazendo tratamento. Incrível!",
-      antes: "/teeth-gap-before.png",
-      depois: "/teeth-closed-gap-after.png",
+      antes: "/images/resultados/aparelho-transparente-invisalign-antes-depois-paciente-ipanema-01 (1).webp",
+      depois: "/images/resultados/aparelho-transparente-invisalign-antes-depois-paciente-ipanema-01 (1).webp",
     },
     {
       id: 3,
@@ -57,8 +57,8 @@ export default function AntesDepoisPage() {
       problema: "Sobremordida",
       rating: 5,
       depoimento: "Minha autoestima mudou completamente. Agora sorrio sem vergonha e me sinto muito mais confiante!",
-      antes: "/overbite-teeth-before.png",
-      depois: "/perfect-bite-teeth-after.png",
+      antes: "/images/resultados/apinhamento-dentario-antes-e-depois.jpg",
+      depois: "/images/resultados/apinhamento-dentario-antes-e-depois.jpg",
     },
     {
       id: 4,
@@ -70,8 +70,8 @@ export default function AntesDepoisPage() {
       rating: 5,
       depoimento:
         "Nunca pensei que aos 42 anos faria ortodontia. Com os alinhadores foi discreto e o resultado superou minhas expectativas.",
-      antes: "/placeholder-9a44n.png",
-      depois: "/straight-aligned-teeth-after.png",
+      antes: "/images/resultados/download (2).jpg",
+      depois: "/images/resultados/download (2).jpg",
     },
     {
       id: 5,
@@ -83,8 +83,8 @@ export default function AntesDepoisPage() {
       rating: 5,
       depoimento:
         "O tratamento foi muito confortável. Consegui manter minha rotina normal e ninguém notava os alinhadores.",
-      antes: "/rotated-teeth-before.png",
-      depois: "/aligned-teeth-after.png",
+      antes: "/images/resultados/download (3).jpg",
+      depois: "/images/resultados/download (3).jpg",
     },
     {
       id: 6,
@@ -95,8 +95,8 @@ export default function AntesDepoisPage() {
       problema: "Mordida cruzada",
       rating: 5,
       depoimento: "Além do sorriso bonito, melhorou minha mastigação. Valeu cada centavo investido no meu sorriso!",
-      antes: "/placeholder.svg?height=300&width=300",
-      depois: "/placeholder.svg?height=300&width=300",
+      antes: "/images/resultados/montagem-TRATADA-optimized (1).webp",
+      depois: "/images/resultados/montagem-TRATADA-optimized (1).webp",
     },
   ]
 
