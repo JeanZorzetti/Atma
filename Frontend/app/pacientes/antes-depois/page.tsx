@@ -25,7 +25,7 @@ export default function AntesDepoisPage() {
   const casos = [
     {
       id: 1,
-      nome: "Maria Silva",
+      nome: "Carlos Silva",
       idade: 28,
       cidade: "São Paulo, SP",
       duracao: "8 meses",
@@ -38,7 +38,7 @@ export default function AntesDepoisPage() {
     },
     {
       id: 2,
-      nome: "João Santos",
+      nome: "Marina Santos",
       idade: 35,
       cidade: "Rio de Janeiro, RJ",
       duracao: "12 meses",
