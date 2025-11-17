@@ -10,6 +10,21 @@ import { useRouter } from "next/navigation"
 const questions = [
   {
     id: 1,
+    question: "Qual das opções abaixo melhor descreve o seu sorriso atual?",
+    type: "visual-selection",
+    options: [
+      { value: "Dentes Apinhados", label: "Dentes Apinhados", description: "Dentes amontoados ou sobrepostos", icon: "🦷" },
+      { value: "Diastema", label: "Diastema", description: "Espaços entre os dentes", icon: "😬" },
+      { value: "Sobremordida", label: "Sobremordida", description: "Dentes superiores cobrem os inferiores", icon: "😁" },
+      { value: "Mordida Cruzada", label: "Mordida Cruzada", description: "Desalinhamento dos maxilares", icon: "😐" },
+      { value: "Mordida Aberta", label: "Mordida Aberta", description: "Dentes não se tocam ao fechar", icon: "😮" },
+      { value: "Prognatismo", label: "Prognatismo", description: "Mandíbula projetada para frente", icon: "🫤" },
+      { value: "Alinhamento Geral", label: "Alinhamento Geral", description: "Problemas estéticos gerais", icon: "😊" },
+      { value: "Não tenho certeza", label: "Não tenho certeza", description: "Preciso de avaliação profissional", icon: "🤔" }
+    ]
+  },
+  {
+    id: 2,
     question: "Qual é o seu principal objetivo com o tratamento ortodôntico?",
     options: [
       "Corrigir dentes tortos ou desalinhados",
@@ -19,7 +34,7 @@ const questions = [
     ]
   },
   {
-    id: 2,
+    id: 3,
     question: "Você já usou aparelho ortodôntico antes?",
     options: [
       "Não, nunca usei",
@@ -29,7 +44,7 @@ const questions = [
     ]
   },
   {
-    id: 3,
+    id: 4,
     question: "Qual é a sua faixa etária?",
     options: [
       "Até 17 anos",
@@ -39,7 +54,7 @@ const questions = [
     ]
   },
   {
-    id: 4,
+    id: 5,
     question: "Qual é o seu principal critério de escolha?",
     options: [
       "Preço acessível e parcelamento",
@@ -49,7 +64,7 @@ const questions = [
     ]
   },
   {
-    id: 5,
+    id: 6,
     question: "Em quanto tempo você gostaria de ver resultados?",
     options: [
       "Até 6 meses",
@@ -59,7 +74,7 @@ const questions = [
     ]
   },
   {
-    id: 6,
+    id: 7,
     question: "Qual valor você está disposto a investir mensalmente?",
     options: [
       "Até R$ 200/mês",
@@ -95,8 +110,8 @@ export default function QuizPage() {
   }
 
   const getRecommendation = () => {
-    const ageAnswer = answers[3]
-    const budgetAnswer = answers[6]
+    const ageAnswer = answers[4]
+    const budgetAnswer = answers[7]
 
     if (budgetAnswer === "Até R$ 200/mês") {
       return {
@@ -242,38 +257,67 @@ export default function QuizPage() {
               {currentQ.question}
             </h2>
 
-            <div className="space-y-4 mb-10">
-              {currentQ.options.map((option, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleAnswer(option)}
-                  className={`w-full text-left p-5 rounded-xl border-2 transition-all hover:border-blue-600 hover:bg-blue-50 ${
-                    answers[currentQ.id] === option
-                      ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-600 ring-opacity-50'
-                      : 'border-gray-200'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      answers[currentQ.id] === option
-                        ? 'border-blue-600 bg-blue-600'
-                        : 'border-gray-300'
-                    }`}>
-                      {answers[currentQ.id] === option && (
-                        <Check className="h-4 w-4 text-white" />
+            {/* Visual Selection for Question 1 */}
+            {currentQ.type === 'visual-selection' ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                {currentQ.options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswer(option.value)}
+                    className={`p-4 rounded-xl border-2 transition-all hover:border-blue-600 hover:bg-blue-50 ${
+                      answers[currentQ.id] === option.value
+                        ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-600 ring-opacity-50'
+                        : 'border-gray-200'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center text-center gap-3">
+                      <div className="text-5xl mb-2">{option.icon}</div>
+                      <div className="font-semibold text-sm text-gray-900">{option.label}</div>
+                      <div className="text-xs text-gray-600 leading-tight">{option.description}</div>
+                      {answers[currentQ.id] === option.value && (
+                        <div className="mt-2 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
+                          <Check className="h-4 w-4 text-white" />
+                        </div>
                       )}
                     </div>
-                    <span className={`text-lg ${
+                  </button>
+                ))}
+              </div>
+            ) : (
+              /* Text Options for Questions 2-7 */
+              <div className="space-y-4 mb-10">
+                {currentQ.options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswer(option)}
+                    className={`w-full text-left p-5 rounded-xl border-2 transition-all hover:border-blue-600 hover:bg-blue-50 ${
                       answers[currentQ.id] === option
-                        ? 'text-blue-600 font-semibold'
-                        : 'text-gray-700'
-                    }`}>
-                      {option}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
+                        ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-600 ring-opacity-50'
+                        : 'border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        answers[currentQ.id] === option
+                          ? 'border-blue-600 bg-blue-600'
+                          : 'border-gray-300'
+                      }`}>
+                        {answers[currentQ.id] === option && (
+                          <Check className="h-4 w-4 text-white" />
+                        )}
+                      </div>
+                      <span className={`text-lg ${
+                        answers[currentQ.id] === option
+                          ? 'text-blue-600 font-semibold'
+                          : 'text-gray-700'
+                      }`}>
+                        {option}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="flex gap-4">
               {currentQuestion > 0 && (
