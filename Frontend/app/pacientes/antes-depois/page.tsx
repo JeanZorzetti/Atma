@@ -184,32 +184,15 @@ export default function AntesDepoisPage() {
             {casos.map((caso) => (
               <Card key={caso.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                 <CardContent className="p-0">
-                  {/* Before/After Images */}
-                  <div className="grid grid-cols-2">
-                    <div className="relative">
-                      <Image
-                        src={caso.antes || "/placeholder.svg"}
-                        alt={`Dentes antes do tratamento com alinhador invisível - caso de ${caso.problema.toLowerCase()}`}
-                        width={300}
-                        height={200}
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-                        Antes
-                      </div>
-                    </div>
-                    <div className="relative">
-                      <Image
-                        src={caso.depois || "/placeholder.svg"}
-                        alt={`Resultado após tratamento com alinhador invisível Atma - ${caso.problema.toLowerCase()} corrigido em ${caso.duracao}`}
-                        width={300}
-                        height={200}
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-sm font-medium">
-                        Depois
-                      </div>
-                    </div>
+                  {/* Before/After Image - Full */}
+                  <div className="relative">
+                    <Image
+                      src={caso.antes || "/placeholder.svg"}
+                      alt={`Antes e depois do tratamento com alinhador invisível - ${caso.problema.toLowerCase()} - ${caso.nome}`}
+                      width={600}
+                      height={300}
+                      className="w-full h-auto object-cover"
+                    />
                   </div>
 
                   {/* Case Info */}
