@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ChevronRight, ChevronLeft, Check } from "lucide-react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 const questions = [
   {
@@ -13,14 +14,14 @@ const questions = [
     question: "Qual das opções abaixo melhor descreve o seu sorriso atual?",
     type: "visual-selection",
     options: [
-      { value: "Dentes Apinhados", label: "Dentes Apinhados", description: "Dentes amontoados ou sobrepostos", icon: "🦷" },
-      { value: "Diastema", label: "Diastema", description: "Espaços entre os dentes", icon: "😬" },
-      { value: "Sobremordida", label: "Sobremordida", description: "Dentes superiores cobrem os inferiores", icon: "😁" },
-      { value: "Mordida Cruzada", label: "Mordida Cruzada", description: "Desalinhamento dos maxilares", icon: "😐" },
-      { value: "Mordida Aberta", label: "Mordida Aberta", description: "Dentes não se tocam ao fechar", icon: "😮" },
-      { value: "Prognatismo", label: "Prognatismo", description: "Mandíbula projetada para frente", icon: "🫤" },
-      { value: "Alinhamento Geral", label: "Alinhamento Geral", description: "Problemas estéticos gerais", icon: "😊" },
-      { value: "Não tenho certeza", label: "Não tenho certeza", description: "Preciso de avaliação profissional", icon: "🤔" }
+      { value: "Dentes Apinhados", label: "Dentes Apinhados", description: "Dentes amontoados ou sobrepostos", image: "/images/quiz/dentes-apinhados.png" },
+      { value: "Diastema", label: "Diastema", description: "Espaços entre os dentes", image: "/images/quiz/diastema.png" },
+      { value: "Sobremordida", label: "Sobremordida", description: "Dentes superiores cobrem os inferiores", image: "/images/quiz/sobremordida.png" },
+      { value: "Mordida Cruzada", label: "Mordida Cruzada", description: "Desalinhamento dos maxilares", image: "/images/quiz/mordida-cruzada.png" },
+      { value: "Mordida Aberta", label: "Mordida Aberta", description: "Dentes não se tocam ao fechar", image: "/images/quiz/mordida-aberta.png" },
+      { value: "Prognatismo", label: "Prognatismo", description: "Mandíbula projetada para frente", image: "/images/quiz/prognatismo.png" },
+      { value: "Alinhamento Geral", label: "Alinhamento Geral", description: "Problemas estéticos gerais", image: "/images/quiz/alinhamento-geral.png" },
+      { value: "Não tenho certeza", label: "Não tenho certeza", description: "Preciso de avaliação profissional", image: "/images/quiz/denticao-mista.png" }
     ]
   },
   {
@@ -264,19 +265,25 @@ export default function QuizPage() {
                   <button
                     key={index}
                     onClick={() => handleAnswer(option.value)}
-                    className={`p-4 rounded-xl border-2 transition-all hover:border-blue-600 hover:bg-blue-50 ${
+                    className={`p-3 rounded-xl border-2 transition-all hover:border-blue-600 hover:bg-blue-50 ${
                       answers[currentQ.id] === option.value
                         ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-600 ring-opacity-50'
                         : 'border-gray-200'
                     }`}
                   >
-                    <div className="flex flex-col items-center text-center gap-3">
-                      <div className="text-5xl mb-2">{option.icon}</div>
-                      <div className="font-semibold text-sm text-gray-900">{option.label}</div>
-                      <div className="text-xs text-gray-600 leading-tight">{option.description}</div>
+                    <div className="flex flex-col items-center text-center gap-2">
+                      <div className="w-full aspect-[249/176] relative mb-1">
+                        <Image
+                          src={option.image}
+                          alt={option.label}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div className="font-semibold text-xs text-gray-900">{option.label}</div>
                       {answers[currentQ.id] === option.value && (
-                        <div className="mt-2 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
-                          <Check className="h-4 w-4 text-white" />
+                        <div className="mt-1 w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                          <Check className="h-3 w-3 text-white" />
                         </div>
                       )}
                     </div>
