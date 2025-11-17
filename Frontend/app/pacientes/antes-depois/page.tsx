@@ -50,7 +50,7 @@ export default function AntesDepoisPage() {
     },
     {
       id: 3,
-      nome: "Ana Costa",
+      nome: "Rafael Costa",
       idade: 24,
       cidade: "Belo Horizonte, MG",
       duracao: "10 meses",
