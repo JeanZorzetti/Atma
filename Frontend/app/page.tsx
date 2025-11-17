@@ -319,67 +319,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SEÇÃO 5: SEGMENTAÇÃO POR IDADE */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-heading font-bold text-gray-900 mb-4">
-              Tratamento Para Todas as Idades
-            </h2>
-            <p className="text-xl text-gray-600">
-              Soluções personalizadas para cada fase da vida
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                age: "Crianças",
-                range: "6-12 anos",
-                icon: "🧒",
-                benefits: ["Crescimento guiado", "Previne problemas futuros", "Confortável para crianças"],
-                link: "/pacientes/criancas"
-              },
-              {
-                age: "Adolescentes",
-                range: "13-17 anos",
-                icon: "👦",
-                benefits: ["Discreto na escola", "Sem metal ou fios", "Autoestima preservada"],
-                link: "/pacientes/adolescentes"
-              },
-              {
-                age: "Adultos",
-                range: "18+ anos",
-                icon: "👨‍💼",
-                benefits: ["Invisível no trabalho", "Sem limitações sociais", "Nunca é tarde demais"],
-                link: "/pacientes/adultos"
-              }
-            ].map((segment, i) => (
-              <Card key={i} className="hover:shadow-xl transition-shadow border-2 hover:border-blue-600">
-                <CardContent className="p-8">
-                  <div className="text-6xl mb-4 text-center">{segment.icon}</div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2 text-center">{segment.age}</h3>
-                  <p className="text-gray-600 text-center mb-6">{segment.range}</p>
-
-                  <ul className="space-y-3 mb-6">
-                    {segment.benefits.map((benefit, j) => (
-                      <li key={j} className="flex items-start gap-2">
-                        <Check className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50" asChild>
-                    <Link href={segment.link}>Saiba Mais</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* SEÇÃO 6: TECNOLOGIA ALEMÃ */}
       <section className="py-16 md:py-24 bg-gradient-to-br from-blue-50 to-white">
         <div className="container mx-auto px-4">
