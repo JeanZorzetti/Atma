@@ -104,9 +104,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
-
 // Request tracking middleware
 app.use((req, res, next) => {
   serviceMonitor.recordRequest();
@@ -160,6 +157,27 @@ app.use((req, res, next) => {
   next();
 });
 
+// Handle preflight requests explicitly - ANTES de tudo
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  logger.info(`🔍 OPTIONS preflight from: ${origin}`);
+
+  if (origin && (allowedOrigins.includes(origin) || (origin.endsWith('.vercel.app') && allowedOrigins.includes('https://*.vercel.app')))) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With,Accept');
+    res.header('Access-Control-Max-Age', '86400'); // Cache preflight for 24h
+    res.header('Vary', 'Origin');
+    logger.info(`✅ OPTIONS 200 sent for: ${origin}`);
+    return res.status(200).end();
+  } else {
+    res.header('Vary', 'Origin');
+    logger.warn(`❌ OPTIONS 403 for: ${origin}`);
+    return res.status(403).end();
+  }
+});
+
 // Security middleware - APÓS CORS
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
@@ -167,31 +185,11 @@ app.use(helmet({
 }));
 app.use(compression());
 
-// Rate limiting
+// Rate limiting - APÓS OPTIONS handler
 app.use(generalLimiter);
 
 // Logging
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
-
-// Handle preflight requests explicitly
-app.options('*', (req, res) => {
-  const origin = req.headers.origin;
-  logger.info(`🔍 OPTIONS request from: ${origin}`);
-  
-  if (origin && (allowedOrigins.includes(origin) || (origin.endsWith('.vercel.app') && allowedOrigins.includes('https://*.vercel.app')))) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With,Accept');
-    res.header('Vary', 'Origin'); // Critical for caching with CORS
-    res.status(200).end();
-    logger.info(`✅ OPTIONS response sent for: ${origin}`);
-  } else {
-    res.header('Vary', 'Origin'); // Always add Vary header
-    res.status(403).end();
-    logger.warn(`❌ OPTIONS request rejected for: ${origin}`);
-  }
-});
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
