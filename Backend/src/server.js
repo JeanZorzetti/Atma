@@ -54,7 +54,16 @@ logger.info('🔗 CORS Origins permitidas:', {
 });
 
 // CORS configuration - ANTES de outros middlewares
-const defaultOrigins = ['http://localhost:3000', 'https://atma.roilabs.com.br', 'https://atmaadmin.roilabs.com.br', 'https://roilabs.com.br'];
+const defaultOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://atma.roilabs.com.br',
+  'https://www.atma.roilabs.com.br',
+  'https://atmaadmin.roilabs.com.br',
+  'https://atmaapi.roilabs.com.br',
+  'https://roilabs.com.br',
+  'https://www.roilabs.com.br'
+];
 const allowedOrigins = process.env.ALLOWED_ORIGINS ?
   [...defaultOrigins, ...process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())] :
   defaultOrigins;
