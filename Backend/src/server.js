@@ -45,13 +45,14 @@ const initializeDatabase = async () => {
 
 initializeDatabase();
 
-// Log das origins permitidas
-logger.info('🔗 CORS Origins permitidas:', { 
-  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
-  parsed: process.env.ALLOWED_ORIGINS ? 
-    process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()) : 
-    ['http://localhost:3000', 'https://atma.roilabs.com.br', 'https://atmaadmin.roilabs.com.br', 'https://roilabs.com.br']
-});
+// Log das origins permitidas - DETALHADO
+logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+logger.info('🔗 CORS CONFIGURATION AT STARTUP');
+logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+logger.info('📋 ENV ALLOWED_ORIGINS:', process.env.ALLOWED_ORIGINS || 'NOT SET');
+logger.info('📋 Default Origins:', defaultOrigins);
+logger.info('📋 Final Merged allowedOrigins:', allowedOrigins);
+logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
 // CORS configuration - ANTES de outros middlewares
 const defaultOrigins = [
@@ -70,16 +71,22 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS ?
 
 const corsOptions = {
   origin: function (origin, callback) {
+    logger.info('🔐 CORS middleware origin check:', origin || 'NO ORIGIN');
+
     // Permitir requests sem origin (mobile apps, postman, etc.)
-    if (!origin) return callback(null, true);
-    
-    // Verificar origins exatas primeiro
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin) {
+      logger.info('✅ CORS: No origin header - allowing (Postman/mobile)');
       return callback(null, true);
     }
-    
+
+    // Verificar origins exatas primeiro
+    const isExactMatch = allowedOrigins.indexOf(origin) !== -1;
+    if (isExactMatch) {
+      logger.info(`✅ CORS: Exact match found for ${origin}`);
+      return callback(null, true);
+    }
+
     // Verificar patterns com wildcard (especificamente *.vercel.app)
-    // Aceitar qualquer subdomínio .vercel.app se o wildcard estiver na lista
     const hasVercelWildcard = allowedOrigins.some(allowed =>
       allowed === 'https://*.vercel.app' || allowed === 'http://*.vercel.app'
     );
@@ -89,11 +96,17 @@ const corsOptions = {
     ) && hasVercelWildcard;
 
     if (isVercelApp) {
-      logger.info(`✅ CORS permitido para Vercel app: ${origin}`);
+      logger.info(`✅ CORS: Vercel app allowed: ${origin}`);
       return callback(null, true);
     }
-    
-    logger.warn(`CORS blocked origin: ${origin}`, { allowedOrigins, isVercelApp });
+
+    logger.error('❌ CORS BLOCKED:', {
+      origin,
+      allowedOrigins,
+      isExactMatch,
+      hasVercelWildcard,
+      isVercelApp
+    });
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -160,20 +173,44 @@ app.use((req, res, next) => {
 // Handle preflight requests explicitly - ANTES de tudo
 app.options('*', (req, res) => {
   const origin = req.headers.origin;
-  logger.info(`🔍 OPTIONS preflight from: ${origin}`);
 
-  if (origin && (allowedOrigins.includes(origin) || (origin.endsWith('.vercel.app') && allowedOrigins.includes('https://*.vercel.app')))) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With,Accept');
-    res.header('Access-Control-Max-Age', '86400'); // Cache preflight for 24h
-    res.header('Vary', 'Origin');
-    logger.info(`✅ OPTIONS 200 sent for: ${origin}`);
+  logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  logger.info('🔍 OPTIONS PREFLIGHT REQUEST RECEIVED');
+  logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  logger.info('📍 URL:', req.url);
+  logger.info('🌐 Origin:', origin || 'NO ORIGIN HEADER');
+  logger.info('📋 All Headers:', JSON.stringify(req.headers, null, 2));
+  logger.info('🔐 Allowed Origins:', allowedOrigins);
+
+  const isInList = origin && allowedOrigins.includes(origin);
+  const isVercelApp = origin && origin.endsWith('.vercel.app') && allowedOrigins.includes('https://*.vercel.app');
+
+  logger.info('✓ Origin in allowedOrigins?', isInList);
+  logger.info('✓ Is Vercel app?', isVercelApp);
+  logger.info('✓ Will allow?', isInList || isVercelApp);
+
+  if (origin && (isInList || isVercelApp)) {
+    const headers = {
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS,PATCH',
+      'Access-Control-Allow-Headers': 'Content-Type,Authorization,Origin,X-Requested-With,Accept',
+      'Access-Control-Max-Age': '86400',
+      'Vary': 'Origin'
+    };
+
+    Object.entries(headers).forEach(([key, value]) => {
+      res.header(key, value);
+    });
+
+    logger.info('✅ RESPONSE: 200 OK with headers:', headers);
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     return res.status(200).end();
   } else {
     res.header('Vary', 'Origin');
-    logger.warn(`❌ OPTIONS 403 for: ${origin}`);
+    logger.warn('❌ RESPONSE: 403 FORBIDDEN');
+    logger.warn('Reason: Origin not in allowedOrigins list');
+    logger.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     return res.status(403).end();
   }
 });
