@@ -579,7 +579,7 @@ function SEODashboardContent() {
                               {alert.previous_value})
                             </p>
                             <p>
-                              Mudança: <strong>{alert.change_percentage.toFixed(1)}%</strong>
+                              Mudança: <strong>{typeof alert.change_percentage === 'number' ? alert.change_percentage.toFixed(1) : alert.change_percentage || '0.0'}%</strong>
                             </p>
                             <p className="text-xs">
                               Data: {new Date(alert.date).toLocaleDateString('pt-BR')}
