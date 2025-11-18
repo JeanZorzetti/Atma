@@ -45,15 +45,6 @@ const initializeDatabase = async () => {
 
 initializeDatabase();
 
-// Log das origins permitidas - DETALHADO
-logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-logger.info('🔗 CORS CONFIGURATION AT STARTUP');
-logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-logger.info('📋 ENV ALLOWED_ORIGINS:', process.env.ALLOWED_ORIGINS || 'NOT SET');
-logger.info('📋 Default Origins:', defaultOrigins);
-logger.info('📋 Final Merged allowedOrigins:', allowedOrigins);
-logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
 // CORS configuration - ANTES de outros middlewares
 const defaultOrigins = [
   'http://localhost:3000',
@@ -68,6 +59,15 @@ const defaultOrigins = [
 const allowedOrigins = process.env.ALLOWED_ORIGINS ?
   [...defaultOrigins, ...process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())] :
   defaultOrigins;
+
+// Log das origins permitidas - DETALHADO (APÓS declarar as variáveis)
+logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+logger.info('🔗 CORS CONFIGURATION AT STARTUP');
+logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+logger.info('📋 ENV ALLOWED_ORIGINS:', process.env.ALLOWED_ORIGINS || 'NOT SET');
+logger.info('📋 Default Origins:', defaultOrigins);
+logger.info('📋 Final Merged allowedOrigins:', allowedOrigins);
+logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
 const corsOptions = {
   origin: function (origin, callback) {
