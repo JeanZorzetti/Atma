@@ -398,7 +398,7 @@ export default function AlinhadorEventos2026Page() {
             <p className="text-gray-800">
               <strong className="text-red-800">⚠️ IMPORTANTE:</strong> Apenas um ortodontista qualificado pode
               avaliar seu caso específico. As timelines acima são médias. <strong>Agende uma avaliação gratuita
-              o quanto antes</strong> para saber exatamente quanto tempo você precisa.
+                o quanto antes</strong> para saber exatamente quanto tempo você precisa.
             </p>
           </div>
         </section>
@@ -443,7 +443,7 @@ export default function AlinhadorEventos2026Page() {
               <p>
                 <strong>Resultado:</strong> Finalizou em 6,5 meses (setembro 2025). Fez clareamento 2 semanas
                 antes da formatura. <strong className="text-green-600">"Sorri em todas as fotos sem vergonha
-                pela primeira vez na vida!"</strong>
+                  pela primeira vez na vida!"</strong>
               </p>
             </div>
 
@@ -525,8 +525,8 @@ export default function AlinhadorEventos2026Page() {
               </p>
               <p>
                 <strong>Resultado:</strong> Finalizou em 7,5 meses. <strong className="text-green-600">
-                "Escolhi alinhador invisível porque é removível. Tirava nas fotos da formatura e ninguém
-                nem percebeu que estava em tratamento!"</strong>
+                  "Escolhi alinhador invisível porque é removível. Tirava nas fotos da formatura e ninguém
+                  nem percebeu que estava em tratamento!"</strong>
               </p>
             </div>
 
@@ -582,7 +582,7 @@ export default function AlinhadorEventos2026Page() {
               <p>
                 <strong>Resultado:</strong> Finalizou tratamento em novembro de 2025 (13 meses). Fez clareamento
                 em dezembro. <strong className="text-pink-600">"As fotos ficaram INCRÍVEIS. Não parei de sorrir
-                o dia inteiro!"</strong>
+                  o dia inteiro!"</strong>
               </p>
             </div>
 
@@ -625,7 +625,7 @@ export default function AlinhadorEventos2026Page() {
               <p>
                 <strong>Resultado:</strong> Finalizou em junho de 2025, 1 mês antes do casamento.
                 <strong className="text-purple-600"> "Meu marido disse que nunca me viu tão confiante.
-                O sorriso mudou tudo!"</strong>
+                  O sorriso mudou tudo!"</strong>
               </p>
             </div>
 
@@ -656,7 +656,7 @@ export default function AlinhadorEventos2026Page() {
               <p className="mt-4 p-3 bg-white rounded">
                 <strong>🎁 Atma Aligner oferece desconto especial:</strong> Combo alinhador + clareamento
                 com 15% de desconto para noivas e formandos. <Link href="/pacientes" className="text-blue-600 hover:underline">
-                Saiba mais aqui</Link>.
+                  Saiba mais aqui</Link>.
               </p>
             </div>
           </div>
@@ -1067,7 +1067,7 @@ export default function AlinhadorEventos2026Page() {
                 presentes que podem dar. Ao contrário de festa, viagem ou roupas (que são temporários), o
                 alinhador é um investimento que dura a vida toda. Melhora autoestima, confiança profissional
                 e bem-estar. Muitos formandos dizem: <em>"Foi mais importante que a festa de formatura.
-                A festa durou uma noite, o sorriso vai durar para sempre."</em>
+                  A festa durou uma noite, o sorriso vai durar para sempre."</em>
               </p>
             </div>
 

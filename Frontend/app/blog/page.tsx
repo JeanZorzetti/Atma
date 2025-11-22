@@ -14,13 +14,46 @@ export default function BlogPage() {
 
   const posts = [
     {
+      id: "sorriso-autoestima-carreira",
+      title: "O Poder do Sorriso: Impacto na Autoestima e Sucesso Profissional",
+      excerpt: "Seu sorriso pode estar segurando sua promoção? Veja o que a ciência diz sobre a relação entre dentes bonitos, autoconfiança e sucesso na carreira.",
+      date: "2025-01-26",
+      author: "Dr. Rafael Martins",
+      category: "Carreira",
+      featured: true
+    },
+    {
+      id: "alinhadores-invisiveis-adolescentes",
+      title: "Alinhadores Invisíveis para Adolescentes: O Fim do Bullying?",
+      excerpt: "Bullying por causa de aparelho fixo é coisa do passado. Veja como a tecnologia está ajudando adolescentes a sorrirem com confiança.",
+      date: "2025-01-25",
+      author: "Dra. Ana Silva",
+      category: "Teen"
+    },
+    {
+      id: "retencao-pos-tratamento",
+      title: "A Importância da Contenção: Mantendo seu Sorriso Perfeito",
+      excerpt: "Terminou o tratamento? Descubra por que a contenção é vital para evitar que os dentes voltem a entortar. Tipos, cuidados e tempo de uso.",
+      date: "2025-01-27",
+      author: "Dra. Mariana Silva",
+      category: "Manutenção"
+    },
+    {
+      id: "guia-alimentacao-alinhadores",
+      title: "Comendo com Alinhadores: O Guia Definitivo",
+      excerpt: "Pode comer de tudo? Descubra o que pode e não pode, dicas para restaurantes e como manter a higiene fora de casa.",
+      date: "2025-01-28",
+      author: "Equipe Atma Aligner",
+      category: "Lifestyle"
+    },
+    {
       id: "alinhador-invisivel-formatura-casamento-2026",
       title: "Alinhador Invisível para Formatura e Casamento 2026: Ainda Dá Tempo?",
       excerpt: "⏰ URGENTE: Vai se formar ou casar em 2026? Descubra se dá tempo de usar alinhador (6-18 meses). Timeline completa, preços, casos reais. Prazo crítico: início até 15/dez!",
       date: "2025-11-05",
       author: "Equipe Atma Aligner",
       category: "Eventos",
-      featured: true
+      featured: false
     },
     {
       id: "sorriso-perfeito-15-dicas",
@@ -141,8 +174,8 @@ export default function BlogPage() {
   const filteredPosts = useMemo(() => {
     return posts.filter(post => {
       const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           post.author.toLowerCase().includes(searchTerm.toLowerCase())
+        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.author.toLowerCase().includes(searchTerm.toLowerCase())
 
       const matchesCategory = selectedCategory === "todos" || post.category === selectedCategory
 
@@ -252,38 +285,38 @@ export default function BlogPage() {
           {filteredPosts
             .filter(post => post.id !== featuredPost?.id) // Exclude featured post from grid
             .map((post) => (
-            <Card key={post.id} className="group hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
-                  <span className="bg-secondary/10 text-secondary px-2 py-1 rounded text-xs">
-                    {post.category}
-                  </span>
-                  <div className="flex items-center">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    <span>{new Date(post.date).toLocaleDateString('pt-BR')}</span>
+              <Card key={post.id} className="group hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+                    <span className="bg-secondary/10 text-secondary px-2 py-1 rounded text-xs">
+                      {post.category}
+                    </span>
+                    <div className="flex items-center">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      <span>{new Date(post.date).toLocaleDateString('pt-BR')}</span>
+                    </div>
                   </div>
-                </div>
-                <CardTitle className="group-hover:text-primary transition-colors">
-                  {post.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">{post.excerpt}</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Users className="h-4 w-4 mr-1" />
-                    <span>{post.author}</span>
+                  <CardTitle className="group-hover:text-primary transition-colors">
+                    {post.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">{post.excerpt}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Users className="h-4 w-4 mr-1" />
+                      <span>{post.author}</span>
+                    </div>
+                    <Button asChild variant="ghost" size="sm">
+                      <Link href={`/blog/${post.id}`}>
+                        Ler mais
+                        <Star className="ml-1 h-3 w-3" />
+                      </Link>
+                    </Button>
                   </div>
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href={`/blog/${post.id}`}>
-                      Ler mais
-                      <Star className="ml-1 h-3 w-3" />
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
         </div>
 
         {/* No Results Message */}

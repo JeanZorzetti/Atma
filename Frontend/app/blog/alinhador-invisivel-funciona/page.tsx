@@ -96,7 +96,7 @@ export default function AlinhadorFuncionaPage() {
           <p className="text-lg text-gray-700 leading-relaxed">
             "Alinhador invisível funciona mesmo?" — Esta é uma das perguntas mais frequentes que
             ortodontistas ouvem diariamente. Com o crescimento explosivo dos <strong>alinhadores
-            ortodônticos transparentes</strong>, é natural ter dúvidas sobre a eficácia real desse
+              ortodônticos transparentes</strong>, é natural ter dúvidas sobre a eficácia real desse
             tratamento.
           </p>
 
@@ -348,7 +348,7 @@ export default function AlinhadorFuncionaPage() {
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold mb-2">⚠ Rotações Severas (>45°)</h4>
+                  <h4 className="font-semibold mb-2">⚠ Rotações Severas (&gt;45°)</h4>
                   <p className="text-sm text-gray-600">Pode funcionar, mas menos previsível</p>
                 </div>
                 <div>
@@ -575,7 +575,7 @@ export default function AlinhadorFuncionaPage() {
             <div className="bg-white border-l-4 border-red-400 p-4 rounded-r-lg">
               <h4 className="font-bold mb-2">❌ 2. Rotações Severas de Dentes Arredondados</h4>
               <p className="text-sm text-gray-700">
-                Caninos e pré-molares com <strong>rotação >45 graus</strong> são desafiadores.
+                Caninos e pré-molares com <strong>rotação &gt;45 graus</strong> são desafiadores.
                 Possível com attachments, mas menos previsível que aparelhos fixos.
               </p>
             </div>
@@ -667,9 +667,9 @@ export default function AlinhadorFuncionaPage() {
                 <ul className="list-disc pl-6 mt-2 space-y-2">
                   <li><strong>Apinhamento moderado:</strong> SIM, funciona bem (90-95% sucesso)</li>
                   <li><strong>Apinhamento severo:</strong> Funciona, mas pode requerer IPR (desgaste
-                  entre dentes) e tempo maior (85-90% sucesso)</li>
+                    entre dentes) e tempo maior (85-90% sucesso)</li>
                   <li><strong>Apinhamento extremo com falta de espaço:</strong> Pode requerer extração
-                  + aparelho fixo primeiro, depois alinhadores para finalização</li>
+                    + aparelho fixo primeiro, depois alinhadores para finalização</li>
                 </ul>
                 <p className="mt-3">
                   A avaliação com ortodontista experiente é essencial para saber se seu caso específico
@@ -711,13 +711,13 @@ export default function AlinhadorFuncionaPage() {
                 </p>
                 <ul className="list-disc pl-6 mt-2 space-y-2">
                   <li><strong>Adolescentes (12-17 anos):</strong> Funcionam muito bem. Movimentação
-                  rápida devido ao metabolismo ósseo ativo.</li>
+                    rápida devido ao metabolismo ósseo ativo.</li>
                   <li><strong>Adultos (18-40 anos):</strong> Excelente eficácia. Maior disciplina
-                  compensa movimento um pouco mais lento.</li>
+                    compensa movimento um pouco mais lento.</li>
                   <li><strong>Adultos maduros (40-60 anos):</strong> Funciona bem, mas movimentação
-                  20-30% mais lenta. Tratamento leva 2-4 meses a mais.</li>
+                    20-30% mais lenta. Tratamento leva 2-4 meses a mais.</li>
                   <li><strong>Idosos (60+ anos):</strong> Funciona se houver saúde periodontal adequada.
-                  Mais lento, requer avaliação cuidadosa.</li>
+                    Mais lento, requer avaliação cuidadosa.</li>
                 </ul>
                 <p className="mt-3">
                   <strong>Requisito:</strong> dentes e gengivas saudáveis, independente da idade.
@@ -824,7 +824,7 @@ export default function AlinhadorFuncionaPage() {
 
             <p className="text-lg font-semibold">
               Alinhadores invisíveis <strong>não são mágicos</strong>, mas são uma <strong>ferramenta
-              ortodôntica cientificamente validada</strong> que funciona excepcionalmente bem quando:
+                ortodôntica cientificamente validada</strong> que funciona excepcionalmente bem quando:
               (1) o caso é adequado, (2) o paciente é colaborador, e (3) o ortodontista é experiente.
             </p>
 

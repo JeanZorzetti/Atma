@@ -85,7 +85,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
 
           <p className="text-gray-700 leading-relaxed">
             Neste guia completo e atualizado para 2025, você vai descobrir <strong>exatamente quanto custa cada tipo
-            de alinhador invisível</strong>, o que influencia os preços, como comparar marcas e se vale a pena
+              de alinhador invisível</strong>, o que influencia os preços, como comparar marcas e se vale a pena
             pagar mais caro. Ao final, você terá todas as informações necessárias para tomar uma decisão informada.
           </p>
         </div>
@@ -741,7 +741,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
                 </ul>
                 <p className="mt-3 bg-green-50 p-3 rounded">
                   <strong>Alternativa melhor:</strong> busque marcas com preços uniformes nacionalmente (como Atma)
-                  e faça o tratamento perto de casa. Conforto > economia pequena.
+                  e faça o tratamento perto de casa. Conforto &gt; economia pequena.
                 </p>
               </div>
             </details>

@@ -480,7 +480,7 @@ export default function InvisalignVsNacionaisPage() {
                 <li className="flex items-start gap-2">
                   <span className="text-purple-600 font-bold">1.</span>
                   <span>Você tem um <strong>caso extremamente complexo</strong> e seu ortodontista
-                  tem mais experiência com Invisalign</span>
+                    tem mais experiência com Invisalign</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-600 font-bold">2.</span>

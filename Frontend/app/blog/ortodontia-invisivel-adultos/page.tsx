@@ -88,7 +88,7 @@ export default function OrtodontiaAdultosPage() {
           <p className="text-lg text-gray-700 leading-relaxed">
             "Já passou da idade para usar aparelho." Se você já ouviu isso, saiba que é um dos
             <strong> maiores mitos da ortodontia moderna</strong>. A verdade? <strong>Nunca é tarde
-            para corrigir seu sorriso.</strong>
+              para corrigir seu sorriso.</strong>
           </p>
 
           <p className="text-gray-700 leading-relaxed">
@@ -470,9 +470,9 @@ export default function OrtodontiaAdultosPage() {
             <div className="bg-indigo-100 p-6 rounded-lg">
               <p className="text-gray-800 leading-relaxed">
                 <strong>Custo por dia:</strong> R$ 22-50/dia durante tratamento (12 meses).
-                <br/>
+                <br />
                 <strong>Benefício:</strong> resto da vida.
-                <br/>
+                <br />
                 <strong>Conclusão:</strong> Um dos melhores investimentos em você mesmo.
               </p>
             </div>
@@ -559,7 +559,7 @@ export default function OrtodontiaAdultosPage() {
           <div className="space-y-4 text-gray-700 leading-relaxed">
             <p className="text-lg">
               Se você está lendo isso e tem mais de 25 anos, saiba: <strong>você está na faixa etária
-              perfeita para ortodontia invisível</strong>.
+                perfeita para ortodontia invisível</strong>.
             </p>
 
             <div className="bg-white p-6 rounded-lg">
