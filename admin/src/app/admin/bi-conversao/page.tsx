@@ -105,7 +105,7 @@ export default function BIConversaoPage() {
 
       // Use novo endpoint detailed-metrics
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/conversion-funnel/detailed-metrics?startDate=${startDate}&endDate=${endDate}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/conversion-funnel/detailed-metrics?startDate=${startDate}&endDate=${endDate}`,
         {
           method: 'GET',
           headers: {
