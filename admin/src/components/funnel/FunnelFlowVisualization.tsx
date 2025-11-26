@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useCallback } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -9,30 +9,10 @@ import ReactFlow, {
   MiniMap,
   ConnectionLineType,
   MarkerType,
+  Position,
 } from 'reactflow';
 import { Eye, MousePointerClick, UserPlus, Phone, Calendar, CheckCircle2, UserCheck, Award } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
-interface FunnelStage {
-  id: string;
-  name: string;
-  count: number;
-  icon: React.ReactNode;
-  color: string;
-  bgGradient: string;
-  borderColor: string;
-}
-
-interface FunnelConversion {
-  from: string;
-  to: string;
-  rate: number;
-  count: number;
-  formula: string;
-  explanation: string;
-  healthStatus: 'healthy' | 'warning' | 'critical';
-  avgTime?: string;
-}
 
 interface DetailedFunnelMetrics {
   success: boolean;
@@ -75,418 +55,436 @@ interface FunnelFlowVisualizationProps {
   metrics: DetailedFunnelMetrics;
 }
 
-// Custom Node Component with Tooltip
-function StageNode({ data }: { data: FunnelStage & { position: { x: number; y: number } } }) {
-  return (
-    <TooltipProvider>
-      <Tooltip delayDuration={200}>
-        <TooltipTrigger asChild>
-          <div
-            className={`${data.bgGradient} border-2 ${data.borderColor} rounded-xl p-4 min-w-[140px] shadow-lg hover:shadow-xl transition-all cursor-pointer`}
-          >
-            <div className="flex flex-col items-center gap-2">
-              <div className={`${data.color}`}>{data.icon}</div>
-              <div className="text-[10px] font-semibold text-gray-600 uppercase text-center">
-                {data.name}
-              </div>
-              <div className="text-2xl font-bold text-gray-900">
-                {data.count.toLocaleString('pt-BR')}
-              </div>
-            </div>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs p-3">
-          <div className="space-y-1">
-            <div className="font-semibold text-sm">{data.name}</div>
-            <div className="text-xs text-gray-400">
-              Total: <span className="font-bold text-white">{data.count.toLocaleString('pt-BR')}</span> pacientes
-            </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
+// Helper para health status
+const getHealthStatus = (rate: number, target: number): 'healthy' | 'warning' | 'critical' => {
+  if (rate >= target) return 'healthy';
+  if (rate >= target * 0.8) return 'warning';
+  return 'critical';
+};
 
-// Custom Edge Label with Tooltip
-function EdgeLabel({ data }: { data: FunnelConversion }) {
-  const healthColor = {
+const getHealthColor = (status: 'healthy' | 'warning' | 'critical'): string => {
+  return {
     healthy: 'bg-green-100 text-green-700 border-green-300',
     warning: 'bg-yellow-100 text-yellow-700 border-yellow-300',
     critical: 'bg-red-100 text-red-700 border-red-300',
-  }[data.healthStatus];
-
-  return (
-    <TooltipProvider>
-      <Tooltip delayDuration={100}>
-        <TooltipTrigger asChild>
-          <div className="relative cursor-help">
-            <div
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${healthColor} shadow-md hover:scale-110 transition-transform`}
-            >
-              {data.rate.toFixed(1)}%
-            </div>
-            {data.avgTime && (
-              <div className="text-[9px] text-gray-500 text-center mt-0.5">
-                ⏱ {data.avgTime}
-              </div>
-            )}
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="right" className="max-w-sm p-4 bg-gray-900 border-gray-700">
-          <div className="space-y-3">
-            {/* Header */}
-            <div className="border-b border-gray-700 pb-2">
-              <div className="font-semibold text-white">
-                Taxa de Conversão: {data.from} → {data.to}
-              </div>
-              <div className="text-xl font-bold text-blue-400 mt-1">
-                {data.rate.toFixed(2)}%
-              </div>
-            </div>
-
-            {/* Formula */}
-            <div className="bg-gray-800 rounded p-2 font-mono text-xs">
-              <div className="text-gray-400 mb-1">Fórmula:</div>
-              <div className="text-green-400">{data.formula}</div>
-            </div>
-
-            {/* Explanation */}
-            <div className="text-xs text-gray-300">
-              <div className="text-gray-400 mb-1">Explicação:</div>
-              <div>{data.explanation}</div>
-            </div>
-
-            {/* Volume */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <div className="text-gray-400">Volume:</div>
-                <div className="font-bold text-white">{data.count} pacientes</div>
-              </div>
-              {data.avgTime && (
-                <div>
-                  <div className="text-gray-400">Tempo Médio:</div>
-                  <div className="font-bold text-white">{data.avgTime}</div>
-                </div>
-              )}
-            </div>
-
-            {/* Health Status */}
-            <div className="pt-2 border-t border-gray-700">
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-gray-400">Status:</span>
-                <span
-                  className={`px-2 py-0.5 rounded ${
-                    data.healthStatus === 'healthy'
-                      ? 'bg-green-500/20 text-green-400'
-                      : data.healthStatus === 'warning'
-                      ? 'bg-yellow-500/20 text-yellow-400'
-                      : 'bg-red-500/20 text-red-400'
-                  }`}
-                >
-                  {data.healthStatus === 'healthy' && '✓ Saudável'}
-                  {data.healthStatus === 'warning' && '⚠ Atenção'}
-                  {data.healthStatus === 'critical' && '⚠ Crítico'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
-const nodeTypes = {
-  stageNode: StageNode,
+  }[status];
 };
 
 export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualizationProps) {
-  const { nodes, edges } = useMemo(() => {
-    // Helper para determinar health status
-    const getHealthStatus = (rate: number, target: number): 'healthy' | 'warning' | 'critical' => {
-      if (rate >= target) return 'healthy';
-      if (rate >= target * 0.8) return 'warning';
-      return 'critical';
-    };
+  // Definir nodes com posições fixas
+  const nodes: Node[] = [
+    // Linha 1
+    {
+      id: 'impressoes',
+      type: 'default',
+      position: { x: 0, y: 0 },
+      data: {
+        label: (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Eye className="h-4 w-4 text-blue-600" />
+              <span className="text-xs font-semibold text-gray-600">IMPRESSÕES</span>
+            </div>
+            <div className="text-xl font-bold text-gray-900">
+              {(metrics.seo.impressions / 1000).toFixed(1)}k
+            </div>
+            <div className="text-[10px] text-gray-500">Pos: {metrics.seo.avgPosition}</div>
+          </div>
+        ),
+      },
+      style: {
+        background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)',
+        border: '2px solid #93c5fd',
+        borderRadius: '12px',
+        padding: '16px',
+        width: 160,
+      },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+    },
+    {
+      id: 'cliques',
+      type: 'default',
+      position: { x: 220, y: 0 },
+      data: {
+        label: (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <MousePointerClick className="h-4 w-4 text-green-600" />
+              <span className="text-xs font-semibold text-gray-600">CLIQUES</span>
+            </div>
+            <div className="text-xl font-bold text-gray-900">{metrics.seo.clicks}</div>
+            <div className="text-[10px] text-green-600 font-semibold">CTR: {metrics.seo.ctr}%</div>
+          </div>
+        ),
+      },
+      style: {
+        background: 'linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%)',
+        border: '2px solid #6ee7b7',
+        borderRadius: '12px',
+        padding: '16px',
+        width: 160,
+      },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+    },
+    {
+      id: 'cadastros',
+      type: 'default',
+      position: { x: 440, y: 0 },
+      data: {
+        label: (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <UserPlus className="h-4 w-4 text-indigo-600" />
+              <span className="text-xs font-semibold text-gray-600">CADASTROS</span>
+            </div>
+            <div className="text-xl font-bold text-gray-900">{metrics.crm.registrations}</div>
+            <div className="text-[10px] text-indigo-600 font-semibold">Total</div>
+          </div>
+        ),
+      },
+      style: {
+        background: 'linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%)',
+        border: '2px solid #a5b4fc',
+        borderRadius: '12px',
+        padding: '16px',
+        width: 160,
+      },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+    },
+    {
+      id: 'novo',
+      type: 'default',
+      position: { x: 660, y: 0 },
+      data: {
+        label: (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <UserPlus className="h-4 w-4 text-purple-600" />
+              <span className="text-xs font-semibold text-gray-600">NOVO</span>
+            </div>
+            <div className="text-xl font-bold text-gray-900">{metrics.crm.statusBreakdown.novo}</div>
+            <div className="text-[10px] text-purple-600 font-semibold">Status inicial</div>
+          </div>
+        ),
+      },
+      style: {
+        background: 'linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%)',
+        border: '2px solid #d8b4fe',
+        borderRadius: '12px',
+        padding: '16px',
+        width: 160,
+      },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+    },
+    {
+      id: 'contatado',
+      type: 'default',
+      position: { x: 880, y: 0 },
+      data: {
+        label: (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Phone className="h-4 w-4 text-cyan-600" />
+              <span className="text-xs font-semibold text-gray-600">CONTATADO</span>
+            </div>
+            <div className="text-xl font-bold text-gray-900">{metrics.crm.statusBreakdown.contatado}</div>
+            <div className="text-[10px] text-cyan-600 font-semibold">1º contato</div>
+          </div>
+        ),
+      },
+      style: {
+        background: 'linear-gradient(135deg, #cffafe 0%, #ecfeff 100%)',
+        border: '2px solid #67e8f9',
+        borderRadius: '12px',
+        padding: '16px',
+        width: 160,
+      },
+      sourcePosition: Position.Bottom,
+      targetPosition: Position.Left,
+    },
+    // Linha 2
+    {
+      id: 'agendado',
+      type: 'default',
+      position: { x: 880, y: 180 },
+      data: {
+        label: (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Calendar className="h-4 w-4 text-orange-600" />
+              <span className="text-xs font-semibold text-gray-600">AGENDADO</span>
+            </div>
+            <div className="text-xl font-bold text-gray-900">{metrics.crm.statusBreakdown.agendado}</div>
+            <div className="text-[10px] text-orange-600 font-semibold">Consulta marcada</div>
+          </div>
+        ),
+      },
+      style: {
+        background: 'linear-gradient(135deg, #fed7aa 0%, #ffedd5 100%)',
+        border: '2px solid #fdba74',
+        borderRadius: '12px',
+        padding: '16px',
+        width: 160,
+      },
+      sourcePosition: Position.Left,
+      targetPosition: Position.Top,
+    },
+    {
+      id: 'avaliacao_inicial',
+      type: 'default',
+      position: { x: 660, y: 180 },
+      data: {
+        label: (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <CheckCircle2 className="h-4 w-4 text-indigo-600" />
+              <span className="text-xs font-semibold text-gray-600">AVALIAÇÃO</span>
+            </div>
+            <div className="text-xl font-bold text-gray-900">{metrics.crm.statusBreakdown.avaliacao_inicial}</div>
+            <div className="text-[10px] text-indigo-600 font-semibold">1ª consulta</div>
+          </div>
+        ),
+      },
+      style: {
+        background: 'linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%)',
+        border: '2px solid #a5b4fc',
+        borderRadius: '12px',
+        padding: '16px',
+        width: 160,
+      },
+      sourcePosition: Position.Left,
+      targetPosition: Position.Right,
+    },
+    {
+      id: 'atribuido',
+      type: 'default',
+      position: { x: 440, y: 180 },
+      data: {
+        label: (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <UserCheck className="h-4 w-4 text-violet-600" />
+              <span className="text-xs font-semibold text-gray-600">ATRIBUÍDO</span>
+            </div>
+            <div className="text-xl font-bold text-gray-900">{metrics.crm.statusBreakdown.atribuido}</div>
+            <div className="text-[10px] text-violet-600 font-semibold">Com ortodontista</div>
+          </div>
+        ),
+      },
+      style: {
+        background: 'linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%)',
+        border: '2px solid #c4b5fd',
+        borderRadius: '12px',
+        padding: '16px',
+        width: 160,
+      },
+      sourcePosition: Position.Left,
+      targetPosition: Position.Right,
+    },
+    {
+      id: 'convertido',
+      type: 'default',
+      position: { x: 220, y: 180 },
+      data: {
+        label: (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Award className="h-4 w-4 text-emerald-600" />
+              <span className="text-xs font-semibold text-gray-600">CONVERTIDO</span>
+            </div>
+            <div className="text-xl font-bold text-emerald-700">{metrics.crm.statusBreakdown.convertido}</div>
+            <div className="text-[10px] text-emerald-600 font-semibold">🎉 Tratamento</div>
+          </div>
+        ),
+      },
+      style: {
+        background: 'linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%)',
+        border: '3px solid #34d399',
+        borderRadius: '12px',
+        padding: '16px',
+        width: 160,
+        boxShadow: '0 0 0 3px rgba(52, 211, 153, 0.2)',
+      },
+      sourcePosition: Position.Left,
+      targetPosition: Position.Right,
+    },
+  ];
 
-    // Definir estágios
-    const stages: FunnelStage[] = [
-      {
-        id: 'impressoes',
-        name: 'Impressões',
-        count: metrics.seo.impressions,
-        icon: <Eye className="h-5 w-5" />,
-        color: 'text-blue-600',
-        bgGradient: 'bg-gradient-to-br from-blue-100 to-blue-50',
-        borderColor: 'border-blue-300',
+  // Definir edges com labels customizados
+  const edges: Edge[] = [
+    {
+      id: 'e1',
+      source: 'impressoes',
+      target: 'cliques',
+      type: 'smoothstep',
+      animated: metrics.conversions.impressionToClick >= 3,
+      style: {
+        stroke: metrics.conversions.impressionToClick >= 3 ? '#10b981' : metrics.conversions.impressionToClick >= 2.4 ? '#f59e0b' : '#ef4444',
+        strokeWidth: 3,
       },
-      {
-        id: 'cliques',
-        name: 'Cliques',
-        count: metrics.seo.clicks,
-        icon: <MousePointerClick className="h-5 w-5" />,
-        color: 'text-green-600',
-        bgGradient: 'bg-gradient-to-br from-green-100 to-green-50',
-        borderColor: 'border-green-300',
+      label: `${metrics.conversions.impressionToClick.toFixed(1)}%`,
+      labelStyle: { fontSize: 12, fontWeight: 700 },
+      labelBgStyle: {
+        fill: metrics.conversions.impressionToClick >= 3 ? '#dcfce7' : metrics.conversions.impressionToClick >= 2.4 ? '#fef3c7' : '#fee2e2',
       },
-      {
-        id: 'cadastros',
-        name: 'Cadastros',
-        count: metrics.crm.registrations,
-        icon: <UserPlus className="h-5 w-5" />,
-        color: 'text-indigo-600',
-        bgGradient: 'bg-gradient-to-br from-indigo-100 to-indigo-50',
-        borderColor: 'border-indigo-300',
+      labelBgPadding: [8, 4] as [number, number],
+      markerEnd: { type: MarkerType.ArrowClosed },
+    },
+    {
+      id: 'e2',
+      source: 'cliques',
+      target: 'cadastros',
+      type: 'smoothstep',
+      animated: metrics.conversions.clickToRegistration >= 8,
+      style: {
+        stroke: metrics.conversions.clickToRegistration >= 8 ? '#10b981' : metrics.conversions.clickToRegistration >= 6.4 ? '#f59e0b' : '#ef4444',
+        strokeWidth: 3,
       },
-      {
-        id: 'novo',
-        name: 'Novo',
-        count: metrics.crm.statusBreakdown.novo,
-        icon: <UserPlus className="h-5 w-5" />,
-        color: 'text-purple-600',
-        bgGradient: 'bg-gradient-to-br from-purple-100 to-purple-50',
-        borderColor: 'border-purple-300',
+      label: `${metrics.conversions.clickToRegistration.toFixed(1)}%`,
+      labelStyle: { fontSize: 12, fontWeight: 700 },
+      labelBgStyle: {
+        fill: metrics.conversions.clickToRegistration >= 8 ? '#dcfce7' : metrics.conversions.clickToRegistration >= 6.4 ? '#fef3c7' : '#fee2e2',
       },
-      {
-        id: 'contatado',
-        name: 'Contatado',
-        count: metrics.crm.statusBreakdown.contatado,
-        icon: <Phone className="h-5 w-5" />,
-        color: 'text-cyan-600',
-        bgGradient: 'bg-gradient-to-br from-cyan-100 to-cyan-50',
-        borderColor: 'border-cyan-300',
+      labelBgPadding: [8, 4] as [number, number],
+      markerEnd: { type: MarkerType.ArrowClosed },
+    },
+    {
+      id: 'e3',
+      source: 'cadastros',
+      target: 'novo',
+      type: 'smoothstep',
+      animated: true,
+      style: { stroke: '#10b981', strokeWidth: 3 },
+      label: '100%',
+      labelStyle: { fontSize: 12, fontWeight: 700 },
+      labelBgStyle: { fill: '#dcfce7' },
+      labelBgPadding: [8, 4] as [number, number],
+      markerEnd: { type: MarkerType.ArrowClosed },
+    },
+    {
+      id: 'e4',
+      source: 'novo',
+      target: 'contatado',
+      type: 'smoothstep',
+      animated: metrics.conversions.novoToContatado >= 95,
+      style: {
+        stroke: metrics.conversions.novoToContatado >= 95 ? '#10b981' : metrics.conversions.novoToContatado >= 76 ? '#f59e0b' : '#ef4444',
+        strokeWidth: 3,
       },
-      {
-        id: 'agendado',
-        name: 'Agendado',
-        count: metrics.crm.statusBreakdown.agendado,
-        icon: <Calendar className="h-5 w-5" />,
-        color: 'text-orange-600',
-        bgGradient: 'bg-gradient-to-br from-orange-100 to-orange-50',
-        borderColor: 'border-orange-300',
+      label: `${metrics.conversions.novoToContatado.toFixed(1)}%`,
+      labelStyle: { fontSize: 12, fontWeight: 700 },
+      labelBgStyle: {
+        fill: metrics.conversions.novoToContatado >= 95 ? '#dcfce7' : metrics.conversions.novoToContatado >= 76 ? '#fef3c7' : '#fee2e2',
       },
-      {
-        id: 'avaliacao_inicial',
-        name: 'Avaliação Inicial',
-        count: metrics.crm.statusBreakdown.avaliacao_inicial,
-        icon: <CheckCircle2 className="h-5 w-5" />,
-        color: 'text-indigo-600',
-        bgGradient: 'bg-gradient-to-br from-indigo-100 to-indigo-50',
-        borderColor: 'border-indigo-300',
+      labelBgPadding: [8, 4] as [number, number],
+      markerEnd: { type: MarkerType.ArrowClosed },
+    },
+    {
+      id: 'e5',
+      source: 'contatado',
+      target: 'agendado',
+      type: 'smoothstep',
+      animated: metrics.conversions.contatadoToAgendado >= 60,
+      style: {
+        stroke: metrics.conversions.contatadoToAgendado >= 60 ? '#10b981' : metrics.conversions.contatadoToAgendado >= 48 ? '#f59e0b' : '#ef4444',
+        strokeWidth: 3,
       },
-      {
-        id: 'atribuido',
-        name: 'Atribuído',
-        count: metrics.crm.statusBreakdown.atribuido,
-        icon: <UserCheck className="h-5 w-5" />,
-        color: 'text-violet-600',
-        bgGradient: 'bg-gradient-to-br from-violet-100 to-violet-50',
-        borderColor: 'border-violet-300',
+      label: `${metrics.conversions.contatadoToAgendado.toFixed(1)}%`,
+      labelStyle: { fontSize: 12, fontWeight: 700 },
+      labelBgStyle: {
+        fill: metrics.conversions.contatadoToAgendado >= 60 ? '#dcfce7' : metrics.conversions.contatadoToAgendado >= 48 ? '#fef3c7' : '#fee2e2',
       },
-      {
-        id: 'convertido',
-        name: 'Convertido',
-        count: metrics.crm.statusBreakdown.convertido,
-        icon: <Award className="h-5 w-5" />,
-        color: 'text-emerald-600',
-        bgGradient: 'bg-gradient-to-br from-emerald-100 to-emerald-50',
-        borderColor: 'border-emerald-400',
+      labelBgPadding: [8, 4] as [number, number],
+      markerEnd: { type: MarkerType.ArrowClosed },
+    },
+    {
+      id: 'e6',
+      source: 'agendado',
+      target: 'avaliacao_inicial',
+      type: 'smoothstep',
+      animated: metrics.conversions.agendadoToAvaliacaoInicial >= 70,
+      style: {
+        stroke: metrics.conversions.agendadoToAvaliacaoInicial >= 70 ? '#10b981' : metrics.conversions.agendadoToAvaliacaoInicial >= 56 ? '#f59e0b' : '#ef4444',
+        strokeWidth: 3,
       },
-    ];
-
-    // Criar nodes em layout de zig-zag (2 linhas)
-    const flowNodes: Node[] = stages.map((stage, index) => {
-      // Primeira linha: 0-4, Segunda linha: 5-8
-      const row = index <= 4 ? 0 : 1;
-      const colInRow = index <= 4 ? index : index - 5;
-
-      return {
-        id: stage.id,
-        type: 'stageNode',
-        position: {
-          x: colInRow * 200,
-          y: row * 180,
-        },
-        data: { ...stage, position: { x: colInRow * 200, y: row * 180 } },
-      };
-    });
-
-    // Definir conversões com fórmulas detalhadas
-    const conversions: FunnelConversion[] = [
-      {
-        from: 'Impressões',
-        to: 'Cliques',
-        rate: metrics.conversions.impressionToClick,
-        count: metrics.seo.clicks,
-        formula: '(Cliques / Impressões) × 100',
-        explanation: `De ${metrics.seo.impressions.toLocaleString('pt-BR')} impressões no Google, ${metrics.seo.clicks} pessoas clicaram no site. Esta é a taxa de CTR (Click-Through Rate).`,
-        healthStatus: getHealthStatus(metrics.conversions.impressionToClick, 3),
+      label: `${metrics.conversions.agendadoToAvaliacaoInicial.toFixed(1)}%`,
+      labelStyle: { fontSize: 12, fontWeight: 700 },
+      labelBgStyle: {
+        fill: metrics.conversions.agendadoToAvaliacaoInicial >= 70 ? '#dcfce7' : metrics.conversions.agendadoToAvaliacaoInicial >= 56 ? '#fef3c7' : '#fee2e2',
       },
-      {
-        from: 'Cliques',
-        to: 'Cadastros',
-        rate: metrics.conversions.clickToRegistration,
-        count: metrics.crm.registrations,
-        formula: '(Cadastros Totais / Cliques) × 100',
-        explanation: `De ${metrics.seo.clicks} cliques, ${metrics.crm.registrations} pessoas completaram o cadastro. Mede a eficácia da landing page e formulário.`,
-        healthStatus: getHealthStatus(metrics.conversions.clickToRegistration, 8),
+      labelBgPadding: [8, 4] as [number, number],
+      markerEnd: { type: MarkerType.ArrowClosed },
+    },
+    {
+      id: 'e7',
+      source: 'avaliacao_inicial',
+      target: 'atribuido',
+      type: 'smoothstep',
+      animated: metrics.conversions.avaliacaoInicialToAtribuido >= 80,
+      style: {
+        stroke: metrics.conversions.avaliacaoInicialToAtribuido >= 80 ? '#10b981' : metrics.conversions.avaliacaoInicialToAtribuido >= 64 ? '#f59e0b' : '#ef4444',
+        strokeWidth: 3,
       },
-      {
-        from: 'Cadastros',
-        to: 'Novo',
-        rate: 100,
-        count: metrics.crm.statusBreakdown.novo,
-        formula: '100% (todos iniciam como "Novo")',
-        explanation: `Todos os ${metrics.crm.registrations} cadastros entram automaticamente no status "Novo". Esta é uma transição automática do sistema.`,
-        healthStatus: 'healthy',
+      label: `${metrics.conversions.avaliacaoInicialToAtribuido.toFixed(1)}%`,
+      labelStyle: { fontSize: 12, fontWeight: 700 },
+      labelBgStyle: {
+        fill: metrics.conversions.avaliacaoInicialToAtribuido >= 80 ? '#dcfce7' : metrics.conversions.avaliacaoInicialToAtribuido >= 64 ? '#fef3c7' : '#fee2e2',
       },
-      {
-        from: 'Novo',
-        to: 'Contatado',
-        rate: metrics.conversions.novoToContatado,
-        count: metrics.crm.statusBreakdown.contatado,
-        formula: '(Contatados / Novo) × 100',
-        explanation: `De ${metrics.crm.statusBreakdown.novo} pacientes novos, ${metrics.crm.statusBreakdown.contatado} foram contatados pela equipe. Mede a velocidade e eficácia do primeiro contato.`,
-        healthStatus: getHealthStatus(metrics.conversions.novoToContatado, 95),
-        avgTime: metrics.transitionTimes.novo_to_contatado
-          ? `${metrics.transitionTimes.novo_to_contatado.avgHours.toFixed(0)}h`
-          : undefined,
+      labelBgPadding: [8, 4] as [number, number],
+      markerEnd: { type: MarkerType.ArrowClosed },
+    },
+    {
+      id: 'e8',
+      source: 'atribuido',
+      target: 'convertido',
+      type: 'smoothstep',
+      animated: metrics.conversions.atribuidoToConvertido >= 70,
+      style: {
+        stroke: metrics.conversions.atribuidoToConvertido >= 70 ? '#10b981' : metrics.conversions.atribuidoToConvertido >= 56 ? '#f59e0b' : '#ef4444',
+        strokeWidth: 3,
       },
-      {
-        from: 'Contatado',
-        to: 'Agendado',
-        rate: metrics.conversions.contatadoToAgendado,
-        count: metrics.crm.statusBreakdown.agendado,
-        formula: '(Agendados / Contatados) × 100',
-        explanation: `De ${metrics.crm.statusBreakdown.contatado} pacientes contatados, ${metrics.crm.statusBreakdown.agendado} agendaram consulta. Reflete qualidade do atendimento e interesse do paciente.`,
-        healthStatus: getHealthStatus(metrics.conversions.contatadoToAgendado, 60),
-        avgTime: metrics.transitionTimes.contatado_to_agendado
-          ? `${metrics.transitionTimes.contatado_to_agendado.avgDays.toFixed(0)}d`
-          : undefined,
+      label: `${metrics.conversions.atribuidoToConvertido.toFixed(1)}%`,
+      labelStyle: { fontSize: 12, fontWeight: 700 },
+      labelBgStyle: {
+        fill: metrics.conversions.atribuidoToConvertido >= 70 ? '#dcfce7' : metrics.conversions.atribuidoToConvertido >= 56 ? '#fef3c7' : '#fee2e2',
       },
-      {
-        from: 'Agendado',
-        to: 'Avaliação Inicial',
-        rate: metrics.conversions.agendadoToAvaliacaoInicial,
-        count: metrics.crm.statusBreakdown.avaliacao_inicial,
-        formula: '(Avaliações Iniciais / Agendados) × 100',
-        explanation: `De ${metrics.crm.statusBreakdown.agendado} consultas agendadas, ${metrics.crm.statusBreakdown.avaliacao_inicial} compareceram para avaliação inicial. Mede taxa de no-show.`,
-        healthStatus: getHealthStatus(metrics.conversions.agendadoToAvaliacaoInicial, 70),
-        avgTime: metrics.transitionTimes.agendado_to_avaliacao_inicial
-          ? `${metrics.transitionTimes.agendado_to_avaliacao_inicial.avgDays.toFixed(0)}d`
-          : undefined,
-      },
-      {
-        from: 'Avaliação Inicial',
-        to: 'Atribuído',
-        rate: metrics.conversions.avaliacaoInicialToAtribuido,
-        count: metrics.crm.statusBreakdown.atribuido,
-        formula: '(Atribuídos / Avaliações Iniciais) × 100',
-        explanation: `De ${metrics.crm.statusBreakdown.avaliacao_inicial} avaliações iniciais, ${metrics.crm.statusBreakdown.atribuido} foram atribuídos a ortodontistas. Indica aprovação técnica do caso.`,
-        healthStatus: getHealthStatus(metrics.conversions.avaliacaoInicialToAtribuido, 80),
-        avgTime: metrics.transitionTimes.avaliacao_inicial_to_atribuido
-          ? `${metrics.transitionTimes.avaliacao_inicial_to_atribuido.avgDays.toFixed(0)}d`
-          : undefined,
-      },
-      {
-        from: 'Atribuído',
-        to: 'Convertido',
-        rate: metrics.conversions.atribuidoToConvertido,
-        count: metrics.crm.statusBreakdown.convertido,
-        formula: '(Convertidos / Atribuídos) × 100',
-        explanation: `De ${metrics.crm.statusBreakdown.atribuido} pacientes atribuídos, ${metrics.crm.statusBreakdown.convertido} iniciaram tratamento. Esta é a conversão final!`,
-        healthStatus: getHealthStatus(metrics.conversions.atribuidoToConvertido, 70),
-        avgTime: metrics.transitionTimes.atribuido_to_convertido
-          ? `${metrics.transitionTimes.atribuido_to_convertido.avgDays.toFixed(0)}d`
-          : undefined,
-      },
-    ];
-
-    // Criar edges com strokeWidth proporcional ao volume
-    const maxCount = Math.max(...conversions.map(c => c.count));
-
-    const flowEdges: Edge[] = conversions.map((conv, index) => {
-      const fromNode = flowNodes.find(n => n.data.name === conv.from);
-      const toNode = flowNodes.find(n => n.data.name === conv.to);
-
-      if (!fromNode || !toNode) {
-        console.warn(`Edge skipped: ${conv.from} → ${conv.to}`, { fromNode, toNode });
-        return null;
-      }
-
-      // Calcular largura da seta proporcional ao volume (min 2, max 12)
-      const strokeWidth = Math.max(2, Math.min(12, (conv.count / maxCount) * 12));
-
-      // Cor baseada em health status
-      const strokeColor =
-        conv.healthStatus === 'healthy'
-          ? '#10b981'
-          : conv.healthStatus === 'warning'
-          ? '#f59e0b'
-          : '#ef4444';
-
-      return {
-        id: `edge-${index}`,
-        source: fromNode.id,
-        target: toNode.id,
-        type: ConnectionLineType.SmoothStep,
-        animated: conv.healthStatus === 'healthy',
-        style: {
-          stroke: strokeColor,
-          strokeWidth,
-          opacity: 0.6,
-        },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: strokeColor,
-          width: 20,
-          height: 20,
-        },
-        label: <EdgeLabel data={conv} />,
-        labelStyle: {
-          fill: 'transparent',
-          fontWeight: 700,
-        },
-        labelBgStyle: {
-          fill: 'transparent',
-        },
-        labelBgPadding: [8, 4] as [number, number],
-        labelBgBorderRadius: 8,
-      };
-    }).filter(Boolean) as Edge[];
-
-    console.log('React Flow Debug:', {
-      nodesCount: flowNodes.length,
-      edgesCount: flowEdges.length,
-      nodes: flowNodes.map(n => ({ id: n.id, name: n.data.name })),
-      edges: flowEdges.map(e => ({ id: e.id, source: e.source, target: e.target }))
-    });
-
-    return { nodes: flowNodes, edges: flowEdges };
-  }, [metrics]);
+      labelBgPadding: [8, 4] as [number, number],
+      markerEnd: { type: MarkerType.ArrowClosed },
+    },
+  ];
 
   return (
-    <div className="w-full h-[500px] bg-gray-50 rounded-lg border border-gray-200">
+    <div className="w-full h-[450px] bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-gray-200 shadow-sm">
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        nodeTypes={nodeTypes}
         fitView
-        attributionPosition="bottom-right"
-        proOptions={{ hideAttribution: true }}
+        fitViewOptions={{ padding: 0.2 }}
         minZoom={0.5}
         maxZoom={1.5}
+        attributionPosition="bottom-right"
+        proOptions={{ hideAttribution: true }}
+        nodesDraggable={false}
+        nodesConnectable={false}
+        elementsSelectable={true}
         defaultEdgeOptions={{
-          type: ConnectionLineType.SmoothStep,
+          type: 'smoothstep',
         }}
       >
-        <Background color="#e5e7eb" gap={16} />
+        <Background color="#e5e7eb" gap={16} size={1} />
         <Controls showInteractive={false} />
         <MiniMap
           nodeColor={() => '#3b82f6'}
-          maskColor="rgba(0, 0, 0, 0.1)"
-          className="bg-white border border-gray-300 rounded"
+          maskColor="rgba(0, 0, 0, 0.05)"
+          style={{
+            background: 'white',
+            border: '2px solid #e5e7eb',
+            borderRadius: '8px',
+          }}
         />
       </ReactFlow>
     </div>
