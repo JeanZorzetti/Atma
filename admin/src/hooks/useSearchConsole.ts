@@ -330,3 +330,84 @@ export function useSearchConsoleAlerts(unresolvedOnly: boolean = false) {
     resolveAlert
   }
 }
+
+// =============================================================================
+// useSearchConsoleValidation - Validate data coverage for a period
+// =============================================================================
+
+export interface ValidationResult {
+  success: boolean
+  period: { startDate: string; endDate: string }
+  expectedDays: number
+  daysWithData: number
+  coverage: string
+  missingDays: number
+  missingDates: string[]
+  totalMissingDates: number
+  datesWithData: string[]
+  recommendation: string
+}
+
+export function useSearchConsoleValidation(startDate?: string, endDate?: string) {
+  const [validation, setValidation] = useState<ValidationResult | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const validatePeriod = useCallback(async (start: string, end: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await apiService.searchConsole.validatePeriod(start, end) as ValidationResult
+
+      setValidation(response)
+      return response
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to validate period')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const resyncPeriod = useCallback(async (start: string, end: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await apiService.searchConsole.resyncPeriod(start, end) as {
+        success: boolean
+        message: string
+        period: { startDate: string; endDate: string }
+        totalMissingDates: number
+        successful: number
+        failed: number
+        results: Array<{ date: string; success: boolean; error?: string }>
+      }
+
+      // Refresh validation after resync
+      if (startDate && endDate) {
+        await validatePeriod(startDate, endDate)
+      }
+
+      return response
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to resync period')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [startDate, endDate, validatePeriod])
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      validatePeriod(startDate, endDate)
+    }
+  }, [startDate, endDate, validatePeriod])
+
+  return {
+    validation,
+    loading,
+    error,
+    validatePeriod,
+    resyncPeriod
+  }
+}

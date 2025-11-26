@@ -933,6 +933,18 @@ class ApiService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
       })
+    },
+
+    validatePeriod: async (startDate: string, endDate: string) => {
+      return this.request(`/search-console/metrics/validate-period?startDate=${startDate}&endDate=${endDate}`)
+    },
+
+    resyncPeriod: async (startDate: string, endDate: string) => {
+      return this.request('/search-console/metrics/resync-period', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ startDate, endDate })
+      })
     }
   }
 

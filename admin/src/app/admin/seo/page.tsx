@@ -30,7 +30,8 @@ import {
   useSearchConsoleMetrics,
   useSearchConsoleKeywords,
   useSearchConsolePages,
-  useSearchConsoleAlerts
+  useSearchConsoleAlerts,
+  useSearchConsoleValidation
 } from '@/hooks/useSearchConsole'
 
 function SEODashboardContent() {
@@ -56,6 +57,7 @@ function SEODashboardContent() {
   const { keywords, loading: keywordsLoading } = useSearchConsoleKeywords(undefined, 10)
   const { pages, loading: pagesLoading } = useSearchConsolePages(undefined, 10)
   const { alerts, loading: alertsLoading, resolveAlert } = useSearchConsoleAlerts(true)
+  const { validation, loading: validationLoading, resyncPeriod: resyncPeriodHook } = useSearchConsoleValidation(startDateStr, endDateStr)
 
   // Check for OAuth callback
   useEffect(() => {
@@ -185,6 +187,51 @@ function SEODashboardContent() {
         description: error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive"
       })
+    }
+  }
+
+  const handleResyncPeriod = async () => {
+    if (!dateRange?.from || !dateRange?.to) {
+      toast({
+        title: "Selecione um período",
+        description: "Por favor, selecione as datas de início e fim para ressincronizar.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (!validation || validation.missingDays === 0) {
+      toast({
+        title: "Nenhum dado faltando",
+        description: "O período selecionado já possui todos os dados.",
+      })
+      return
+    }
+
+    setSyncing(true)
+    try {
+      const startDateStr = dateRange.from.toISOString().split('T')[0]
+      const endDateStr = dateRange.to.toISOString().split('T')[0]
+
+      toast({
+        title: "Ressincronizando dados faltantes...",
+        description: `Importando ${validation.missingDays} dias de dados. Isso pode levar alguns minutos...`,
+      })
+
+      const result = await resyncPeriodHook(startDateStr, endDateStr)
+
+      toast({
+        title: "Ressincronização concluída!",
+        description: `${result.successful} de ${result.totalMissingDates} datas sincronizadas com sucesso.`,
+      })
+    } catch (error) {
+      toast({
+        title: "Erro na ressincronização",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+        variant: "destructive"
+      })
+    } finally {
+      setSyncing(false)
     }
   }
 
@@ -348,6 +395,60 @@ function SEODashboardContent() {
                 Ver alertas
               </Button>
             </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Data Coverage Alert */}
+      {validation && parseFloat(validation.coverage) < 90 && (
+        <Alert className="border-orange-200 bg-orange-50">
+          <AlertTriangle className="h-4 w-4 text-orange-600" />
+          <AlertDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <span className="font-semibold text-orange-900">
+                  Cobertura de dados: {validation.coverage} ({validation.daysWithData}/{validation.expectedDays} dias)
+                </span>
+                <p className="text-sm text-orange-700 mt-1">
+                  {validation.missingDays} {validation.missingDays === 1 ? 'dia está faltando' : 'dias estão faltando'}.
+                  Isso pode afetar a precisão das métricas exibidas.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResyncPeriod}
+                disabled={syncing || validationLoading}
+                className="bg-orange-100 hover:bg-orange-200 text-orange-900 border-orange-300"
+              >
+                {syncing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Ressincronizando...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Ressincronizar {validation.missingDays} {validation.missingDays === 1 ? 'dia' : 'dias'}
+                  </>
+                )}
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Data Coverage OK */}
+      {validation && parseFloat(validation.coverage) >= 90 && (
+        <Alert className="border-green-200 bg-green-50">
+          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <AlertDescription>
+            <span className="font-semibold text-green-900">
+              Cobertura de dados: {validation.coverage} ({validation.daysWithData}/{validation.expectedDays} dias)
+            </span>
+            <span className="text-sm text-green-700 ml-2">
+              - {validation.recommendation}
+            </span>
           </AlertDescription>
         </Alert>
       )}
