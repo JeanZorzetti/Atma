@@ -208,12 +208,12 @@ export default function BIConversaoPage() {
         </div>
       ) : metrics ? (
         <>
-          {/* Funnel Visualization - Complete 7-Stage Journey */}
+          {/* Funnel Visualization - Complete 8-Stage Journey */}
           <Card>
             <CardHeader>
               <CardTitle>Funil de Conversão Completo</CardTitle>
               <CardDescription>
-                Jornada completa: Google → Novo → Contatado → Agendado → Avaliação Inicial → Atribuído → Convertido
+                Jornada completa: Impressões → Cliques → Cadastros → Novo → Contatado → Agendado → Avaliação Inicial → Atribuído → Convertido
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -253,13 +253,36 @@ export default function BIConversaoPage() {
                   </div>
                 </div>
 
-                {/* CRM Stage 1: Cliques → Novo */}
+                {/* NEW Stage: Cliques → Cadastros Totais */}
                 <div className="flex items-center gap-4">
                   <div className="flex-1" />
                   <div className="flex flex-col items-center justify-center px-3">
                     <ArrowRight className="h-6 w-6 text-gray-400" />
                     <div className={`text-sm font-bold ${getHealthColor(getHealthStatus(metrics.conversions.clickToRegistration, 8))} px-2 py-1 rounded mt-1`}>
                       {metrics.conversions.clickToRegistration.toFixed(1)}%
+                    </div>
+                  </div>
+
+                  <div className="flex-1 bg-indigo-50 rounded-lg p-4 border-2 border-indigo-200">
+                    <div className="flex items-center gap-3">
+                      <UserPlus className="h-5 w-5 text-indigo-600" />
+                      <div>
+                        <div className="text-xs text-gray-600">Cadastros Totais</div>
+                        <div className="text-xl font-bold text-gray-900">
+                          {metrics.crm.registrations.toLocaleString('pt-BR')}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CRM Stage 1: Cadastros → Novo */}
+                <div className="flex items-center gap-4">
+                  <div className="flex-1" />
+                  <div className="flex flex-col items-center justify-center px-3">
+                    <ArrowRight className="h-6 w-6 text-gray-400" />
+                    <div className={`text-sm font-bold ${getHealthColor(getHealthStatus(metrics.conversions.novoToContatado, 95))} px-2 py-1 rounded mt-1`}>
+                      100%
                     </div>
                   </div>
 

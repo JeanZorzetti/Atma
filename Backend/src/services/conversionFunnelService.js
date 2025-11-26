@@ -103,19 +103,10 @@ class ConversionFunnelService {
         [startDate, endDate]
       );
 
-      // Get status breakdown for detailed funnel
-      const statusBreakdown = await executeQuery(
-        `SELECT
-          status,
-          COUNT(*) as count
-         FROM patient_leads
-         WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?
-         GROUP BY status`,
-        [startDate, endDate]
-      );
-
-      // Convert status breakdown to object
-      const statusCounts = {
+      // Get HISTORICAL status breakdown (how many reached each status)
+      // This uses patient_status_history to count patients who REACHED each stage,
+      // not just those currently in each stage
+      let statusCounts = {
         novo: 0,
         contatado: 0,
         agendado: 0,
@@ -125,9 +116,27 @@ class ConversionFunnelService {
         cancelado: 0
       };
 
-      statusBreakdown.forEach(row => {
-        statusCounts[row.status] = parseInt(row.count) || 0;
-      });
+      try {
+        // Try to get historical counts from patient_status_history
+        const historicalCounts = await this.getHistoricalStatusCounts(startDate, endDate);
+        statusCounts = historicalCounts;
+      } catch (historyError) {
+        // Fallback: If patient_status_history doesn't exist, use current status
+        logger.warn('Using current status counts (patient_status_history not available)');
+        const statusBreakdown = await executeQuery(
+          `SELECT
+            status,
+            COUNT(*) as count
+           FROM patient_leads
+           WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?
+           GROUP BY status`,
+          [startDate, endDate]
+        );
+
+        statusBreakdown.forEach(row => {
+          statusCounts[row.status] = parseInt(row.count) || 0;
+        });
+      }
 
       // Legacy appointments table support (if it exists)
       let appointments = 0;
@@ -179,6 +188,65 @@ class ConversionFunnelService {
       };
     } catch (error) {
       logger.error('Error getting CRM metrics:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get historical status counts from patient_status_history
+   * This counts how many patients REACHED each status, not how many are currently in it
+   *
+   * @param {string} startDate - YYYY-MM-DD
+   * @param {string} endDate - YYYY-MM-DD
+   * @returns {object} Historical counts for each status
+   */
+  async getHistoricalStatusCounts(startDate, endDate) {
+    try {
+      // Count distinct patients who reached each status in the period
+      const query = `
+        SELECT
+          h.new_status as status,
+          COUNT(DISTINCT h.patient_id) as count
+        FROM patient_status_history h
+        INNER JOIN patient_leads p ON h.patient_id = p.id
+        WHERE DATE(p.created_at) >= ? AND DATE(p.created_at) <= ?
+        GROUP BY h.new_status
+      `;
+
+      const results = await executeQuery(query, [startDate, endDate]);
+
+      // Initialize counts
+      const statusCounts = {
+        novo: 0,
+        contatado: 0,
+        agendado: 0,
+        avaliacao_inicial: 0,
+        atribuido: 0,
+        convertido: 0,
+        cancelado: 0
+      };
+
+      // Fill in the counts from query results
+      results.forEach(row => {
+        if (statusCounts.hasOwnProperty(row.status)) {
+          statusCounts[row.status] = parseInt(row.count) || 0;
+        }
+      });
+
+      // Important: 'novo' should equal total registrations since all patients start as 'novo'
+      // Get total registrations to set 'novo' count correctly
+      const registrations = await executeQuery(
+        `SELECT COUNT(*) as count
+         FROM patient_leads
+         WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?`,
+        [startDate, endDate]
+      );
+      statusCounts.novo = parseInt(registrations[0]?.count) || 0;
+
+      logger.info(`Historical status counts: ${JSON.stringify(statusCounts)}`);
+      return statusCounts;
+    } catch (error) {
+      logger.error('Error getting historical status counts:', error);
       throw error;
     }
   }
