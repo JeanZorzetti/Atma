@@ -453,6 +453,152 @@ function SEODashboardContent() {
         </Alert>
       )}
 
+      {/* Data Validation & Sync Status Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-blue-600" />
+            Validação de Dados e Sincronização
+          </CardTitle>
+          <CardDescription>
+            Compare os dados do dashboard com o Google Search Console e veja o status da sincronização
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left: Dashboard Metrics */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                Dashboard Atma
+              </h3>
+              <div className="bg-blue-50 p-4 rounded-lg space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Impressões:</span>
+                  <span className="font-bold text-lg">
+                    {summary?.totalImpressions?.toLocaleString('pt-BR') || '0'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Cliques:</span>
+                  <span className="font-bold text-lg">
+                    {summary?.totalClicks?.toLocaleString('pt-BR') || '0'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">CTR:</span>
+                  <span className="font-bold text-lg">{summary?.avgCtr || '0.00'}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Posição:</span>
+                  <span className="font-bold text-lg">{summary?.avgPosition || '0.00'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Data Coverage & Sync Status */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                Status de Sincronização
+              </h3>
+              <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                {validation ? (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Cobertura:</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-lg">{validation.coverage}</span>
+                        {parseFloat(validation.coverage) >= 90 ? (
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <AlertTriangle className="h-4 w-4 text-orange-600" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Dias com dados:</span>
+                      <span className="font-bold text-lg">
+                        {validation.daysWithData}/{validation.expectedDays}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Dias faltando:</span>
+                      <span className={`font-bold text-lg ${validation.missingDays === 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                        {validation.missingDays}
+                      </span>
+                    </div>
+                    <div className="pt-2 border-t">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">Período selecionado:</span>
+                        <span className="text-xs font-medium">
+                          {validation.period.startDate} → {validation.period.endDate}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : validationLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    Selecione um período para validar
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Sync Actions */}
+          <div className="mt-4 pt-4 border-t flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              {syncing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                  <span>Sincronizando dados...</span>
+                </>
+              ) : validation && validation.missingDays > 0 ? (
+                <>
+                  <AlertTriangle className="h-4 w-4 text-orange-600" />
+                  <span>Dados incompletos detectados</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <span>Dados atualizados e completos</span>
+                </>
+              )}
+            </div>
+            <div className="flex gap-2">
+              {validation && validation.missingDays > 0 && (
+                <Button
+                  size="sm"
+                  onClick={handleResyncPeriod}
+                  disabled={syncing}
+                  className="bg-orange-600 hover:bg-orange-700"
+                >
+                  {syncing ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                  )}
+                  Ressincronizar Período
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => window.open('https://search.google.com/search-console', '_blank')}
+              >
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Abrir GSC
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -527,6 +673,77 @@ function SEODashboardContent() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Data Coverage Chart */}
+      {validation && validation.expectedDays > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Cobertura de Dados por Dia</CardTitle>
+            <CardDescription>
+              Visualização diária da disponibilidade de dados no período selecionado
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Visual bar chart */}
+              <div className="flex gap-1 h-12 items-end">
+                {Array.from({ length: validation.expectedDays }, (_, i) => {
+                  const hasData = i < validation.daysWithData
+                  return (
+                    <div
+                      key={i}
+                      className={`flex-1 rounded-t transition-all ${
+                        hasData ? 'bg-green-500' : 'bg-red-400'
+                      }`}
+                      style={{ height: hasData ? '100%' : '30%' }}
+                      title={hasData ? `Dia ${i + 1}: Dados disponíveis` : `Dia ${i + 1}: Dados faltando`}
+                    />
+                  )
+                })}
+              </div>
+
+              {/* Legend */}
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-green-500 rounded"></div>
+                    <span className="text-gray-600">Dados disponíveis ({validation.daysWithData})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-red-400 rounded"></div>
+                    <span className="text-gray-600">Dados faltando ({validation.missingDays})</span>
+                  </div>
+                </div>
+                <span className="text-gray-500">
+                  Total: {validation.expectedDays} dias
+                </span>
+              </div>
+
+              {/* Summary Stats */}
+              <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {validation.coverage}
+                  </div>
+                  <div className="text-xs text-gray-500">Cobertura</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {validation.daysWithData}
+                  </div>
+                  <div className="text-xs text-gray-500">Dias com dados</div>
+                </div>
+                <div className="text-center">
+                  <div className={`text-2xl font-bold ${validation.missingDays === 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                    {validation.missingDays}
+                  </div>
+                  <div className="text-xs text-gray-500">Dias faltando</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Tabs */}
       <Tabs defaultValue="keywords" className="space-y-4">

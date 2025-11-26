@@ -14,15 +14,20 @@ import {
   CheckCircle2,
   XCircle,
   TrendingUp,
-  TrendingDown,
   RefreshCw,
   Loader2,
-  ArrowRight
+  ArrowRight,
+  ArrowDown,
+  Phone,
+  UserCheck,
+  Award,
+  Clock
 } from 'lucide-react'
 import { apiService } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
 
-interface FunnelMetrics {
+interface DetailedFunnelMetrics {
+  success: boolean
   seo: {
     impressions: number
     clicks: number
@@ -34,7 +39,7 @@ interface FunnelMetrics {
     appointments: number
     attendance: number
     cancellations: number
-    statusBreakdown?: {
+    statusBreakdown: {
       novo: number
       contatado: number
       agendado: number
@@ -44,20 +49,34 @@ interface FunnelMetrics {
       cancelado: number
     }
   }
-  funnel: {
+  conversions: {
     impressionToClick: number
     clickToRegistration: number
-    registrationToAppointment: number
-    appointmentToAttendance: number
-    impressionToRegistration: number
-    clickToAttendance: number
+    novoToContatado: number
+    contatadoToAgendado: number
+    agendadoToAvaliacaoInicial: number
+    avaliacaoInicialToAtribuido: number
+    atribuidoToConvertido: number
     cancellationRate: number
-    // New B2C detailed funnel
-    novoToContatado?: number
-    contatadoToAgendado?: number
-    agendadoToAvaliacaoInicial?: number
-    avaliacaoInicialToAtribuido?: number
-    atribuidoToConvertido?: number
+  }
+  transitionTimes: {
+    [key: string]: {
+      fromStatus: string
+      toStatus: string
+      occurrences: number
+      avgHours: number
+      avgDays: number
+      minHours: number
+      maxHours: number
+    }
+  }
+  cancellationBreakdown: {
+    novoToCancelado: number
+    contatadoToCancelado: number
+    agendadoToCancelado: number
+    avaliacaoInicialToCancelado: number
+    atribuidoToCancelado: number
+    total: number
   }
   period: {
     startDate: string
@@ -69,11 +88,11 @@ interface FunnelMetrics {
 export default function BIConversaoPage() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
-  const [metrics, setMetrics] = useState<FunnelMetrics | null>(null)
+  const [metrics, setMetrics] = useState<DetailedFunnelMetrics | null>(null)
 
-  // Default date range: last 15 days (accounting for GSC delay)
+  // Default date range: last 30 days (accounting for GSC delay)
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 18),
+    from: subDays(new Date(), 33),
     to: subDays(new Date(), 3),
   })
 
@@ -91,9 +110,24 @@ export default function BIConversaoPage() {
       const startDate = dateRange.from.toISOString().split('T')[0]
       const endDate = dateRange.to.toISOString().split('T')[0]
 
-      const response = await apiService.conversionFunnel.getFunnelMetrics(startDate, endDate) as FunnelMetrics
+      // Use novo endpoint detailed-metrics
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/conversion-funnel/detailed-metrics?startDate=${startDate}&endDate=${endDate}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        }
+      )
 
-      setMetrics(response)
+      if (!response.ok) {
+        throw new Error(`Erro ao carregar métricas: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      setMetrics(data)
     } catch (error) {
       toast({
         title: "Erro ao carregar métricas",
@@ -102,6 +136,25 @@ export default function BIConversaoPage() {
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Helper function to get health status based on conversion rate
+  const getHealthStatus = (rate: number, target: number): 'healthy' | 'warning' | 'critical' => {
+    if (rate >= target) return 'healthy'
+    if (rate >= target * 0.8) return 'warning'
+    return 'critical'
+  }
+
+  // Helper function to get health color
+  const getHealthColor = (status: 'healthy' | 'warning' | 'critical') => {
+    switch (status) {
+      case 'healthy':
+        return 'text-green-600 bg-green-100 border-green-300'
+      case 'warning':
+        return 'text-yellow-600 bg-yellow-100 border-yellow-300'
+      case 'critical':
+        return 'text-red-600 bg-red-100 border-red-300'
     }
   }
 
