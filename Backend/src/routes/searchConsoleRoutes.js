@@ -41,6 +41,9 @@ router.get('/metrics/validate-period', searchConsoleController.validatePeriod);
 // POST /api/search-console/metrics/resync-period - Resync missing data for a period
 router.post('/metrics/resync-period', searchConsoleController.resyncPeriod);
 
+// GET /api/search-console/metrics/check-duplicates - Check for duplicate entries
+router.get('/metrics/check-duplicates', searchConsoleController.checkDuplicates);
+
 // =============================================================================
 // Keywords & Pages Routes
 // =============================================================================

@@ -604,6 +604,124 @@ exports.validatePeriod = async (req, res) => {
 };
 
 /**
+ * GET /api/search-console/metrics/check-duplicates
+ * Check for duplicate entries in seo_metrics_history
+ */
+exports.checkDuplicates = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        error: 'startDate and endDate are required'
+      });
+    }
+
+    logger.info('🔍 Checking for duplicates:', { startDate, endDate });
+
+    // Query 1: Encontrar duplicatas por data
+    const duplicatesQuery = await executeQuery(
+      `SELECT
+        DATE(date) as metric_date,
+        COUNT(*) as record_count,
+        SUM(impressions) as total_impressions,
+        SUM(clicks) as total_clicks,
+        GROUP_CONCAT(id ORDER BY id) as duplicate_ids
+       FROM seo_metrics_history
+       WHERE date >= ? AND date <= ?
+       GROUP BY DATE(date)
+       HAVING COUNT(*) > 1
+       ORDER BY metric_date DESC`,
+      [startDate, endDate]
+    );
+
+    // Query 2: Contagem total vs únicas
+    const countQuery = await executeQuery(
+      `SELECT
+        COUNT(*) as total_records,
+        COUNT(DISTINCT DATE(date)) as unique_dates,
+        (COUNT(*) - COUNT(DISTINCT DATE(date))) as potential_duplicates
+       FROM seo_metrics_history
+       WHERE date >= ? AND date <= ?`,
+      [startDate, endDate]
+    );
+
+    // Query 3: Verificar se há valores diferentes para mesma data
+    const conflictsQuery = await executeQuery(
+      `SELECT
+        DATE(date) as metric_date,
+        COUNT(DISTINCT impressions) as different_impressions,
+        COUNT(DISTINCT clicks) as different_clicks,
+        COUNT(*) as total_records,
+        GROUP_CONCAT(DISTINCT impressions ORDER BY impressions) as impressions_values,
+        GROUP_CONCAT(DISTINCT clicks ORDER BY clicks) as clicks_values
+       FROM seo_metrics_history
+       WHERE date >= ? AND date <= ?
+       GROUP BY DATE(date)
+       HAVING COUNT(*) > 1`,
+      [startDate, endDate]
+    );
+
+    const hasDuplicates = duplicatesQuery.length > 0;
+    const hasConflicts = conflictsQuery.some(row =>
+      row.different_impressions > 1 || row.different_clicks > 1
+    );
+
+    const summary = {
+      hasDuplicates,
+      hasConflicts,
+      totalRecords: countQuery[0].total_records,
+      uniqueDates: countQuery[0].unique_dates,
+      potentialDuplicates: countQuery[0].potential_duplicates,
+      duplicateDetails: duplicatesQuery.map(row => ({
+        date: row.metric_date,
+        recordCount: row.record_count,
+        totalImpressions: row.total_impressions,
+        totalClicks: row.total_clicks,
+        duplicateIds: row.duplicate_ids.split(',').map(id => parseInt(id))
+      })),
+      conflicts: conflictsQuery.map(row => ({
+        date: row.metric_date,
+        differentImpressions: row.different_impressions,
+        differentClicks: row.different_clicks,
+        totalRecords: row.total_records,
+        impressionsValues: row.impressions_values,
+        clicksValues: row.clicks_values
+      }))
+    };
+
+    logger.info('📊 Duplicate check results:', {
+      hasDuplicates,
+      hasConflicts,
+      duplicateCount: duplicatesQuery.length,
+      conflictCount: conflictsQuery.length
+    });
+
+    res.json({
+      success: true,
+      period: { startDate, endDate },
+      summary,
+      recommendation: hasDuplicates
+        ? (hasConflicts
+          ? 'CRÍTICO: Duplicatas com valores diferentes encontradas. Revisão manual necessária.'
+          : 'Duplicatas encontradas com mesmos valores. Migration recomendada para limpeza.')
+        : 'Nenhuma duplicata encontrada. Dados estão consistentes.',
+      action: hasDuplicates
+        ? 'Execute a migration para remover duplicatas'
+        : 'Nenhuma ação necessária'
+    });
+  } catch (error) {
+    logger.error('Error checking duplicates:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check duplicates',
+      message: error.message
+    });
+  }
+};
+
+/**
  * POST /api/search-console/metrics/resync-period
  * Resync missing data for a specific period
  */
