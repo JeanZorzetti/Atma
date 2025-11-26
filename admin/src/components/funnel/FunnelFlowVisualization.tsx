@@ -1,17 +1,20 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import ReactFlow, {
   Node,
   Edge,
   Background,
   Controls,
   MiniMap,
-  ConnectionLineType,
   MarkerType,
   Position,
+  EdgeProps,
+  BaseEdge,
+  getSmoothStepPath,
+  EdgeLabelRenderer,
 } from 'reactflow';
-import { Eye, MousePointerClick, UserPlus, Phone, Calendar, CheckCircle2, UserCheck, Award } from 'lucide-react';
+import { Eye, MousePointerClick, UserPlus, Phone, Calendar, CheckCircle2, UserCheck, Award, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DetailedFunnelMetrics {
@@ -55,20 +58,96 @@ interface FunnelFlowVisualizationProps {
   metrics: DetailedFunnelMetrics;
 }
 
-// Helper para health status
-const getHealthStatus = (rate: number, target: number): 'healthy' | 'warning' | 'critical' => {
-  if (rate >= target) return 'healthy';
-  if (rate >= target * 0.8) return 'warning';
-  return 'critical';
-};
+// Custom Edge Component with Tooltip
+interface CustomEdgeData {
+  label: string;
+  formula: string;
+  description: string;
+  numerator: string;
+  denominator: string;
+  target: string;
+}
 
-const getHealthColor = (status: 'healthy' | 'warning' | 'critical'): string => {
-  return {
-    healthy: 'bg-green-100 text-green-700 border-green-300',
-    warning: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-    critical: 'bg-red-100 text-red-700 border-red-300',
-  }[status];
-};
+function CustomEdgeWithTooltip({
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  style = {},
+  markerEnd,
+  data,
+}: EdgeProps<CustomEdgeData>) {
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
+
+  return (
+    <>
+      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+      <EdgeLabelRenderer>
+        <div
+          style={{
+            position: 'absolute',
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            fontSize: 12,
+            pointerEvents: 'all',
+          }}
+          className="nodrag nopan"
+        >
+          <TooltipProvider>
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-1 px-2 py-1 rounded-md cursor-help font-bold transition-all hover:scale-110"
+                     style={{
+                       backgroundColor: style.stroke === '#10b981' ? '#dcfce7' :
+                                       style.stroke === '#f59e0b' ? '#fef3c7' : '#fee2e2',
+                       border: `2px solid ${style.stroke}`,
+                     }}>
+                  <span>{data?.label}</span>
+                  <Info className="h-3 w-3 opacity-60" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-sm p-4 bg-white border-2 shadow-xl">
+                <div className="space-y-2">
+                  <div className="font-semibold text-gray-900 border-b pb-2">
+                    {data?.description}
+                  </div>
+                  <div className="text-sm space-y-1">
+                    <div className="font-mono text-xs bg-blue-50 p-2 rounded border border-blue-200">
+                      <div className="text-blue-900 font-bold mb-1">Fórmula:</div>
+                      <div className="text-blue-800">{data?.formula}</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="bg-green-50 p-2 rounded border border-green-200">
+                        <div className="text-[10px] text-green-700 font-semibold">NUMERADOR</div>
+                        <div className="text-xs text-green-900">{data?.numerator}</div>
+                      </div>
+                      <div className="bg-purple-50 p-2 rounded border border-purple-200">
+                        <div className="text-[10px] text-purple-700 font-semibold">DENOMINADOR</div>
+                        <div className="text-xs text-purple-900">{data?.denominator}</div>
+                      </div>
+                    </div>
+                    <div className="bg-amber-50 p-2 rounded border border-amber-200 mt-2">
+                      <div className="text-[10px] text-amber-700 font-semibold">META</div>
+                      <div className="text-xs text-amber-900">{data?.target}</div>
+                    </div>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </EdgeLabelRenderer>
+    </>
+  );
+}
 
 export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualizationProps) {
   // Definir nodes com posições fixas
@@ -314,146 +393,169 @@ export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualiza
     },
   ];
 
-  // Definir edges com labels customizados
-  const edges: Edge[] = [
+  // Edge types configuration
+  const edgeTypes = {
+    customEdge: CustomEdgeWithTooltip,
+  };
+
+  // Definir edges com labels customizados e tooltips informativos
+  const edges: Edge<CustomEdgeData>[] = [
     {
       id: 'e1',
       source: 'impressoes',
       target: 'cliques',
-      type: 'smoothstep',
+      type: 'customEdge',
       animated: metrics.conversions.impressionToClick >= 3,
       style: {
         stroke: metrics.conversions.impressionToClick >= 3 ? '#10b981' : metrics.conversions.impressionToClick >= 2.4 ? '#f59e0b' : '#ef4444',
         strokeWidth: 3,
       },
-      label: `${metrics.conversions.impressionToClick.toFixed(1)}%`,
-      labelStyle: { fontSize: 12, fontWeight: 700 },
-      labelBgStyle: {
-        fill: metrics.conversions.impressionToClick >= 3 ? '#dcfce7' : metrics.conversions.impressionToClick >= 2.4 ? '#fef3c7' : '#fee2e2',
+      markerEnd: { type: MarkerType.ArrowClosed, color: metrics.conversions.impressionToClick >= 3 ? '#10b981' : metrics.conversions.impressionToClick >= 2.4 ? '#f59e0b' : '#ef4444' },
+      data: {
+        label: `${metrics.conversions.impressionToClick.toFixed(1)}%`,
+        formula: 'CTR = (Cliques ÷ Impressões) × 100',
+        description: 'Taxa de Cliques (CTR) - Quantas pessoas clicaram após ver o anúncio',
+        numerator: `${metrics.seo.clicks} cliques no Google`,
+        denominator: `${metrics.seo.impressions.toLocaleString()} impressões nos resultados`,
+        target: '≥ 3% (excelente) | 2.4-3% (bom) | < 2.4% (precisa melhorar)'
       },
-      labelBgPadding: [8, 4] as [number, number],
-      markerEnd: { type: MarkerType.ArrowClosed },
     },
     {
       id: 'e2',
       source: 'cliques',
       target: 'cadastros',
-      type: 'smoothstep',
+      type: 'customEdge',
       animated: metrics.conversions.clickToRegistration >= 8,
       style: {
         stroke: metrics.conversions.clickToRegistration >= 8 ? '#10b981' : metrics.conversions.clickToRegistration >= 6.4 ? '#f59e0b' : '#ef4444',
         strokeWidth: 3,
       },
-      label: `${metrics.conversions.clickToRegistration.toFixed(1)}%`,
-      labelStyle: { fontSize: 12, fontWeight: 700 },
-      labelBgStyle: {
-        fill: metrics.conversions.clickToRegistration >= 8 ? '#dcfce7' : metrics.conversions.clickToRegistration >= 6.4 ? '#fef3c7' : '#fee2e2',
+      markerEnd: { type: MarkerType.ArrowClosed, color: metrics.conversions.clickToRegistration >= 8 ? '#10b981' : metrics.conversions.clickToRegistration >= 6.4 ? '#f59e0b' : '#ef4444' },
+      data: {
+        label: `${metrics.conversions.clickToRegistration.toFixed(1)}%`,
+        formula: 'Taxa Conversão = (Cadastros ÷ Cliques) × 100',
+        description: 'Conversão de Clique para Cadastro - Quantos visitantes se cadastraram',
+        numerator: `${metrics.crm.registrations} cadastros realizados`,
+        denominator: `${metrics.seo.clicks} cliques no site`,
+        target: '≥ 8% (excelente) | 6.4-8% (bom) | < 6.4% (precisa melhorar)'
       },
-      labelBgPadding: [8, 4] as [number, number],
-      markerEnd: { type: MarkerType.ArrowClosed },
     },
     {
       id: 'e3',
       source: 'cadastros',
       target: 'novo',
-      type: 'smoothstep',
+      type: 'customEdge',
       animated: true,
       style: { stroke: '#10b981', strokeWidth: 3 },
-      label: '100%',
-      labelStyle: { fontSize: 12, fontWeight: 700 },
-      labelBgStyle: { fill: '#dcfce7' },
-      labelBgPadding: [8, 4] as [number, number],
-      markerEnd: { type: MarkerType.ArrowClosed },
+      markerEnd: { type: MarkerType.ArrowClosed, color: '#10b981' },
+      data: {
+        label: '100%',
+        formula: 'Sempre 100% - Todo cadastro vira lead',
+        description: 'Transição Automática - Todo cadastro entra como lead novo no CRM',
+        numerator: `${metrics.crm.statusBreakdown.novo} leads novos`,
+        denominator: `${metrics.crm.registrations} cadastros totais`,
+        target: '100% (automático) - Não há perda nesta etapa'
+      },
     },
     {
       id: 'e4',
       source: 'novo',
       target: 'contatado',
-      type: 'smoothstep',
+      type: 'customEdge',
       animated: metrics.conversions.novoToContatado >= 95,
       style: {
         stroke: metrics.conversions.novoToContatado >= 95 ? '#10b981' : metrics.conversions.novoToContatado >= 76 ? '#f59e0b' : '#ef4444',
         strokeWidth: 3,
       },
-      label: `${metrics.conversions.novoToContatado.toFixed(1)}%`,
-      labelStyle: { fontSize: 12, fontWeight: 700 },
-      labelBgStyle: {
-        fill: metrics.conversions.novoToContatado >= 95 ? '#dcfce7' : metrics.conversions.novoToContatado >= 76 ? '#fef3c7' : '#fee2e2',
+      markerEnd: { type: MarkerType.ArrowClosed, color: metrics.conversions.novoToContatado >= 95 ? '#10b981' : metrics.conversions.novoToContatado >= 76 ? '#f59e0b' : '#ef4444' },
+      data: {
+        label: `${metrics.conversions.novoToContatado.toFixed(1)}%`,
+        formula: 'Taxa Contato = (Contatados ÷ Novos) × 100',
+        description: 'Primeiro Contato - Quantos leads novos foram contatados pela equipe',
+        numerator: `${metrics.crm.statusBreakdown.contatado} leads contatados`,
+        denominator: `${metrics.crm.statusBreakdown.novo} leads novos no sistema`,
+        target: '≥ 95% (excelente) | 76-95% (bom) | < 76% (crítico - leads sem contato)'
       },
-      labelBgPadding: [8, 4] as [number, number],
-      markerEnd: { type: MarkerType.ArrowClosed },
     },
     {
       id: 'e5',
       source: 'contatado',
       target: 'agendado',
-      type: 'smoothstep',
+      type: 'customEdge',
       animated: metrics.conversions.contatadoToAgendado >= 60,
       style: {
         stroke: metrics.conversions.contatadoToAgendado >= 60 ? '#10b981' : metrics.conversions.contatadoToAgendado >= 48 ? '#f59e0b' : '#ef4444',
         strokeWidth: 3,
       },
-      label: `${metrics.conversions.contatadoToAgendado.toFixed(1)}%`,
-      labelStyle: { fontSize: 12, fontWeight: 700 },
-      labelBgStyle: {
-        fill: metrics.conversions.contatadoToAgendado >= 60 ? '#dcfce7' : metrics.conversions.contatadoToAgendado >= 48 ? '#fef3c7' : '#fee2e2',
+      markerEnd: { type: MarkerType.ArrowClosed, color: metrics.conversions.contatadoToAgendado >= 60 ? '#10b981' : metrics.conversions.contatadoToAgendado >= 48 ? '#f59e0b' : '#ef4444' },
+      data: {
+        label: `${metrics.conversions.contatadoToAgendado.toFixed(1)}%`,
+        formula: 'Taxa Agendamento = (Agendados ÷ Contatados) × 100',
+        description: 'Agendamento - Quantos leads contatados marcaram consulta',
+        numerator: `${metrics.crm.statusBreakdown.agendado} consultas agendadas`,
+        denominator: `${metrics.crm.statusBreakdown.contatado} leads contatados`,
+        target: '≥ 60% (excelente) | 48-60% (bom) | < 48% (baixa conversão no contato)'
       },
-      labelBgPadding: [8, 4] as [number, number],
-      markerEnd: { type: MarkerType.ArrowClosed },
     },
     {
       id: 'e6',
       source: 'agendado',
       target: 'avaliacao_inicial',
-      type: 'smoothstep',
+      type: 'customEdge',
       animated: metrics.conversions.agendadoToAvaliacaoInicial >= 70,
       style: {
         stroke: metrics.conversions.agendadoToAvaliacaoInicial >= 70 ? '#10b981' : metrics.conversions.agendadoToAvaliacaoInicial >= 56 ? '#f59e0b' : '#ef4444',
         strokeWidth: 3,
       },
-      label: `${metrics.conversions.agendadoToAvaliacaoInicial.toFixed(1)}%`,
-      labelStyle: { fontSize: 12, fontWeight: 700 },
-      labelBgStyle: {
-        fill: metrics.conversions.agendadoToAvaliacaoInicial >= 70 ? '#dcfce7' : metrics.conversions.agendadoToAvaliacaoInicial >= 56 ? '#fef3c7' : '#fee2e2',
+      markerEnd: { type: MarkerType.ArrowClosed, color: metrics.conversions.agendadoToAvaliacaoInicial >= 70 ? '#10b981' : metrics.conversions.agendadoToAvaliacaoInicial >= 56 ? '#f59e0b' : '#ef4444' },
+      data: {
+        label: `${metrics.conversions.agendadoToAvaliacaoInicial.toFixed(1)}%`,
+        formula: 'Taxa Comparecimento = (Avaliações ÷ Agendados) × 100',
+        description: 'Comparecimento - Quantos agendados compareceram à primeira consulta',
+        numerator: `${metrics.crm.statusBreakdown.avaliacao_inicial} pacientes avaliados`,
+        denominator: `${metrics.crm.statusBreakdown.agendado} consultas agendadas`,
+        target: '≥ 70% (excelente) | 56-70% (bom) | < 56% (muitas faltas/no-shows)'
       },
-      labelBgPadding: [8, 4] as [number, number],
-      markerEnd: { type: MarkerType.ArrowClosed },
     },
     {
       id: 'e7',
       source: 'avaliacao_inicial',
       target: 'atribuido',
-      type: 'smoothstep',
+      type: 'customEdge',
       animated: metrics.conversions.avaliacaoInicialToAtribuido >= 80,
       style: {
         stroke: metrics.conversions.avaliacaoInicialToAtribuido >= 80 ? '#10b981' : metrics.conversions.avaliacaoInicialToAtribuido >= 64 ? '#f59e0b' : '#ef4444',
         strokeWidth: 3,
       },
-      label: `${metrics.conversions.avaliacaoInicialToAtribuido.toFixed(1)}%`,
-      labelStyle: { fontSize: 12, fontWeight: 700 },
-      labelBgStyle: {
-        fill: metrics.conversions.avaliacaoInicialToAtribuido >= 80 ? '#dcfce7' : metrics.conversions.avaliacaoInicialToAtribuido >= 64 ? '#fef3c7' : '#fee2e2',
+      markerEnd: { type: MarkerType.ArrowClosed, color: metrics.conversions.avaliacaoInicialToAtribuido >= 80 ? '#10b981' : metrics.conversions.avaliacaoInicialToAtribuido >= 64 ? '#f59e0b' : '#ef4444' },
+      data: {
+        label: `${metrics.conversions.avaliacaoInicialToAtribuido.toFixed(1)}%`,
+        formula: 'Taxa Atribuição = (Atribuídos ÷ Avaliações) × 100',
+        description: 'Atribuição a Ortodontista - Quantos foram designados para tratamento',
+        numerator: `${metrics.crm.statusBreakdown.atribuido} pacientes atribuídos`,
+        denominator: `${metrics.crm.statusBreakdown.avaliacao_inicial} avaliações realizadas`,
+        target: '≥ 80% (excelente) | 64-80% (bom) | < 64% (baixa aceitação do plano)'
       },
-      labelBgPadding: [8, 4] as [number, number],
-      markerEnd: { type: MarkerType.ArrowClosed },
     },
     {
       id: 'e8',
       source: 'atribuido',
       target: 'convertido',
-      type: 'smoothstep',
+      type: 'customEdge',
       animated: metrics.conversions.atribuidoToConvertido >= 70,
       style: {
         stroke: metrics.conversions.atribuidoToConvertido >= 70 ? '#10b981' : metrics.conversions.atribuidoToConvertido >= 56 ? '#f59e0b' : '#ef4444',
         strokeWidth: 3,
       },
-      label: `${metrics.conversions.atribuidoToConvertido.toFixed(1)}%`,
-      labelStyle: { fontSize: 12, fontWeight: 700 },
-      labelBgStyle: {
-        fill: metrics.conversions.atribuidoToConvertido >= 70 ? '#dcfce7' : metrics.conversions.atribuidoToConvertido >= 56 ? '#fef3c7' : '#fee2e2',
+      markerEnd: { type: MarkerType.ArrowClosed, color: metrics.conversions.atribuidoToConvertido >= 70 ? '#10b981' : metrics.conversions.atribuidoToConvertido >= 56 ? '#f59e0b' : '#ef4444' },
+      data: {
+        label: `${metrics.conversions.atribuidoToConvertido.toFixed(1)}%`,
+        formula: 'Taxa Conversão Final = (Convertidos ÷ Atribuídos) × 100',
+        description: 'Conversão para Tratamento - Quantos iniciaram o tratamento ortodôntico',
+        numerator: `${metrics.crm.statusBreakdown.convertido} pacientes em tratamento`,
+        denominator: `${metrics.crm.statusBreakdown.atribuido} pacientes atribuídos`,
+        target: '≥ 70% (excelente) | 56-70% (bom) | < 56% (baixo fechamento)'
       },
-      labelBgPadding: [8, 4] as [number, number],
-      markerEnd: { type: MarkerType.ArrowClosed },
     },
   ];
 
@@ -462,6 +564,7 @@ export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualiza
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        edgeTypes={edgeTypes}
         fitView
         fitViewOptions={{ padding: 0.2 }}
         minZoom={0.5}
@@ -472,7 +575,7 @@ export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualiza
         nodesConnectable={false}
         elementsSelectable={true}
         defaultEdgeOptions={{
-          type: 'smoothstep',
+          type: 'customEdge',
         }}
       >
         <Background color="#e5e7eb" gap={16} size={1} />
