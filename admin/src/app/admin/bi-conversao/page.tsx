@@ -17,14 +17,12 @@ import {
   RefreshCw,
   Loader2,
   ArrowRight,
-  ArrowDown,
   Phone,
   UserCheck,
   Award,
   Clock,
   AlertCircle
 } from 'lucide-react'
-import { apiService } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
 
 interface DetailedFunnelMetrics {
@@ -97,12 +95,6 @@ export default function BIConversaoPage() {
     to: subDays(new Date(), 3),
   })
 
-  useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      fetchMetrics()
-    }
-  }, [dateRange])
-
   const fetchMetrics = async () => {
     if (!dateRange?.from || !dateRange?.to) return
 
@@ -140,7 +132,15 @@ export default function BIConversaoPage() {
     }
   }
 
+  useEffect(() => {
+    if (dateRange?.from && dateRange?.to) {
+      fetchMetrics()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange])
+
   // Helper function to get health status based on conversion rate
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getHealthStatus = (rate: number, target: number): 'healthy' | 'warning' | 'critical' => {
     if (rate >= target) return 'healthy'
     if (rate >= target * 0.8) return 'warning'
@@ -148,6 +148,7 @@ export default function BIConversaoPage() {
   }
 
   // Helper function to get health color
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getHealthColor = (status: 'healthy' | 'warning' | 'critical') => {
     switch (status) {
       case 'healthy':
@@ -578,7 +579,9 @@ export default function BIConversaoPage() {
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{metrics.funnel.clickToAttendance}%</div>
+                <div className="text-2xl font-bold">
+                  {((metrics.conversions.clickToRegistration * metrics.conversions.agendadoToAvaliacaoInicial) / 100).toFixed(2)}%
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Cliques → Avaliação Inicial
                 </p>
@@ -591,9 +594,11 @@ export default function BIConversaoPage() {
                 <MousePointerClick className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{metrics.funnel.impressionToRegistration}%</div>
+                <div className="text-2xl font-bold">
+                  {((metrics.conversions.impressionToClick * metrics.conversions.clickToRegistration) / 100).toFixed(2)}%
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  De {metrics.seo.impressions.toLocaleString()} impressões
+                  De {metrics.seo.impressions.toLocaleString('pt-BR')} impressões
                 </p>
               </CardContent>
             </Card>
@@ -604,9 +609,9 @@ export default function BIConversaoPage() {
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{metrics.funnel.registrationToAppointment}%</div>
+                <div className="text-2xl font-bold">{metrics.conversions.contatadoToAgendado.toFixed(2)}%</div>
                 <p className="text-xs text-muted-foreground">
-                  Dos cadastrados agendaram
+                  Dos contatados agendaram
                 </p>
               </CardContent>
             </Card>
@@ -617,9 +622,9 @@ export default function BIConversaoPage() {
                 <XCircle className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">{metrics.funnel.cancellationRate}%</div>
+                <div className="text-2xl font-bold text-red-600">{metrics.conversions.cancellationRate.toFixed(2)}%</div>
                 <p className="text-xs text-muted-foreground">
-                  {metrics.crm.cancellations} de {metrics.crm.appointments} agendamentos
+                  {metrics.crm.statusBreakdown.cancelado} de {metrics.crm.registrations} cadastros
                 </p>
               </CardContent>
             </Card>
