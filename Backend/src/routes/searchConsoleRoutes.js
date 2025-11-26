@@ -38,6 +38,9 @@ router.post('/metrics/sync', searchConsoleController.syncMetrics);
 // GET /api/search-console/metrics/validate-period - Validate data coverage for a period
 router.get('/metrics/validate-period', searchConsoleController.validatePeriod);
 
+// POST /api/search-console/metrics/resync-period - Resync missing data for a period
+router.post('/metrics/resync-period', searchConsoleController.resyncPeriod);
+
 // =============================================================================
 // Keywords & Pages Routes
 // =============================================================================

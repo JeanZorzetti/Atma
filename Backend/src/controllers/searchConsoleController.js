@@ -602,3 +602,108 @@ exports.validatePeriod = async (req, res) => {
     });
   }
 };
+
+/**
+ * POST /api/search-console/metrics/resync-period
+ * Resync missing data for a specific period
+ */
+exports.resyncPeriod = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.body;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        error: 'startDate and endDate are required'
+      });
+    }
+
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info('🔄 RESYNC PERIOD REQUEST');
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info('📅 Period:', { startDate, endDate });
+
+    // First, validate to see what's missing
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Get existing dates
+    const datesQuery = await executeQuery(
+      `SELECT DISTINCT DATE(date) as date
+       FROM seo_metrics_history
+       WHERE date >= ? AND date <= ?
+       ORDER BY date ASC`,
+      [startDate, endDate]
+    );
+
+    const datesWithData = datesQuery.map(row => row.date.toISOString().split('T')[0]);
+    const allDates = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      allDates.push(d.toISOString().split('T')[0]);
+    }
+    const missingDates = allDates.filter(date => !datesWithData.includes(date));
+
+    logger.info(`📊 Missing dates count: ${missingDates.length}`);
+    logger.info(`📅 Missing dates: ${missingDates.join(', ')}`);
+
+    if (missingDates.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No missing data for this period',
+        missingDates: [],
+        syncedDates: []
+      });
+    }
+
+    // Sync only missing dates to avoid unnecessary API calls
+    const results = [];
+    let successful = 0;
+    let failed = 0;
+
+    for (const dateStr of missingDates) {
+      try {
+        logger.info(`🔄 Syncing missing date: ${dateStr}`);
+        const result = await gscService.syncDailyMetrics(dateStr);
+
+        if (result.success) {
+          successful++;
+          results.push({ date: dateStr, success: true });
+          logger.info(`✅ Successfully synced ${dateStr}`);
+        } else {
+          failed++;
+          results.push({ date: dateStr, success: false, error: result.message });
+          logger.warn(`⚠️ Failed to sync ${dateStr}: ${result.message}`);
+        }
+
+        // Delay to avoid rate limiting (1 second between requests)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        failed++;
+        results.push({ date: dateStr, success: false, error: error.message });
+        logger.error(`❌ Error syncing ${dateStr}:`, error.message);
+      }
+    }
+
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info('✅ RESYNC PERIOD COMPLETE');
+    logger.info(`📊 Results: ${successful} successful, ${failed} failed out of ${missingDates.length} missing dates`);
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    res.json({
+      success: true,
+      message: `Synced ${successful} missing dates`,
+      period: { startDate, endDate },
+      totalMissingDates: missingDates.length,
+      successful,
+      failed,
+      results
+    });
+  } catch (error) {
+    logger.error('Error resyncing period:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to resync period',
+      message: error.message
+    });
+  }
+};
