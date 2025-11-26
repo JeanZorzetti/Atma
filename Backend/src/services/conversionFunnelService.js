@@ -196,6 +196,9 @@ class ConversionFunnelService {
    * Get historical status counts from patient_status_history
    * This counts how many patients REACHED each status, not how many are currently in it
    *
+   * IMPORTANT: Each status shows cumulative count (includes those who advanced further)
+   * Example: If someone is "convertido", they also count for "contatado", "agendado", etc.
+   *
    * @param {string} startDate - YYYY-MM-DD
    * @param {string} endDate - YYYY-MM-DD
    * @returns {object} Historical counts for each status
@@ -215,8 +218,8 @@ class ConversionFunnelService {
 
       const results = await executeQuery(query, [startDate, endDate]);
 
-      // Initialize counts
-      const statusCounts = {
+      // Initialize raw counts (who reached each status)
+      const rawCounts = {
         novo: 0,
         contatado: 0,
         agendado: 0,
@@ -226,10 +229,10 @@ class ConversionFunnelService {
         cancelado: 0
       };
 
-      // Fill in the counts from query results
+      // Fill in the raw counts from query results
       results.forEach(row => {
-        if (statusCounts.hasOwnProperty(row.status)) {
-          statusCounts[row.status] = parseInt(row.count) || 0;
+        if (rawCounts.hasOwnProperty(row.status)) {
+          rawCounts[row.status] = parseInt(row.count) || 0;
         }
       });
 
@@ -241,9 +244,22 @@ class ConversionFunnelService {
          WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?`,
         [startDate, endDate]
       );
-      statusCounts.novo = parseInt(registrations[0]?.count) || 0;
+      rawCounts.novo = parseInt(registrations[0]?.count) || 0;
 
-      logger.info(`Historical status counts: ${JSON.stringify(statusCounts)}`);
+      // Calculate CUMULATIVE counts (each status includes those who went further)
+      // The funnel logic: if you're "convertido", you also passed through all previous stages
+      const statusCounts = {
+        novo: rawCounts.novo, // Everyone starts here
+        contatado: rawCounts.contatado + rawCounts.agendado + rawCounts.avaliacao_inicial + rawCounts.atribuido + rawCounts.convertido,
+        agendado: rawCounts.agendado + rawCounts.avaliacao_inicial + rawCounts.atribuido + rawCounts.convertido,
+        avaliacao_inicial: rawCounts.avaliacao_inicial + rawCounts.atribuido + rawCounts.convertido,
+        atribuido: rawCounts.atribuido + rawCounts.convertido,
+        convertido: rawCounts.convertido,
+        cancelado: rawCounts.cancelado
+      };
+
+      logger.info(`Raw counts: ${JSON.stringify(rawCounts)}`);
+      logger.info(`Cumulative counts: ${JSON.stringify(statusCounts)}`);
       return statusCounts;
     } catch (error) {
       logger.error('Error getting historical status counts:', error);
