@@ -24,6 +24,13 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import dynamic from 'next/dynamic'
+
+// Dynamic import para react-flow (cliente-side only)
+const FunnelFlowVisualization = dynamic(
+  () => import('@/components/funnel/FunnelFlowVisualization'),
+  { ssr: false, loading: () => <div className="h-[500px] flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div> }
+)
 
 interface DetailedFunnelMetrics {
   success: boolean
@@ -208,11 +215,11 @@ export default function BIConversaoPage() {
         </div>
       ) : metrics ? (
         <>
-          {/* Funnel Visualization - Complete 8-Stage Journey - REDESIGNED */}
+          {/* Funnel Flow Visualization with React Flow */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Funil de Conversão Completo</span>
+                <span>Funil de Conversão Interativo</span>
                 <div className="flex items-center gap-2 text-sm font-normal text-gray-500">
                   <Eye className="h-4 w-4" />
                   <span>{metrics.seo.impressions.toLocaleString('pt-BR')} impressões</span>
@@ -222,12 +229,26 @@ export default function BIConversaoPage() {
                 </div>
               </CardTitle>
               <CardDescription>
-                Visualização compacta da jornada completa do paciente desde o Google até a conversão
+                Visualização interativa com fluxos proporcionais e tooltips informativos.
+                <span className="text-blue-600 font-semibold ml-1">Passe o mouse sobre as setas para ver as fórmulas!</span>
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Compact Horizontal Funnel */}
-              <div className="space-y-6">
+              {/* React Flow Visualization */}
+              <FunnelFlowVisualization metrics={metrics} />
+
+              {/* Compact Horizontal Funnel - ALTERNATIVE VIEW (mantido como opção) */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    Visualização Alternativa: Cards Compactos
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Mesmos dados em formato de cards horizontais
+                  </p>
+                </div>
+                {/* Compact Horizontal Funnel */}
+                <div className="space-y-6">
                 {/* Stage Pills - Horizontal Layout */}
                 <div className="relative">
                   <div className="grid grid-cols-9 gap-2 items-center">
@@ -527,6 +548,7 @@ export default function BIConversaoPage() {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
 
               {/* OLD VERTICAL LAYOUT - KEEPING FOR REFERENCE BUT HIDDEN */}
