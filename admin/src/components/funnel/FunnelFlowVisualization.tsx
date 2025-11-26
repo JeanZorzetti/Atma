@@ -10,7 +10,6 @@ import ReactFlow, {
   ConnectionLineType,
   MarkerType,
 } from 'reactflow';
-import 'reactflow/dist/style.css';
 import { Eye, MousePointerClick, UserPlus, Phone, Calendar, CheckCircle2, UserCheck, Award } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
