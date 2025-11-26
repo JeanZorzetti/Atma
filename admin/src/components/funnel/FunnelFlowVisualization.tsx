@@ -267,8 +267,8 @@ export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualiza
         borderColor: 'border-orange-300',
       },
       {
-        id: 'avaliacao',
-        name: 'Avaliação',
+        id: 'avaliacao_inicial',
+        name: 'Avaliação Inicial',
         count: metrics.crm.statusBreakdown.avaliacao_inicial,
         icon: <CheckCircle2 className="h-5 w-5" />,
         color: 'text-indigo-600',
@@ -367,7 +367,7 @@ export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualiza
       },
       {
         from: 'Agendado',
-        to: 'Avaliação',
+        to: 'Avaliação Inicial',
         rate: metrics.conversions.agendadoToAvaliacaoInicial,
         count: metrics.crm.statusBreakdown.avaliacao_inicial,
         formula: '(Avaliações Iniciais / Agendados) × 100',
@@ -378,7 +378,7 @@ export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualiza
           : undefined,
       },
       {
-        from: 'Avaliação',
+        from: 'Avaliação Inicial',
         to: 'Atribuído',
         rate: metrics.conversions.avaliacaoInicialToAtribuido,
         count: metrics.crm.statusBreakdown.atribuido,
@@ -410,7 +410,10 @@ export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualiza
       const fromNode = flowNodes.find(n => n.data.name === conv.from);
       const toNode = flowNodes.find(n => n.data.name === conv.to);
 
-      if (!fromNode || !toNode) return null;
+      if (!fromNode || !toNode) {
+        console.warn(`Edge skipped: ${conv.from} → ${conv.to}`, { fromNode, toNode });
+        return null;
+      }
 
       // Calcular largura da seta proporcional ao volume (min 2, max 12)
       const strokeWidth = Math.max(2, Math.min(12, (conv.count / maxCount) * 12));
@@ -452,6 +455,13 @@ export default function FunnelFlowVisualization({ metrics }: FunnelFlowVisualiza
         labelBgBorderRadius: 8,
       };
     }).filter(Boolean) as Edge[];
+
+    console.log('React Flow Debug:', {
+      nodesCount: flowNodes.length,
+      edgesCount: flowEdges.length,
+      nodes: flowNodes.map(n => ({ id: n.id, name: n.data.name })),
+      edges: flowEdges.map(e => ({ id: e.id, source: e.source, target: e.target }))
+    });
 
     return { nodes: flowNodes, edges: flowEdges };
   }, [metrics]);
