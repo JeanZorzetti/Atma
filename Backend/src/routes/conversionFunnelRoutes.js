@@ -6,8 +6,11 @@ const { adminLimiter } = require('../middleware/rateLimiter');
 // Apply admin limiter (60 req/min instead of general 100 req/15min)
 router.use(adminLimiter);
 
-// GET /api/conversion-funnel/metrics - Get unified funnel metrics
+// GET /api/conversion-funnel/metrics - Get unified funnel metrics (legacy)
 router.get('/metrics', conversionFunnelController.getFunnelMetrics);
+
+// GET /api/conversion-funnel/detailed-metrics - Get detailed funnel metrics with timing + cancellation breakdown
+router.get('/detailed-metrics', conversionFunnelController.getDetailedFunnelMetrics);
 
 // GET /api/conversion-funnel/daily - Get daily breakdown
 router.get('/daily', conversionFunnelController.getDailyBreakdown);

@@ -277,6 +277,163 @@ class ConversionFunnelService {
   }
 
   /**
+   * Get detailed funnel metrics with status history and average transition times
+   * This method uses the patient_status_history table for accurate funnel analysis
+   *
+   * @param {string} startDate - YYYY-MM-DD
+   * @param {string} endDate - YYYY-MM-DD
+   * @returns {object} Detailed funnel with timing analysis
+   */
+  async getDetailedFunnelMetrics(startDate, endDate) {
+    try {
+      logger.info(`📊 Getting DETAILED funnel metrics from ${startDate} to ${endDate}`);
+
+      // 1. Get SEO metrics (same as before)
+      const seoMetrics = await this.getSEOMetrics(startDate, endDate);
+
+      // 2. Get CRM metrics with status breakdown (same as before)
+      const crmMetrics = await this.getCRMMetrics(startDate, endDate);
+
+      // 3. Get average time between status transitions
+      const transitionTimes = await this.getTransitionTimes(startDate, endDate);
+
+      // 4. Get cancellation breakdown by stage
+      const cancellationBreakdown = await this.getCancellationBreakdown(startDate, endDate);
+
+      // 5. Calculate conversion rates (same as before)
+      const conversions = this.calculateConversionRates(seoMetrics, crmMetrics);
+
+      logger.info(`✅ Detailed funnel metrics calculated successfully`);
+
+      return {
+        success: true,
+        period: {
+          startDate,
+          endDate,
+          days: this.calculateDaysBetween(startDate, endDate)
+        },
+        seo: seoMetrics,
+        crm: crmMetrics,
+        conversions,
+        transitionTimes,
+        cancellationBreakdown,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      logger.error('Error getting detailed funnel metrics:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get average time (in hours) between each status transition
+   * Uses patient_status_history table
+   */
+  async getTransitionTimes(startDate, endDate) {
+    try {
+      const query = `
+        SELECT
+          h1.new_status as from_status,
+          h2.new_status as to_status,
+          COUNT(*) as occurrences,
+          ROUND(AVG(TIMESTAMPDIFF(HOUR, h1.changed_at, h2.changed_at)), 2) as avg_hours,
+          ROUND(MIN(TIMESTAMPDIFF(HOUR, h1.changed_at, h2.changed_at)), 2) as min_hours,
+          ROUND(MAX(TIMESTAMPDIFF(HOUR, h1.changed_at, h2.changed_at)), 2) as max_hours,
+          ROUND(STDDEV(TIMESTAMPDIFF(HOUR, h1.changed_at, h2.changed_at)), 2) as stddev_hours
+        FROM patient_status_history h1
+        JOIN patient_status_history h2 ON h1.patient_id = h2.patient_id
+        WHERE h2.id = (
+          SELECT MIN(id)
+          FROM patient_status_history
+          WHERE patient_id = h1.patient_id
+            AND id > h1.id
+        )
+        AND h1.changed_at >= ? AND h1.changed_at <= ?
+        GROUP BY h1.new_status, h2.new_status
+        ORDER BY
+          FIELD(h1.new_status, 'novo', 'contatado', 'agendado', 'avaliacao_inicial', 'atribuido', 'convertido', 'cancelado'),
+          FIELD(h2.new_status, 'novo', 'contatado', 'agendado', 'avaliacao_inicial', 'atribuido', 'convertido', 'cancelado')
+      `;
+
+      const results = await executeQuery(query, [startDate, endDate]);
+
+      // Format results into a more usable structure
+      const transitions = {};
+      results.forEach(row => {
+        const key = `${row.from_status}_to_${row.to_status}`;
+        transitions[key] = {
+          fromStatus: row.from_status,
+          toStatus: row.to_status,
+          occurrences: parseInt(row.occurrences),
+          avgHours: parseFloat(row.avg_hours) || 0,
+          minHours: parseFloat(row.min_hours) || 0,
+          maxHours: parseFloat(row.max_hours) || 0,
+          stddevHours: parseFloat(row.stddev_hours) || 0,
+          avgDays: parseFloat(((row.avg_hours || 0) / 24).toFixed(2))
+        };
+      });
+
+      return transitions;
+    } catch (error) {
+      logger.error('Error getting transition times:', error);
+      // Return empty object if patient_status_history table doesn't exist yet
+      return {};
+    }
+  }
+
+  /**
+   * Get breakdown of cancellations by previous status
+   * Shows at which stage patients are cancelling most
+   */
+  async getCancellationBreakdown(startDate, endDate) {
+    try {
+      const query = `
+        SELECT
+          h.previous_status as from_status,
+          COUNT(*) as count
+        FROM patient_status_history h
+        WHERE h.new_status = 'cancelado'
+          AND h.changed_at >= ? AND h.changed_at <= ?
+          AND h.previous_status IS NOT NULL
+        GROUP BY h.previous_status
+        ORDER BY count DESC
+      `;
+
+      const results = await executeQuery(query, [startDate, endDate]);
+
+      // Format results
+      const breakdown = {
+        novoToCancelado: 0,
+        contatadoToCancelado: 0,
+        agendadoToCancelado: 0,
+        avaliacaoInicialToCancelado: 0,
+        atribuidoToCancelado: 0
+      };
+
+      results.forEach(row => {
+        const key = `${row.from_status}ToCancelado`;
+        breakdown[key] = parseInt(row.count) || 0;
+      });
+
+      // Calculate total cancellations
+      breakdown.total = Object.values(breakdown).reduce((sum, count) => sum + count, 0);
+
+      return breakdown;
+    } catch (error) {
+      logger.error('Error getting cancellation breakdown:', error);
+      // Return zero counts if patient_status_history table doesn't exist yet
+      return {
+        novoToCancelado: 0,
+        contatadoToCancelado: 0,
+        agendadoToCancelado: 0,
+        avaliacaoInicialToCancelado: 0,
+        atribuidoToCancelado: 0,
+        total: 0
+      };
+    }
+  }
+
+  /**
    * Get daily breakdown for trend analysis
    */
   async getDailyBreakdown(startDate, endDate) {
