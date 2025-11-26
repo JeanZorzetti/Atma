@@ -519,3 +519,86 @@ exports.resolveAlert = async (req, res) => {
     });
   }
 };
+
+/**
+ * GET /api/search-console/metrics/validate-period
+ * Validate data coverage for a specific period
+ */
+exports.validatePeriod = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        error: 'startDate and endDate are required'
+      });
+    }
+
+    logger.info('🔍 Validating period:', { startDate, endDate });
+
+    // Count days with data in database
+    const daysQuery = await executeQuery(
+      `SELECT COUNT(DISTINCT DATE(date)) as days_count
+       FROM seo_metrics_history
+       WHERE date >= ? AND date <= ?`,
+      [startDate, endDate]
+    );
+
+    // Get list of all dates with data
+    const datesQuery = await executeQuery(
+      `SELECT DISTINCT DATE(date) as date
+       FROM seo_metrics_history
+       WHERE date >= ? AND date <= ?
+       ORDER BY date ASC`,
+      [startDate, endDate]
+    );
+
+    // Calculate total expected days
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const expectedDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+    const daysWithData = daysQuery[0].days_count;
+    const coverage = ((daysWithData / expectedDays) * 100).toFixed(1);
+    const missingDays = expectedDays - daysWithData;
+
+    // Find missing dates
+    const datesWithData = datesQuery.map(row => row.date.toISOString().split('T')[0]);
+    const allDates = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      allDates.push(d.toISOString().split('T')[0]);
+    }
+    const missingDates = allDates.filter(date => !datesWithData.includes(date));
+
+    logger.info('✅ Validation complete:', {
+      expectedDays,
+      daysWithData,
+      coverage: coverage + '%',
+      missingDays,
+      missingDatesCount: missingDates.length
+    });
+
+    res.json({
+      success: true,
+      period: { startDate, endDate },
+      expectedDays,
+      daysWithData,
+      coverage: coverage + '%',
+      missingDays,
+      missingDates: missingDates.slice(0, 10), // First 10 missing dates
+      totalMissingDates: missingDates.length,
+      datesWithData: datesWithData.slice(0, 10), // First 10 dates with data
+      recommendation: coverage < 90 ?
+        'Recomendamos ressincronizar este período para obter dados completos' :
+        'Cobertura de dados adequada'
+    });
+  } catch (error) {
+    logger.error('Error validating period:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to validate period',
+      message: error.message
+    });
+  }
+};

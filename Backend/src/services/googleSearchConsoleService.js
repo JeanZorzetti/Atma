@@ -385,6 +385,11 @@ class GoogleSearchConsoleService {
    */
   async getMetricsSummary(days = 30, startDate = null, endDate = null) {
     try {
+      logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      logger.info('📊 GET METRICS SUMMARY - START');
+      logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      logger.info('📅 Request Parameters:', { days, startDate, endDate });
+
       let query;
       let params;
 
@@ -400,6 +405,7 @@ class GoogleSearchConsoleService {
          WHERE date >= ? AND date <= ?
          ORDER BY date DESC`;
         params = [startDate, endDate];
+        logger.info('📅 Using date range filter:', { startDate, endDate });
       } else {
         query = `SELECT
           date,
@@ -411,11 +417,21 @@ class GoogleSearchConsoleService {
          WHERE date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
          ORDER BY date DESC`;
         params = [days];
+        logger.info('📅 Using days offset:', { days });
       }
 
+      logger.info('🔍 Executing query...');
       const rows = await executeQuery(query, params);
 
+      logger.info('📦 Query Results:', {
+        rowsFound: rows.length,
+        firstDate: rows[0]?.date,
+        lastDate: rows[rows.length - 1]?.date,
+        sampleRow: rows[0]
+      });
+
       if (rows.length === 0) {
+        logger.warn('⚠️ No data found for the requested period');
         return {
           success: true,
           data: [],
@@ -430,6 +446,26 @@ class GoogleSearchConsoleService {
       const actualCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
       const avgPosition = rows.reduce((sum, row) => sum + parseFloat(row.position), 0) / rows.length;
 
+      // Calculate expected vs actual days
+      let expectedDays = rows.length;
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        expectedDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      }
+
+      const coverage = ((rows.length / expectedDays) * 100).toFixed(1);
+
+      logger.info('📊 AGGREGATION RESULTS:');
+      logger.info('  Total Impressions:', totalImpressions);
+      logger.info('  Total Clicks:', totalClicks);
+      logger.info('  Actual CTR:', actualCtr.toFixed(2) + '%');
+      logger.info('  Avg Position:', avgPosition.toFixed(2));
+      logger.info('  Days with Data:', rows.length);
+      logger.info('  Expected Days:', expectedDays);
+      logger.info('  Coverage:', coverage + '%');
+      logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
       return {
         success: true,
         data: rows,
@@ -438,11 +474,13 @@ class GoogleSearchConsoleService {
           totalClicks,
           avgCtr: actualCtr.toFixed(2),
           avgPosition: avgPosition.toFixed(2),
-          days: rows.length
+          days: rows.length,
+          expectedDays,
+          coverage: coverage + '%'
         }
       };
     } catch (error) {
-      logger.error('Error getting metrics summary:', error);
+      logger.error('❌ Error getting metrics summary:', error);
       throw error;
     }
   }

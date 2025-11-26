@@ -35,6 +35,9 @@ router.get('/metrics/history', searchConsoleController.getMetricsHistory);
 // POST /api/search-console/metrics/sync - Trigger manual sync from GSC
 router.post('/metrics/sync', searchConsoleController.syncMetrics);
 
+// GET /api/search-console/metrics/validate-period - Validate data coverage for a period
+router.get('/metrics/validate-period', searchConsoleController.validatePeriod);
+
 // =============================================================================
 // Keywords & Pages Routes
 // =============================================================================
