@@ -208,16 +208,329 @@ export default function BIConversaoPage() {
         </div>
       ) : metrics ? (
         <>
-          {/* Funnel Visualization - Complete 8-Stage Journey */}
+          {/* Funnel Visualization - Complete 8-Stage Journey - REDESIGNED */}
           <Card>
             <CardHeader>
-              <CardTitle>Funil de Conversão Completo</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                <span>Funil de Conversão Completo</span>
+                <div className="flex items-center gap-2 text-sm font-normal text-gray-500">
+                  <Eye className="h-4 w-4" />
+                  <span>{metrics.seo.impressions.toLocaleString('pt-BR')} impressões</span>
+                  <ArrowRight className="h-3 w-3" />
+                  <Award className="h-4 w-4 text-green-600" />
+                  <span className="text-green-600 font-semibold">{metrics.crm.statusBreakdown.convertido} convertidos</span>
+                </div>
+              </CardTitle>
               <CardDescription>
-                Jornada completa: Impressões → Cliques → Cadastros → Novo → Contatado → Agendado → Avaliação Inicial → Atribuído → Convertido
+                Visualização compacta da jornada completa do paciente desde o Google até a conversão
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              {/* Compact Horizontal Funnel */}
+              <div className="space-y-6">
+                {/* Stage Pills - Horizontal Layout */}
+                <div className="relative">
+                  <div className="grid grid-cols-9 gap-2 items-center">
+                    {/* Stage 1: Impressões */}
+                    <div className="relative group cursor-pointer">
+                      <div className="bg-gradient-to-r from-blue-100 to-blue-50 border-2 border-blue-300 rounded-lg p-3 hover:shadow-lg transition-all">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Eye className="h-4 w-4 text-blue-600" />
+                          <span className="text-[10px] font-medium text-gray-600 uppercase">Impressões</span>
+                        </div>
+                        <div className="text-lg font-bold text-gray-900">
+                          {(metrics.seo.impressions / 1000).toFixed(1)}k
+                        </div>
+                        <div className="text-[10px] text-gray-500">Pos: {metrics.seo.avgPosition}</div>
+                      </div>
+                      {/* Tooltip on hover */}
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                        <div className="bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                          {metrics.seo.impressions.toLocaleString('pt-BR')} impressões
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Conversion Arrow 1 */}
+                    <div className="flex flex-col items-center -mx-1">
+                      <ArrowRight className="h-5 w-5 text-gray-300" />
+                      <div className={`text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded ${getHealthColor(getHealthStatus(metrics.conversions.impressionToClick, 3))}`}>
+                        {metrics.conversions.impressionToClick.toFixed(1)}%
+                      </div>
+                    </div>
+
+                    {/* Stage 2: Cliques */}
+                    <div className="relative group cursor-pointer">
+                      <div className="bg-gradient-to-r from-green-100 to-green-50 border-2 border-green-300 rounded-lg p-3 hover:shadow-lg transition-all">
+                        <div className="flex items-center gap-2 mb-1">
+                          <MousePointerClick className="h-4 w-4 text-green-600" />
+                          <span className="text-[10px] font-medium text-gray-600 uppercase">Cliques</span>
+                        </div>
+                        <div className="text-lg font-bold text-gray-900">
+                          {metrics.seo.clicks}
+                        </div>
+                        <div className="text-[10px] text-green-600 font-semibold">
+                          CTR: {metrics.seo.ctr}%
+                        </div>
+                      </div>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                        <div className="bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                          {metrics.seo.clicks.toLocaleString('pt-BR')} cliques no Google
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Conversion Arrow 2 */}
+                    <div className="flex flex-col items-center -mx-1">
+                      <ArrowRight className="h-5 w-5 text-gray-300" />
+                      <div className={`text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded ${getHealthColor(getHealthStatus(metrics.conversions.clickToRegistration, 8))}`}>
+                        {metrics.conversions.clickToRegistration.toFixed(1)}%
+                      </div>
+                    </div>
+
+                    {/* Stage 3: Cadastros Totais */}
+                    <div className="relative group cursor-pointer">
+                      <div className="bg-gradient-to-r from-indigo-100 to-indigo-50 border-2 border-indigo-300 rounded-lg p-3 hover:shadow-lg transition-all">
+                        <div className="flex items-center gap-2 mb-1">
+                          <UserPlus className="h-4 w-4 text-indigo-600" />
+                          <span className="text-[10px] font-medium text-gray-600 uppercase">Cadastros</span>
+                        </div>
+                        <div className="text-lg font-bold text-gray-900">
+                          {metrics.crm.registrations}
+                        </div>
+                        <div className="text-[10px] text-indigo-600 font-semibold">
+                          Total
+                        </div>
+                      </div>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                        <div className="bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                          {metrics.crm.registrations} cadastros totais no período
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Conversion Arrow 3 */}
+                    <div className="flex flex-col items-center -mx-1">
+                      <ArrowRight className="h-5 w-5 text-gray-300" />
+                      <div className="text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded bg-green-100 text-green-600">
+                        100%
+                      </div>
+                    </div>
+
+                    {/* Stage 4: Novo */}
+                    <div className="relative group cursor-pointer">
+                      <div className="bg-gradient-to-r from-purple-100 to-purple-50 border-2 border-purple-300 rounded-lg p-3 hover:shadow-lg transition-all">
+                        <div className="flex items-center gap-2 mb-1">
+                          <UserPlus className="h-4 w-4 text-purple-600" />
+                          <span className="text-[10px] font-medium text-gray-600 uppercase">Novo</span>
+                        </div>
+                        <div className="text-lg font-bold text-gray-900">
+                          {metrics.crm.statusBreakdown.novo}
+                        </div>
+                        <div className="text-[10px] text-purple-600 font-semibold">
+                          Status inicial
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Conversion Arrow 4 */}
+                    <div className="flex flex-col items-center -mx-1">
+                      <ArrowRight className="h-5 w-5 text-gray-300" />
+                      <div className={`text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded ${getHealthColor(getHealthStatus(metrics.conversions.novoToContatado, 95))}`}>
+                        {metrics.conversions.novoToContatado.toFixed(1)}%
+                      </div>
+                      {metrics.transitionTimes.novo_to_contatado && (
+                        <div className="text-[9px] text-gray-400 mt-0.5 flex items-center gap-0.5">
+                          <Clock className="h-2.5 w-2.5" />
+                          {metrics.transitionTimes.novo_to_contatado.avgHours.toFixed(0)}h
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Stage 5: Contatado */}
+                    <div className="relative group cursor-pointer">
+                      <div className="bg-gradient-to-r from-cyan-100 to-cyan-50 border-2 border-cyan-300 rounded-lg p-3 hover:shadow-lg transition-all">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Phone className="h-4 w-4 text-cyan-600" />
+                          <span className="text-[10px] font-medium text-gray-600 uppercase">Contatado</span>
+                        </div>
+                        <div className="text-lg font-bold text-gray-900">
+                          {metrics.crm.statusBreakdown.contatado}
+                        </div>
+                        <div className="text-[10px] text-cyan-600 font-semibold">
+                          1º contato
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Conversion Arrow 5 */}
+                    <div className="flex flex-col items-center -mx-1">
+                      <ArrowRight className="h-5 w-5 text-gray-300" />
+                      <div className={`text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded ${getHealthColor(getHealthStatus(metrics.conversions.contatadoToAgendado, 60))}`}>
+                        {metrics.conversions.contatadoToAgendado.toFixed(1)}%
+                      </div>
+                      {metrics.transitionTimes.contatado_to_agendado && (
+                        <div className="text-[9px] text-gray-400 mt-0.5 flex items-center gap-0.5">
+                          <Clock className="h-2.5 w-2.5" />
+                          {metrics.transitionTimes.contatado_to_agendado.avgDays.toFixed(0)}d
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Second Row - Remaining Stages */}
+                <div className="grid grid-cols-7 gap-2 items-center ml-auto" style={{ maxWidth: '78%' }}>
+                  {/* Stage 6: Agendado */}
+                  <div className="relative group cursor-pointer">
+                    <div className="bg-gradient-to-r from-orange-100 to-orange-50 border-2 border-orange-300 rounded-lg p-3 hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Calendar className="h-4 w-4 text-orange-600" />
+                        <span className="text-[10px] font-medium text-gray-600 uppercase">Agendado</span>
+                      </div>
+                      <div className="text-lg font-bold text-gray-900">
+                        {metrics.crm.statusBreakdown.agendado}
+                      </div>
+                      <div className="text-[10px] text-orange-600 font-semibold">
+                        Consulta marcada
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Conversion Arrow 6 */}
+                  <div className="flex flex-col items-center -mx-1">
+                    <ArrowRight className="h-5 w-5 text-gray-300" />
+                    <div className={`text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded ${getHealthColor(getHealthStatus(metrics.conversions.agendadoToAvaliacaoInicial, 70))}`}>
+                      {metrics.conversions.agendadoToAvaliacaoInicial.toFixed(1)}%
+                    </div>
+                    {metrics.transitionTimes.agendado_to_avaliacao_inicial && (
+                      <div className="text-[9px] text-gray-400 mt-0.5 flex items-center gap-0.5">
+                        <Clock className="h-2.5 w-2.5" />
+                        {metrics.transitionTimes.agendado_to_avaliacao_inicial.avgDays.toFixed(0)}d
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Stage 7: Avaliação Inicial */}
+                  <div className="relative group cursor-pointer">
+                    <div className="bg-gradient-to-r from-indigo-100 to-indigo-50 border-2 border-indigo-300 rounded-lg p-3 hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CheckCircle2 className="h-4 w-4 text-indigo-600" />
+                        <span className="text-[10px] font-medium text-gray-600 uppercase">Avaliação</span>
+                      </div>
+                      <div className="text-lg font-bold text-gray-900">
+                        {metrics.crm.statusBreakdown.avaliacao_inicial}
+                      </div>
+                      <div className="text-[10px] text-indigo-600 font-semibold">
+                        1ª consulta
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Conversion Arrow 7 */}
+                  <div className="flex flex-col items-center -mx-1">
+                    <ArrowRight className="h-5 w-5 text-gray-300" />
+                    <div className={`text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded ${getHealthColor(getHealthStatus(metrics.conversions.avaliacaoInicialToAtribuido, 80))}`}>
+                      {metrics.conversions.avaliacaoInicialToAtribuido.toFixed(1)}%
+                    </div>
+                    {metrics.transitionTimes.avaliacao_inicial_to_atribuido && (
+                      <div className="text-[9px] text-gray-400 mt-0.5 flex items-center gap-0.5">
+                        <Clock className="h-2.5 w-2.5" />
+                        {metrics.transitionTimes.avaliacao_inicial_to_atribuido.avgDays.toFixed(0)}d
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Stage 8: Atribuído */}
+                  <div className="relative group cursor-pointer">
+                    <div className="bg-gradient-to-r from-violet-100 to-violet-50 border-2 border-violet-300 rounded-lg p-3 hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-2 mb-1">
+                        <UserCheck className="h-4 w-4 text-violet-600" />
+                        <span className="text-[10px] font-medium text-gray-600 uppercase">Atribuído</span>
+                      </div>
+                      <div className="text-lg font-bold text-gray-900">
+                        {metrics.crm.statusBreakdown.atribuido}
+                      </div>
+                      <div className="text-[10px] text-violet-600 font-semibold">
+                        Com ortodontista
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Conversion Arrow 8 */}
+                  <div className="flex flex-col items-center -mx-1">
+                    <ArrowRight className="h-5 w-5 text-gray-300" />
+                    <div className={`text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded ${getHealthColor(getHealthStatus(metrics.conversions.atribuidoToConvertido, 70))}`}>
+                      {metrics.conversions.atribuidoToConvertido.toFixed(1)}%
+                    </div>
+                    {metrics.transitionTimes.atribuido_to_convertido && (
+                      <div className="text-[9px] text-gray-400 mt-0.5 flex items-center gap-0.5">
+                        <Clock className="h-2.5 w-2.5" />
+                        {metrics.transitionTimes.atribuido_to_convertido.avgDays.toFixed(0)}d
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Stage 9: Convertido */}
+                  <div className="relative group cursor-pointer">
+                    <div className="bg-gradient-to-r from-emerald-100 to-emerald-50 border-2 border-emerald-400 rounded-lg p-3 hover:shadow-lg transition-all ring-2 ring-emerald-300 ring-offset-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Award className="h-4 w-4 text-emerald-600" />
+                        <span className="text-[10px] font-medium text-gray-600 uppercase">Convertido</span>
+                      </div>
+                      <div className="text-lg font-bold text-emerald-700">
+                        {metrics.crm.statusBreakdown.convertido}
+                      </div>
+                      <div className="text-[10px] text-emerald-600 font-semibold">
+                        🎉 Tratamento
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Drop-off Summary */}
+                <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <XCircle className="h-5 w-5 text-red-500" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-700">
+                          {metrics.crm.statusBreakdown.cancelado} Cancelamentos
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {metrics.conversions.cancellationRate.toFixed(1)}% dos cadastros
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-8 w-px bg-gray-300"></div>
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-green-600" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-700">
+                          Taxa de Conversão Final
+                        </div>
+                        <div className="text-xs text-green-600 font-bold">
+                          {((metrics.crm.statusBreakdown.convertido / metrics.crm.registrations) * 100).toFixed(2)}%
+                          <span className="text-gray-500 ml-1">({metrics.crm.statusBreakdown.convertido}/{metrics.crm.registrations})</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <span>Saudável</span>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500 ml-2"></div>
+                      <span>Atenção</span>
+                      <div className="w-3 h-3 rounded-full bg-red-500 ml-2"></div>
+                      <span>Crítico</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* OLD VERTICAL LAYOUT - KEEPING FOR REFERENCE BUT HIDDEN */}
+              <div className="space-y-4 hidden">
                 {/* SEO Stage 1: Impressões → Cliques */}
                 <div className="flex items-center gap-4">
                   <div className="flex-1 bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
@@ -444,7 +757,7 @@ export default function BIConversaoPage() {
                   </div>
                 </div>
 
-                {/* Cancellation Summary */}
+                {/* Cancellation Summary - OLD VERTICAL VERSION */}
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
