@@ -440,16 +440,34 @@ export function FunnelVisualization({ steps }: { steps: FunnelStep[] }) {
 
 ## 📋 Checklist de Implementação
 
-### Fase 1: Backend ✅
+### Fase 1: Backend ✅ COMPLETA (26/11/2025)
 
-- [ ] Criar tabela `patient_status_history`
-- [ ] Criar trigger para popular histórico automaticamente
-- [ ] Criar endpoint `/api/conversion-funnel/detailed-metrics`
-- [ ] Implementar query de contagem por status
-- [ ] Implementar query de tempo médio entre transições
-- [ ] Implementar query de breakdown de cancelamentos
-- [ ] Adicionar validação de período (max 90 dias)
-- [ ] Adicionar cache de 15 minutos para evitar queries pesadas
+- [x] Criar tabela `patient_status_history`
+- [x] Criar trigger para popular histórico automaticamente (2 triggers: UPDATE + INSERT)
+- [x] Criar endpoint `/api/conversion-funnel/detailed-metrics`
+- [x] Implementar query de contagem por status
+- [x] Implementar query de tempo médio entre transições
+- [x] Implementar query de breakdown de cancelamentos
+- [x] Adicionar validação de período (max 90 dias)
+- [x] Adicionar indexes para performance (5 índices)
+- [ ] Adicionar cache de 15 minutos para evitar queries pesadas (FUTURO)
+
+**Status**: Backend completo e funcional. Endpoint pronto para uso.
+
+**Arquivos Criados/Modificados**:
+- `Backend/migrations/011_create_patient_status_history.sql` (NEW - 205 linhas)
+- `Backend/src/services/conversionFunnelService.js` (+160 linhas)
+- `Backend/src/controllers/conversionFunnelController.js` (+65 linhas)
+- `Backend/src/routes/conversionFunnelRoutes.js` (+3 linhas)
+
+**Como Testar**:
+```bash
+# 1. Rodar migration
+node Backend/scripts/run-migration-011.js
+
+# 2. Testar endpoint
+curl "http://localhost:3001/api/conversion-funnel/detailed-metrics?startDate=2025-10-01&endDate=2025-11-26"
+```
 
 ### Fase 2: Frontend 🎨
 
