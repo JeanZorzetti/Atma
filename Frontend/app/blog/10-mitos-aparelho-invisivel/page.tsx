@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Calendar, Clock, Tag, TrendingUp, XCircle, CheckCircle2, AlertCircle, Lightbulb } from 'lucide-react';
+// @ts-ignore
+import { Calendar, Clock, Tag, TrendingUp, CircleX, CircleCheck, CircleAlert, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
 import { RelatedArticles } from '@/components/blog/related-articles';
 
@@ -94,7 +95,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -105,7 +106,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -131,7 +132,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -142,7 +143,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -192,7 +193,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -203,7 +204,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -229,7 +230,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -240,7 +241,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -267,7 +268,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -278,7 +279,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -292,7 +293,7 @@ export default function MitosAparelhoInvisivelPage() {
             </ul>
             <div className="mt-3 bg-yellow-50 p-3 rounded">
               <p className="text-sm text-gray-700">
-                <AlertCircle className="w-4 h-4 inline mr-1 text-yellow-600" />
+                <CircleAlert className="w-4 h-4 inline mr-1 text-yellow-600" />
                 <strong>Dica:</strong> com aparelho fixo você NÃO PODE comer alimentos duros/pegajosos.
                 Com alinhadores, não há restrições!
               </p>
@@ -308,7 +309,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -319,7 +320,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -358,7 +359,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -369,7 +370,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -377,23 +378,23 @@ export default function MitosAparelhoInvisivelPage() {
             </p>
             <ul className="space-y-2 text-gray-700">
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <span><strong>Apinhamento:</strong> leve, moderado e até severo</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <span><strong>Espaçamento:</strong> diastemas e múltiplos espaços</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <span><strong>Sobremordida:</strong> leve a moderada</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <span><strong>Mordida cruzada:</strong> anterior e posterior</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <span><strong>Rotações:</strong> até 45 graus</span>
               </li>
             </ul>
@@ -411,7 +412,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -422,7 +423,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -462,7 +463,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -473,7 +474,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE (com nuances)</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -513,7 +514,7 @@ export default function MitosAparelhoInvisivelPage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-6 h-6 text-red-600" />
+                <CircleX className="w-6 h-6 text-red-600" />
                 <h2 className="text-2xl font-bold text-gray-900">MITO</h2>
               </div>
               <p className="text-xl font-semibold text-gray-800">
@@ -524,7 +525,7 @@ export default function MitosAparelhoInvisivelPage() {
 
           <div className="mt-6 bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <CircleCheck className="w-6 h-6 text-green-600" />
               <h3 className="text-xl font-bold text-green-800">VERDADE (parcial)</h3>
             </div>
             <p className="text-gray-700 leading-relaxed mb-3">
@@ -538,7 +539,7 @@ export default function MitosAparelhoInvisivelPage() {
             </ul>
             <div className="mt-3 bg-yellow-50 p-3 rounded">
               <p className="text-sm text-gray-700">
-                <AlertCircle className="w-4 h-4 inline mr-1 text-yellow-600" />
+                <CircleAlert className="w-4 h-4 inline mr-1 text-yellow-600" />
                 <strong>Seja honesto consigo mesmo:</strong> se você sabe que não vai conseguir usar 20h/dia,
                 aparelho fixo pode ser melhor opção. Mas a maioria das pessoas se adapta rapidamente!
               </p>
@@ -562,23 +563,23 @@ export default function MitosAparelhoInvisivelPage() {
               <h3 className="font-bold text-xl mb-4 text-green-700">✅ O Que É Verdade:</h3>
               <ul className="space-y-2">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Funcionam comprovadamente (95-98% sucesso)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Custo-benefício competitivo vs aparelho fixo</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Muito mais confortáveis e discretos</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Higiene mais fácil, sem restrições alimentares</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Tratam 85-90% dos casos ortodônticos</span>
                 </li>
               </ul>

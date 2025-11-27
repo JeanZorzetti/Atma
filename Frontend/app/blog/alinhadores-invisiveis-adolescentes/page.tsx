@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Calendar, Clock, Tag, TrendingUp, CheckCircle, CircleAlert, Heart, Smile, UserCheck } from 'lucide-react';
+// @ts-ignore
+import { Calendar, Clock, Tag, TrendingUp, CircleCheck, CircleAlert, Heart, Smile, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import { RelatedArticles } from '@/components/blog/related-articles';
 

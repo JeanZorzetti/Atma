@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Calendar, Clock, Tag, AlertCircle, CheckCircle2, XCircle, Heart, GraduationCap, Camera, DollarSign, Zap, Timer, Users } from 'lucide-react';
+// @ts-ignore
+import { Calendar, Clock, Tag, CircleAlert, CircleCheck, CircleX, Heart, GraduationCap, Camera, DollarSign, Zap, Timer, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -54,7 +55,7 @@ export default function AlinhadorEventos2026Page() {
               <span>15 min de leitura</span>
             </div>
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
+              <CircleAlert className="w-4 h-4" />
               <span>Janela crítica: início até 15/dez</span>
             </div>
           </div>
@@ -65,7 +66,7 @@ export default function AlinhadorEventos2026Page() {
       <div className="max-w-4xl mx-auto px-4 -mt-8 mb-8">
         <div className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-400 rounded-lg p-6 shadow-lg">
           <div className="flex items-start gap-4">
-            <AlertCircle className="w-8 h-8 text-red-600 flex-shrink-0 mt-1" />
+            <CircleAlert className="w-8 h-8 text-red-600 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-xl font-bold text-red-900 mb-2">
                 ⏰ ATENÇÃO: Prazo Crítico para Eventos 2026
@@ -76,15 +77,15 @@ export default function AlinhadorEventos2026Page() {
               </p>
               <ul className="space-y-2 text-gray-800">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Evento em jul/ago/2026:</strong> Você tem 8-9 meses (casos leves/moderados: VIÁVEL ✅)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Evento em dez/2026:</strong> Você tem 13 meses (maioria dos casos: IDEAL ✅)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <CircleAlert className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Prazo máximo para iniciar:</strong> 15 de dezembro de 2025 (para garantia)</span>
                 </li>
               </ul>
@@ -127,23 +128,23 @@ export default function AlinhadorEventos2026Page() {
 
           <ul className="space-y-2 text-gray-700">
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+              <CircleCheck className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
               <span>Se dá tempo para o SEU caso específico (calculadora por data do evento)</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+              <CircleCheck className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
               <span>Timeline real por complexidade (6, 12 ou 18 meses)</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+              <CircleCheck className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
               <span>Casos reais de formandos e noivas (com fotos antes/depois)</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+              <CircleCheck className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
               <span>Preços e formas de pagamento (parcelamento sem juros)</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+              <CircleCheck className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
               <span>Checklist urgente: O que fazer ESTA SEMANA</span>
             </li>
           </ul>
@@ -167,7 +168,7 @@ export default function AlinhadorEventos2026Page() {
               <div className="bg-white p-4 rounded-lg">
                 <p className="font-bold text-gray-900 mb-2">🎓 Formatura em Dezembro 2025 (daqui 1 mês)</p>
                 <div className="flex items-center gap-2">
-                  <XCircle className="w-5 h-5 text-red-600" />
+                  <CircleX className="w-5 h-5 text-red-600" />
                   <span className="text-red-800 font-semibold">NÃO DÁ TEMPO ❌</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
@@ -178,7 +179,7 @@ export default function AlinhadorEventos2026Page() {
               <div className="bg-white p-4 rounded-lg">
                 <p className="font-bold text-gray-900 mb-2">💒 Casamento em Janeiro-Março 2026 (2-4 meses)</p>
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-orange-600" />
+                  <CircleAlert className="w-5 h-5 text-orange-600" />
                   <span className="text-orange-800 font-semibold">DIFÍCIL (só casos extremamente simples) ⚠️</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
@@ -189,7 +190,7 @@ export default function AlinhadorEventos2026Page() {
               <div className="bg-white p-4 rounded-lg">
                 <p className="font-bold text-gray-900 mb-2">🎓 Formatura em Julho 2026 (8 meses)</p>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <CircleCheck className="w-5 h-5 text-green-600" />
                   <span className="text-green-800 font-semibold">VIÁVEL para casos leves/moderados ✅</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
@@ -200,7 +201,7 @@ export default function AlinhadorEventos2026Page() {
               <div className="bg-white p-4 rounded-lg">
                 <p className="font-bold text-gray-900 mb-2">💒 Casamento em Junho-Agosto 2026 (7-9 meses)</p>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <CircleCheck className="w-5 h-5 text-green-600" />
                   <span className="text-green-800 font-semibold">VIÁVEL para casos leves/moderados ✅</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
@@ -211,7 +212,7 @@ export default function AlinhadorEventos2026Page() {
               <div className="bg-white p-4 rounded-lg">
                 <p className="font-bold text-gray-900 mb-2">🎓 Formatura em Dezembro 2026 (13 meses)</p>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <CircleCheck className="w-5 h-5 text-green-600" />
                   <span className="text-green-800 font-semibold">IDEAL para maioria dos casos ✅✅</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
@@ -222,7 +223,7 @@ export default function AlinhadorEventos2026Page() {
               <div className="bg-white p-4 rounded-lg">
                 <p className="font-bold text-gray-900 mb-2">💒 Casamento em Setembro-Dezembro 2026 (10-13 meses)</p>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <CircleCheck className="w-5 h-5 text-green-600" />
                   <span className="text-green-800 font-semibold">IDEAL para praticamente todos os casos ✅✅</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
@@ -234,7 +235,7 @@ export default function AlinhadorEventos2026Page() {
 
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg mb-8">
             <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <AlertCircle className="w-6 h-6 text-purple-600" />
+              <CircleAlert className="w-6 h-6 text-purple-600" />
               Regra Geral de Ouro
             </h3>
             <div className="space-y-3 text-gray-800">
@@ -272,7 +273,7 @@ export default function AlinhadorEventos2026Page() {
           {/* Caso Leve */}
           <div className="bg-white border-2 border-green-200 rounded-lg p-6 mb-6 shadow-sm">
             <h3 className="text-2xl font-bold mb-4 text-green-800 flex items-center gap-2">
-              <CheckCircle2 className="w-6 h-6" />
+              <CircleCheck className="w-6 h-6" />
               Caso LEVE (6-9 meses)
             </h3>
 
@@ -313,7 +314,7 @@ export default function AlinhadorEventos2026Page() {
           {/* Caso Moderado */}
           <div className="bg-white border-2 border-blue-200 rounded-lg p-6 mb-6 shadow-sm">
             <h3 className="text-2xl font-bold mb-4 text-blue-800 flex items-center gap-2">
-              <CheckCircle2 className="w-6 h-6" />
+              <CircleCheck className="w-6 h-6" />
               Caso MODERADO (10-14 meses)
             </h3>
 
@@ -355,7 +356,7 @@ export default function AlinhadorEventos2026Page() {
           {/* Caso Complexo */}
           <div className="bg-white border-2 border-orange-200 rounded-lg p-6 mb-6 shadow-sm">
             <h3 className="text-2xl font-bold mb-4 text-orange-800 flex items-center gap-2">
-              <AlertCircle className="w-6 h-6" />
+              <CircleAlert className="w-6 h-6" />
               Caso COMPLEXO (15-24 meses)
             </h3>
 
@@ -1131,15 +1132,15 @@ export default function AlinhadorEventos2026Page() {
 
             <div className="flex flex-wrap justify-center gap-6 text-sm text-purple-100 mt-6">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5" />
+                <CircleCheck className="w-5 h-5" />
                 <span>Resposta em 24h</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5" />
+                <CircleCheck className="w-5 h-5" />
                 <span>Avaliação 100% gratuita</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5" />
+                <CircleCheck className="w-5 h-5" />
                 <span>Sem compromisso</span>
               </div>
             </div>

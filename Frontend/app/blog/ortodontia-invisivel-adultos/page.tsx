@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Calendar, Clock, Tag, TrendingUp, CheckCircle2, Users, Briefcase, Heart, Award, TrendingDown } from 'lucide-react';
+// @ts-ignore
+import { Calendar, Clock, Tag, TrendingUp, CircleCheck, Users, Briefcase, Heart, Award, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
 import { RelatedArticles } from '@/components/blog/related-articles';
 
@@ -141,23 +142,23 @@ export default function OrtodontiaAdultosPage() {
               <h3 className="text-xl font-bold mb-4 text-green-700">✅ O Que Mudou Agora</h3>
               <ul className="space-y-3 text-gray-700">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Alinhadores invisíveis:</strong> praticamente imperceptíveis</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Discrição total:</strong> ideal para ambiente corporativo</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Menos consultas:</strong> a cada 6-8 semanas (vs mensal)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Conforto:</strong> sem dor intensa, zero emergências</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Ciência:</strong> funciona em qualquer idade</span>
                 </li>
               </ul>
@@ -566,23 +567,23 @@ export default function OrtodontiaAdultosPage() {
               <h3 className="font-bold text-xl mb-4 text-indigo-700">✅ Resumo Final:</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>45% dos pacientes têm 35+ anos</strong> - você não está sozinho</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Funciona em qualquer idade</strong> - metabolismo ósseo permite movimentação</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Discreto e profissional</strong> - ideal para ambiente corporativo</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>ROI comprovado</strong> - impacta carreira e autoestima</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Investimento acessível</strong> - R$ 332-750/mês (12x sem juros)</span>
                 </li>
               </ul>

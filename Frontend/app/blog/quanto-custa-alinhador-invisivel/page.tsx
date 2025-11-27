@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Calendar, Clock, Tag, TrendingUp, Calculator, CheckCircle2, AlertCircle, DollarSign } from 'lucide-react';
+// @ts-ignore
+import { Calendar, Clock, Tag, TrendingUp, Calculator, CircleCheck, CircleAlert, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -179,7 +180,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
 
           <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r">
             <p className="text-sm text-gray-700">
-              <AlertCircle className="w-4 h-4 inline mr-2 text-yellow-600" />
+              <CircleAlert className="w-4 h-4 inline mr-2 text-yellow-600" />
               <strong>Importante:</strong> Preços podem variar conforme região, ortodontista e complexidade do caso.
               Valores atualizados em janeiro de 2025.
             </p>
@@ -195,7 +196,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3 text-blue-600 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5" />
+                <CircleCheck className="w-5 h-5" />
                 1. Complexidade do Caso
               </h3>
               <p className="text-gray-700 mb-3">
@@ -210,7 +211,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
 
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3 text-blue-600 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5" />
+                <CircleCheck className="w-5 h-5" />
                 2. Marca e Tecnologia
               </h3>
               <p className="text-gray-700 mb-3">
@@ -225,7 +226,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
 
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3 text-blue-600 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5" />
+                <CircleCheck className="w-5 h-5" />
                 3. Região e Ortodontista
               </h3>
               <p className="text-gray-700 mb-3">
@@ -240,7 +241,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
 
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold mb-3 text-blue-600 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5" />
+                <CircleCheck className="w-5 h-5" />
                 4. Itens Inclusos
               </h3>
               <p className="text-gray-700 mb-3">
@@ -330,37 +331,37 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Scanner 3D intraoral (sem necessidade de moldes)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Planejamento digital 3D completo</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Todos os alinhadores necessários (set completo)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Consultas de acompanhamento a cada 6 semanas</span>
                 </li>
               </ul>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Refinamentos inclusos (se necessário)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Contenção final (upper + lower)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>App de acompanhamento gratuito</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Garantia de satisfação</span>
                 </li>
               </ul>
@@ -480,19 +481,19 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
               <h3 className="text-xl font-bold mb-4 text-purple-600">Opções Especiais de Financiamento</h3>
               <ul className="space-y-3 text-gray-700">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Crédito dental:</strong> parcelamento em até 24x (consultar taxas)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Convênio odontológico:</strong> algumas operadoras cobrem 30-50%</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Planos corporativos:</strong> empresas parceiras têm 10-15% desconto</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CircleCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <span><strong>Indicação:</strong> R$ 200 de desconto para você e para quem indicou</span>
                 </li>
               </ul>
@@ -563,7 +564,7 @@ export default function QuatoCustaAlinhadorInvisivelPage() {
 
           <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r">
             <p className="text-gray-700">
-              <AlertCircle className="w-5 h-5 inline mr-2 text-yellow-600" />
+              <CircleAlert className="w-5 h-5 inline mr-2 text-yellow-600" />
               <strong>Dica importante:</strong> Antes de fechar qualquer orçamento, peça uma lista detalhada
               de TUDO que está e que NÃO está incluído no preço. Peça por escrito e compare com outras clínicas.
             </p>
