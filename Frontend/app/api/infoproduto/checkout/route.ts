@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const preference = new Preference(client)
 
     // Criar preferência de pagamento (Checkout Pro)
-    // Seguindo padrão oficial do SDK Mercado Pago
+    // SEM auto_return - usuário clica "Voltar ao site" manualmente
     const preferenceData = {
       items: [
         {
@@ -52,7 +52,6 @@ export async function POST(request: NextRequest) {
         failure: `${process.env.NEXT_PUBLIC_URL}/infoproduto/relatorio-viabilidade/checkout`,
         pending: `${process.env.NEXT_PUBLIC_URL}/infoproduto/relatorio-viabilidade/checkout`
       },
-      auto_return: "approved",
       notification_url: `${process.env.NEXT_PUBLIC_URL}/api/infoproduto/webhook`,
       statement_descriptor: 'ATMA ALIGNER',
       external_reference: `relatorio-${Date.now()}-${email}`
