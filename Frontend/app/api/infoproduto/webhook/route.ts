@@ -1,62 +1,158 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { MercadoPagoConfig, Payment } from 'mercadopago'
+import crypto from 'crypto'
+
+// Validar assinatura do webhook (segurança)
+function validateWebhookSignature(
+  xSignature: string | null,
+  xRequestId: string | null,
+  dataId: string | null
+): boolean {
+  if (!xSignature || !xRequestId || !dataId) {
+    console.warn('⚠️ Faltam headers de validação')
+    return false
+  }
+
+  try {
+    // Extrair ts e v1 do x-signature
+    const parts = xSignature.split(',')
+    let ts: string | null = null
+    let hash: string | null = null
+
+    parts.forEach(part => {
+      const [key, value] = part.split('=')
+      if (key.trim() === 'ts') ts = value.trim()
+      if (key.trim() === 'v1') hash = value.trim()
+    })
+
+    if (!ts || !hash) {
+      console.warn('⚠️ x-signature inválido')
+      return false
+    }
+
+    // Chave secreta (configurada em Suas integrações > Webhooks)
+    const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET
+
+    if (!secret) {
+      console.warn('⚠️ MERCADOPAGO_WEBHOOK_SECRET não configurada - pulando validação')
+      return true // Em desenvolvimento, aceita sem validação
+    }
+
+    // Gerar manifest
+    const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
+
+    // Calcular HMAC SHA256
+    const hmac = crypto.createHmac('sha256', secret)
+    hmac.update(manifest)
+    const calculatedHash = hmac.digest('hex')
+
+    // Comparar hashes
+    const isValid = calculatedHash === hash
+
+    if (!isValid) {
+      console.error('❌ Assinatura inválida!')
+      console.log('Expected:', calculatedHash)
+      console.log('Received:', hash)
+    }
+
+    return isValid
+
+  } catch (error) {
+    console.error('Erro ao validar assinatura:', error)
+    return false
+  }
+}
 
 // Webhook para receber notificações do Mercado Pago
 export async function POST(request: NextRequest) {
   try {
+    // 1. Extrair headers e query params
+    const xSignature = request.headers.get('x-signature')
+    const xRequestId = request.headers.get('x-request-id')
+    const url = new URL(request.url)
+    const dataId = url.searchParams.get('data.id')
+    const type = url.searchParams.get('type')
+
     const body = await request.json()
 
-    console.log('🔔 Webhook recebido:', body)
+    console.log('🔔 Webhook recebido:', {
+      type,
+      dataId,
+      xRequestId,
+      hasSignature: !!xSignature,
+      body
+    })
 
-    // Mercado Pago envia notificações em vários formatos
-    // Tipos principais: payment, merchant_order
+    // 2. Validar assinatura
+    const isValid = validateWebhookSignature(xSignature, xRequestId, dataId)
 
-    const { type, data } = body
+    if (!isValid && process.env.NODE_ENV === 'production') {
+      console.error('❌ Webhook rejeitado: assinatura inválida')
+      return NextResponse.json({ success: false }, { status: 200 })
+    }
 
-    if (type === 'payment') {
+    // 3. Processar notificação de pagamento
+    if (type === 'payment' && dataId) {
+      const paymentId = parseInt(dataId)
+
+      console.log('💳 Consultando pagamento:', paymentId)
+
+      // Configurar Mercado Pago
+      const client = new MercadoPagoConfig({
+        accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
+        options: { timeout: 5000 }
+      })
+
+      const payment = new Payment(client)
+
       // Buscar detalhes do pagamento
-      const paymentId = data.id
+      const paymentData = await payment.get({ id: paymentId })
 
-      // TODO: Consultar API do Mercado Pago para validar pagamento
-      /*
-      import mercadopago from 'mercadopago'
+      console.log('📊 Status do pagamento:', {
+        id: paymentData.id,
+        status: paymentData.status,
+        status_detail: paymentData.status_detail,
+        email: paymentData.payer?.email,
+        external_reference: paymentData.external_reference
+      })
 
-      const payment = await mercadopago.payment.findById(paymentId)
+      // 4. Se pagamento aprovado, gerar e enviar PDF
+      if (paymentData.status === 'approved') {
+        const email = paymentData.payer?.email
+        const externalReference = paymentData.external_reference
 
-      if (payment.body.status === 'approved') {
-        // Pagamento aprovado!
-        const email = payment.body.payer.email
-        const externalReference = payment.body.external_reference
+        console.log('✅ Pagamento aprovado! Gerando PDF para:', email)
 
-        // Buscar dados do cliente no banco
-        const pedido = await db.pedidos.findOne({
-          where: { externalReference }
-        })
+        // Extrair dados do external_reference
+        // Formato: relatorio-{timestamp}-{email}
+        if (email && externalReference) {
+          // TODO: Aqui você precisaria buscar os dados do formulário
+          // Por enquanto, vamos apenas logar
+          console.log('📝 External reference:', externalReference)
 
-        if (pedido && !pedido.processado) {
-          // Gerar e enviar PDF
-          await gerarEEnviarRelatorio(pedido.formData)
+          // IMPORTANTE: Implementar lógica para evitar duplicação
+          // Você pode:
+          // 1. Salvar paymentId em um banco de dados
+          // 2. Verificar se já foi processado
+          // 3. Se não, gerar PDF e marcar como processado
 
-          // Marcar como processado
-          await db.pedidos.update(
-            { id: pedido.id },
-            { processado: true, status: 'completed' }
-          )
-
-          console.log('✅ Relatório gerado e enviado para:', email)
+          console.log('⚠️ TODO: Implementar geração de PDF via webhook')
         }
       }
-      */
 
       return NextResponse.json({ success: true, received: true })
     }
 
     return NextResponse.json({ success: true, type })
 
-  } catch (error) {
-    console.error('Erro no webhook:', error)
+  } catch (error: any) {
+    console.error('❌ Erro no webhook:', error)
     // IMPORTANTE: Sempre retornar 200 para o Mercado Pago
     // Se retornar erro, eles vão retentar indefinidamente
-    return NextResponse.json({ success: false, error: 'Internal error' }, { status: 200 })
+    return NextResponse.json(
+      { success: false, error: error.message || 'Internal error' },
+      { status: 200 }
+    )
   }
 }
 
