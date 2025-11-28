@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { gerarPDFRelatorio } from '@/lib/pdf-generator'
+import { gerarPDFRelatorioV2 } from '@/lib/pdf-generator-v2'
 import { enviarRelatorio } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
       categoria: estimativaCustos.categoria
     })
 
-    // Gerar PDF
-    console.log('🔄 Gerando PDF...')
-    const pdfBuffer = await gerarPDFRelatorio(relatorioData)
-    console.log('✅ PDF gerado com sucesso')
+    // Gerar PDF (Versão 2 - melhorada)
+    console.log('🔄 Gerando PDF v2...')
+    const pdfBuffer = await gerarPDFRelatorioV2(relatorioData)
+    console.log('✅ PDF v2 gerado com sucesso')
 
     // Enviar email com PDF anexo
     console.log('📧 Enviando email...')
