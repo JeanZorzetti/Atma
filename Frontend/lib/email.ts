@@ -17,9 +17,13 @@ export async function enviarRelatorio(
     const resend = getResendClient()
     const primeiroNome = nome.split(' ')[0]
 
+    // TEMPORÁRIO: Enviar para email de teste + email real (se verificado)
+    // Para produção, configure domínio próprio no Resend
     const { data, error } = await resend.emails.send({
       from: 'Atma Aligner <onboarding@resend.dev>',
-      to: email,
+      to: process.env.NODE_ENV === 'production'
+        ? ['delivered@resend.dev', email] // Em prod, envia para ambos
+        : ['delivered@resend.dev'], // Em dev, só teste
       subject: `${primeiroNome}, Seu Relatório de Viabilidade Está Pronto! 🎉`,
       html: `
         <!DOCTYPE html>
