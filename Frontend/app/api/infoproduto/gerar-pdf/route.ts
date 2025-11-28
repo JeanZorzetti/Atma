@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { gerarPDFRelatorioV2 } from '@/lib/pdf-generator-v2'
+import { gerarPDFRelatorioV5 } from '@/lib/pdf-generator-v5'
 import { enviarRelatorio } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
@@ -27,14 +27,26 @@ export async function POST(request: NextRequest) {
       cliente: {
         nome: formData.nome,
         idade: formData.idade,
-        localizacao: `${formData.cidade}/${formData.estado}`
+        localizacao: `${formData.cidade}/${formData.estado}`,
+        email: formData.email
       },
       score,
       estimativaCustos,
       timeline,
       analise,
       planoAcao,
-      dataGeracao: new Date().toLocaleDateString('pt-BR')
+      dataGeracao: new Date().toLocaleDateString('pt-BR'),
+      // Dados completos do formulário para Phase 2
+      formData: {
+        problemasAtuais: formData.problemasAtuais || [],
+        jaUsouAparelho: formData.jaUsouAparelho || '',
+        problemasSaude: formData.problemasSaude || [],
+        expectativaResultado: formData.expectativaResultado || '',
+        urgenciaTratamento: formData.urgenciaTratamento || '',
+        orcamentoRecebido: formData.orcamentoRecebido || '',
+        disponibilidadeUso: formData.disponibilidadeUso || '',
+        profissao: formData.profissao || ''
+      }
     }
 
     console.log('📊 Dados do relatório preparados:', {
@@ -43,10 +55,10 @@ export async function POST(request: NextRequest) {
       categoria: estimativaCustos.categoria
     })
 
-    // Gerar PDF (Versão 2 - melhorada)
-    console.log('🔄 Gerando PDF v2...')
-    const pdfBuffer = await gerarPDFRelatorioV2(relatorioData)
-    console.log('✅ PDF v2 gerado com sucesso')
+    // Gerar PDF (Versão 5 - Phase 5: Integrações + Upsell)
+    console.log('🔄 Gerando PDF v5 (Phase 5 - Upsell: Consulta Online)...')
+    const pdfBuffer = await gerarPDFRelatorioV5(relatorioData)
+    console.log('✅ PDF v5 gerado com sucesso (Gráficos + Conteúdo + Upsell)')
 
     // Enviar email com PDF anexo
     console.log('📧 Enviando email...')
