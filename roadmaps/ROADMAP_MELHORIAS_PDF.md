@@ -243,11 +243,11 @@ Transformar o PDF atual de 5 páginas básicas em um relatório profissional de 
 **Impacto:** Alto
 **Complexidade:** Alta
 
-### 5.1 CRM Integration
-- [ ] **Salvar dados** em banco (PostgreSQL/Supabase)
-- [ ] **Histórico de relatórios** por cliente
-- [ ] **Dashboard admin** para visualizar relatórios
-- [ ] **Estatísticas** (scores médios, casos por tipo)
+### 5.1 CRM Integration ✅
+- [x] **Salvar dados** em banco (MySQL via Easypanel) ✅
+- [x] **Histórico de relatórios** por cliente ✅
+- [x] **Dashboard admin** para visualizar relatórios ✅
+- [x] **Estatísticas** (scores médios, casos por tipo) ✅
 
 ### 5.2 Follow-up Automático
 - [ ] **Email D+7**: "Já agendou consulta?"

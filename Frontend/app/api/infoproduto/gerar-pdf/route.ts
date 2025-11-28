@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { gerarPDFRelatorioV5 } from '@/lib/pdf-generator-v5'
 import { enviarRelatorio } from '@/lib/email'
+import { salvarCliente } from '@/lib/repositories/cliente-repository'
+import { salvarRelatorio, atualizarStatusRelatorio } from '@/lib/repositories/relatorio-repository'
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,15 +57,89 @@ export async function POST(request: NextRequest) {
       categoria: estimativaCustos.categoria
     })
 
+    // FASE 5.1: Salvar cliente e relatório no banco de dados
+    let clienteId: number
+    let relatorioId: number
+
+    try {
+      console.log('💾 Salvando cliente no banco de dados...')
+      clienteId = await salvarCliente({
+        nome: formData.nome,
+        email: formData.email,
+        idade: parseInt(formData.idade) || undefined,
+        cidade: formData.cidade,
+        estado: formData.estado,
+        telefone: formData.telefone,
+        profissao: formData.profissao
+      })
+      console.log(`✅ Cliente salvo: ID ${clienteId}`)
+
+      console.log('💾 Salvando relatório no banco de dados...')
+
+      // Calcular breakdown do score (cada fator vale 0-20)
+      const scoreBreakdown = calcularScoreBreakdown(formData)
+
+      relatorioId = await salvarRelatorio({
+        cliente_id: clienteId,
+        score,
+        categoria: estimativaCustos.categoria,
+        problemas_atuais: formData.problemasAtuais || [],
+        problema_principal: formData.problemasAtuais?.[0] || 'geral',
+        tempo_estimado: timeline,
+        custo_min: estimativaCustos.faixaPreco.min,
+        custo_max: estimativaCustos.faixaPreco.max,
+        custo_atma: estimativaCustos.comparacao.atma,
+        custo_invisalign: estimativaCustos.comparacao.invisalign,
+        custo_aparelho_fixo: estimativaCustos.comparacao.aparelhoFixo,
+        ja_usou_aparelho: formData.jaUsouAparelho,
+        problemas_saude: formData.problemasSaude || [],
+        expectativa_resultado: formData.expectativaResultado,
+        urgencia_tratamento: formData.urgenciaTratamento,
+        orcamento_recebido: formData.orcamentoRecebido,
+        disponibilidade_uso: formData.disponibilidadeUso,
+        score_complexidade: scoreBreakdown.complexidade,
+        score_idade: scoreBreakdown.idade,
+        score_historico: scoreBreakdown.historico,
+        score_saude: scoreBreakdown.saude,
+        score_expectativas: scoreBreakdown.expectativas,
+        pdf_gerado: false,
+        pdf_enviado: false,
+        consulta_agendada: false,
+        tratamento_iniciado: false
+      })
+      console.log(`✅ Relatório salvo: ID ${relatorioId}`)
+    } catch (dbError) {
+      console.error('⚠️ Erro ao salvar no banco (continuando sem CRM):', dbError)
+      // Continuar mesmo se falhar (não bloquear geração de PDF)
+    }
+
     // Gerar PDF (Versão 5 - Phase 5: Integrações + Upsell)
     console.log('🔄 Gerando PDF v5 (Phase 5 - Upsell: Consulta Online)...')
     const pdfBuffer = await gerarPDFRelatorioV5(relatorioData)
     console.log('✅ PDF v5 gerado com sucesso (Gráficos + Conteúdo + Upsell)')
 
+    // Atualizar status: PDF gerado
+    if (relatorioId) {
+      try {
+        await atualizarStatusRelatorio(relatorioId, { pdf_gerado: true })
+      } catch (dbError) {
+        console.error('⚠️ Erro ao atualizar status PDF gerado:', dbError)
+      }
+    }
+
     // Enviar email com PDF anexo
     console.log('📧 Enviando email...')
     await enviarRelatorio(formData.email, formData.nome, pdfBuffer)
     console.log('✅ Email enviado com sucesso')
+
+    // Atualizar status: PDF enviado
+    if (relatorioId) {
+      try {
+        await atualizarStatusRelatorio(relatorioId, { pdf_enviado: true })
+      } catch (dbError) {
+        console.error('⚠️ Erro ao atualizar status PDF enviado:', dbError)
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -71,7 +147,9 @@ export async function POST(request: NextRequest) {
       data: {
         email: formData.email,
         score,
-        categoria: estimativaCustos.categoria
+        categoria: estimativaCustos.categoria,
+        clienteId: clienteId || null,
+        relatorioId: relatorioId || null
       }
     })
 
@@ -146,6 +224,104 @@ function calcularScore(data: any): number {
 
   // Manter entre 0-100
   return Math.max(0, Math.min(100, score))
+}
+
+function calcularScoreBreakdown(data: any): {
+  complexidade: number
+  idade: number
+  historico: number
+  saude: number
+  expectativas: number
+} {
+  // Cada fator vale de 0 a 20 pontos
+  let scoreComplexidade = 15 // Base
+  let scoreIdade = 15 // Base
+  let scoreHistorico = 15 // Base
+  let scoreSaude = 15 // Base
+  let scoreExpectativas = 15 // Base
+
+  // 1. COMPLEXIDADE (baseado nos problemas)
+  const problemasComplexos = [
+    'Mordida cruzada',
+    'Prognatismo (queixo para frente)',
+    'Sobremordida (dentes superiores cobrem muito os inferiores)'
+  ]
+  const problemasSimples = [
+    'Dentes separados/espaçados',
+    'Dentes tortos'
+  ]
+
+  const complexosCount = data.problemasAtuais?.filter((p: string) =>
+    problemasComplexos.includes(p)
+  ).length || 0
+
+  const simplesCount = data.problemasAtuais?.filter((p: string) =>
+    problemasSimples.includes(p)
+  ).length || 0
+
+  if (complexosCount > 1) {
+    scoreComplexidade = 5 // Muito complexo
+  } else if (complexosCount === 1) {
+    scoreComplexidade = 10 // Complexo
+  } else if (simplesCount > 0) {
+    scoreComplexidade = 18 // Simples
+  }
+
+  // 2. IDADE (jovens têm melhor resposta)
+  const idade = parseInt(data.idade) || 30
+  if (idade < 18) {
+    scoreIdade = 20 // Ótimo (adolescente)
+  } else if (idade < 25) {
+    scoreIdade = 18 // Muito bom
+  } else if (idade < 35) {
+    scoreIdade = 15 // Bom
+  } else if (idade < 50) {
+    scoreIdade = 12 // Razoável
+  } else {
+    scoreIdade = 8 // Mais desafiador
+  }
+
+  // 3. HISTÓRICO ORTODÔNTICO
+  if (data.jaUsouAparelho === 'Não, nunca usei') {
+    scoreHistorico = 17 // Primeira vez (bom)
+  } else if (data.jaUsouAparelho === 'Sim, mas não completei o tratamento') {
+    scoreHistorico = 12 // Não completou (risco de não completar novamente)
+  } else if (data.jaUsouAparelho === 'Sim, aparelho fixo (com brackets)') {
+    scoreHistorico = 10 // Recidiva (precisou de novo)
+  } else if (data.jaUsouAparelho === 'Sim, alinhadores invisíveis') {
+    scoreHistorico = 14 // Já conhece alinhadores
+  }
+
+  // 4. SAÚDE BUCAL (problemas diminuem score)
+  const problemasCount = data.problemasSaude?.length || 0
+  if (problemasCount === 0) {
+    scoreSaude = 20 // Saúde perfeita
+  } else if (problemasCount === 1) {
+    scoreSaude = 15 // Um problema (controlável)
+  } else if (problemasCount === 2) {
+    scoreSaude = 10 // Dois problemas (atenção necessária)
+  } else {
+    scoreSaude = 5 // Múltiplos problemas (tratamento prévio necessário)
+  }
+
+  // 5. EXPECTATIVAS (realistas vs. irrealistas)
+  if (data.expectativaResultado?.includes('80-90%')) {
+    scoreExpectativas = 18 // Expectativas realistas
+  } else if (data.expectativaResultado?.includes('necessário')) {
+    scoreExpectativas = 16 // Expectativas razoáveis
+  } else if (data.expectativaResultado?.includes('perfeito')) {
+    scoreExpectativas = 8 // Expectativas muito altas (risco de insatisfação)
+  } else {
+    scoreExpectativas = 12 // Neutro
+  }
+
+  return {
+    complexidade: Math.max(0, Math.min(20, scoreComplexidade)),
+    idade: Math.max(0, Math.min(20, scoreIdade)),
+    historico: Math.max(0, Math.min(20, scoreHistorico)),
+    saude: Math.max(0, Math.min(20, scoreSaude)),
+    expectativas: Math.max(0, Math.min(20, scoreExpectativas))
+  }
 }
 
 function estimarCustos(data: any): any {
