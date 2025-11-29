@@ -8,7 +8,7 @@
  */
 
 import { PDFGeneratorV3 } from './pdf-generator-v3'
-import 'jspdf-autotable' // IMPORTANT: Import to register plugin with jsPDF
+import autoTable from 'jspdf-autotable'
 import {
   generateScoreBreakdownChart,
   generateCostComparisonChart,
@@ -209,8 +209,7 @@ export class PDFGeneratorV4 extends PDFGeneratorV3 {
       },
     ]
 
-    const autoTable = (this.doc as any).autoTable
-    autoTable({
+    autoTable(this.doc, {
       startY: this.yPosition,
       head: [['Fator', 'Pontos', 'Descrição']],
       body: scoreFactors.map(f => [f.fator, `${f.peso}/20`, f.descricao]),
@@ -388,8 +387,7 @@ export class PDFGeneratorV4 extends PDFGeneratorV3 {
       ],
     ]
 
-    const autoTable = (this.doc as any).autoTable
-    autoTable({
+    autoTable(this.doc, {
       startY: this.yPosition,
       head: [['Opção', 'Preço Médio', 'Tempo', 'Estética', 'Conforto', 'Diferença']],
       body: comparativoData,
