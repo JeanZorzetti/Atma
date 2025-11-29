@@ -79,24 +79,24 @@ export async function salvarRelatorio(relatorio: Relatorio): Promise<number> {
     relatorio.score,
     relatorio.categoria,
     relatorio.problemas_atuais ? JSON.stringify(relatorio.problemas_atuais) : null,
-    relatorio.problema_principal,
-    relatorio.tempo_estimado,
-    relatorio.custo_min,
-    relatorio.custo_max,
-    relatorio.custo_atma,
-    relatorio.custo_invisalign,
-    relatorio.custo_aparelho_fixo,
-    relatorio.ja_usou_aparelho,
+    relatorio.problema_principal || null,
+    relatorio.tempo_estimado || null,
+    relatorio.custo_min || 0,
+    relatorio.custo_max || 0,
+    relatorio.custo_atma || 0,
+    relatorio.custo_invisalign || 0,
+    relatorio.custo_aparelho_fixo || 0,
+    relatorio.ja_usou_aparelho || null,
     relatorio.problemas_saude ? JSON.stringify(relatorio.problemas_saude) : null,
-    relatorio.expectativa_resultado,
-    relatorio.urgencia_tratamento,
-    relatorio.orcamento_recebido,
-    relatorio.disponibilidade_uso,
-    relatorio.score_complexidade,
-    relatorio.score_idade,
-    relatorio.score_historico,
-    relatorio.score_saude,
-    relatorio.score_expectativas,
+    relatorio.expectativa_resultado || null,
+    relatorio.urgencia_tratamento || null,
+    relatorio.orcamento_recebido || null,
+    relatorio.disponibilidade_uso || null,
+    relatorio.score_complexidade || 0,
+    relatorio.score_idade || 0,
+    relatorio.score_historico || 0,
+    relatorio.score_saude || 0,
+    relatorio.score_expectativas || 0,
     relatorio.pdf_gerado || false,
     relatorio.pdf_enviado || false,
     relatorio.consulta_agendada || false,
@@ -105,6 +105,14 @@ export async function salvarRelatorio(relatorio: Relatorio): Promise<number> {
   ]
 
   console.log(`[${logId}] Prepared ${values.length} values for INSERT`)
+
+  // Log each value individually to find undefined
+  values.forEach((val, idx) => {
+    if (val === undefined) {
+      console.error(`[${logId}] ⚠️ UNDEFINED VALUE at index ${idx}`)
+    }
+  })
+
   console.log(`[${logId}] Values array:`, values)
 
   const sql = `INSERT INTO relatorios (
