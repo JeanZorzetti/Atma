@@ -67,6 +67,27 @@ export class PDFGeneratorV3 {
     this.currentPage = 1
   }
 
+  /**
+   * Remove emojis e caracteres especiais que o jsPDF não suporta
+   */
+  private sanitizeText(text: string): string {
+    // Remove emojis e outros caracteres unicode problemáticos
+    return text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]/gu, '')
+      .replace(/✅/g, '[OK]')
+      .replace(/❌/g, '[X]')
+      .replace(/📱/g, '')
+      .replace(/🚀/g, '')
+      .replace(/📝/g, '')
+      .replace(/💡/g, '')
+      .replace(/📊/g, '')
+      .replace(/💰/g, '')
+      .replace(/⏰/g, '')
+      .replace(/🎯/g, '')
+      .replace(/📈/g, '')
+      .replace(/🏆/g, '')
+      .trim()
+  }
+
   // ==================== HELPERS ====================
 
   private addNewPageIfNeeded(requiredSpace: number): boolean {
@@ -122,7 +143,8 @@ export class PDFGeneratorV3 {
     this.doc.setTextColor(...COLORS.white)
     this.doc.setFontSize(12)
     this.doc.setFont('helvetica', 'bold')
-    this.doc.text(`${icon} ${title}`, 15, this.yPosition + 7)
+    const sanitizedTitle = this.sanitizeText(`${icon} ${title}`)
+    this.doc.text(sanitizedTitle, 15, this.yPosition + 7)
     this.doc.setTextColor(...COLORS.black)
 
     this.yPosition += 15
@@ -131,7 +153,8 @@ export class PDFGeneratorV3 {
   private addText(text: string, fontSize = 10, style: 'normal' | 'bold' = 'normal', indent = 0) {
     this.doc.setFontSize(fontSize)
     this.doc.setFont('helvetica', style)
-    const lines = this.doc.splitTextToSize(text, this.pageWidth - 30 - indent)
+    const sanitizedText = this.sanitizeText(text)
+    const lines = this.doc.splitTextToSize(sanitizedText, this.pageWidth - 30 - indent)
 
     lines.forEach((line: string) => {
       this.addNewPageIfNeeded(7)
@@ -156,11 +179,12 @@ export class PDFGeneratorV3 {
 
     this.doc.setFontSize(10)
     this.doc.setFont('helvetica', 'bold')
-    this.doc.text(title, 20, this.yPosition + 6)
+    this.doc.text(this.sanitizeText(title), 20, this.yPosition + 6)
 
     this.doc.setFont('helvetica', 'normal')
     this.doc.setFontSize(9)
-    const contentLines = this.doc.splitTextToSize(content, this.pageWidth - 40)
+    const sanitizedContent = this.sanitizeText(content)
+    const contentLines = this.doc.splitTextToSize(sanitizedContent, this.pageWidth - 40)
     contentLines.forEach((line: string, index: number) => {
       this.doc.text(line, 20, this.yPosition + 12 + (index * 5))
     })
