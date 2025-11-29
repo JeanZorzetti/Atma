@@ -47,6 +47,7 @@ export interface Relatorio {
   pdf_enviado?: boolean
   consulta_agendada?: boolean
   tratamento_iniciado?: boolean
+  pagamento_status?: string // pending, approved, rejected, cancelled
 
   created_at?: Date
   updated_at?: Date
@@ -70,8 +71,8 @@ export async function salvarRelatorio(relatorio: Relatorio): Promise<number> {
       ja_usou_aparelho, problemas_saude,
       expectativa_resultado, urgencia_tratamento, orcamento_recebido, disponibilidade_uso,
       score_complexidade, score_idade, score_historico, score_saude, score_expectativas,
-      pdf_gerado, pdf_enviado, consulta_agendada, tratamento_iniciado
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      pdf_gerado, pdf_enviado, consulta_agendada, tratamento_iniciado, pagamento_status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       relatorio.cliente_id,
       relatorio.score,
@@ -98,7 +99,8 @@ export async function salvarRelatorio(relatorio: Relatorio): Promise<number> {
       relatorio.pdf_gerado || false,
       relatorio.pdf_enviado || false,
       relatorio.consulta_agendada || false,
-      relatorio.tratamento_iniciado || false
+      relatorio.tratamento_iniciado || false,
+      relatorio.pagamento_status || 'pending'
     ]
   )
 }
@@ -174,6 +176,15 @@ export async function atualizarStatusRelatorio(id: number, dados: {
   pdf_enviado?: boolean
   consulta_agendada?: boolean
   tratamento_iniciado?: boolean
+  pagamento_status?: string
+  score?: number
+  categoria?: string
+  tempo_estimado?: string
+  custo_min?: number
+  custo_max?: number
+  custo_atma?: number
+  custo_invisalign?: number
+  custo_aparelho_fixo?: number
 }): Promise<void> {
   const campos: string[] = []
   const valores: any[] = []
@@ -193,6 +204,42 @@ export async function atualizarStatusRelatorio(id: number, dados: {
   if (dados.tratamento_iniciado !== undefined) {
     campos.push('tratamento_iniciado = ?')
     valores.push(dados.tratamento_iniciado)
+  }
+  if (dados.pagamento_status !== undefined) {
+    campos.push('pagamento_status = ?')
+    valores.push(dados.pagamento_status)
+  }
+  if (dados.score !== undefined) {
+    campos.push('score = ?')
+    valores.push(dados.score)
+  }
+  if (dados.categoria !== undefined) {
+    campos.push('categoria = ?')
+    valores.push(dados.categoria)
+  }
+  if (dados.tempo_estimado !== undefined) {
+    campos.push('tempo_estimado = ?')
+    valores.push(dados.tempo_estimado)
+  }
+  if (dados.custo_min !== undefined) {
+    campos.push('custo_min = ?')
+    valores.push(dados.custo_min)
+  }
+  if (dados.custo_max !== undefined) {
+    campos.push('custo_max = ?')
+    valores.push(dados.custo_max)
+  }
+  if (dados.custo_atma !== undefined) {
+    campos.push('custo_atma = ?')
+    valores.push(dados.custo_atma)
+  }
+  if (dados.custo_invisalign !== undefined) {
+    campos.push('custo_invisalign = ?')
+    valores.push(dados.custo_invisalign)
+  }
+  if (dados.custo_aparelho_fixo !== undefined) {
+    campos.push('custo_aparelho_fixo = ?')
+    valores.push(dados.custo_aparelho_fixo)
   }
 
   if (campos.length === 0) return
