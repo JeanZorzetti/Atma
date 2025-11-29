@@ -42,14 +42,14 @@ CREATE TABLE IF NOT EXISTS relatorios (
   custo_aparelho_fixo DECIMAL(10,2),
 
   -- Histórico ortodôntico
-  ja_usou_aparelho VARCHAR(20),
+  ja_usou_aparelho VARCHAR(100),
   problemas_saude JSON, -- Array de problemas de saúde
 
   -- Expectativas e urgência
-  expectativa_resultado VARCHAR(50),
-  urgencia_tratamento VARCHAR(50),
-  orcamento_recebido VARCHAR(20),
-  disponibilidade_uso VARCHAR(50),
+  expectativa_resultado VARCHAR(100),
+  urgencia_tratamento VARCHAR(100),
+  orcamento_recebido VARCHAR(100),
+  disponibilidade_uso VARCHAR(100),
 
   -- Breakdown do score (0-20 cada)
   score_complexidade INT,
