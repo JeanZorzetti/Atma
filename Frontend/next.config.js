@@ -50,6 +50,28 @@ const nextConfig = {
 
   // Performance optimizations
   // swcMinify is enabled by default in Next.js 15+, no need to specify
+
+  // External packages (don't bundle these - use from node_modules at runtime)
+  serverComponentsExternalPackages: ['@napi-rs/canvas', 'canvas'],
+
+  // Webpack config for native modules
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Mark canvas packages as external (don't bundle, use at runtime)
+      config.externals.push(
+        '@napi-rs/canvas',
+        '@napi-rs/canvas-linux-x64-gnu',
+        '@napi-rs/canvas-linux-x64-musl',
+        '@napi-rs/canvas-linux-arm64-gnu',
+        '@napi-rs/canvas-linux-arm64-musl',
+        '@napi-rs/canvas-darwin-x64',
+        '@napi-rs/canvas-darwin-arm64',
+        '@napi-rs/canvas-win32-x64-msvc',
+      )
+    }
+
+    return config
+  },
 }
 
 module.exports = nextConfig
