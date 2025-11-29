@@ -203,22 +203,35 @@ Transformar o PDF atual de 5 páginas básicas em um relatório profissional de 
 
 ---
 
-## 🔧 FASE 4: Features Técnicas
-**Prazo:** 3-5 dias
-**Impacto:** Médio
+## 🔧 FASE 4: Features Técnicas ✅ PARCIALMENTE COMPLETO
+**Prazo:** 3-5 dias → **2 dias (4.1 realizado)**
+**Impacto:** Médio → **Alto**
 **Complexidade:** Média
+**Status:** ✅ 4.1 Completo | ⏳ 4.3 Pendente
 
-### 4.1 Interatividade
-- [ ] **QR codes** em seções-chave:
-  - Agendar consulta
-  - Ver vídeo explicativo
-  - Acessar calculadora online
-  - Falar no WhatsApp
-- [ ] **Links clicáveis** para:
-  - Site da Atma
-  - Portal do paciente
-  - Blog com artigos
-  - Vídeos educativos
+### 4.1 Interatividade ✅ COMPLETO (29/11/2025)
+- [x] **QR codes** implementados (4 QR codes estratégicos):
+  - [x] ✅ **QR Code 1:** Agendar consulta online (R$ 97) - página de upsell
+  - [x] ✅ **QR Code 2:** Ver casos reais (antes/depois) - seção de depoimentos
+  - [x] ✅ **QR Code 3:** Site Atma (homepage) - página de próximos passos
+  - [x] ✅ **QR Code 4:** Blog com artigos educativos - página de próximos passos
+  - ❌ Ver vídeo explicativo - **Removido** (não existe vídeo)
+  - ❌ Acessar calculadora online - **Removido** (não implementada)
+  - ❌ Falar no WhatsApp - **Removido** (decisão de não implementar)
+- [x] **Links clicáveis** implementados:
+  - [x] ✅ Site da Atma (https://atma.roilabs.com.br)
+  - [x] ✅ Página de casos reais (https://atma.roilabs.com.br/pacientes/antes-depois)
+  - [x] ✅ Checkout consulta online (https://atma.roilabs.com.br/consulta-online)
+  - [x] ✅ Blog com artigos (https://atma.roilabs.com.br/blog)
+  - ℹ️ Portal do paciente - **Futuro** (não existe ainda)
+  - ℹ️ Vídeos educativos - **Futuro** (não existe ainda)
+
+**Implementação técnica:**
+- Criado `pdf-generator-v6.ts` (estende V5)
+- Método reutilizável `generateQRCodeBlock()` para QR codes
+- Override de `generateTestimonialsSection()` (QR para casos reais)
+- Override de `generateNextStepsSection()` (QR para site Atma)
+- QR code para consulta online já existia na V5 (mantido)
 
 ### 4.2 Otimizações ✅
 
