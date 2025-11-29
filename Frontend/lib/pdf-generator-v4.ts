@@ -8,6 +8,7 @@
  */
 
 import { PDFGeneratorV3 } from './pdf-generator-v3'
+import 'jspdf-autotable' // IMPORTANT: Import to register plugin with jsPDF
 import {
   generateScoreBreakdownChart,
   generateCostComparisonChart,

@@ -8,6 +8,7 @@
 
 import { PDFGeneratorV5 } from './pdf-generator-v5'
 import QRCode from 'qrcode'
+import 'jspdf-autotable' // IMPORTANT: Import to register plugin with jsPDF
 
 interface RelatorioDataV6 extends any {
   cliente: {

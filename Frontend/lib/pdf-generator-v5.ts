@@ -7,6 +7,7 @@
 
 import { PDFGeneratorV4 } from './pdf-generator-v4'
 import QRCode from 'qrcode'
+import 'jspdf-autotable' // IMPORTANT: Import to register plugin with jsPDF
 
 // Estender a interface para incluir URLs de upsell
 interface RelatorioDataV5 extends any {
