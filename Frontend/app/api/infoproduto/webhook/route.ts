@@ -123,20 +123,46 @@ export async function POST(request: NextRequest) {
 
         console.log('✅ Pagamento aprovado! Gerando PDF para:', email)
 
-        // Extrair dados do external_reference
-        // Formato: relatorio-{timestamp}-{email}
+        // Extrair IDs do external_reference
+        // Formato: relatorio-{relatorioId}-{clienteId}
         if (email && externalReference) {
-          // TODO: Aqui você precisaria buscar os dados do formulário
-          // Por enquanto, vamos apenas logar
-          console.log('📝 External reference:', externalReference)
+          const parts = externalReference.split('-')
+          if (parts.length === 3 && parts[0] === 'relatorio') {
+            const relatorioId = parseInt(parts[1])
+            const clienteId = parseInt(parts[2])
 
-          // IMPORTANTE: Implementar lógica para evitar duplicação
-          // Você pode:
-          // 1. Salvar paymentId em um banco de dados
-          // 2. Verificar se já foi processado
-          // 3. Se não, gerar PDF e marcar como processado
+            console.log('📝 Gerando PDF para:', { relatorioId, clienteId, email })
 
-          console.log('⚠️ TODO: Implementar geração de PDF via webhook')
+            try {
+              // Chamar API interna para gerar PDF
+              const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
+              const response = await fetch(`${baseUrl}/api/infoproduto/gerar-pdf-webhook`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-Internal-Request': 'true' // Header de segurança
+                },
+                body: JSON.stringify({
+                  relatorioId,
+                  clienteId,
+                  paymentId: paymentData.id
+                })
+              })
+
+              const result = await response.json()
+
+              if (result.success) {
+                console.log('✅ PDF gerado e enviado com sucesso!')
+              } else {
+                console.error('❌ Erro ao gerar PDF:', result.error)
+              }
+
+            } catch (error) {
+              console.error('❌ Erro ao chamar API de geração de PDF:', error)
+            }
+          } else {
+            console.warn('⚠️ Formato de external_reference inválido:', externalReference)
+          }
         }
       }
 
