@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       expectativaResultado,
       urgenciaTratamento,
       orcamentoRecebido,
-      disponibilidadeUso
+      tempoDisponivel // ← Frontend envia "tempoDisponivel", não "disponibilidadeUso"
     } = body
 
     console.log(`[${requestId}] STEP 2: Validating required fields`, {
@@ -93,12 +93,12 @@ export async function POST(request: NextRequest) {
         custo_atma: 0,
         custo_invisalign: 0,
         custo_aparelho_fixo: 0,
-        ja_usou_aparelho: jaUsouAparelho,
+        ja_usou_aparelho: jaUsouAparelho || null,
         problemas_saude: problemasSaude || [],
-        expectativa_resultado: expectativaResultado,
-        urgencia_tratamento: urgenciaTratamento,
-        orcamento_recebido: orcamentoRecebido,
-        disponibilidade_uso: disponibilidadeUso,
+        expectativa_resultado: expectativaResultado || null,
+        urgencia_tratamento: urgenciaTratamento || null,
+        orcamento_recebido: orcamentoRecebido || null,
+        disponibilidade_uso: tempoDisponivel || null, // ← Mapeia tempoDisponivel para disponibilidade_uso
         score_complexidade: 0,
         score_idade: 0,
         score_historico: 0,
