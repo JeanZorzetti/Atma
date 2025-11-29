@@ -3,7 +3,7 @@
  * Usado para criar imagens de gráficos que serão inseridas no PDF
  */
 
-import { createCanvas } from 'canvas'
+import { createCanvas } from '@napi-rs/canvas'
 import { Chart, ChartConfiguration, registerables } from 'chart.js'
 import { generateChartWithCache, getOptimizedCanvasSize } from './pdf-optimizer'
 
