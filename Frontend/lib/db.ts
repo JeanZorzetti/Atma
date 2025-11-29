@@ -7,11 +7,11 @@ import mysql from 'mysql2/promise'
 
 // Configuração do pool de conexões
 const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST || 'localhost',
-  port: parseInt(process.env.MYSQL_PORT || '3306'),
-  user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || '',
-  database: process.env.MYSQL_DATABASE || 'atma_crm',
+  host: process.env.DB_HOST || '31.97.23.166',
+  port: parseInt(process.env.DB_PORT || '3306'),
+  user: process.env.DB_USER || 'atmadb',
+  password: process.env.DB_PASSWORD || 'PAzo18**',
+  database: process.env.DB_NAME || 'atmadb',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
