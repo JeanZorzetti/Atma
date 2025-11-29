@@ -59,61 +59,77 @@ export interface RelatorioComCliente extends Relatorio {
 }
 
 /**
+ * Helper: Converte undefined para null
+ */
+function sanitize(value: any): any {
+  return value === undefined ? null : value
+}
+
+/**
+ * Helper: Converte undefined para valor default
+ */
+function sanitizeWithDefault<T>(value: T | undefined, defaultValue: T): T {
+  return value === undefined ? defaultValue : value
+}
+
+/**
  * Salva relatório no banco
+ * IMPORTANTE: Todos os valores são sanitizados para evitar undefined
  */
 export async function salvarRelatorio(relatorio: Relatorio): Promise<number> {
   const logId = `relatorio-${Date.now()}`
 
   console.log(`[${logId}] ========== SAVING RELATORIO ==========`)
-  console.log(`[${logId}] Input data received:`, {
-    cliente_id: relatorio.cliente_id,
-    score: relatorio.score,
-    categoria: relatorio.categoria,
-    pagamento_status: relatorio.pagamento_status,
-    has_problemas_atuais: !!relatorio.problemas_atuais,
-    has_problemas_saude: !!relatorio.problemas_saude
-  })
 
+  // Sanitizar TODOS os valores explicitamente
   const values = [
-    relatorio.cliente_id,
-    relatorio.score,
-    relatorio.categoria,
+    sanitize(relatorio.cliente_id),
+    sanitizeWithDefault(relatorio.score, 0),
+    sanitize(relatorio.categoria),
     relatorio.problemas_atuais ? JSON.stringify(relatorio.problemas_atuais) : null,
-    relatorio.problema_principal || null,
-    relatorio.tempo_estimado || null,
-    relatorio.custo_min || 0,
-    relatorio.custo_max || 0,
-    relatorio.custo_atma || 0,
-    relatorio.custo_invisalign || 0,
-    relatorio.custo_aparelho_fixo || 0,
-    relatorio.ja_usou_aparelho || null,
+    sanitize(relatorio.problema_principal),
+    sanitize(relatorio.tempo_estimado),
+    sanitizeWithDefault(relatorio.custo_min, 0),
+    sanitizeWithDefault(relatorio.custo_max, 0),
+    sanitizeWithDefault(relatorio.custo_atma, 0),
+    sanitizeWithDefault(relatorio.custo_invisalign, 0),
+    sanitizeWithDefault(relatorio.custo_aparelho_fixo, 0),
+    sanitize(relatorio.ja_usou_aparelho),
     relatorio.problemas_saude ? JSON.stringify(relatorio.problemas_saude) : null,
-    relatorio.expectativa_resultado || null,
-    relatorio.urgencia_tratamento || null,
-    relatorio.orcamento_recebido || null,
-    relatorio.disponibilidade_uso || null,
-    relatorio.score_complexidade || 0,
-    relatorio.score_idade || 0,
-    relatorio.score_historico || 0,
-    relatorio.score_saude || 0,
-    relatorio.score_expectativas || 0,
-    relatorio.pdf_gerado || false,
-    relatorio.pdf_enviado || false,
-    relatorio.consulta_agendada || false,
-    relatorio.tratamento_iniciado || false,
-    relatorio.pagamento_status || 'pending'
+    sanitize(relatorio.expectativa_resultado),
+    sanitize(relatorio.urgencia_tratamento),
+    sanitize(relatorio.orcamento_recebido),
+    sanitize(relatorio.disponibilidade_uso),
+    sanitizeWithDefault(relatorio.score_complexidade, 0),
+    sanitizeWithDefault(relatorio.score_idade, 0),
+    sanitizeWithDefault(relatorio.score_historico, 0),
+    sanitizeWithDefault(relatorio.score_saude, 0),
+    sanitizeWithDefault(relatorio.score_expectativas, 0),
+    sanitizeWithDefault(relatorio.pdf_gerado, false),
+    sanitizeWithDefault(relatorio.pdf_enviado, false),
+    sanitizeWithDefault(relatorio.consulta_agendada, false),
+    sanitizeWithDefault(relatorio.tratamento_iniciado, false),
+    sanitizeWithDefault(relatorio.pagamento_status, 'pending')
   ]
 
-  console.log(`[${logId}] Prepared ${values.length} values for INSERT`)
-
-  // Log each value individually to find undefined
+  // Verificar se ainda tem undefined (não deveria)
+  const undefinedIndexes: number[] = []
   values.forEach((val, idx) => {
     if (val === undefined) {
-      console.error(`[${logId}] ⚠️ UNDEFINED VALUE at index ${idx}`)
+      undefinedIndexes.push(idx)
     }
   })
 
-  console.log(`[${logId}] Values array:`, values)
+  if (undefinedIndexes.length > 0) {
+    console.error(`[${logId}] ❌ STILL HAS UNDEFINED at indexes:`, undefinedIndexes)
+    // Forçar conversão para null
+    undefinedIndexes.forEach(idx => {
+      values[idx] = null
+    })
+  }
+
+  console.log(`[${logId}] Values count: ${values.length}`)
+  console.log(`[${logId}] Values:`, JSON.stringify(values))
 
   const sql = `INSERT INTO relatorios (
     cliente_id, score, categoria,
@@ -126,23 +142,15 @@ export async function salvarRelatorio(relatorio: Relatorio): Promise<number> {
     pdf_gerado, pdf_enviado, consulta_agendada, tratamento_iniciado, pagamento_status
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
-  console.log(`[${logId}] SQL statement prepared (27 columns, 27 placeholders)`)
-
   try {
-    console.log(`[${logId}] Executing INSERT query...`)
+    console.log(`[${logId}] Executing INSERT...`)
     const result = await insert(sql, values)
     console.log(`[${logId}] ✅ INSERT successful! ID: ${result}`)
     return result
   } catch (error: any) {
     console.error(`[${logId}] ❌ INSERT FAILED`)
-    console.error(`[${logId}] SQL Error code: ${error?.code}`)
-    console.error(`[${logId}] SQL Error errno: ${error?.errno}`)
-    console.error(`[${logId}] SQL Error message: ${error?.message}`)
-    console.error(`[${logId}] SQL Error sqlMessage: ${error?.sqlMessage}`)
-    console.error(`[${logId}] SQL Error sqlState: ${error?.sqlState}`)
-    console.error(`[${logId}] SQL Statement: ${sql}`)
-    console.error(`[${logId}] Values count: ${values.length}`)
-    console.error(`[${logId}] Full error:`, error)
+    console.error(`[${logId}] Error:`, error?.message)
+    console.error(`[${logId}] SQL Error:`, error?.sqlMessage)
     throw error
   }
 }
