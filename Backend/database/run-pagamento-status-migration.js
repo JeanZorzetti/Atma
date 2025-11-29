@@ -10,7 +10,7 @@ async function runMigration() {
     connection = await mysql.createConnection({
       host: process.env.DB_HOST || '31.97.23.166',
       user: process.env.DB_USER || 'atmadb',
-      password: process.env.DB_PASSWORD || 'atma2024',
+      password: process.env.DB_PASSWORD || 'PAzo18**',
       database: process.env.DB_NAME || 'atmadb',
       multipleStatements: true,
     })
