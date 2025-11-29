@@ -62,47 +62,81 @@ export interface RelatorioComCliente extends Relatorio {
  * Salva relatório no banco
  */
 export async function salvarRelatorio(relatorio: Relatorio): Promise<number> {
-  return insert(
-    `INSERT INTO relatorios (
-      cliente_id, score, categoria,
-      problemas_atuais, problema_principal,
-      tempo_estimado, custo_min, custo_max,
-      custo_atma, custo_invisalign, custo_aparelho_fixo,
-      ja_usou_aparelho, problemas_saude,
-      expectativa_resultado, urgencia_tratamento, orcamento_recebido, disponibilidade_uso,
-      score_complexidade, score_idade, score_historico, score_saude, score_expectativas,
-      pdf_gerado, pdf_enviado, consulta_agendada, tratamento_iniciado, pagamento_status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      relatorio.cliente_id,
-      relatorio.score,
-      relatorio.categoria,
-      relatorio.problemas_atuais ? JSON.stringify(relatorio.problemas_atuais) : null,
-      relatorio.problema_principal,
-      relatorio.tempo_estimado,
-      relatorio.custo_min,
-      relatorio.custo_max,
-      relatorio.custo_atma,
-      relatorio.custo_invisalign,
-      relatorio.custo_aparelho_fixo,
-      relatorio.ja_usou_aparelho,
-      relatorio.problemas_saude ? JSON.stringify(relatorio.problemas_saude) : null,
-      relatorio.expectativa_resultado,
-      relatorio.urgencia_tratamento,
-      relatorio.orcamento_recebido,
-      relatorio.disponibilidade_uso,
-      relatorio.score_complexidade,
-      relatorio.score_idade,
-      relatorio.score_historico,
-      relatorio.score_saude,
-      relatorio.score_expectativas,
-      relatorio.pdf_gerado || false,
-      relatorio.pdf_enviado || false,
-      relatorio.consulta_agendada || false,
-      relatorio.tratamento_iniciado || false,
-      relatorio.pagamento_status || 'pending'
-    ]
-  )
+  const logId = `relatorio-${Date.now()}`
+
+  console.log(`[${logId}] ========== SAVING RELATORIO ==========`)
+  console.log(`[${logId}] Input data received:`, {
+    cliente_id: relatorio.cliente_id,
+    score: relatorio.score,
+    categoria: relatorio.categoria,
+    pagamento_status: relatorio.pagamento_status,
+    has_problemas_atuais: !!relatorio.problemas_atuais,
+    has_problemas_saude: !!relatorio.problemas_saude
+  })
+
+  const values = [
+    relatorio.cliente_id,
+    relatorio.score,
+    relatorio.categoria,
+    relatorio.problemas_atuais ? JSON.stringify(relatorio.problemas_atuais) : null,
+    relatorio.problema_principal,
+    relatorio.tempo_estimado,
+    relatorio.custo_min,
+    relatorio.custo_max,
+    relatorio.custo_atma,
+    relatorio.custo_invisalign,
+    relatorio.custo_aparelho_fixo,
+    relatorio.ja_usou_aparelho,
+    relatorio.problemas_saude ? JSON.stringify(relatorio.problemas_saude) : null,
+    relatorio.expectativa_resultado,
+    relatorio.urgencia_tratamento,
+    relatorio.orcamento_recebido,
+    relatorio.disponibilidade_uso,
+    relatorio.score_complexidade,
+    relatorio.score_idade,
+    relatorio.score_historico,
+    relatorio.score_saude,
+    relatorio.score_expectativas,
+    relatorio.pdf_gerado || false,
+    relatorio.pdf_enviado || false,
+    relatorio.consulta_agendada || false,
+    relatorio.tratamento_iniciado || false,
+    relatorio.pagamento_status || 'pending'
+  ]
+
+  console.log(`[${logId}] Prepared ${values.length} values for INSERT`)
+  console.log(`[${logId}] Values array:`, values)
+
+  const sql = `INSERT INTO relatorios (
+    cliente_id, score, categoria,
+    problemas_atuais, problema_principal,
+    tempo_estimado, custo_min, custo_max,
+    custo_atma, custo_invisalign, custo_aparelho_fixo,
+    ja_usou_aparelho, problemas_saude,
+    expectativa_resultado, urgencia_tratamento, orcamento_recebido, disponibilidade_uso,
+    score_complexidade, score_idade, score_historico, score_saude, score_expectativas,
+    pdf_gerado, pdf_enviado, consulta_agendada, tratamento_iniciado, pagamento_status
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+
+  console.log(`[${logId}] SQL statement prepared (27 columns, 27 placeholders)`)
+
+  try {
+    console.log(`[${logId}] Executing INSERT query...`)
+    const result = await insert(sql, values)
+    console.log(`[${logId}] ✅ INSERT successful! ID: ${result}`)
+    return result
+  } catch (error: any) {
+    console.error(`[${logId}] ❌ INSERT FAILED`)
+    console.error(`[${logId}] SQL Error code: ${error?.code}`)
+    console.error(`[${logId}] SQL Error errno: ${error?.errno}`)
+    console.error(`[${logId}] SQL Error message: ${error?.message}`)
+    console.error(`[${logId}] SQL Error sqlMessage: ${error?.sqlMessage}`)
+    console.error(`[${logId}] SQL Error sqlState: ${error?.sqlState}`)
+    console.error(`[${logId}] SQL Statement: ${sql}`)
+    console.error(`[${logId}] Values count: ${values.length}`)
+    console.error(`[${logId}] Full error:`, error)
+    throw error
+  }
 }
 
 /**
