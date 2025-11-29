@@ -1,0 +1,9 @@
+{
+  "buildCommand": "pnpm install --shamefully-hoist && pnpm run build",
+  "installCommand": "pnpm install --shamefully-hoist",
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 60
+    }
+  }
+}
