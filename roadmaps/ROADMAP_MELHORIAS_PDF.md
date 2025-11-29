@@ -262,11 +262,14 @@ Transformar o PDF atual de 5 páginas básicas em um relatório profissional de 
 - [x] **Dashboard admin** para visualizar relatórios ✅
 - [x] **Estatísticas** (scores médios, casos por tipo) ✅
 
-### 5.2 Follow-up Automático
-- [ ] **Email D+7**: "Já agendou consulta?"
-- [ ] **Email D+14**: "Precisa de ajuda?"
-- [ ] **Email D+30**: "Novidades e dicas"
-- [ ] **Remarketing** (se não agendou)
+### 5.2 Follow-up Automático ✅ COMPLETO (29/11/2025)
+
+- [x] **Email D+7**: "Já agendou consulta?" ✅
+- [x] **Email D+14**: "Precisa de ajuda?" ✅
+- [x] **Email D+30**: "Novidades e dicas" ✅
+- [x] **Sistema de Cron Job** (Vercel Cron diário às 10:00 AM UTC) ✅
+- [x] **Migração de banco** (colunas de controle de follow-up) ✅
+- [ ] **Remarketing** (se não agendou) - Futuro (Fase 5.2.2)
 
 ### 5.3 Upsell
 - [x] **Oferta de consulta online** (R$ 97) ✅
