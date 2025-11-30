@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { gerarPDFRelatorioV6 } from '@/lib/pdf-generator-v6'
+import { gerarPDFRelatorioV3 } from '@/lib/pdf-generator-v3'
 import { enviarRelatorio } from '@/lib/email'
 import { salvarCliente } from '@/lib/repositories/cliente-repository'
 import { salvarRelatorio, atualizarStatusRelatorio } from '@/lib/repositories/relatorio-repository'
@@ -113,10 +113,10 @@ export async function POST(request: NextRequest) {
       // Continuar mesmo se falhar (não bloquear geração de PDF)
     }
 
-    // Gerar PDF (Versão 6 - Phase 4.1: QR Codes Interativos)
-    console.log('🔄 Gerando PDF v6 (Phase 4.1 - QR Codes Interativos)...')
-    const pdfBuffer = await gerarPDFRelatorioV6(relatorioData)
-    console.log('✅ PDF v6 gerado com sucesso (Gráficos + Conteúdo + Upsell + QR Codes)')
+    // Gerar PDF (Versão 3 - Com seções melhoradas)
+    console.log('🔄 Gerando PDF v3 (Com seções redesenhadas)...')
+    const pdfBuffer = await gerarPDFRelatorioV3(relatorioData)
+    console.log('✅ PDF v3 gerado com sucesso (Timeline + Calendario + Recursos melhorados)')
 
     // Atualizar status: PDF gerado
     if (relatorioId) {

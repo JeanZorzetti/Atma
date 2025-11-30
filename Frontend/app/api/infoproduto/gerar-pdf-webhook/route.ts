@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
-import { gerarPDFRelatorioV6 } from '@/lib/pdf-generator-v6'
+import { gerarPDFRelatorioV3 } from '@/lib/pdf-generator-v3'
 import { enviarRelatorio } from '@/lib/email'
 import { atualizarStatusRelatorio } from '@/lib/repositories/relatorio-repository'
 
@@ -136,9 +136,9 @@ export async function POST(request: NextRequest) {
         formData
       }
 
-      console.log('🔄 Gerando PDF v6...')
-      const pdfBuffer = await gerarPDFRelatorioV6(relatorioData)
-      console.log('✅ PDF v6 gerado com sucesso')
+      console.log('🔄 Gerando PDF v3 (Com seções redesenhadas)...')
+      const pdfBuffer = await gerarPDFRelatorioV3(relatorioData)
+      console.log('✅ PDF v3 gerado com sucesso (Timeline + Calendario + Recursos melhorados)')
 
       // Atualizar status: PDF gerado
       await atualizarStatusRelatorio(relatorioId, { pdf_gerado: true })
