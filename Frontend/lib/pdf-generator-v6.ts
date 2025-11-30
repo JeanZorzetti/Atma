@@ -402,26 +402,49 @@ export class PDFGeneratorV6 extends PDFGeneratorV5 {
 
     this.yPosition += stepHeight + 20
 
-    // CTA box
-    this.addNewPageIfNeeded(35)
-    this.doc.setFillColor(37, 99, 235)
-    this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 30, 5, 5, 'F')
+    // CTA box com QR Code
+    this.addNewPageIfNeeded(90)
 
-    this.doc.setTextColor(255, 255, 255)
     this.doc.setFont('helvetica', 'bold')
     this.doc.setFontSize(12)
-    this.doc.text('Agende Agora Sua Consulta Online', this.pageWidth / 2, this.yPosition + 10, { align: 'center' })
+    this.doc.text('Agende Agora Sua Consulta Online', this.pageWidth / 2, this.yPosition, { align: 'center' })
+    this.yPosition += 8
+
+    this.doc.setFont('helvetica', 'normal')
+    this.doc.setFontSize(10)
+    this.addText('Escaneie o QR code abaixo com a camera do seu celular ou acesse o link:', 10, 'normal')
+    this.yPosition += 10
+
+    // QR Code para agendamento
+    const consultaURL = 'https://atma.roilabs.com.br/consulta-online'
+    this.generateQRCodeBlock(consultaURL, 'atma.roilabs.com.br/consulta-online', 60)
+
+    this.yPosition += 10
+
+    // Box final com bônus
+    this.addNewPageIfNeeded(45)
+
+    this.doc.setFillColor(240, 253, 244) // Green-50
+    this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 40, 3, 3, 'F')
+
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(11)
+    this.doc.text('[BONUS] BONUS EXCLUSIVO', 20, this.yPosition + 8)
 
     this.doc.setFont('helvetica', 'normal')
     this.doc.setFontSize(9)
-    this.doc.text('Escaneie o QR code abaixo com a camera do seu celular ou acesse o link:', this.pageWidth / 2, this.yPosition + 18, { align: 'center' })
+    this.yPosition += 14
 
-    this.doc.setFont('helvetica', 'bold')
-    this.doc.setFontSize(8)
-    this.doc.text('atma.roilabs.com.br/pacientes/antes-depois', this.pageWidth / 2, this.yPosition + 24, { align: 'center' })
-    this.doc.setTextColor(0, 0, 0)
+    const maxWidth = this.pageWidth - 50
+    const bonusText = 'Quem agendar a consulta online recebe um desconto de R$ 97 no valor do tratamento caso decida seguir com a Atma! Ou seja, a consulta sai de GRACA se voce fechar o tratamento.'
 
-    this.yPosition += 35
+    const lines = this.doc.splitTextToSize(bonusText, maxWidth)
+    lines.forEach((line: string) => {
+      this.doc.text(line, 20, this.yPosition)
+      this.yPosition += 5
+    })
+
+    this.yPosition += 15
   }
 
   /**
