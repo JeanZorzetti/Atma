@@ -1033,39 +1033,69 @@ export class PDFGeneratorV3 {
     this.addPage()
     this.yPosition = 30
 
-    this.addSectionTitle('TIMELINE DETALHADO DO TRATAMENTO', '📅')
+    this.addSectionTitle('TIMELINE DETALHADO DO TRATAMENTO', '')
     this.yPosition += 5
 
     this.doc.setFont('helvetica', 'normal')
     this.doc.setFontSize(10)
-    this.addText('Veja abaixo o cronograma mês a mês do seu tratamento estimado:')
+    this.addText('Veja abaixo o cronograma completo do seu tratamento, desde a consulta inicial até a fase de contenção:')
     this.yPosition += 10
 
-    // Infográfico mês a mês
+    // Infográfico mês a mês MELHORADO
     const totalMeses = this.extractMaxMonths(dados.timeline)
     const fasesTimeline = this.generateTimelinePhases(totalMeses)
 
     fasesTimeline.forEach((fase, index) => {
-      this.addNewPageIfNeeded(25)
+      this.addNewPageIfNeeded(35)
 
-      // Box colorido para cada fase
-      const boxColor = index % 2 === 0 ? COLORS.primaryLight : COLORS.grayLight
+      // Box com gradiente visual melhorado
+      const colors = [
+        [59, 130, 246] as [number, number, number],   // Blue-500
+        [16, 185, 129] as [number, number, number],   // Green-500
+        [139, 92, 246] as [number, number, number],   // Purple-500
+        [245, 158, 11] as [number, number, number],   // Amber-500
+        [236, 72, 153] as [number, number, number],   // Pink-500
+        [14, 165, 233] as [number, number, number],   // Sky-500
+      ]
+      const boxColor = colors[index % colors.length]
+      const boxColorLight = [boxColor[0] + 40, boxColor[1] + 40, boxColor[2] + 40] as [number, number, number]
+
+      // Círculo com número
       this.doc.setFillColor(...boxColor)
-      this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 20, 3, 3, 'F')
-
+      this.doc.circle(22, this.yPosition + 5, 4, 'F')
+      this.doc.setTextColor(...COLORS.white)
       this.doc.setFont('helvetica', 'bold')
-      this.doc.setFontSize(10)
-      this.doc.text(fase.titulo, 20, this.yPosition + 6)
+      this.doc.setFontSize(9)
+      this.doc.text(String(index + 1), 22, this.yPosition + 6.5, { align: 'center' })
+      this.doc.setTextColor(...COLORS.black)
 
+      // Box principal
+      this.doc.setFillColor(...boxColorLight)
+      this.doc.setDrawColor(...boxColor)
+      this.doc.setLineWidth(0.5)
+      this.doc.roundedRect(30, this.yPosition, this.pageWidth - 45, 28, 3, 3, 'FD')
+
+      // Título da fase
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(11)
+      this.doc.setTextColor(...boxColor)
+      this.doc.text(fase.titulo, 35, this.yPosition + 6)
+      this.doc.setTextColor(...COLORS.black)
+
+      // Descrição
       this.doc.setFont('helvetica', 'normal')
       this.doc.setFontSize(9)
-      this.doc.text(fase.descricao, 20, this.yPosition + 12)
+      const descLines = this.doc.splitTextToSize(fase.descricao, this.pageWidth - 85)
+      this.doc.text(descLines, 35, this.yPosition + 13)
 
+      // Ação recomendada com ícone
       this.doc.setFont('helvetica', 'italic')
       this.doc.setFontSize(8)
-      this.doc.text(`✓ ${fase.acao}`, 20, this.yPosition + 17)
+      this.doc.setTextColor(...COLORS.gray)
+      this.doc.text(`[OK] ${fase.acao}`, 35, this.yPosition + 23)
+      this.doc.setTextColor(...COLORS.black)
 
-      this.yPosition += 25
+      this.yPosition += 33
     })
 
     this.yPosition += 5
@@ -1981,18 +2011,100 @@ export class PDFGeneratorV3 {
     return casos.slice(0, 4) // Retornar 3-4 casos
   }
 
+  // ==================== SEÇÃO 9.5: COMO FUNCIONA A CONSULTA ONLINE ====================
+
+  private generateHowItWorksSection() {
+    this.addPage()
+    this.yPosition = 30
+
+    this.addSectionTitle('COMO FUNCIONA?', '')
+    this.yPosition += 5
+
+    this.doc.setFont('helvetica', 'normal')
+    this.doc.setFontSize(10)
+    this.addText('Agende sua consulta online e receba orientacoes personalizadas sem sair de casa:')
+    this.yPosition += 15
+
+    const passos = [
+      {
+        numero: '1',
+        titulo: 'Agende Sua Consulta',
+        descricao: 'Use o QR code abaixo ou acesse o link para escolher o melhor horario',
+        cor: [59, 130, 246] as [number, number, number],  // Blue
+      },
+      {
+        numero: '2',
+        titulo: 'Preparacao',
+        descricao: 'Voce recebera um link de videochamada e orientacoes por email',
+        cor: [16, 185, 129] as [number, number, number],  // Green
+      },
+      {
+        numero: '3',
+        titulo: 'Consulta Online (30min)',
+        descricao: 'Converse com ortodontista, mostre seu sorriso, tire duvidas',
+        cor: [245, 158, 11] as [number, number, number],  // Amber
+      },
+      {
+        numero: '4',
+        titulo: 'Receba Recomendacoes',
+        descricao: 'Orientacoes personalizadas e proximos passos enviados por email',
+        cor: [139, 92, 246] as [number, number, number],  // Purple
+      },
+    ]
+
+    passos.forEach((passo) => {
+      this.addNewPageIfNeeded(45)
+
+      const boxHeight = 35
+      const corClara = [passo.cor[0] + 50, passo.cor[1] + 50, passo.cor[2] + 50] as [number, number, number]
+
+      // Número circular grande
+      this.doc.setFillColor(...passo.cor)
+      this.doc.circle(30, this.yPosition + 10, 8, 'F')
+
+      this.doc.setTextColor(...COLORS.white)
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(16)
+      this.doc.text(passo.numero, 30, this.yPosition + 13, { align: 'center' })
+      this.doc.setTextColor(...COLORS.black)
+
+      // Box principal
+      this.doc.setFillColor(...corClara)
+      this.doc.setDrawColor(...passo.cor)
+      this.doc.setLineWidth(1)
+      this.doc.roundedRect(45, this.yPosition, this.pageWidth - 60, boxHeight, 4, 4, 'FD')
+
+      // Título
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(12)
+      this.doc.setTextColor(...passo.cor)
+      this.doc.text(passo.titulo, 50, this.yPosition + 10)
+      this.doc.setTextColor(...COLORS.black)
+
+      // Descrição
+      this.doc.setFont('helvetica', 'normal')
+      this.doc.setFontSize(10)
+      const descLines = this.doc.splitTextToSize(passo.descricao, this.pageWidth - 100)
+      this.doc.text(descLines, 50, this.yPosition + 20)
+
+      this.yPosition += boxHeight + 8
+    })
+
+    this.yPosition += 5
+  }
+
   // ==================== SEÇÃO: PRÓXIMOS PASSOS ====================
 
   private generateNextStepsSection(dados: RelatorioDataExtended) {
     this.addPage()
     this.yPosition = 30
 
-    this.addSectionTitle('PRÓXIMOS PASSOS', '🎯')
+    this.addSectionTitle('PROXIMOS PASSOS', '')
     this.yPosition += 5
 
     this.doc.setFont('helvetica', 'bold')
     this.doc.setFontSize(12)
-    this.addText('Parabéns por chegar até aqui! Agora que você tem todas as informações, siga este plano de ação:')
+    this.addText('Parabens por chegar ate aqui! Agora que voce tem todas as informacoes, siga este plano de acao:')
     this.yPosition += 10
 
     // Plano de ação personalizado
@@ -2001,106 +2113,154 @@ export class PDFGeneratorV3 {
 
     this.yPosition += 10
 
-    // Calendário sugerido 30-60-90 dias
+    // Calendário sugerido 30-60-90 dias MELHORADO
+    this.addNewPageIfNeeded(15)
     this.doc.setFont('helvetica', 'bold')
-    this.doc.setFontSize(11)
-    this.doc.text('📅 Calendário Sugerido (30-60-90 dias)', 15, this.yPosition)
-    this.yPosition += 8
+    this.doc.setFontSize(12)
+    this.doc.text('Calendario Sugerido (30-60-90 dias)', 15, this.yPosition)
+    this.yPosition += 10
 
     const calendario = [
       {
-        periodo: 'Próximos 7 dias',
+        periodo: 'Proximos 7 dias',
+        cor: [59, 130, 246] as [number, number, number],  // Blue
         tarefas: [
-          'Ler este relatório completamente',
-          'Pesquisar ortodontistas certificados na sua região',
-          'Agendar 3 consultas de avaliação',
+          'Ler este relatorio completamente',
+          'Pesquisar ortodontistas certificados na sua regiao',
+          'Agendar 3 consultas de avaliacao',
         ]
       },
       {
         periodo: '7-30 dias',
+        cor: [16, 185, 129] as [number, number, number],  // Green
         tarefas: [
           'Realizar as 3 consultas agendadas',
-          'Comparar orçamentos usando a tabela deste relatório',
-          'Tirar todas as dúvidas com as perguntas sugeridas',
+          'Comparar orcamentos usando a tabela deste relatorio',
+          'Tirar todas as duvidas com as perguntas sugeridas',
         ]
       },
       {
         periodo: '30-60 dias',
+        cor: [245, 158, 11] as [number, number, number],  // Amber
         tarefas: [
           'Escolher o ortodontista e fechar o tratamento',
-          'Resolver problemas de saúde bucal (se houver)',
+          'Resolver problemas de saude bucal (se houver)',
           'Fazer moldagem/escaneamento e planejamento 3D',
         ]
       },
       {
         periodo: '60-90 dias',
+        cor: [139, 92, 246] as [number, number, number],  // Purple
         tarefas: [
           'Receber alinhadores e iniciar tratamento',
           'Criar rotina de uso 22h/dia',
-          'Primeira revisão com ortodontista',
+          'Primeira revisao com ortodontista',
         ]
       },
     ]
 
-    calendario.forEach(cal => {
-      this.addNewPageIfNeeded(30)
+    calendario.forEach((cal) => {
+      this.addNewPageIfNeeded(40)
 
-      this.doc.setFillColor(...COLORS.primaryLight)
-      this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 5 + (cal.tarefas.length * 6), 3, 3, 'F')
+      const boxHeight = 8 + (cal.tarefas.length * 6)
+      const corClara = [cal.cor[0] + 50, cal.cor[1] + 50, cal.cor[2] + 50] as [number, number, number]
 
+      // Header colorido
+      this.doc.setFillColor(...cal.cor)
+      this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 8, 3, 3, 'F')
+
+      this.doc.setTextColor(...COLORS.white)
       this.doc.setFont('helvetica', 'bold')
-      this.doc.setFontSize(10)
-      this.doc.setTextColor(...COLORS.primary)
-      this.doc.text(cal.periodo, 20, this.yPosition + 4)
+      this.doc.setFontSize(11)
+      this.doc.text(cal.periodo, 20, this.yPosition + 6)
       this.doc.setTextColor(...COLORS.black)
       this.yPosition += 8
+
+      // Corpo do box
+      this.doc.setFillColor(...corClara)
+      this.doc.rect(15, this.yPosition, this.pageWidth - 30, boxHeight - 8, 'F')
+
+      this.yPosition += 5
 
       cal.tarefas.forEach(tarefa => {
         this.doc.setFont('helvetica', 'normal')
         this.doc.setFontSize(9)
-        this.doc.text(`☑ ${tarefa}`, 23, this.yPosition)
+
+        // Checkbox visual
+        this.doc.setDrawColor(...cal.cor)
+        this.doc.setLineWidth(0.5)
+        this.doc.rect(20, this.yPosition - 3, 3, 3, 'D')
+
+        this.doc.text(tarefa, 25, this.yPosition)
         this.yPosition += 6
       })
 
-      this.yPosition += 5
+      this.yPosition += 3
     })
 
     this.yPosition += 10
 
-    // Recursos adicionais
+    // Recursos adicionais MELHORADOS
+    this.addNewPageIfNeeded(15)
     this.doc.setFont('helvetica', 'bold')
-    this.doc.setFontSize(11)
-    this.doc.text('🔗 Recursos Adicionais Úteis', 15, this.yPosition)
-    this.yPosition += 8
+    this.doc.setFontSize(12)
+    this.doc.text('Recursos Adicionais Uteis', 15, this.yPosition)
+    this.yPosition += 10
 
     const recursos = [
-      'Site Oficial Atma: www.atma.com.br',
-      'Encontrar Ortodontista: atma.com.br/encontre-doutor',
-      'Blog com Artigos: atma.com.br/blog',
-      'FAQ Completo: atma.com.br/faq',
-      'Calculadora de Custos Online: atma.com.br/calculadora',
-      'Vídeos Educativos: youtube.com/@atmaaligner',
+      { titulo: 'Site Oficial Atma', url: 'www.atma.com.br', desc: 'Artigos educativos sobre ortodontia invisivel' },
+      { titulo: 'Encontrar Ortodontista', url: 'atma.com.br/encontre-doutor', desc: 'Encontre ortodontistas parceiros na sua regiao' },
+      { titulo: 'Blog com Artigos', url: 'atma.com.br/blog', desc: 'Videos explicativos sobre o tratamento' },
+      { titulo: 'FAQ Completo', url: 'atma.com.br/faq', desc: 'FAQ com as duvidas mais comuns' },
+      { titulo: 'Calculadora de Custos Online', url: 'atma.com.br/calculadora', desc: 'Calculadora de economia (compare precos)' },
+      { titulo: 'Videos Educativos', url: 'youtube.com/@atmaaligner', desc: 'Encontre ortodontistas parceiros na sua regiao' },
     ]
 
-    this.addBulletList(recursos)
+    recursos.forEach((rec, index) => {
+      this.addNewPageIfNeeded(18)
+
+      const bgColor = index % 2 === 0 ? [243, 244, 246] as [number, number, number] : [255, 255, 255] as [number, number, number]
+      this.doc.setFillColor(...bgColor)
+      this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 14, 2, 2, 'F')
+
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(10)
+      this.doc.setTextColor(...COLORS.primary)
+      this.doc.text(rec.titulo, 20, this.yPosition + 5)
+
+      this.doc.setFont('helvetica', 'normal')
+      this.doc.setFontSize(8)
+      this.doc.setTextColor(...COLORS.gray)
+      this.doc.text(rec.url, 20, this.yPosition + 9)
+
+      this.doc.setFont('helvetica', 'italic')
+      this.doc.setFontSize(8)
+      this.doc.text(rec.desc, 20, this.yPosition + 12)
+      this.doc.setTextColor(...COLORS.black)
+
+      this.yPosition += 16
+    })
 
     this.yPosition += 10
 
-    // Contatos Atma
-    this.doc.setFillColor(...COLORS.primaryLight)
-    this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 40, 5, 5, 'F')
+    // Box de contato MELHORADO
+    this.addNewPageIfNeeded(55)
+    this.doc.setFillColor(...COLORS.primary)
+    this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 50, 5, 5, 'F')
 
     this.doc.setFont('helvetica', 'bold')
-    this.doc.setFontSize(12)
-    this.doc.text('Entre em Contato com a Atma', this.pageWidth / 2, this.yPosition + 10, { align: 'center' })
+    this.doc.setFontSize(14)
+    this.doc.setTextColor(...COLORS.white)
+    this.doc.text('Entre em Contato com a Atma', this.pageWidth / 2, this.yPosition + 12, { align: 'center' })
 
     this.doc.setFont('helvetica', 'normal')
     this.doc.setFontSize(10)
-    this.doc.text('📧 Email: contato@atma.com.br', this.pageWidth / 2, this.yPosition + 18, { align: 'center' })
-    this.doc.text('📱 WhatsApp: (11) 99999-9999', this.pageWidth / 2, this.yPosition + 25, { align: 'center' })
-    this.doc.text('🌐 Site: www.atma.com.br', this.pageWidth / 2, this.yPosition + 32, { align: 'center' })
+    this.doc.text('Email: contato@atma.com.br', this.pageWidth / 2, this.yPosition + 24, { align: 'center' })
+    this.doc.text('WhatsApp: (11) 99999-9999', this.pageWidth / 2, this.yPosition + 32, { align: 'center' })
+    this.doc.text('Site: www.atma.com.br', this.pageWidth / 2, this.yPosition + 40, { align: 'center' })
+    this.doc.setTextColor(...COLORS.black)
 
-    this.yPosition += 50
+    this.yPosition += 55
 
     // QR Code para WhatsApp
     this.addNewPageIfNeeded(50)
@@ -2145,6 +2305,7 @@ export class PDFGeneratorV3 {
     this.generateScienceTechnologySection(dados)
     this.generateCareMaintenanceSection(dados)
     this.generateTestimonialsSection(dados)
+    this.generateHowItWorksSection()  // Nova seção: Como Funciona a Consulta Online
     this.generateNextStepsSection(dados)
 
     // Adicionar footers em todas as páginas (exceto capa)
