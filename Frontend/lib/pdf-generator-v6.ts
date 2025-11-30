@@ -325,28 +325,7 @@ export class PDFGeneratorV6 extends PDFGeneratorV5 {
 
       this.addNewPageIfNeeded(stepHeight + 10)
 
-      // Setas conectoras
-      if (index > 0) {
-        this.doc.setDrawColor(107, 114, 128)
-        this.doc.setLineWidth(2)
-        if (index === 1) {
-          const arrowY = this.yPosition - (stepHeight / 2)
-          this.doc.line(15 + stepWidth, arrowY, this.pageWidth / 2 + 5, arrowY)
-          this.doc.line(this.pageWidth / 2 + 5, arrowY, this.pageWidth / 2, arrowY - 3)
-          this.doc.line(this.pageWidth / 2 + 5, arrowY, this.pageWidth / 2, arrowY + 3)
-        } else if (index === 2) {
-          this.doc.line(this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition - stepHeight - 15, this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition)
-          this.doc.line(this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition, this.pageWidth / 2 + 5 + stepWidth / 2 - 3, this.yPosition - 5)
-          this.doc.line(this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition, this.pageWidth / 2 + 5 + stepWidth / 2 + 3, this.yPosition - 5)
-        } else if (index === 3) {
-          const arrowY = this.yPosition + (stepHeight / 2)
-          this.doc.line(this.pageWidth / 2 + 5, arrowY, 15 + stepWidth, arrowY)
-          this.doc.line(15 + stepWidth, arrowY, 15 + stepWidth + 5, arrowY - 3)
-          this.doc.line(15 + stepWidth, arrowY, 15 + stepWidth + 5, arrowY + 3)
-        }
-      }
-
-      const yStart = (index > 1 && index % 2 === 0) ? this.yPosition : (index === 0 ? this.yPosition : this.yPosition)
+      const yStart = this.yPosition
 
       // Badge com número
       this.doc.setFillColor(...passo.cor)
@@ -402,24 +381,29 @@ export class PDFGeneratorV6 extends PDFGeneratorV5 {
 
     this.yPosition += stepHeight + 20
 
-    // CTA box com QR Code
-    this.addNewPageIfNeeded(90)
+    // CTA box com link
+    this.addNewPageIfNeeded(60)
 
     this.doc.setFont('helvetica', 'bold')
     this.doc.setFontSize(12)
     this.doc.text('Agende Agora Sua Consulta Online', this.pageWidth / 2, this.yPosition, { align: 'center' })
-    this.yPosition += 8
+    this.yPosition += 10
 
     this.doc.setFont('helvetica', 'normal')
     this.doc.setFontSize(10)
-    this.addText('Escaneie o QR code abaixo com a camera do seu celular ou acesse o link:', 10, 'normal')
+    this.doc.text('Acesse o link para agendar sua consulta:', this.pageWidth / 2, this.yPosition, { align: 'center' })
     this.yPosition += 10
 
-    // QR Code para agendamento
-    const consultaURL = 'https://atma.roilabs.com.br/consulta-online'
-    this.generateQRCodeBlock(consultaURL, 'atma.roilabs.com.br/consulta-online', 60)
-
-    this.yPosition += 10
+    // Link em destaque
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(11)
+    this.doc.setTextColor(37, 99, 235)
+    this.doc.textWithLink('atma.roilabs.com.br/consulta-online', this.pageWidth / 2, this.yPosition, {
+      align: 'center',
+      url: 'https://atma.roilabs.com.br/consulta-online'
+    })
+    this.doc.setTextColor(0, 0, 0)
+    this.yPosition += 15
 
     // Box final com bônus
     this.addNewPageIfNeeded(45)
