@@ -55,17 +55,17 @@ function sanitizeTextStatic(text: string): string {
 
 export { autoTable }
 
-// Paleta de cores Atma
+// Paleta de cores Atma (tipadas como tuples para spread)
 const COLORS = {
-  primary: [37, 99, 235], // Blue-600
-  primaryLight: [219, 234, 254], // Blue-100
-  success: [16, 185, 129], // Green-500
-  warning: [251, 191, 36], // Amber-400
-  danger: [239, 68, 68], // Red-500
-  gray: [107, 114, 128], // Gray-500
-  grayLight: [243, 244, 246], // Gray-100
-  white: [255, 255, 255],
-  black: [0, 0, 0],
+  primary: [37, 99, 235] as [number, number, number], // Blue-600
+  primaryLight: [219, 234, 254] as [number, number, number], // Blue-100
+  success: [16, 185, 129] as [number, number, number], // Green-500
+  warning: [251, 191, 36] as [number, number, number], // Amber-400
+  danger: [239, 68, 68] as [number, number, number], // Red-500
+  gray: [107, 114, 128] as [number, number, number], // Gray-500
+  grayLight: [243, 244, 246] as [number, number, number], // Gray-100
+  white: [255, 255, 255] as [number, number, number],
+  black: [0, 0, 0] as [number, number, number],
 }
 
 // Interface expandida para Phase 2
@@ -250,9 +250,9 @@ export class PDFGeneratorV3 {
   private addInfoBox(title: string, content: string, type: 'info' | 'success' | 'warning' | 'danger' = 'info') {
     const colorMap = {
       info: COLORS.primaryLight,
-      success: [220, 252, 231], // Green-100
-      warning: [254, 243, 199], // Amber-100
-      danger: [254, 226, 226] // Red-100
+      success: [220, 252, 231] as [number, number, number], // Green-100
+      warning: [254, 243, 199] as [number, number, number], // Amber-100
+      danger: [254, 226, 226] as [number, number, number] // Red-100
     }
 
     this.addNewPageIfNeeded(25)
@@ -399,9 +399,9 @@ export class PDFGeneratorV3 {
       this.doc.setDrawColor(...COLORS.grayLight)
       const textWidth = this.doc.getTextWidth(section.name)
       const pageWidth = this.doc.getTextWidth(section.page)
-      this.doc.setLineDash([1, 2])
+      ;(this.doc as any).setLineDash([1, 2])
       this.doc.line(25 + textWidth, this.yPosition - 2, this.pageWidth - 28 - pageWidth, this.yPosition - 2)
-      this.doc.setLineDash([])
+      ;(this.doc as any).setLineDash([])
 
       this.yPosition += 10
     })
