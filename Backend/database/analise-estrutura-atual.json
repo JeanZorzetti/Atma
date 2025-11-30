@@ -1,0 +1,112 @@
+{
+  "data_analise": "2025-11-28T19:13:36.418Z",
+  "banco": "atmadb",
+  "host": "31.97.23.166",
+  "tabelas": {
+    "crm_leads": {
+      "total": 6,
+      "category": "CRM"
+    },
+    "crm_activities": {
+      "total": 6,
+      "category": "CRM"
+    },
+    "patient_leads": {
+      "total": 44,
+      "category": "Leads de Pacientes"
+    },
+    "patient_status_history": {
+      "total": 47,
+      "category": "Histórico"
+    },
+    "orthodontists": {
+      "total": 12,
+      "category": "Ortodontistas"
+    },
+    "orthodontist_partnerships": {
+      "total": 0,
+      "category": "Parcerias"
+    },
+    "patient_orthodontist_assignments": {
+      "total": 2,
+      "category": "Atribuições"
+    },
+    "email_logs": {
+      "total": 92,
+      "category": "Sistema"
+    },
+    "email_templates": {
+      "total": 7,
+      "category": "Sistema"
+    },
+    "system_settings": {
+      "total": 20,
+      "category": "Sistema"
+    },
+    "notification_log": {
+      "total": 39,
+      "category": "Sistema"
+    },
+    "google_auth_tokens": {
+      "total": 3,
+      "category": "Integrações"
+    },
+    "seo_metrics_history": {
+      "total": 59,
+      "category": "SEO"
+    },
+    "seo_alerts": {
+      "total": 55,
+      "category": "SEO"
+    },
+    "market_benchmarks": {
+      "total": 12,
+      "category": "SEO"
+    }
+  },
+  "emails": {
+    "crm_leads": 6,
+    "patient_leads": 44,
+    "duplicados": 0,
+    "total_unico": 50,
+    "lista_duplicados": []
+  },
+  "status_distribution": {
+    "crm_leads": [
+      {
+        "status": "prospeccao",
+        "total": 3
+      },
+      {
+        "status": "contato_inicial",
+        "total": 2
+      },
+      {
+        "status": "parceria_fechada",
+        "total": 1
+      }
+    ],
+    "patient_leads": [
+      {
+        "status": "contatado",
+        "total": 38
+      },
+      {
+        "status": "novo",
+        "total": 2
+      },
+      {
+        "status": "cancelado",
+        "total": 2
+      },
+      {
+        "status": "agendado",
+        "total": 1
+      },
+      {
+        "status": "convertido",
+        "total": 1
+      }
+    ]
+  }
+}
