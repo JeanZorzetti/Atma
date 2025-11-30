@@ -2017,80 +2017,191 @@ export class PDFGeneratorV3 {
     this.addPage()
     this.yPosition = 30
 
-    this.addSectionTitle('COMO FUNCIONA?', '')
-    this.yPosition += 5
+    // Header da seção com fundo azul
+    this.doc.setFillColor(...COLORS.primary)
+    this.doc.rect(0, this.yPosition - 5, this.pageWidth, 25, 'F')
+
+    this.doc.setTextColor(...COLORS.white)
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(16)
+    this.doc.text('Como Funciona?', this.pageWidth / 2, this.yPosition + 8, { align: 'center' })
 
     this.doc.setFont('helvetica', 'normal')
     this.doc.setFontSize(10)
-    this.addText('Agende sua consulta online e receba orientacoes personalizadas sem sair de casa:')
-    this.yPosition += 15
+    this.doc.text('Consulta Online de Ortodontia - Processo Completo em 4 Passos', this.pageWidth / 2, this.yPosition + 15, { align: 'center' })
+    this.doc.setTextColor(...COLORS.black)
+
+    this.yPosition += 30
 
     const passos = [
       {
-        numero: '1',
+        numero: 1,
         titulo: 'Agende Sua Consulta',
-        descricao: 'Use o QR code abaixo ou acesse o link para escolher o melhor horario',
-        cor: [59, 130, 246] as [number, number, number],  // Blue
+        subtitulo: 'Rapido e Facil',
+        itens: [
+          'Use o QR code abaixo ou acesse o link',
+          'Escolha data e horario disponiveis',
+          'Confirmacao instantanea por email'
+        ],
+        cor: [59, 130, 246] as [number, number, number],
+        icon: '[CAL]'
       },
       {
-        numero: '2',
+        numero: 2,
         titulo: 'Preparacao',
-        descricao: 'Voce recebera um link de videochamada e orientacoes por email',
-        cor: [16, 185, 129] as [number, number, number],  // Green
+        subtitulo: 'Antes da Consulta',
+        itens: [
+          'Receba link da videochamada por email',
+          'Checklist de preparacao e documentos',
+          'Teste de camera e microfone'
+        ],
+        cor: [16, 185, 129] as [number, number, number],
+        icon: '[DOC]'
       },
       {
-        numero: '3',
+        numero: 3,
         titulo: 'Consulta Online (30min)',
-        descricao: 'Converse com ortodontista, mostre seu sorriso, tire duvidas',
-        cor: [245, 158, 11] as [number, number, number],  // Amber
+        subtitulo: 'Atendimento Personalizado',
+        itens: [
+          'Conversa inicial com ortodontista',
+          'Analise visual do sorriso',
+          'Tire todas as suas duvidas'
+        ],
+        cor: [245, 158, 11] as [number, number, number],
+        icon: '[VID]'
       },
       {
-        numero: '4',
+        numero: 4,
         titulo: 'Receba Recomendacoes',
-        descricao: 'Orientacoes personalizadas e proximos passos enviados por email',
-        cor: [139, 92, 246] as [number, number, number],  // Purple
+        subtitulo: 'Proximos Passos',
+        itens: [
+          'Orientacoes personalizadas por email',
+          'Plano de tratamento sugerido',
+          'Proximos passos e agendamentos'
+        ],
+        cor: [139, 92, 246] as [number, number, number],
+        icon: '[OK]'
       },
     ]
 
-    passos.forEach((passo) => {
-      this.addNewPageIfNeeded(45)
+    const stepWidth = (this.pageWidth - 40) / 2
+    const stepHeight = 65
 
-      const boxHeight = 35
-      const corClara = [passo.cor[0] + 50, passo.cor[1] + 50, passo.cor[2] + 50] as [number, number, number]
+    passos.forEach((passo, index) => {
+      const isLeft = index % 2 === 0
+      const xPos = isLeft ? 15 : (this.pageWidth / 2 + 5)
 
-      // Número circular grande
+      if (index > 0 && index % 2 === 0) {
+        this.yPosition += stepHeight + 15
+      }
+
+      this.addNewPageIfNeeded(stepHeight + 10)
+
+      // Seta conectora (se não for o primeiro)
+      if (index > 0) {
+        this.doc.setDrawColor(...COLORS.gray)
+        this.doc.setLineWidth(2)
+        if (index === 1) {
+          // Seta horizontal da esquerda para direita
+          const arrowY = this.yPosition - (stepHeight / 2)
+          this.doc.line(15 + stepWidth, arrowY, this.pageWidth / 2 + 5, arrowY)
+          // Ponta da seta
+          this.doc.line(this.pageWidth / 2 + 5, arrowY, this.pageWidth / 2, arrowY - 3)
+          this.doc.line(this.pageWidth / 2 + 5, arrowY, this.pageWidth / 2, arrowY + 3)
+        } else if (index === 2) {
+          // Seta vertical para baixo
+          this.doc.line(this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition - stepHeight - 15, this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition)
+          // Ponta da seta
+          this.doc.line(this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition, this.pageWidth / 2 + 5 + stepWidth / 2 - 3, this.yPosition - 5)
+          this.doc.line(this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition, this.pageWidth / 2 + 5 + stepWidth / 2 + 3, this.yPosition - 5)
+        } else if (index === 3) {
+          // Seta horizontal da direita para esquerda
+          const arrowY = this.yPosition + (stepHeight / 2)
+          this.doc.line(this.pageWidth / 2 + 5, arrowY, 15 + stepWidth, arrowY)
+          // Ponta da seta
+          this.doc.line(15 + stepWidth, arrowY, 15 + stepWidth + 5, arrowY - 3)
+          this.doc.line(15 + stepWidth, arrowY, 15 + stepWidth + 5, arrowY + 3)
+        }
+      }
+
+      const yStart = (index > 1 && index % 2 === 0) ? this.yPosition : (index === 0 ? this.yPosition : this.yPosition)
+
+      // Badge com número
       this.doc.setFillColor(...passo.cor)
-      this.doc.circle(30, this.yPosition + 10, 8, 'F')
-
+      this.doc.roundedRect(xPos, yStart, 25, 12, 2, 2, 'F')
       this.doc.setTextColor(...COLORS.white)
       this.doc.setFont('helvetica', 'bold')
-      this.doc.setFontSize(16)
-      this.doc.text(passo.numero, 30, this.yPosition + 13, { align: 'center' })
+      this.doc.setFontSize(14)
+      this.doc.text(String(passo.numero), xPos + 12.5, yStart + 8.5, { align: 'center' })
+
+      // Ícone
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(9)
+      this.doc.text(passo.icon, xPos + stepWidth - 20, yStart + 8.5)
       this.doc.setTextColor(...COLORS.black)
 
       // Box principal
-      this.doc.setFillColor(...corClara)
       this.doc.setDrawColor(...passo.cor)
-      this.doc.setLineWidth(1)
-      this.doc.roundedRect(45, this.yPosition, this.pageWidth - 60, boxHeight, 4, 4, 'FD')
+      this.doc.setLineWidth(2)
+      this.doc.setFillColor(255, 255, 255)
+      this.doc.roundedRect(xPos, yStart + 15, stepWidth, stepHeight - 15, 3, 3, 'FD')
 
       // Título
       this.doc.setFont('helvetica', 'bold')
-      this.doc.setFontSize(12)
+      this.doc.setFontSize(11)
       this.doc.setTextColor(...passo.cor)
-      this.doc.text(passo.titulo, 50, this.yPosition + 10)
+      this.doc.text(passo.titulo, xPos + 5, yStart + 23)
+
+      // Subtítulo
+      this.doc.setFont('helvetica', 'italic')
+      this.doc.setFontSize(8)
+      this.doc.setTextColor(...COLORS.gray)
+      this.doc.text(passo.subtitulo, xPos + 5, yStart + 29)
       this.doc.setTextColor(...COLORS.black)
 
-      // Descrição
-      this.doc.setFont('helvetica', 'normal')
-      this.doc.setFontSize(10)
-      const descLines = this.doc.splitTextToSize(passo.descricao, this.pageWidth - 100)
-      this.doc.text(descLines, 50, this.yPosition + 20)
+      // Linha separadora
+      this.doc.setDrawColor(...passo.cor)
+      this.doc.setLineWidth(0.5)
+      this.doc.line(xPos + 5, yStart + 31, xPos + stepWidth - 5, yStart + 31)
 
-      this.yPosition += boxHeight + 8
+      // Itens (bullets)
+      let itemY = yStart + 38
+      this.doc.setFont('helvetica', 'normal')
+      this.doc.setFontSize(8)
+      passo.itens.forEach(item => {
+        // Bullet point
+        this.doc.setFillColor(...passo.cor)
+        this.doc.circle(xPos + 8, itemY - 1.5, 1.5, 'F')
+
+        // Texto do item
+        const itemLines = this.doc.splitTextToSize(item, stepWidth - 20)
+        this.doc.text(itemLines, xPos + 12, itemY)
+        itemY += itemLines.length * 4 + 2
+      })
     })
 
-    this.yPosition += 5
+    this.yPosition += stepHeight + 20
+
+    // Call to action box
+    this.addNewPageIfNeeded(35)
+    this.doc.setFillColor(...COLORS.primary)
+    this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 30, 5, 5, 'F')
+
+    this.doc.setTextColor(...COLORS.white)
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(12)
+    this.doc.text('Agende Agora Sua Consulta Online', this.pageWidth / 2, this.yPosition + 10, { align: 'center' })
+
+    this.doc.setFont('helvetica', 'normal')
+    this.doc.setFontSize(9)
+    this.doc.text('Escaneie o QR code abaixo com a camera do seu celular ou acesse o link:', this.pageWidth / 2, this.yPosition + 18, { align: 'center' })
+
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(8)
+    this.doc.text('atma.roilabs.com.br/pacientes/antes-depois', this.pageWidth / 2, this.yPosition + 24, { align: 'center' })
+    this.doc.setTextColor(...COLORS.black)
+
+    this.yPosition += 35
   }
 
   // ==================== SEÇÃO: PRÓXIMOS PASSOS ====================
