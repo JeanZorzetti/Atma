@@ -65,6 +65,17 @@ export class PDFGeneratorV3 {
     this.pageHeight = this.doc.internal.pageSize.getHeight()
     this.yPosition = 20
     this.currentPage = 1
+
+    // Override doc.text to ALWAYS sanitize all text output
+    const originalText = this.doc.text.bind(this.doc)
+    this.doc.text = (text: any, x: any, y: any, options?: any) => {
+      if (typeof text === 'string') {
+        text = this.sanitizeText(text)
+      } else if (Array.isArray(text)) {
+        text = text.map(t => typeof t === 'string' ? this.sanitizeText(t) : t)
+      }
+      return originalText(text, x, y, options)
+    }
   }
 
   /**
