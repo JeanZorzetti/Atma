@@ -10,6 +10,9 @@ import { generateChartWithCache, getOptimizedCanvasSize } from './pdf-optimizer'
 // Registrar todos os componentes do Chart.js
 Chart.register(...registerables)
 
+// VERSÃO DOS GRÁFICOS - Incremente para invalidar cache
+const CHART_VERSION = '2.0' // Atualizado: design moderno com gradientes e melhor tipografia
+
 // Cores da paleta Atma (atualizadas para design moderno)
 const COLORS = {
   primary: '#2563EB',      // Blue-600
@@ -41,7 +44,7 @@ export async function generateScoreBreakdownChart(scores: {
   expectativas: number
 }): Promise<string> {
   // Usar cache para evitar regenerar gráficos idênticos
-  return generateChartWithCache('score-breakdown', scores, async (params) => {
+  return generateChartWithCache('score-breakdown', { ...scores, version: CHART_VERSION }, async (params) => {
     const optimizedSize = getOptimizedCanvasSize(600, 400)
     const canvas = createCanvas(optimizedSize.width, optimizedSize.height)
     const ctx = canvas.getContext('2d')
@@ -146,10 +149,11 @@ export async function generateCostComparisonChart(custos: {
   clearCorrect: number
   aparelhoLingual: number
 }): Promise<string> {
-  const width = 700
-  const height = 400
-  const canvas = createCanvas(width, height)
-  const ctx = canvas.getContext('2d')
+  return generateChartWithCache('cost-comparison', { ...custos, version: CHART_VERSION }, async () => {
+    const width = 700
+    const height = 400
+    const canvas = createCanvas(width, height)
+    const ctx = canvas.getContext('2d')
 
   const config: ChartConfiguration = {
     type: 'bar',
@@ -263,30 +267,32 @@ export async function generateCostComparisonChart(custos: {
     }]
   }
 
-  new Chart(ctx as any, config)
+    new Chart(ctx as any, config)
 
-  return canvas.toDataURL('image/png')
+    return canvas.toDataURL('image/png')
+  }) // Fecha generateChartWithCache
 }
 
 /**
  * Gera gráfico de linha para timeline de tratamento
  */
 export async function generateTimelineProgressChart(meses: number): Promise<string> {
-  const width = 700
-  const height = 350
-  const canvas = createCanvas(width, height)
-  const ctx = canvas.getContext('2d')
+  return generateChartWithCache('timeline-progress', { meses, version: CHART_VERSION }, async (params) => {
+    const width = 700
+    const height = 350
+    const canvas = createCanvas(width, height)
+    const ctx = canvas.getContext('2d')
 
-  // Criar dados simulados de progresso (curva S)
-  const labels: string[] = []
-  const progressData: number[] = []
+    // Criar dados simulados de progresso (curva S)
+    const labels: string[] = []
+    const progressData: number[] = []
 
-  for (let i = 0; i <= meses; i++) {
-    labels.push(`Mês ${i}`)
-    // Curva S: progresso lento no início, rápido no meio, lento no final
-    const progress = 100 / (1 + Math.exp(-0.5 * (i - meses / 2)))
-    progressData.push(Math.round(progress))
-  }
+    for (let i = 0; i <= params.meses; i++) {
+      labels.push(`Mês ${i}`)
+      // Curva S: progresso lento no início, rápido no meio, lento no final
+      const progress = 100 / (1 + Math.exp(-0.5 * (i - params.meses / 2)))
+      progressData.push(Math.round(progress))
+    }
 
   const config: ChartConfiguration = {
     type: 'line',
@@ -391,9 +397,10 @@ export async function generateTimelineProgressChart(meses: number): Promise<stri
     }]
   }
 
-  new Chart(ctx as any, config)
+    new Chart(ctx as any, config)
 
-  return canvas.toDataURL('image/png')
+    return canvas.toDataURL('image/png')
+  }) // Fecha generateChartWithCache
 }
 
 /**
@@ -406,10 +413,11 @@ export async function generateInvestmentBreakdownChart(breakdown: {
   contencoes: number
   outros: number
 }): Promise<string> {
-  const width = 500
-  const height = 500
-  const canvas = createCanvas(width, height)
-  const ctx = canvas.getContext('2d')
+  return generateChartWithCache('investment-breakdown', { ...breakdown, version: CHART_VERSION }, async (params) => {
+    const width = 500
+    const height = 500
+    const canvas = createCanvas(width, height)
+    const ctx = canvas.getContext('2d')
 
   const config: ChartConfiguration = {
     type: 'doughnut',
@@ -423,11 +431,11 @@ export async function generateInvestmentBreakdownChart(breakdown: {
       ],
       datasets: [{
         data: [
-          breakdown.alinhadores,
-          breakdown.planejamento,
-          breakdown.checkups,
-          breakdown.contencoes,
-          breakdown.outros
+          params.alinhadores,
+          params.planejamento,
+          params.checkups,
+          params.contencoes,
+          params.outros
         ],
         backgroundColor: [
           COLORS.primary,
@@ -499,33 +507,35 @@ export async function generateInvestmentBreakdownChart(breakdown: {
     }]
   }
 
-  new Chart(ctx as any, config)
+    new Chart(ctx as any, config)
 
-  return canvas.toDataURL('image/png')
+    return canvas.toDataURL('image/png')
+  }) // Fecha generateChartWithCache
 }
 
 /**
  * Gera gráfico de ROI (economia acumulada ao longo do tempo)
  */
 export async function generateROIChart(custoAtma: number, custoInvisalign: number): Promise<string> {
-  const width = 700
-  const height = 350
-  const canvas = createCanvas(width, height)
-  const ctx = canvas.getContext('2d')
+  return generateChartWithCache('roi-chart', { custoAtma, custoInvisalign, version: CHART_VERSION }, async (params) => {
+    const width = 700
+    const height = 350
+    const canvas = createCanvas(width, height)
+    const ctx = canvas.getContext('2d')
 
-  const economia = custoInvisalign - custoAtma
-  const meses = 60 // 5 anos
+    const economia = params.custoInvisalign - params.custoAtma
+    const meses = 60 // 5 anos
 
-  const labels: string[] = []
-  const economiaData: number[] = []
+    const labels: string[] = []
+    const economiaData: number[] = []
 
-  for (let i = 0; i <= meses; i += 6) {
-    const anos = i / 12
-    labels.push(`${anos.toFixed(1)} anos`)
-    // Economia cresce considerando possível retratamento em 5 anos
-    const fator = i <= 12 ? 1 : 1 + ((i - 12) / 48) * 0.5 // Aumenta 50% em 4 anos
-    economiaData.push(Math.round(economia * fator))
-  }
+    for (let i = 0; i <= meses; i += 6) {
+      const anos = i / 12
+      labels.push(`${anos.toFixed(1)} anos`)
+      // Economia cresce considerando possível retratamento em 5 anos
+      const fator = i <= 12 ? 1 : 1 + ((i - 12) / 48) * 0.5 // Aumenta 50% em 4 anos
+      economiaData.push(Math.round(economia * fator))
+    }
 
   const config: ChartConfiguration = {
     type: 'line',
@@ -627,7 +637,8 @@ export async function generateROIChart(custoAtma: number, custoInvisalign: numbe
     }]
   }
 
-  new Chart(ctx as any, config)
+    new Chart(ctx as any, config)
 
-  return canvas.toDataURL('image/png')
+    return canvas.toDataURL('image/png')
+  }) // Fecha generateChartWithCache
 }
