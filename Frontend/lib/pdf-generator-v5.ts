@@ -114,20 +114,17 @@ export class PDFGeneratorV5 extends PDFGeneratorV4 {
       this.yPosition += 7
     })
 
-    this.yPosition += 10
+    this.yPosition += 15
 
-    // REMOVIDO: Seção "Como Funciona?" movida para V6 com design melhorado
-    // A nova versão está no V6.generateHowItWorksSection() com infográfico 2x2
-
-    this.yPosition += 10
-
-    // Nota final
-    this.addNewPageIfNeeded(20)
+    // Nota final (melhor aproveitamento do espaço)
     this.doc.setFont('helvetica', 'italic')
     this.doc.setFontSize(9)
     this.doc.setTextColor(107, 114, 128) // Gray-500
-    this.addText('💡 Dica: A consulta online é perfeita para quem quer entender melhor o tratamento antes de visitar um consultório presencial. Você pode fazer de casa, do trabalho, ou de onde estiver!', 10, 'italic')
+    this.addText('[!] Dica: A consulta online e perfeita para quem quer entender melhor o tratamento antes de visitar um consultorio presencial. Voce pode fazer de casa, do trabalho, ou de onde estiver!', 10, 'italic')
     this.doc.setTextColor(0, 0, 0)
+
+    // REMOVIDO: Seção "Como Funciona?" movida para V6 com design melhorado
+    // A nova versão está no V6.generateHowItWorksSection() com infográfico 2x2
   }
 
   /**
