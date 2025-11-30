@@ -338,31 +338,131 @@ export class PDFGeneratorV3 {
   // ==================== PÁGINA 1: CAPA ====================
 
   private generateCoverPage(dados: RelatorioDataExtended) {
-    this.doc.setFillColor(...COLORS.primary)
+    // Fundo gradiente simulado com duas cores
+    this.doc.setFillColor(...COLORS.primary) // Blue-600
     this.doc.rect(0, 0, this.pageWidth, this.pageHeight, 'F')
 
+    // Overlay mais escuro na parte superior para contraste
+    this.doc.setFillColor(30, 58, 138) // Blue-900
+    this.doc.rect(0, 0, this.pageWidth, 80, 'F')
+
+    // Elementos decorativos - círculos sutis no fundo
+    this.doc.setFillColor(255, 255, 255, 0.05)
+    this.doc.circle(this.pageWidth - 30, 40, 50, 'F')
+    this.doc.circle(30, this.pageHeight - 40, 40, 'F')
+    this.doc.circle(this.pageWidth - 50, this.pageHeight - 60, 35, 'F')
+
+    // Logo/Brand area no topo
+    this.doc.setFillColor(255, 255, 255, 0.15)
+    this.doc.roundedRect(15, 15, 60, 20, 3, 3, 'F')
     this.doc.setTextColor(...COLORS.white)
-    this.doc.setFontSize(32)
     this.doc.setFont('helvetica', 'bold')
-    this.doc.text('RELATÓRIO DE', this.pageWidth / 2, 80, { align: 'center' })
-    this.doc.text('VIABILIDADE', this.pageWidth / 2, 95, { align: 'center' })
-    this.doc.text('ORTODÔNTICA', this.pageWidth / 2, 110, { align: 'center' })
-
-    this.doc.setFontSize(18)
+    this.doc.setFontSize(14)
+    this.doc.text('ATMA', 45, 27, { align: 'center' })
     this.doc.setFont('helvetica', 'normal')
-    this.doc.text('Análise Personalizada Completa', this.pageWidth / 2, 130, { align: 'center' })
+    this.doc.setFontSize(7)
+    this.doc.text('ALIGNER', 45, 31, { align: 'center' })
 
-    // Box cliente
-    this.doc.setFillColor(255, 255, 255, 0.1)
-    this.doc.rect(30, 150, this.pageWidth - 60, 40, 'F')
-    this.doc.setFontSize(12)
-    this.doc.text(`Cliente: ${dados.cliente.nome}`, this.pageWidth / 2, 165, { align: 'center' })
-    this.doc.text(`Idade: ${dados.cliente.idade} anos`, this.pageWidth / 2, 175, { align: 'center' })
-    this.doc.text(`Localização: ${dados.cliente.localizacao}`, this.pageWidth / 2, 185, { align: 'center' })
+    // Linha decorativa superior
+    this.doc.setDrawColor(255, 255, 255)
+    this.doc.setLineWidth(0.3)
+    this.doc.line(15, 45, this.pageWidth - 15, 45)
 
+    // Título principal - mais espaçado e elegante
+    this.doc.setTextColor(...COLORS.white)
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(36)
+    this.doc.text('RELATÓRIO DE', this.pageWidth / 2, 95, { align: 'center' })
+
+    this.doc.setFontSize(40)
+    this.doc.text('VIABILIDADE', this.pageWidth / 2, 115, { align: 'center' })
+
+    this.doc.setFontSize(36)
+    this.doc.text('ORTODÔNTICA', this.pageWidth / 2, 135, { align: 'center' })
+
+    // Linha decorativa após título
+    this.doc.setDrawColor(255, 255, 255)
+    this.doc.setLineWidth(0.5)
+    this.doc.line(this.pageWidth / 2 - 40, 145, this.pageWidth / 2 + 40, 145)
+
+    // Subtítulo elegante
+    this.doc.setFontSize(14)
+    this.doc.setFont('helvetica', 'normal')
+    this.doc.text('Análise Personalizada Completa', this.pageWidth / 2, 158, { align: 'center' })
+
+    // Card de informações do cliente - design moderno com sombra simulada
+    const cardY = 175
+    const cardHeight = 55
+
+    // Sombra do card (simulada com retângulo mais escuro)
+    this.doc.setFillColor(0, 0, 0, 0.2)
+    this.doc.roundedRect(32, cardY + 2, this.pageWidth - 64, cardHeight, 5, 5, 'F')
+
+    // Card principal - branco
+    this.doc.setFillColor(255, 255, 255)
+    this.doc.roundedRect(30, cardY, this.pageWidth - 60, cardHeight, 5, 5, 'F')
+
+    // Borda sutil do card
+    this.doc.setDrawColor(219, 234, 254) // Blue-100
+    this.doc.setLineWidth(0.5)
+    this.doc.roundedRect(30, cardY, this.pageWidth - 60, cardHeight, 5, 5, 'S')
+
+    // Header do card com fundo azul claro
+    this.doc.setFillColor(219, 234, 254) // Blue-100
+    this.doc.roundedRect(30, cardY, this.pageWidth - 60, 12, 5, 5, 'F')
+    this.doc.setFillColor(219, 234, 254)
+    this.doc.rect(30, cardY + 7, this.pageWidth - 60, 5, 'F')
+
+    // Título do card
+    this.doc.setTextColor(...COLORS.primary)
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(9)
+    this.doc.text('INFORMAÇÕES DO CLIENTE', this.pageWidth / 2, cardY + 8, { align: 'center' })
+
+    // Informações do cliente - layout em grid
+    this.doc.setTextColor(31, 41, 55) // Gray-800
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(13)
+    this.doc.text(dados.cliente.nome, this.pageWidth / 2, cardY + 25, { align: 'center' })
+
+    // Detalhes secundários
+    this.doc.setFont('helvetica', 'normal')
     this.doc.setFontSize(10)
-    this.doc.text(`Data: ${dados.dataGeracao}`, this.pageWidth / 2, 250, { align: 'center' })
-    this.doc.text('Atma Aligner - Tecnologia Alemã', this.pageWidth / 2, 260, { align: 'center' })
+    this.doc.setTextColor(107, 114, 128) // Gray-500
+
+    const leftX = 45
+    const detailsY = cardY + 37
+
+    // Ícones simulados com bullets coloridos
+    this.doc.setFillColor(...COLORS.primary)
+    this.doc.circle(leftX - 3, detailsY - 2, 1.5, 'F')
+    this.doc.text(`Idade: ${dados.cliente.idade} anos`, leftX, detailsY)
+
+    this.doc.setFillColor(...COLORS.primary)
+    this.doc.circle(leftX - 3, detailsY + 8, 1.5, 'F')
+    this.doc.text(`Localização: ${dados.cliente.localizacao}`, leftX, detailsY + 10)
+
+    // Data no canto inferior direito do card
+    this.doc.setFontSize(8)
+    this.doc.setFont('helvetica', 'italic')
+    this.doc.text(`Gerado em ${dados.dataGeracao}`, this.pageWidth - 45, cardY + 48, { align: 'right' })
+
+    // Footer elegante na parte inferior
+    const footerY = this.pageHeight - 25
+
+    // Linha decorativa
+    this.doc.setDrawColor(255, 255, 255, 0.3)
+    this.doc.setLineWidth(0.3)
+    this.doc.line(15, footerY - 5, this.pageWidth - 15, footerY - 5)
+
+    this.doc.setTextColor(255, 255, 255, 0.9)
+    this.doc.setFont('helvetica', 'normal')
+    this.doc.setFontSize(10)
+    this.doc.text('Atma Aligner', this.pageWidth / 2, footerY, { align: 'center' })
+
+    this.doc.setFontSize(8)
+    this.doc.setTextColor(255, 255, 255, 0.7)
+    this.doc.text('Tecnologia Alemã | Ortodontia Digital de Precisão', this.pageWidth / 2, footerY + 6, { align: 'center' })
   }
 
   // ==================== ÍNDICE ====================
