@@ -239,14 +239,241 @@ export class PDFGeneratorV6 extends PDFGeneratorV5 {
   }
 
   /**
-   * Método principal - gera PDF V6 com QR codes adicionais
-   * (Herda todo o fluxo do V5, apenas sobrescreve seções específicas)
+   * NOVA SEÇÃO: Como Funciona? (Infográfico melhorado)
+   */
+  private generateHowItWorksSection() {
+    this.addPage()
+    this.yPosition = 30
+
+    // Header da seção com fundo azul
+    this.doc.setFillColor(37, 99, 235)
+    this.doc.rect(0, this.yPosition - 5, this.pageWidth, 25, 'F')
+
+    this.doc.setTextColor(255, 255, 255)
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(16)
+    this.doc.text('Como Funciona?', this.pageWidth / 2, this.yPosition + 8, { align: 'center' })
+
+    this.doc.setFont('helvetica', 'normal')
+    this.doc.setFontSize(10)
+    this.doc.text('Consulta Online de Ortodontia - Processo Completo em 4 Passos', this.pageWidth / 2, this.yPosition + 15, { align: 'center' })
+    this.doc.setTextColor(0, 0, 0)
+
+    this.yPosition += 30
+
+    const passos = [
+      {
+        numero: 1,
+        titulo: 'Agende Sua Consulta',
+        subtitulo: 'Rapido e Facil',
+        itens: [
+          'Use o QR code abaixo ou acesse o link',
+          'Escolha data e horario disponiveis',
+          'Confirmacao instantanea por email'
+        ],
+        cor: [59, 130, 246] as [number, number, number],
+        icon: '[CAL]'
+      },
+      {
+        numero: 2,
+        titulo: 'Preparacao',
+        subtitulo: 'Antes da Consulta',
+        itens: [
+          'Receba link da videochamada por email',
+          'Checklist de preparacao e documentos',
+          'Teste de camera e microfone'
+        ],
+        cor: [16, 185, 129] as [number, number, number],
+        icon: '[DOC]'
+      },
+      {
+        numero: 3,
+        titulo: 'Consulta Online (30min)',
+        subtitulo: 'Atendimento Personalizado',
+        itens: [
+          'Conversa inicial com ortodontista',
+          'Analise visual do sorriso',
+          'Tire todas as suas duvidas'
+        ],
+        cor: [245, 158, 11] as [number, number, number],
+        icon: '[VID]'
+      },
+      {
+        numero: 4,
+        titulo: 'Receba Recomendacoes',
+        subtitulo: 'Proximos Passos',
+        itens: [
+          'Orientacoes personalizadas por email',
+          'Plano de tratamento sugerido',
+          'Proximos passos e agendamentos'
+        ],
+        cor: [139, 92, 246] as [number, number, number],
+        icon: '[OK]'
+      },
+    ]
+
+    const stepWidth = (this.pageWidth - 40) / 2
+    const stepHeight = 65
+
+    passos.forEach((passo, index) => {
+      const isLeft = index % 2 === 0
+      const xPos = isLeft ? 15 : (this.pageWidth / 2 + 5)
+
+      if (index > 0 && index % 2 === 0) {
+        this.yPosition += stepHeight + 15
+      }
+
+      this.addNewPageIfNeeded(stepHeight + 10)
+
+      // Setas conectoras
+      if (index > 0) {
+        this.doc.setDrawColor(107, 114, 128)
+        this.doc.setLineWidth(2)
+        if (index === 1) {
+          const arrowY = this.yPosition - (stepHeight / 2)
+          this.doc.line(15 + stepWidth, arrowY, this.pageWidth / 2 + 5, arrowY)
+          this.doc.line(this.pageWidth / 2 + 5, arrowY, this.pageWidth / 2, arrowY - 3)
+          this.doc.line(this.pageWidth / 2 + 5, arrowY, this.pageWidth / 2, arrowY + 3)
+        } else if (index === 2) {
+          this.doc.line(this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition - stepHeight - 15, this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition)
+          this.doc.line(this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition, this.pageWidth / 2 + 5 + stepWidth / 2 - 3, this.yPosition - 5)
+          this.doc.line(this.pageWidth / 2 + 5 + stepWidth / 2, this.yPosition, this.pageWidth / 2 + 5 + stepWidth / 2 + 3, this.yPosition - 5)
+        } else if (index === 3) {
+          const arrowY = this.yPosition + (stepHeight / 2)
+          this.doc.line(this.pageWidth / 2 + 5, arrowY, 15 + stepWidth, arrowY)
+          this.doc.line(15 + stepWidth, arrowY, 15 + stepWidth + 5, arrowY - 3)
+          this.doc.line(15 + stepWidth, arrowY, 15 + stepWidth + 5, arrowY + 3)
+        }
+      }
+
+      const yStart = (index > 1 && index % 2 === 0) ? this.yPosition : (index === 0 ? this.yPosition : this.yPosition)
+
+      // Badge com número
+      this.doc.setFillColor(...passo.cor)
+      this.doc.roundedRect(xPos, yStart, 25, 12, 2, 2, 'F')
+      this.doc.setTextColor(255, 255, 255)
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(14)
+      this.doc.text(String(passo.numero), xPos + 12.5, yStart + 8.5, { align: 'center' })
+
+      // Ícone
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(9)
+      this.doc.text(passo.icon, xPos + stepWidth - 20, yStart + 8.5)
+      this.doc.setTextColor(0, 0, 0)
+
+      // Box principal
+      this.doc.setDrawColor(...passo.cor)
+      this.doc.setLineWidth(2)
+      this.doc.setFillColor(255, 255, 255)
+      this.doc.roundedRect(xPos, yStart + 15, stepWidth, stepHeight - 15, 3, 3, 'FD')
+
+      // Título
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(11)
+      this.doc.setTextColor(...passo.cor)
+      this.doc.text(passo.titulo, xPos + 5, yStart + 23)
+
+      // Subtítulo
+      this.doc.setFont('helvetica', 'italic')
+      this.doc.setFontSize(8)
+      this.doc.setTextColor(107, 114, 128)
+      this.doc.text(passo.subtitulo, xPos + 5, yStart + 29)
+      this.doc.setTextColor(0, 0, 0)
+
+      // Linha separadora
+      this.doc.setDrawColor(...passo.cor)
+      this.doc.setLineWidth(0.5)
+      this.doc.line(xPos + 5, yStart + 31, xPos + stepWidth - 5, yStart + 31)
+
+      // Itens (bullets)
+      let itemY = yStart + 38
+      this.doc.setFont('helvetica', 'normal')
+      this.doc.setFontSize(8)
+      passo.itens.forEach(item => {
+        this.doc.setFillColor(...passo.cor)
+        this.doc.circle(xPos + 8, itemY - 1.5, 1.5, 'F')
+
+        const itemLines = this.doc.splitTextToSize(item, stepWidth - 20)
+        this.doc.text(itemLines, xPos + 12, itemY)
+        itemY += itemLines.length * 4 + 2
+      })
+    })
+
+    this.yPosition += stepHeight + 20
+
+    // CTA box
+    this.addNewPageIfNeeded(35)
+    this.doc.setFillColor(37, 99, 235)
+    this.doc.roundedRect(15, this.yPosition, this.pageWidth - 30, 30, 5, 5, 'F')
+
+    this.doc.setTextColor(255, 255, 255)
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(12)
+    this.doc.text('Agende Agora Sua Consulta Online', this.pageWidth / 2, this.yPosition + 10, { align: 'center' })
+
+    this.doc.setFont('helvetica', 'normal')
+    this.doc.setFontSize(9)
+    this.doc.text('Escaneie o QR code abaixo com a camera do seu celular ou acesse o link:', this.pageWidth / 2, this.yPosition + 18, { align: 'center' })
+
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setFontSize(8)
+    this.doc.text('atma.roilabs.com.br/pacientes/antes-depois', this.pageWidth / 2, this.yPosition + 24, { align: 'center' })
+    this.doc.setTextColor(0, 0, 0)
+
+    this.yPosition += 35
+  }
+
+  /**
+   * OVERRIDE: Generate com seção "Como Funciona?" adicionada
    */
   async generate(dados: RelatorioDataV6): Promise<Buffer> {
-    // Simplesmente chamar o generate do V5
-    // Os overrides de generateTestimonialsSection e generateNextStepsSection
-    // já serão aplicados automaticamente
-    return await super.generate(dados)
+    // Copiar o fluxo do V5, mas adicionar generateHowItWorksSection antes de NextSteps
+
+    // Do V5/V4/V3
+    this.generateCoverPage(dados)
+    this.generateIndexPage(dados)
+    this.generateAboutYouSection(dados)
+
+    // Do V4
+    await (this as any).generateCaseSpecificSection(dados)
+
+    // Do V3
+    this.generateScoreSection(dados)
+
+    // Do V4 (com gráficos)
+    await (this as any).generateDetailedAnalysisSectionV4(dados)
+    await (this as any).generateExpandedComparativeSectionV4(dados)
+    await (this as any).generateDetailedTimelineSectionV4(dados)
+    await (this as any).generateFinancialPlanSectionV4(dados)
+
+    // Do V3
+    this.generateQuestionsForOrthodontistSection(dados)
+    this.generateScienceTechnologySection(dados)
+    this.generateCareMaintenanceSection(dados)
+
+    // Do V3/V6 (override de Testimonials com QR code)
+    this.generateTestimonialsSection(dados)
+
+    // Do V5
+    await (this as any).generateOnlineConsultationUpsell(dados)
+
+    // NOVO V6: Como Funciona? (infográfico melhorado)
+    this.generateHowItWorksSection()
+
+    // Do V3/V6 (override de NextSteps com QR code)
+    this.generateNextStepsSection(dados)
+
+    // Adicionar footers
+    const totalPages = this.doc.getNumberOfPages()
+    for (let i = 2; i <= totalPages; i++) {
+      this.doc.setPage(i)
+      this.addFooter(i)
+    }
+
+    // Retornar PDF
+    const pdfBuffer = Buffer.from(this.doc.output('arraybuffer'))
+    return pdfBuffer
   }
 }
 

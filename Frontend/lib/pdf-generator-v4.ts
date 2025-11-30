@@ -484,11 +484,66 @@ export class PDFGeneratorV4 extends PDFGeneratorV3 {
       this.yPosition += 10
     }
 
-    this.addText('Veja abaixo o cronograma mês a mês do seu tratamento estimado:')
+    this.addText('Veja abaixo o cronograma completo do seu tratamento, desde a consulta inicial ate a fase de contencao:')
     this.yPosition += 10
 
-    // Continua com infográfico de fases (do V3)
-    // [resto do código do V3]
+    // Infográfico MELHORADO com círculos coloridos + gradientes (do V3)
+    const fasesTimeline = this.generateTimelinePhases(totalMeses)
+
+    fasesTimeline.forEach((fase, index) => {
+      this.addNewPageIfNeeded(35)
+
+      // Box com gradiente visual melhorado
+      const colors = [
+        [59, 130, 246] as [number, number, number],   // Blue-500
+        [16, 185, 129] as [number, number, number],   // Green-500
+        [139, 92, 246] as [number, number, number],   // Purple-500
+        [245, 158, 11] as [number, number, number],   // Amber-500
+        [236, 72, 153] as [number, number, number],   // Pink-500
+        [14, 165, 233] as [number, number, number],   // Sky-500
+      ]
+      const boxColor = colors[index % colors.length]
+      const boxColorLight = [boxColor[0] + 40, boxColor[1] + 40, boxColor[2] + 40] as [number, number, number]
+
+      // Círculo com número
+      this.doc.setFillColor(...boxColor)
+      this.doc.circle(22, this.yPosition + 5, 4, 'F')
+      this.doc.setTextColor(255, 255, 255)
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(9)
+      this.doc.text(String(index + 1), 22, this.yPosition + 6.5, { align: 'center' })
+      this.doc.setTextColor(0, 0, 0)
+
+      // Box principal
+      this.doc.setFillColor(...boxColorLight)
+      this.doc.setDrawColor(...boxColor)
+      this.doc.setLineWidth(0.5)
+      this.doc.roundedRect(30, this.yPosition, this.pageWidth - 45, 28, 3, 3, 'FD')
+
+      // Título da fase
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.setFontSize(11)
+      this.doc.setTextColor(...boxColor)
+      this.doc.text(fase.titulo, 35, this.yPosition + 6)
+      this.doc.setTextColor(0, 0, 0)
+
+      // Descrição
+      this.doc.setFont('helvetica', 'normal')
+      this.doc.setFontSize(9)
+      const descLines = this.doc.splitTextToSize(fase.descricao, this.pageWidth - 85)
+      this.doc.text(descLines, 35, this.yPosition + 13)
+
+      // Ação recomendada
+      this.doc.setFont('helvetica', 'italic')
+      this.doc.setFontSize(8)
+      this.doc.setTextColor(107, 114, 128)
+      this.doc.text(`[OK] ${fase.acao}`, 35, this.yPosition + 23)
+      this.doc.setTextColor(0, 0, 0)
+
+      this.yPosition += 33
+    })
+
+    this.yPosition += 5
   }
 
   /**
