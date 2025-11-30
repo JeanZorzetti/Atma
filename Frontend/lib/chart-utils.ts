@@ -10,15 +10,23 @@ import { generateChartWithCache, getOptimizedCanvasSize } from './pdf-optimizer'
 // Registrar todos os componentes do Chart.js
 Chart.register(...registerables)
 
-// Cores da paleta Atma
+// Cores da paleta Atma (atualizadas para design moderno)
 const COLORS = {
-  primary: '#2563EB',
-  primaryLight: '#DBEAFE',
-  success: '#10B981',
-  warning: '#FBBF24',
-  danger: '#EF4444',
-  gray: '#6B7280',
-  grayLight: '#F3F4F6',
+  primary: '#2563EB',      // Blue-600
+  primaryLight: '#DBEAFE', // Blue-100
+  primaryDark: '#1E40AF',  // Blue-800
+  success: '#10B981',      // Green-500
+  successLight: '#D1FAE5', // Green-100
+  warning: '#F59E0B',      // Amber-500
+  warningLight: '#FEF3C7', // Amber-100
+  danger: '#EF4444',       // Red-500
+  dangerLight: '#FEE2E2',  // Red-100
+  purple: '#8B5CF6',       // Purple-500
+  purpleLight: '#EDE9FE',  // Purple-100
+  sky: '#0EA5E9',          // Sky-500
+  gray: '#6B7280',         // Gray-500
+  grayLight: '#F3F4F6',    // Gray-100
+  grayDark: '#374151',     // Gray-700
 }
 
 /**
@@ -51,15 +59,16 @@ export async function generateScoreBreakdownChart(scores: {
             params.saude,
             params.expectativas
           ],
-        backgroundColor: 'rgba(37, 99, 235, 0.2)',
-        borderColor: COLORS.primary,
-        borderWidth: 2,
-        pointBackgroundColor: COLORS.primary,
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: COLORS.primary,
-          pointRadius: 5,
-          pointHoverRadius: 7,
+          backgroundColor: 'rgba(37, 99, 235, 0.25)',
+          borderColor: COLORS.primary,
+          borderWidth: 3,
+          pointBackgroundColor: COLORS.primary,
+          pointBorderColor: '#fff',
+          pointBorderWidth: 3,
+          pointHoverBackgroundColor: COLORS.primaryDark,
+          pointHoverBorderColor: '#fff',
+          pointRadius: 6,
+          pointHoverRadius: 8,
         }]
       },
       options: {
@@ -68,12 +77,27 @@ export async function generateScoreBreakdownChart(scores: {
           r: {
             min: 0,
             max: 20,
+            backgroundColor: 'rgba(243, 244, 246, 0.3)',
+            angleLines: {
+              color: 'rgba(107, 114, 128, 0.2)',
+              lineWidth: 1
+            },
+            grid: {
+              color: 'rgba(107, 114, 128, 0.2)',
+              lineWidth: 1
+            },
             ticks: {
               stepSize: 5,
-              font: { size: 12 }
+              font: { size: 13, weight: '500' },
+              backdropColor: 'rgba(255, 255, 255, 0.9)',
+              color: COLORS.grayDark,
+              showLabelBackdrop: true,
+              backdropPadding: 4
             },
             pointLabels: {
-              font: { size: 14, weight: 'bold' }
+              font: { size: 15, weight: 'bold' },
+              color: COLORS.grayDark,
+              padding: 15
             }
           }
         },
@@ -83,8 +107,10 @@ export async function generateScoreBreakdownChart(scores: {
           },
           title: {
             display: true,
-            text: 'Breakdown do Score por Fator',
-            font: { size: 18, weight: 'bold' }
+            text: 'Análise Detalhada do Score',
+            font: { size: 20, weight: 'bold' },
+            color: COLORS.grayDark,
+            padding: { bottom: 25 }
           }
         }
       },
@@ -149,17 +175,18 @@ export async function generateCostComparisonChart(custos: {
           COLORS.danger,
           COLORS.success,
           COLORS.warning,
-          COLORS.danger
+          COLORS.purple
         ],
         borderColor: [
           COLORS.primary,
           COLORS.danger,
           COLORS.success,
           COLORS.warning,
-          COLORS.danger
+          COLORS.purple
         ],
-        borderWidth: 2,
-        borderRadius: 8,
+        borderWidth: 0,
+        borderRadius: 12,
+        barThickness: 35,
       }]
     },
     options: {
@@ -170,15 +197,28 @@ export async function generateCostComparisonChart(custos: {
           beginAtZero: true,
           ticks: {
             callback: (value) => `R$ ${Number(value).toLocaleString('pt-BR')}`,
-            font: { size: 12 }
+            font: { size: 13, weight: '500' },
+            color: COLORS.grayDark
           },
           grid: {
-            color: 'rgba(0, 0, 0, 0.1)'
+            color: 'rgba(107, 114, 128, 0.15)',
+            lineWidth: 1
+          },
+          border: {
+            display: false
           }
         },
         y: {
           ticks: {
-            font: { size: 13, weight: 'bold' }
+            font: { size: 14, weight: 'bold' },
+            color: COLORS.grayDark,
+            padding: 10
+          },
+          grid: {
+            display: false
+          },
+          border: {
+            display: false
           }
         }
       },
@@ -188,14 +228,24 @@ export async function generateCostComparisonChart(custos: {
         },
         title: {
           display: true,
-          text: 'Comparação de Custos Entre Opções',
-          font: { size: 18, weight: 'bold' }
+          text: 'Comparação de Custos no Mercado',
+          font: { size: 20, weight: 'bold' },
+          color: COLORS.grayDark,
+          padding: { bottom: 25 }
         },
         tooltip: {
+          backgroundColor: 'rgba(55, 65, 81, 0.95)',
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          padding: 12,
+          cornerRadius: 8,
           callbacks: {
-            label: (context) => `R$ ${context.parsed.x.toLocaleString('pt-BR')}`
+            label: (context) => `Custo: R$ ${context.parsed.x.toLocaleString('pt-BR')}`
           }
         }
+      },
+      layout: {
+        padding: { left: 10, right: 30, top: 10, bottom: 10 }
       }
     },
     plugins: [{
@@ -246,15 +296,23 @@ export async function generateTimelineProgressChart(meses: number): Promise<stri
         label: 'Progresso do Tratamento (%)',
         data: progressData,
         borderColor: COLORS.primary,
-        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-        borderWidth: 3,
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx
+          const gradient = ctx.createLinearGradient(0, 0, 0, 350)
+          gradient.addColorStop(0, 'rgba(37, 99, 235, 0.3)')
+          gradient.addColorStop(1, 'rgba(37, 99, 235, 0.05)')
+          return gradient
+        },
+        borderWidth: 4,
         fill: true,
         tension: 0.4,
-        pointRadius: 4,
+        pointRadius: 5,
         pointBackgroundColor: COLORS.primary,
         pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-        pointHoverRadius: 6,
+        pointBorderWidth: 3,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: COLORS.primaryDark,
+        pointHoverBorderWidth: 4,
       }]
     },
     options: {
@@ -265,19 +323,29 @@ export async function generateTimelineProgressChart(meses: number): Promise<stri
           max: 100,
           ticks: {
             callback: (value) => `${value}%`,
-            font: { size: 12 }
+            font: { size: 13, weight: '500' },
+            color: COLORS.grayDark,
+            padding: 8
           },
           grid: {
-            color: 'rgba(0, 0, 0, 0.1)'
+            color: 'rgba(107, 114, 128, 0.15)',
+            lineWidth: 1
+          },
+          border: {
+            display: false
           }
         },
         x: {
           ticks: {
             maxRotation: 45,
             minRotation: 45,
-            font: { size: 10 }
+            font: { size: 11, weight: '500' },
+            color: COLORS.grayDark
           },
           grid: {
+            display: false
+          },
+          border: {
             display: false
           }
         }
@@ -288,14 +356,24 @@ export async function generateTimelineProgressChart(meses: number): Promise<stri
         },
         title: {
           display: true,
-          text: 'Progresso Estimado do Tratamento',
-          font: { size: 18, weight: 'bold' }
+          text: 'Curva de Progresso Estimada',
+          font: { size: 20, weight: 'bold' },
+          color: COLORS.grayDark,
+          padding: { bottom: 25 }
         },
         tooltip: {
+          backgroundColor: 'rgba(55, 65, 81, 0.95)',
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          padding: 12,
+          cornerRadius: 8,
           callbacks: {
             label: (context) => `Progresso: ${context.parsed.y}%`
           }
         }
+      },
+      layout: {
+        padding: { left: 10, right: 20, top: 10, bottom: 10 }
       }
     },
     plugins: [{
@@ -355,32 +433,44 @@ export async function generateInvestmentBreakdownChart(breakdown: {
           COLORS.primary,
           COLORS.success,
           COLORS.warning,
-          '#8B5CF6', // Purple
-          COLORS.gray
+          COLORS.purple,
+          COLORS.sky
         ],
         borderColor: '#fff',
-        borderWidth: 3,
+        borderWidth: 4,
+        hoverBorderWidth: 6,
+        hoverOffset: 8,
       }]
     },
     options: {
       responsive: false,
+      cutout: '65%',
       plugins: {
         legend: {
           position: 'right',
           labels: {
-            font: { size: 13 },
-            padding: 15,
+            font: { size: 14, weight: '500' },
+            padding: 18,
             usePointStyle: true,
-            pointStyle: 'circle'
+            pointStyle: 'circle',
+            color: COLORS.grayDark,
+            boxWidth: 12,
+            boxHeight: 12
           }
         },
         title: {
           display: true,
           text: 'Distribuição do Investimento',
-          font: { size: 18, weight: 'bold' },
-          padding: { bottom: 20 }
+          font: { size: 20, weight: 'bold' },
+          color: COLORS.grayDark,
+          padding: { bottom: 25 }
         },
         tooltip: {
+          backgroundColor: 'rgba(55, 65, 81, 0.95)',
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          padding: 12,
+          cornerRadius: 8,
           callbacks: {
             label: (context) => {
               const label = context.label || ''
@@ -389,6 +479,9 @@ export async function generateInvestmentBreakdownChart(breakdown: {
             }
           }
         }
+      },
+      layout: {
+        padding: { left: 20, right: 20, top: 10, bottom: 10 }
       }
     },
     plugins: [{
@@ -442,14 +535,23 @@ export async function generateROIChart(custoAtma: number, custoInvisalign: numbe
         label: 'Economia Acumulada (R$)',
         data: economiaData,
         borderColor: COLORS.success,
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 3,
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx
+          const gradient = ctx.createLinearGradient(0, 0, 0, 350)
+          gradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)')
+          gradient.addColorStop(1, 'rgba(16, 185, 129, 0.05)')
+          return gradient
+        },
+        borderWidth: 4,
         fill: true,
         tension: 0.3,
-        pointRadius: 5,
+        pointRadius: 6,
         pointBackgroundColor: COLORS.success,
         pointBorderColor: '#fff',
-        pointBorderWidth: 2,
+        pointBorderWidth: 3,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#059669',
+        pointHoverBorderWidth: 4,
       }]
     },
     options: {
@@ -459,17 +561,27 @@ export async function generateROIChart(custoAtma: number, custoInvisalign: numbe
           beginAtZero: true,
           ticks: {
             callback: (value) => `R$ ${Number(value).toLocaleString('pt-BR')}`,
-            font: { size: 12 }
+            font: { size: 13, weight: '500' },
+            color: COLORS.grayDark,
+            padding: 8
           },
           grid: {
-            color: 'rgba(0, 0, 0, 0.1)'
+            color: 'rgba(107, 114, 128, 0.15)',
+            lineWidth: 1
+          },
+          border: {
+            display: false
           }
         },
         x: {
           ticks: {
-            font: { size: 12 }
+            font: { size: 13, weight: '500' },
+            color: COLORS.grayDark
           },
           grid: {
+            display: false
+          },
+          border: {
             display: false
           }
         }
@@ -481,13 +593,23 @@ export async function generateROIChart(custoAtma: number, custoInvisalign: numbe
         title: {
           display: true,
           text: 'Economia: Atma vs. Invisalign® (5 anos)',
-          font: { size: 18, weight: 'bold' }
+          font: { size: 20, weight: 'bold' },
+          color: COLORS.grayDark,
+          padding: { bottom: 25 }
         },
         tooltip: {
+          backgroundColor: 'rgba(55, 65, 81, 0.95)',
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          padding: 12,
+          cornerRadius: 8,
           callbacks: {
             label: (context) => `Economia: R$ ${context.parsed.y.toLocaleString('pt-BR')}`
           }
         }
+      },
+      layout: {
+        padding: { left: 10, right: 20, top: 10, bottom: 10 }
       }
     },
     plugins: [{
