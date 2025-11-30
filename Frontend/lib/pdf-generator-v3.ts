@@ -1,6 +1,59 @@
 import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+import autoTableOriginal from 'jspdf-autotable'
 import QRCode from 'qrcode'
+
+// Wrapper para autoTable que sanitiza TODOS os dados
+const autoTable = (doc: any, options: any) => {
+  // Sanitizar headers
+  if (options.head) {
+    options.head = options.head.map((row: any[]) =>
+      row.map(cell => typeof cell === 'string' ? sanitizeTextStatic(cell) : cell)
+    )
+  }
+
+  // Sanitizar body
+  if (options.body) {
+    options.body = options.body.map((row: any[]) =>
+      row.map(cell => typeof cell === 'string' ? sanitizeTextStatic(cell) : cell)
+    )
+  }
+
+  return autoTableOriginal(doc, options)
+}
+
+// Static sanitize function (usado antes da instância da classe existir)
+function sanitizeTextStatic(text: string): string {
+  return text
+    .replace(/[\u{1F600}-\u{1F64F}]/gu, '')
+    .replace(/[\u{1F300}-\u{1F5FF}]/gu, '')
+    .replace(/[\u{1F680}-\u{1F6FF}]/gu, '')
+    .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '')
+    .replace(/[\u{2600}-\u{26FF}]/gu, '')
+    .replace(/[\u{2700}-\u{27BF}]/gu, '')
+    .replace(/[\u{1F900}-\u{1F9FF}]/gu, '')
+    .replace(/[\u{1FA70}-\u{1FAFF}]/gu, '')
+    .replace(/✅/g, '[OK]')
+    .replace(/❌/g, '[X]')
+    .replace(/⚠️/g, '[!]')
+    .replace(/📱/g, '')
+    .replace(/🚀/g, '')
+    .replace(/📝/g, '')
+    .replace(/💡/g, '')
+    .replace(/📊/g, '')
+    .replace(/💰/g, '')
+    .replace(/⏰/g, '')
+    .replace(/🎯/g, '')
+    .replace(/📈/g, '')
+    .replace(/🏆/g, '')
+    .replace(/📑/g, '')
+    .replace(/👤/g, '')
+    .replace(/🔍/g, '')
+    .replace(/⭐/g, '*')
+    .replace(/[^\x00-\x7F\u00C0-\u00FF\u0100-\u017F\u0180-\u024F]/g, '')
+    .trim()
+}
+
+export { autoTable }
 
 // Paleta de cores Atma
 const COLORS = {
@@ -82,10 +135,22 @@ export class PDFGeneratorV3 {
    * Remove emojis e caracteres especiais que o jsPDF não suporta
    */
   private sanitizeText(text: string): string {
-    // Remove emojis e outros caracteres unicode problemáticos
-    return text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]/gu, '')
+    // Remove ALL non-ASCII characters that could cause encoding issues
+    return text
+      // Remove common emoji ranges
+      .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
+      .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Misc Symbols and Pictographs
+      .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport and Map
+      .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // Flags
+      .replace(/[\u{2600}-\u{26FF}]/gu, '')   // Misc symbols
+      .replace(/[\u{2700}-\u{27BF}]/gu, '')   // Dingbats
+      .replace(/[\u{1F900}-\u{1F9FF}]/gu, '') // Supplemental Symbols
+      .replace(/[\u{1FA70}-\u{1FAFF}]/gu, '') // Extended Pictographs
+
+      // Replace specific symbols with text equivalents
       .replace(/✅/g, '[OK]')
       .replace(/❌/g, '[X]')
+      .replace(/⚠️/g, '[!]')
       .replace(/📱/g, '')
       .replace(/🚀/g, '')
       .replace(/📝/g, '')
@@ -96,6 +161,14 @@ export class PDFGeneratorV3 {
       .replace(/🎯/g, '')
       .replace(/📈/g, '')
       .replace(/🏆/g, '')
+      .replace(/📑/g, '')
+      .replace(/👤/g, '')
+      .replace(/🔍/g, '')
+      .replace(/⭐/g, '*')
+
+      // Remove any remaining problematic characters (0x80-0xFF range that aren't standard)
+      .replace(/[^\x00-\x7F\u00C0-\u00FF\u0100-\u017F\u0180-\u024F]/g, '')
+
       .trim()
   }
 
