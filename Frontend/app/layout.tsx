@@ -8,6 +8,7 @@ import { StructuredData } from "@/components/structured-data"
 import { Breadcrumbs } from "@/components/breadcrumbs"
 import { ClientOnlyFABs } from "@/components/client-only-fabs"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
+import { ClerkProvider } from '@clerk/nextjs'
 
 // TEMPORARY: Force dynamic rendering to fix Google indexation issue (Nov 3, 2025)
 // This will force Vercel to bust cache and allow Google to recrawl fresh pages
@@ -107,48 +108,50 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className={`${roboto.variable} ${montserrat.variable}`}>
-      <head>
-        {/* Advanced Resource Hints for Core Web Vitals */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://atmaapi.roilabs.com.br" />
+    <ClerkProvider>
+      <html lang="pt-BR" className={`${roboto.variable} ${montserrat.variable}`}>
+        <head>
+          {/* Advanced Resource Hints for Core Web Vitals */}
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link rel="preconnect" href="https://www.googletagmanager.com" />
+          <link rel="dns-prefetch" href="https://atmaapi.roilabs.com.br" />
 
-        {/* PWA Icons */}
-        <meta name="theme-color" content="#7c3aed" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="mobile-web-app-capable" content="yes" />
+          {/* PWA Icons */}
+          <meta name="theme-color" content="#7c3aed" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="mobile-web-app-capable" content="yes" />
 
-        {/* Geographic Targeting - Força Google a entender que é Brasil */}
-        <meta name="geo.region" content="BR" />
-        <meta name="geo.placename" content="Brasil" />
-        <meta name="geo.position" content="-28.2620;-52.4080" />
-        <meta name="ICBM" content="-28.2620, -52.4080" />
+          {/* Geographic Targeting - Força Google a entender que é Brasil */}
+          <meta name="geo.region" content="BR" />
+          <meta name="geo.placename" content="Brasil" />
+          <meta name="geo.position" content="-28.2620;-52.4080" />
+          <meta name="ICBM" content="-28.2620, -52.4080" />
 
-        <StructuredData />
-        <GoogleAnalytics />
-      </head>
-      <body className="min-h-screen flex flex-col">
-        {/* WCAG 2.2 Skip Navigation */}
-        <a href="#main-content" className="skip-nav">
-          Pular para o conteúdo principal
-        </a>
-        <a href="#footer" className="skip-nav">
-          Pular para o rodapé
-        </a>
+          <StructuredData />
+          <GoogleAnalytics />
+        </head>
+        <body className="min-h-screen flex flex-col">
+          {/* WCAG 2.2 Skip Navigation */}
+          <a href="#main-content" className="skip-nav">
+            Pular para o conteúdo principal
+          </a>
+          <a href="#footer" className="skip-nav">
+            Pular para o rodapé
+          </a>
 
-        <Header />
-        <Breadcrumbs />
-        <main id="main-content" className="flex-1 mobile-viewport" role="main" aria-label="Conteúdo principal">
-          {children}
-        </main>
-        <Footer />
+          <Header />
+          <Breadcrumbs />
+          <main id="main-content" className="flex-1 mobile-viewport" role="main" aria-label="Conteúdo principal">
+            {children}
+          </main>
+          <Footer />
 
-        {/* Mobile FABs - Client-side only */}
-        <ClientOnlyFABs />
-      </body>
-    </html>
+          {/* Mobile FABs - Client-side only */}
+          <ClientOnlyFABs />
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }
