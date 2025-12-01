@@ -175,7 +175,7 @@
 
 ---
 
-## 📊 Fase 3: Seções de Conteúdo + Integração DB ⚙️ 90% COMPLETA
+## 📊 Fase 3: Seções de Conteúdo + Integração DB ✅ 100% COMPLETA
 
 ### 3.0 Integração com Banco de Dados ✅
 
@@ -357,29 +357,52 @@
   - Botão "Agendar Consulta" em destaque
   - Mensagem motivacional
 
-### 3.6 Seção: Perguntas (`/portal/perguntas`)
-- [ ] **FAQ Personalizado**
-  - Baseado no caso do paciente
-  - Categorias colapsáveis
-  - Busca em tempo real
-- [ ] **Perguntas para o Ortodontista**
-  - Lista de perguntas sugeridas
-  - Botão "Copiar todas"
-  - Opção de imprimir
+### 3.6 Seção: Perguntas (`/portal/perguntas`) ✅
 
-### 3.7 Seção: Downloads (`/portal/downloads`)
-- [ ] **Gerador de PDF**
-  - Botão principal "Baixar Relatório Completo"
-  - Loading state com progresso
-  - Preview do PDF
-- [ ] **Materiais Extras**
-  - Guia de cuidados (PDF)
-  - Checklist de preparação (PDF)
-  - Cartão de perguntas (PNG para salvar)
-- [ ] **Compartilhamento**
-  - Link de compartilhamento com dentista
-  - QR Code para consulta online
-  - Opção de enviar por email
+- [x] **FAQ Completo** ✅
+  - 18 perguntas frequentes em 5 categorias
+  - Accordion colapsável com Shadcn UI
+  - Sistema de busca em tempo real (pesquisa em perguntas, respostas e tags)
+  - Filtros por categoria (Tratamento, Uso Diário, Custos, Tecnologia, Resultados)
+  - Badges de tags por pergunta
+  - Contador de resultados filtrados
+  - Botão "Limpar Busca" quando sem resultados
+- [x] **Perguntas para Ortodontista** ✅
+  - Lista de 10 perguntas essenciais
+  - Cards numerados com design purple
+  - Botão "Copiar Todas" para clipboard
+  - Botão "Imprimir" com formatação customizada
+  - Feedback visual ao copiar
+- [x] **CTA "Ainda tem dúvidas?"** ✅
+  - Card gradiente azul-cyan
+  - 2 botões: "Agendar Consulta" e "Falar com Especialista"
+
+### 3.7 Seção: Downloads (`/portal/downloads`) ✅
+
+- [x] **Gerador de PDF** ✅
+  - Card principal em destaque com gradiente azul
+  - Botão "Gerar e Baixar PDF Completo"
+  - Simulação de progresso com barra animada
+  - Loading state com Loader2 spinner
+  - Lista do que está incluído (5 itens com CheckCircle)
+- [x] **Materiais Extras** ✅
+  - 4 materiais disponíveis (Relatório, Guia, Checklist, Cartão)
+  - Cards com ícones coloridos por tipo
+  - Badges de formato (PDF, PNG) e tamanho
+  - Botão "Baixar" individual por material
+  - Grid 2 colunas responsivo
+- [x] **Sistema de Compartilhamento** ✅
+  - Gerador de link único com token
+  - Copiar link para clipboard com feedback
+  - Enviar por email (mailto com corpo pré-formatado)
+  - QR Code toggle (show/hide)
+  - Botão "Abrir Link" em nova aba
+  - Informações de validade (30 dias, ilimitado)
+  - Card de sucesso verde ao gerar link
+- [x] **Dicas de Compartilhamento** ✅
+  - 4 cards com cenários de uso
+  - Para ortodontistas, segunda opinião, familiares
+  - Informações de segurança
 
 **Entregável**: Todas as seções funcionais com conteúdo interativo
 
