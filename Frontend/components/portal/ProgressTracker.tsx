@@ -29,6 +29,7 @@ const secoesPortal: SecaoVisitada[] = [
   { id: 'depoimentos', nome: 'Depoimentos', visitada: false, icone: '💬' },
   { id: 'perguntas', nome: 'Perguntas', visitada: false, icone: '❓' },
   { id: 'downloads', nome: 'Downloads', visitada: false, icone: '📥' },
+  { id: 'agendar', nome: 'Agendar Consulta', visitada: false, icone: '📅' },
 ]
 
 const acoesRecomendadas = [
@@ -40,6 +41,7 @@ const acoesRecomendadas = [
   { id: 'ler-depoimento', nome: 'Ler depoimentos de pacientes', secao: 'depoimentos' },
   { id: 'fazer-perguntas', nome: 'Ver perguntas frequentes', secao: 'perguntas' },
   { id: 'baixar-pdf', nome: 'Baixar relatório em PDF', secao: 'downloads' },
+  { id: 'agendar-consulta', nome: 'Agendar consulta presencial', secao: 'agendar' },
 ]
 
 export function ProgressTracker() {

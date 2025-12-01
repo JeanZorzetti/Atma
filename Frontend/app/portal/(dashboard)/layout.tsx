@@ -12,6 +12,7 @@ import {
   MessageSquare,
   HelpCircle,
   Download,
+  Calendar,
   Menu
 } from 'lucide-react'
 import { Breadcrumbs } from '@/components/portal/Breadcrumbs'
@@ -27,6 +28,7 @@ const menuItems = [
   { icon: MessageSquare, label: 'Depoimentos', href: '/portal/depoimentos' },
   { icon: HelpCircle, label: 'Perguntas', href: '/portal/perguntas' },
   { icon: Download, label: 'Downloads', href: '/portal/downloads' },
+  { icon: Calendar, label: 'Agendar Consulta', href: '/portal/agendar' },
 ]
 
 export default function PortalLayout({

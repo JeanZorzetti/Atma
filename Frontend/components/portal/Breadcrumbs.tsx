@@ -18,6 +18,7 @@ const routeLabels: Record<string, string> = {
   depoimentos: 'Depoimentos',
   perguntas: 'Perguntas Frequentes',
   downloads: 'Downloads',
+  agendar: 'Agendar Consulta',
 }
 
 export function Breadcrumbs() {

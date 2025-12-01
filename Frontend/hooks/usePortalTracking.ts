@@ -14,6 +14,7 @@ const rotaParaSecao: Record<string, string> = {
   '/portal/depoimentos': 'depoimentos',
   '/portal/perguntas': 'perguntas',
   '/portal/downloads': 'downloads',
+  '/portal/agendar': 'agendar',
 }
 
 const mensagensBoasVindas: Record<string, string> = {
@@ -25,6 +26,7 @@ const mensagensBoasVindas: Record<string, string> = {
   depoimentos: '💬 Leia histórias inspiradoras',
   perguntas: '❓ Tire todas as suas dúvidas',
   downloads: '📥 Baixe seus materiais',
+  agendar: '📅 Agende sua consulta presencial',
 }
 
 export function usePortalTracking() {

@@ -408,13 +408,13 @@
 
 ---
 
-## 🚀 Fase 4: Features de Engajamento ⚙️ 33% COMPLETA
+## 🚀 Fase 4: Features de Engajamento ⚙️ 67% COMPLETA
 
-### 4.1 Gamificação Básica ✅
+### 4.1 Gamificação Básica ✅ 100% COMPLETA
 
 - [x] **Progress Tracker** ✅
   - Componente ProgressTracker com card roxo-azul
-  - % de seções visitadas (X/8) com barra de progresso
+  - % de seções visitadas (X/9) com barra de progresso (atualizado para incluir Agendar)
   - Sistema de níveis: Iniciante → Iniciado → Intermediário → Avançado → Explorador
   - Badge "Explorador" com Trophy e Sparkles ao visitar tudo (100%)
   - Lista colapsável de todas as seções com check marks
@@ -435,16 +435,66 @@
   - Usando biblioteca Sonner já instalada
   - Duração e descrição customizáveis
 
-### 4.2 Integrações
-- [ ] **Agendamento Online**
-  - Integração com Calendly ou Cal.com
-  - Embed do calendário na página
-  - Confirmação por email
-- [ ] **Email Marketing**
-  - Resend ou SendGrid
-  - Email após cadastro
-  - Email após 3 dias: "Viu tudo?"
-  - Email após 7 dias: "Agende sua consulta"
+### 4.2 Integrações ✅ 100% COMPLETA
+
+- [x] **Agendamento Online** ✅
+  - Página `/portal/agendar` criada e funcional
+  - Sistema de seleção de tipo de consulta (4 tipos)
+  - Sistema de seleção de unidade (4 unidades: SP Jardins, SP Morumbi, RJ Ipanema, Online)
+  - Integração com Calendly embed (iframe responsivo)
+  - Botão de agendamento no QuickActions do Dashboard
+  - Menu de navegação atualizado com link "Agendar Consulta"
+  - Tracking de ações (abrir calendly, ligar unidade)
+  - FAQ rápido sobre agendamento
+  - Cards informativos com ícones e badges
+
+- [x] **Email Marketing** ✅
+  - **Resend** instalado e configurado (`lib/resend.ts`)
+  - **4 Templates de Email** criados (`lib/email-templates.tsx`):
+    - 📧 **Email de Cadastro** (Boas-vindas):
+      - Layout profissional com header azul gradient
+      - Resumo do relatório (score, duração, custo, complexidade)
+      - Lista de funcionalidades do portal
+      - CTA "Acessar Meu Portal"
+      - Dica sobre gamificação
+    - 📧 **Lembrete 3 Dias** (Engajamento):
+      - Pergunta se explorou o relatório
+      - Destaque para 3 seções principais (cards com cores)
+      - CTA "Continuar Explorando"
+    - 📧 **Lembrete 7 Dias** (Conversão):
+      - Incentivo para agendar consulta
+      - Badge "Avaliação Inicial GRATUITA"
+      - Lista de benefícios da consulta
+      - Informações sobre unidades
+      - CTA "Agendar Agora"
+    - 📧 **Confirmação de Agendamento**:
+      - Checkmark verde de confirmação
+      - Detalhes completos (data, horário, local, endereço)
+      - Card amarelo "O que levar"
+      - Informação sobre lembrete 24h antes
+  - **API Routes**:
+    - `/api/emails/enviar` - Endpoint para envio manual de emails
+    - `/api/emails/cron` - Cron job para emails automáticos (3 e 7 dias)
+    - Autenticação via Bearer token (CRON_SECRET)
+  - **Banco de Dados**:
+    - Migration SQL: `005_create_email_logs.sql`
+    - Tabela `portal_email_logs` para tracking de emails enviados
+    - Índices para performance (user_id, tipo_email, sent_at)
+  - **Automação**:
+    - Vercel Cron configurado em `vercel.json`
+    - Execução diária às 10h UTC (7h BRT)
+    - Limite de 100 emails por execução
+    - Logs de sucesso/erro no banco
+  - **Documentação**:
+    - Guia completo: `docs/CONFIGURACAO_EMAIL_MARKETING.md`
+    - Instruções de setup do Resend
+    - Como configurar domínio e DNS
+    - Exemplos de teste com curl
+    - Queries SQL para monitoramento
+  - **Variáveis de Ambiente**:
+    - `RESEND_API_KEY` configurada
+    - `CRON_SECRET` para segurança
+    - `.env.local.example` atualizado
 
 ### 4.3 Analytics
 - [ ] **Tracking de Eventos**

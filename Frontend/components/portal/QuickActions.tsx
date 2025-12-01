@@ -48,7 +48,7 @@ export function QuickActions() {
             className="w-full h-auto py-4 px-4 border-2 flex flex-col items-start gap-2"
             asChild
           >
-            <Link href="/pacientes/encontre-doutor" target="_blank">
+            <Link href="/portal/agendar">
               <div className="flex items-center gap-3 w-full">
                 <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
                   <Calendar className="h-5 w-5 text-blue-600" />
@@ -56,10 +56,10 @@ export function QuickActions() {
                 <div className="text-left flex-1">
                   <div className="font-semibold">Agendar Consulta</div>
                   <div className="text-xs text-gray-500 font-normal">
-                    Encontre um ortodontista
+                    Escolha data e horário
                   </div>
                 </div>
-                <ExternalLink className="h-4 w-4 text-gray-400" />
+                <ChevronRight className="h-5 w-5" />
               </div>
             </Link>
           </Button>
