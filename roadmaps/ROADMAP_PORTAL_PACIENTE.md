@@ -175,7 +175,52 @@
 
 ---
 
-## 📊 Fase 3: Seções de Conteúdo (4-5 dias)
+## 📊 Fase 3: Seções de Conteúdo + Integração DB ⚙️ 40% COMPLETA
+
+### 3.0 Integração com Banco de Dados ✅
+
+- [x] **Webhook do Clerk** ✅
+  - Rota `/api/webhooks/clerk` criada
+  - Eventos: `user.created`, `user.updated`, `user.deleted`
+  - Sincronização automática com `portal_users`
+  - Criação automática de `portal_preferencias`
+  - Verificação segura com Svix
+  - Documentação completa: `SETUP_WEBHOOK_CLERK.md`
+
+- [x] **API Routes de Dados** ✅
+  - `/api/portal/relatorio` - Busca relatório ativo do usuário
+  - `/api/portal/interacao` - Tracking de engajamento
+  - GET relatorio: Retorna dados do relatório + usuário
+  - POST interacao: Registra interações (views, downloads, etc.)
+  - GET interacao: Estatísticas de uso
+
+- [x] **Dashboard com Dados Reais** ✅
+  - Substituiu dados hardcoded por queries MySQL
+  - Busca `portal_users` via `clerk_user_id`
+  - Busca `portal_relatorios` ativos e não expirados
+  - Estado "Sem Relatório" quando não há dados
+  - Parse de `dados_json` para dados customizados
+  - Exibe: score, custo, duração, complexidade, status
+  - Badges dinâmicos baseados no status de pagamento
+
+- [x] **Dependências Instaladas** ✅
+  - `svix` para verificação de webhooks
+  - `dotenv` para variáveis de ambiente (migração)
+
+**Entregável**: ✅ Infraestrutura de dados completa - Dashboard integrado com MySQL
+
+**📁 Arquivos Criados**:
+
+**API Routes:**
+- `app/api/webhooks/clerk/route.ts` - Webhook Clerk
+- `app/api/portal/relatorio/route.ts` - Buscar relatório
+- `app/api/portal/interacao/route.ts` - Tracking
+
+**Documentação:**
+- `SETUP_WEBHOOK_CLERK.md` - Guia completo de webhook
+
+**Modificados:**
+- `app/portal/(dashboard)/page.tsx` - Dashboard com dados reais
 
 ### 3.1 Seção: Análise do Caso (`/portal/analise`)
 - [ ] **Score Breakdown**
