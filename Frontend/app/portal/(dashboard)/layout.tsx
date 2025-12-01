@@ -15,6 +15,7 @@ import {
   Menu
 } from 'lucide-react'
 import { Breadcrumbs } from '@/components/portal/Breadcrumbs'
+import { PortalTrackingProvider } from '@/components/portal/PortalTrackingProvider'
 import { cn } from '@/lib/utils'
 
 const menuItems = [
@@ -44,6 +45,7 @@ export default function PortalLayout({
   }
 
   return (
+    <PortalTrackingProvider>
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar - Desktop */}
       <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
@@ -166,5 +168,6 @@ export default function PortalLayout({
         </div>
       </nav>
     </div>
+    </PortalTrackingProvider>
   )
 }

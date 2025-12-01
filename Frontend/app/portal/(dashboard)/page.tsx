@@ -2,6 +2,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { ScoreCard } from '@/components/portal/ScoreCard'
 import { QuickActions } from '@/components/portal/QuickActions'
+import { DashboardClient } from '@/components/portal/DashboardClient'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -219,6 +220,9 @@ export default async function PortalDashboard() {
 
       {/* Quick Actions */}
       <QuickActions />
+
+      {/* Progress Tracker - Gamificação */}
+      <DashboardClient />
 
       {/* Próximos Passos */}
       <Card>

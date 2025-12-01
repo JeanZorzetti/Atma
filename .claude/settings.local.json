@@ -12,7 +12,8 @@
       "Bash(curl -I https://atma.roilabs.com.br/portal)",
       "Bash(vercel ls:*)",
       "Bash(ls:*)",
-      "Bash(npm run db:migrate:*)"
+      "Bash(npm run db:migrate:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
