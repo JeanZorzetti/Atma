@@ -175,7 +175,7 @@
 
 ---
 
-## 📊 Fase 3: Seções de Conteúdo + Integração DB ⚙️ 60% COMPLETA
+## 📊 Fase 3: Seções de Conteúdo + Integração DB ⚙️ 70% COMPLETA
 
 ### 3.0 Integração com Banco de Dados ✅
 
@@ -261,20 +261,38 @@
   - Seção "O que está incluído?" com 8 itens
   - Formas de pagamento aceitas (3 cards)
 
-### 3.3 Seção: Timeline (`/portal/timeline`)
-- [ ] **Visualização de Cronograma**
-  - Timeline vertical interativa
-  - Fases do tratamento com ícones
-  - Estimativa de duração em destaque
-  - Milestones importantes
-- [ ] **Gráfico de Progresso**
-  - Curva S animada
-  - Pontos de check-in marcados
-  - Projeção de conclusão
-- [ ] **Calendário Sugerido**
-  - Cards de fases (30-60-90 dias)
-  - Checkboxes para ações necessárias
-  - Links para agendar consultas
+### 3.3 Seção: Timeline (`/portal/timeline`) ✅
+
+- [x] **Visualização de Cronograma** ✅
+  - Timeline vertical interativa com linha conectora gradiente
+  - 4 fases do tratamento com ícones distintos (Play, TrendingUp, CheckCircle2, Check)
+  - Cards expansíveis com animações (ChevronDown/Up)
+  - Ícones em círculos conectados à linha vertical (desktop)
+  - Badges de status (Concluído, Em Andamento, Pendente)
+  - Progress bars individuais por fase
+- [x] **Gráfico de Progresso** ✅
+  - Curva S implementada com Recharts AreaChart
+  - Comparação: Progresso Real vs Progresso Ideal
+  - Eixos nomeados e tooltips formatados
+  - Info box explicativo sobre a curva S ortodôntica
+  - Área preenchida com gradiente azul
+- [x] **Calendário Sugerido** ✅
+  - 10 marcos importantes ao longo de 12 meses
+  - Cards com ícones coloridos por tipo (início, consulta, avaliação, fase, conclusão)
+  - Datas estimadas calculadas automaticamente
+  - Grid responsivo (2 colunas em desktop)
+  - Alerta sobre variação das datas
+- [x] **Checklist Interativo** ✅
+  - 16 ações distribuídas pelas 4 fases
+  - Checkboxes funcionais com estado persistente (useState)
+  - Strike-through ao completar ação
+  - Desabilitado para fases pendentes
+  - Seção "O que esperar" com detalhes por fase
+- [x] **Pós-Tratamento** ✅
+  - Card especial para contenção
+  - Explicação de contenção fixa vs removível
+  - Protocolo recomendado de uso
+  - Design com gradiente verde-azul
 
 ### 3.4 Seção: Tecnologia (`/portal/tecnologia`)
 - [ ] **Sobre o Atma Aligner**
