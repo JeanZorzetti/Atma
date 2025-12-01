@@ -419,8 +419,8 @@ export async function generateInvestmentBreakdownChart(breakdown: {
     const canvas = createCanvas(width, height)
     const ctx = canvas.getContext('2d')
 
-  const config: ChartConfiguration = {
-    type: 'doughnut',
+  const config = {
+    type: 'doughnut' as const,
     data: {
       labels: [
         'Alinhadores (70%)',
@@ -452,10 +452,10 @@ export async function generateInvestmentBreakdownChart(breakdown: {
     },
     options: {
       responsive: false,
-      cutout: '65%' as any,
+      cutout: '65%',
       plugins: {
         legend: {
-          position: 'right',
+          position: 'right' as const,
           labels: {
             font: { size: 14, weight: 500 as any },
             padding: 18,
@@ -480,7 +480,7 @@ export async function generateInvestmentBreakdownChart(breakdown: {
           padding: 12,
           cornerRadius: 8,
           callbacks: {
-            label: (context) => {
+            label: (context: any) => {
               const label = context.label || ''
               const value = `R$ ${Number(context.parsed).toLocaleString('pt-BR')}`
               return `${label}: ${value}`
@@ -494,7 +494,7 @@ export async function generateInvestmentBreakdownChart(breakdown: {
     },
     plugins: [{
       id: 'customCanvasBackgroundColor',
-      beforeDraw: (chart) => {
+      beforeDraw: (chart: any) => {
         const ctx = chart.canvas.getContext('2d')
         if (ctx) {
           ctx.save()
@@ -505,7 +505,7 @@ export async function generateInvestmentBreakdownChart(breakdown: {
         }
       }
     }]
-  }
+  } as any
 
     new Chart(ctx as any, config)
 
