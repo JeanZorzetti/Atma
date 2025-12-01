@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { queryMany } from '@/lib/db'
 import { enviarEmail } from '@/lib/resend'
 import { EmailLembrete3Dias, EmailLembrete7Dias } from '@/lib/email-templates'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { render } from '@react-email/render'
 import { createElement } from 'react'
 
 // Esta rota deve ser chamada por um cron job (Vercel Cron ou similar)
@@ -17,11 +17,6 @@ function verificarAutenticacao(request: NextRequest): boolean {
   const CRON_SECRET = process.env.CRON_SECRET || 'dev-secret-change-in-production'
 
   return token === CRON_SECRET
-}
-
-// Função auxiliar para renderizar template
-function renderTemplate(component: React.ReactElement): string {
-  return renderToStaticMarkup(component)
 }
 
 // GET /api/emails/cron - Enviar emails automáticos
@@ -60,7 +55,7 @@ export async function GET(request: NextRequest) {
     // Enviar emails de 3 dias
     for (const usuario of usuarios3Dias) {
       try {
-        const htmlContent = renderTemplate(
+        const htmlContent = render(
           createElement(EmailLembrete3Dias, { usuario: { nome: usuario.nome, email: usuario.email } })
         )
 
@@ -107,7 +102,7 @@ export async function GET(request: NextRequest) {
     // Enviar emails de 7 dias
     for (const usuario of usuarios7Dias) {
       try {
-        const htmlContent = renderTemplate(
+        const htmlContent = render(
           createElement(EmailLembrete7Dias, { usuario: { nome: usuario.nome, email: usuario.email } })
         )
 

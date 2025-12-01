@@ -6,7 +6,7 @@ import {
   EmailLembrete7Dias,
   EmailAgendamento,
 } from '@/lib/email-templates'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { render } from '@react-email/render'
 import { createElement } from 'react'
 
 // Interface para o corpo da requisição
@@ -29,11 +29,6 @@ interface EnviarEmailRequest {
     endereco: string
     tipoConsulta: string
   }
-}
-
-// Função auxiliar para renderizar template React para HTML
-function renderTemplate(component: React.ReactElement): string {
-  return renderToStaticMarkup(component)
 }
 
 // Mapa de assuntos por tipo de email
@@ -68,19 +63,19 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           )
         }
-        htmlContent = renderTemplate(
+        htmlContent = render(
           createElement(EmailCadastro, { usuario: body.usuario, relatorio: body.relatorio })
         )
         break
 
       case 'lembrete-3dias':
-        htmlContent = renderTemplate(
+        htmlContent = render(
           createElement(EmailLembrete3Dias, { usuario: body.usuario })
         )
         break
 
       case 'lembrete-7dias':
-        htmlContent = renderTemplate(
+        htmlContent = render(
           createElement(EmailLembrete7Dias, { usuario: body.usuario })
         )
         break
@@ -92,7 +87,7 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           )
         }
-        htmlContent = renderTemplate(
+        htmlContent = render(
           createElement(EmailAgendamento, { usuario: body.usuario, agendamento: body.agendamento })
         )
         break
