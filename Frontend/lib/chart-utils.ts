@@ -11,7 +11,7 @@ import { generateChartWithCache, getOptimizedCanvasSize } from './pdf-optimizer'
 Chart.register(...registerables)
 
 // VERSÃO DOS GRÁFICOS - Incremente para invalidar cache
-const CHART_VERSION = '2.0' // Atualizado: design moderno com gradientes e melhor tipografia
+const CHART_VERSION = '2.1' // Atualizado: design moderno com gradientes e melhor tipografia
 
 // Cores da paleta Atma (atualizadas para design moderno)
 const COLORS = {
@@ -91,7 +91,7 @@ export async function generateScoreBreakdownChart(scores: {
             },
             ticks: {
               stepSize: 5,
-              font: { size: 13, weight: '500' },
+              font: { size: 13, weight: 500 as any },
               backdropColor: 'rgba(255, 255, 255, 0.9)',
               color: COLORS.grayDark,
               showLabelBackdrop: true,
@@ -201,7 +201,7 @@ export async function generateCostComparisonChart(custos: {
           beginAtZero: true,
           ticks: {
             callback: (value) => `R$ ${Number(value).toLocaleString('pt-BR')}`,
-            font: { size: 13, weight: '500' },
+            font: { size: 13, weight: 500 as any },
             color: COLORS.grayDark
           },
           grid: {
@@ -244,7 +244,7 @@ export async function generateCostComparisonChart(custos: {
           padding: 12,
           cornerRadius: 8,
           callbacks: {
-            label: (context) => `Custo: R$ ${context.parsed.x.toLocaleString('pt-BR')}`
+            label: (context) => `Custo: R$ ${(context.parsed.x ?? 0).toLocaleString('pt-BR')}`
           }
         }
       },
@@ -302,7 +302,7 @@ export async function generateTimelineProgressChart(meses: number): Promise<stri
         label: 'Progresso do Tratamento (%)',
         data: progressData,
         borderColor: COLORS.primary,
-        backgroundColor: (context) => {
+        backgroundColor: (context: any) => {
           const ctx = context.chart.ctx
           const gradient = ctx.createLinearGradient(0, 0, 0, 350)
           gradient.addColorStop(0, 'rgba(37, 99, 235, 0.3)')
@@ -329,7 +329,7 @@ export async function generateTimelineProgressChart(meses: number): Promise<stri
           max: 100,
           ticks: {
             callback: (value) => `${value}%`,
-            font: { size: 13, weight: '500' },
+            font: { size: 13, weight: 500 as any },
             color: COLORS.grayDark,
             padding: 8
           },
@@ -345,7 +345,7 @@ export async function generateTimelineProgressChart(meses: number): Promise<stri
           ticks: {
             maxRotation: 45,
             minRotation: 45,
-            font: { size: 11, weight: '500' },
+            font: { size: 11, weight: 500 as any },
             color: COLORS.grayDark
           },
           grid: {
@@ -452,12 +452,12 @@ export async function generateInvestmentBreakdownChart(breakdown: {
     },
     options: {
       responsive: false,
-      cutout: '65%',
+      cutout: '65%' as any,
       plugins: {
         legend: {
           position: 'right',
           labels: {
-            font: { size: 14, weight: '500' },
+            font: { size: 14, weight: 500 as any },
             padding: 18,
             usePointStyle: true,
             pointStyle: 'circle',
@@ -545,7 +545,7 @@ export async function generateROIChart(custoAtma: number, custoInvisalign: numbe
         label: 'Economia Acumulada (R$)',
         data: economiaData,
         borderColor: COLORS.success,
-        backgroundColor: (context) => {
+        backgroundColor: (context: any) => {
           const ctx = context.chart.ctx
           const gradient = ctx.createLinearGradient(0, 0, 0, 350)
           gradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)')
@@ -571,7 +571,7 @@ export async function generateROIChart(custoAtma: number, custoInvisalign: numbe
           beginAtZero: true,
           ticks: {
             callback: (value) => `R$ ${Number(value).toLocaleString('pt-BR')}`,
-            font: { size: 13, weight: '500' },
+            font: { size: 13, weight: 500 as any },
             color: COLORS.grayDark,
             padding: 8
           },
@@ -585,7 +585,7 @@ export async function generateROIChart(custoAtma: number, custoInvisalign: numbe
         },
         x: {
           ticks: {
-            font: { size: 13, weight: '500' },
+            font: { size: 13, weight: 500 as any },
             color: COLORS.grayDark
           },
           grid: {
@@ -614,7 +614,7 @@ export async function generateROIChart(custoAtma: number, custoInvisalign: numbe
           padding: 12,
           cornerRadius: 8,
           callbacks: {
-            label: (context) => `Economia: R$ ${context.parsed.y.toLocaleString('pt-BR')}`
+            label: (context) => `Economia: R$ ${(context.parsed.y ?? 0).toLocaleString('pt-BR')}`
           }
         }
       },
