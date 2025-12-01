@@ -8,7 +8,11 @@
       "Bash(git rm:*)",
       "Bash(npm install:*)",
       "Bash(npx tsc --noEmit)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(curl -I https://atma.roilabs.com.br/portal)",
+      "Bash(vercel ls:*)",
+      "Bash(ls:*)",
+      "Bash(npm run db:migrate:*)"
     ],
     "deny": [],
     "ask": []

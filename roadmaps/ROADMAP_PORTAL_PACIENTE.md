@@ -23,16 +23,25 @@
   - Arquivo `middleware.ts` criado
   - Rotas públicas e protegidas configuradas
   - Redirecionamento automático para login
-- [ ] Criar schema de banco de dados (PRÓXIMA FASE)
+- [x] Criar schema de banco de dados ✅
 
   ```sql
-  -- Tabelas principais
-  - users (id, clerk_user_id, email, nome, created_at)
-  - relatorios (id, user_id, dados_json, created_at, expires_at)
-  - acessos (id, user_id, ip, timestamp)
+  -- Tabelas criadas no atmadb:
+  ✅ portal_users (usuários do portal sincronizados com Clerk)
+  ✅ portal_relatorios (relatórios de viabilidade com dados JSON)
+  ✅ portal_acessos (logs de acesso para auditoria)
+  ✅ portal_interacoes (tracking de engajamento/gamificação)
+  ✅ portal_preferencias (configurações do usuário)
+
+  -- Views criadas:
+  ✅ vw_relatorios_ativos (relatórios válidos com dados do usuário)
+  ✅ vw_estatisticas_uso (métricas de uso por usuário)
   ```
 
-- [ ] Setup Supabase ou MySQL (PRÓXIMA FASE)
+- [x] Setup MySQL ✅
+  - Schema aplicado no banco `atmadb` existente
+  - Script de migração: `npm run db:migrate`
+  - Arquivo: `database/schema-portal.sql`
 
 ### 1.2 Páginas de Autenticação ✅
 
@@ -63,15 +72,27 @@
 
 **📁 Arquivos Criados**:
 
+**Frontend:**
+
 - `middleware.ts` - Proteção de rotas
 - `app/portal/(auth)/entrar/page.tsx` - Login
 - `app/portal/(auth)/cadastro/page.tsx` - Cadastro
 - `app/portal/(dashboard)/layout.tsx` - Layout do portal
-- `app/portal/(dashboard)/portal/page.tsx` - Dashboard
+- `app/portal/(dashboard)/page.tsx` - Dashboard (corrigido de portal/page.tsx)
 - `components/portal/ScoreCard.tsx` - Score visual
 - `components/portal/QuickActions.tsx` - Ações rápidas
-- `SETUP_CLERK.md` - Guia de configuração
-- `FASE_1_PORTAL_COMPLETA.md` - Documentação completa
+- `lib/db.ts` - Cliente MySQL (já existia)
+- `scripts/migrate-portal.ts` - Script de migração do banco
+
+**Database:**
+
+- `database/schema-portal.sql` - Schema SQL completo
+
+**Documentação:**
+
+- `SETUP_CLERK.md` - Guia de configuração do Clerk
+- `FASE_1_PORTAL_COMPLETA.md` - Documentação da Fase 1
+- `DEPLOY_PRODUCTION.md` - Guia de deploy e troubleshooting
 
 **🔗 Acessível em**: <http://localhost:3006/portal>
 
