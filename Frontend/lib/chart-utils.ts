@@ -11,7 +11,7 @@ import { generateChartWithCache, getOptimizedCanvasSize } from './pdf-optimizer'
 Chart.register(...registerables)
 
 // VERSÃO DOS GRÁFICOS - Incremente para invalidar cache
-const CHART_VERSION = '2.1' // Atualizado: design moderno com gradientes e melhor tipografia
+const CHART_VERSION = '2.2' // Atualizado: donut chart melhorado com valor central e percentuais
 
 // Cores da paleta Atma (atualizadas para design moderno)
 const COLORS = {
@@ -414,20 +414,30 @@ export async function generateInvestmentBreakdownChart(breakdown: {
   outros: number
 }): Promise<string> {
   return generateChartWithCache('investment-breakdown', { ...breakdown, version: CHART_VERSION }, async (params) => {
-    const width = 500
+    const width = 700
     const height = 500
     const canvas = createCanvas(width, height)
     const ctx = canvas.getContext('2d')
+
+  // Calcular total e percentuais
+  const total = params.alinhadores + params.planejamento + params.checkups + params.contencoes + params.outros
+  const percentuais = [
+    Math.round((params.alinhadores / total) * 100),
+    Math.round((params.planejamento / total) * 100),
+    Math.round((params.checkups / total) * 100),
+    Math.round((params.contencoes / total) * 100),
+    Math.round((params.outros / total) * 100)
+  ]
 
   const config = {
     type: 'doughnut' as const,
     data: {
       labels: [
-        'Alinhadores (70%)',
-        'Planejamento 3D (10%)',
-        'Check-ups (7%)',
-        'Contenções (3%)',
-        'Outros (10%)'
+        'Alinhadores',
+        'Planejamento 3D',
+        'Check-ups',
+        'Contenções',
+        'Outros'
       ],
       datasets: [{
         data: [
@@ -445,66 +455,106 @@ export async function generateInvestmentBreakdownChart(breakdown: {
           COLORS.sky
         ],
         borderColor: '#fff',
-        borderWidth: 4,
-        hoverBorderWidth: 6,
-        hoverOffset: 8,
+        borderWidth: 5,
+        hoverBorderWidth: 7,
+        hoverOffset: 12,
       }]
     },
     options: {
       responsive: false,
-      cutout: '65%',
+      cutout: '60%',
       plugins: {
         legend: {
           position: 'right' as const,
           labels: {
-            font: { size: 14, weight: 500 as any },
-            padding: 18,
+            font: { size: 15, weight: 600 as any },
+            padding: 20,
             usePointStyle: true,
-            pointStyle: 'circle',
+            pointStyle: 'rectRounded',
             color: COLORS.grayDark,
-            boxWidth: 12,
-            boxHeight: 12
+            boxWidth: 20,
+            boxHeight: 20,
+            generateLabels: (chart: any) => {
+              const data = chart.data
+              return data.labels.map((label: string, i: number) => ({
+                text: `${label} (${percentuais[i]}%)`,
+                fillStyle: data.datasets[0].backgroundColor[i],
+                hidden: false,
+                index: i
+              }))
+            }
           }
         },
         title: {
           display: true,
-          text: 'Distribuição do Investimento',
-          font: { size: 20, weight: 'bold' },
+          text: 'Composição do Investimento Total',
+          font: { size: 22, weight: 'bold' },
           color: COLORS.grayDark,
-          padding: { bottom: 25 }
+          padding: { bottom: 30, top: 10 }
         },
         tooltip: {
           backgroundColor: 'rgba(55, 65, 81, 0.95)',
-          titleFont: { size: 14, weight: 'bold' },
-          bodyFont: { size: 13 },
-          padding: 12,
-          cornerRadius: 8,
+          titleFont: { size: 15, weight: 'bold' },
+          bodyFont: { size: 14 },
+          padding: 15,
+          cornerRadius: 10,
+          displayColors: true,
+          boxWidth: 15,
+          boxHeight: 15,
+          boxPadding: 5,
           callbacks: {
             label: (context: any) => {
               const label = context.label || ''
               const value = `R$ ${Number(context.parsed).toLocaleString('pt-BR')}`
-              return `${label}: ${value}`
+              const percent = percentuais[context.dataIndex]
+              return [`${label}: ${value}`, `${percent}% do total`]
             }
           }
         }
       },
       layout: {
-        padding: { left: 20, right: 20, top: 10, bottom: 10 }
+        padding: { left: 30, right: 30, top: 20, bottom: 20 }
       }
     },
-    plugins: [{
-      id: 'customCanvasBackgroundColor',
-      beforeDraw: (chart: any) => {
-        const ctx = chart.canvas.getContext('2d')
-        if (ctx) {
+    plugins: [
+      {
+        id: 'customCanvasBackgroundColor',
+        beforeDraw: (chart: any) => {
+          const ctx = chart.canvas.getContext('2d')
+          if (ctx) {
+            ctx.save()
+            ctx.globalCompositeOperation = 'destination-over'
+            ctx.fillStyle = 'white'
+            ctx.fillRect(0, 0, chart.width, chart.height)
+            ctx.restore()
+          }
+        }
+      },
+      {
+        id: 'centerText',
+        afterDraw: (chart: any) => {
+          const ctx = chart.ctx
+          const centerX = (chart.chartArea.left + chart.chartArea.right) / 2
+          const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2
+
           ctx.save()
-          ctx.globalCompositeOperation = 'destination-over'
-          ctx.fillStyle = 'white'
-          ctx.fillRect(0, 0, chart.width, chart.height)
+
+          // Valor total
+          ctx.font = 'bold 28px Helvetica'
+          ctx.fillStyle = COLORS.grayDark
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillText(`R$ ${total.toLocaleString('pt-BR')}`, centerX, centerY - 10)
+
+          // Label "Total"
+          ctx.font = '14px Helvetica'
+          ctx.fillStyle = COLORS.gray
+          ctx.fillText('Investimento Total', centerX, centerY + 15)
+
           ctx.restore()
         }
       }
-    }]
+    ]
   } as any
 
     new Chart(ctx as any, config)
