@@ -3,6 +3,7 @@ import { queryMany } from '@/lib/db'
 import { enviarEmail } from '@/lib/resend'
 import { EmailLembrete3Dias, EmailLembrete7Dias } from '@/lib/email-templates'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { createElement } from 'react'
 
 // Esta rota deve ser chamada por um cron job (Vercel Cron ou similar)
 // Exemplo: executar diariamente às 10h
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
     for (const usuario of usuarios3Dias) {
       try {
         const htmlContent = renderTemplate(
-          <EmailLembrete3Dias usuario={{ nome: usuario.nome, email: usuario.email }} />
+          createElement(EmailLembrete3Dias, { usuario: { nome: usuario.nome, email: usuario.email } })
         )
 
         const resultado = await enviarEmail({
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
     for (const usuario of usuarios7Dias) {
       try {
         const htmlContent = renderTemplate(
-          <EmailLembrete7Dias usuario={{ nome: usuario.nome, email: usuario.email }} />
+          createElement(EmailLembrete7Dias, { usuario: { nome: usuario.nome, email: usuario.email } })
         )
 
         const resultado = await enviarEmail({

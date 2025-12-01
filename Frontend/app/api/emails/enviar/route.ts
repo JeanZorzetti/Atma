@@ -7,6 +7,7 @@ import {
   EmailAgendamento,
 } from '@/lib/email-templates'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { createElement } from 'react'
 
 // Interface para o corpo da requisição
 interface EnviarEmailRequest {
@@ -68,16 +69,20 @@ export async function POST(request: NextRequest) {
           )
         }
         htmlContent = renderTemplate(
-          <EmailCadastro usuario={body.usuario} relatorio={body.relatorio} />
+          createElement(EmailCadastro, { usuario: body.usuario, relatorio: body.relatorio })
         )
         break
 
       case 'lembrete-3dias':
-        htmlContent = renderTemplate(<EmailLembrete3Dias usuario={body.usuario} />)
+        htmlContent = renderTemplate(
+          createElement(EmailLembrete3Dias, { usuario: body.usuario })
+        )
         break
 
       case 'lembrete-7dias':
-        htmlContent = renderTemplate(<EmailLembrete7Dias usuario={body.usuario} />)
+        htmlContent = renderTemplate(
+          createElement(EmailLembrete7Dias, { usuario: body.usuario })
+        )
         break
 
       case 'agendamento':
@@ -88,7 +93,7 @@ export async function POST(request: NextRequest) {
           )
         }
         htmlContent = renderTemplate(
-          <EmailAgendamento usuario={body.usuario} agendamento={body.agendamento} />
+          createElement(EmailAgendamento, { usuario: body.usuario, agendamento: body.agendamento })
         )
         break
 
