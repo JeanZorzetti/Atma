@@ -98,7 +98,7 @@
 
 ---
 
-## 🎨 Fase 2: Layout & Dashboard Principal ✅ PARCIALMENTE COMPLETA
+## 🎨 Fase 2: Layout & Dashboard Principal ✅ 100% COMPLETA
 
 ### 2.1 Design System ✅
 
@@ -128,6 +128,16 @@
   - Menu items com ícones Lucide
   - Estados hover
   - User profile integrado
+- [x] **Breadcrumbs no header** ✅
+  - Componente `Breadcrumbs.tsx` criado
+  - Navegação hierárquica com ícones
+  - Integrado ao layout (desktop only)
+  - Home icon + ChevronRight separators
+- [x] **Indicador de página ativa** ✅
+  - Sidebar: Fundo azul + barra lateral azul
+  - Mobile nav: Cor azul + dot indicator
+  - Função `isActive()` com lógica inteligente
+  - usePathname() para detecção de rota
 
 ### 2.3 Dashboard Principal (`/portal`) ✅
 
@@ -147,12 +157,21 @@
   - Botão terciário: "Compartilhar"
   - 4 links rápidos para seções
 
-**Entregável**: ✅ Dashboard visual e funcional implementado
+### 2.4 Páginas de Navegação (Placeholder) ✅
 
-**⚠️ Pendente para Fase 2**:
+- [x] `/portal/analise` - Análise do Caso ✅
+  - Layout básico com radar de viabilidade
+  - Cards de complexidade e previsões
+- [x] `/portal/financeiro` - Informações Financeiras ✅
+  - Cards de investimento, parcelamento, economia
+  - Calculadora de parcelas
+  - Formas de pagamento aceitas
+- [x] `/portal/timeline` - Timeline do Tratamento ✅
+  - 4 etapas do tratamento (mês a mês)
+  - Indicadores de status (pendente/completo)
+  - Informações pós-tratamento
 
-- [ ] Breadcrumbs no header
-- [ ] Indicador de página ativa no menu
+**Entregável**: ✅ Dashboard visual e funcional + Navegação completa com breadcrumbs e indicadores ativos
 
 ---
 

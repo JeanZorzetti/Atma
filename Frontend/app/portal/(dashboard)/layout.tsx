@@ -1,6 +1,8 @@
-import { Metadata } from 'next'
+'use client'
+
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
   LineChart,
@@ -12,11 +14,8 @@ import {
   Download,
   Menu
 } from 'lucide-react'
-
-export const metadata: Metadata = {
-  title: 'Portal do Paciente | Atma Aligner',
-  description: 'Acesse seu relatório de viabilidade e acompanhe sua jornada ortodôntica',
-}
+import { Breadcrumbs } from '@/components/portal/Breadcrumbs'
+import { cn } from '@/lib/utils'
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/portal' },
@@ -34,6 +33,16 @@ export default function PortalLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname()
+
+  // Função para verificar se a rota está ativa
+  const isActive = (href: string) => {
+    if (href === '/portal') {
+      return pathname === '/portal'
+    }
+    return pathname.startsWith(href)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar - Desktop */}
@@ -56,14 +65,24 @@ export default function PortalLayout({
           <nav className="flex-1 px-3 py-4 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon
+              const active = isActive(item.href)
+
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  className={cn(
+                    "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                    active
+                      ? "bg-blue-50 text-blue-600"
+                      : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                  )}
                 >
                   <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
                   {item.label}
+                  {active && (
+                    <div className="ml-auto w-1 h-6 bg-blue-600 rounded-full" />
+                  )}
                 </Link>
               )
             })}
@@ -112,23 +131,35 @@ export default function PortalLayout({
       {/* Main content */}
       <div className="md:pl-64 flex flex-col flex-1">
         <main className="flex-1">
+          {/* Breadcrumbs - apenas em desktop */}
+          <div className="hidden md:block bg-white border-b border-gray-200 px-8 py-4">
+            <Breadcrumbs />
+          </div>
           {children}
         </main>
       </div>
 
       {/* Mobile bottom navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 safe-area-inset-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 safe-area-inset-bottom z-20">
         <div className="flex justify-around">
           {menuItems.slice(0, 5).map((item) => {
             const Icon = item.icon
+            const active = isActive(item.href)
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-col items-center py-2 px-3 text-gray-600 hover:text-blue-600 transition-colors"
+                className={cn(
+                  "flex flex-col items-center py-2 px-3 transition-colors",
+                  active ? "text-blue-600" : "text-gray-600 hover:text-blue-600"
+                )}
               >
                 <Icon className="h-5 w-5" />
                 <span className="text-xs mt-1">{item.label.split(' ')[0]}</span>
+                {active && (
+                  <div className="mt-1 w-1 h-1 bg-blue-600 rounded-full" />
+                )}
               </Link>
             )
           })}
