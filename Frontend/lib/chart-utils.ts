@@ -11,7 +11,7 @@ import { generateChartWithCache, getOptimizedCanvasSize } from './pdf-optimizer'
 Chart.register(...registerables)
 
 // VERSÃO DOS GRÁFICOS - Incremente para invalidar cache
-const CHART_VERSION = '2.2' // Atualizado: donut chart melhorado com valor central e percentuais
+const CHART_VERSION = '2.3' // Atualizado: donut chart com proporção corrigida e legenda na base
 
 // Cores da paleta Atma (atualizadas para design moderno)
 const COLORS = {
@@ -414,8 +414,8 @@ export async function generateInvestmentBreakdownChart(breakdown: {
   outros: number
 }): Promise<string> {
   return generateChartWithCache('investment-breakdown', { ...breakdown, version: CHART_VERSION }, async (params) => {
-    const width = 700
-    const height = 500
+    const width = 650
+    const height = 450
     const canvas = createCanvas(width, height)
     const ctx = canvas.getContext('2d')
 
@@ -462,18 +462,20 @@ export async function generateInvestmentBreakdownChart(breakdown: {
     },
     options: {
       responsive: false,
-      cutout: '60%',
+      maintainAspectRatio: true,
+      aspectRatio: 1.3,
+      cutout: '55%',
       plugins: {
         legend: {
-          position: 'right' as const,
+          position: 'bottom' as const,
           labels: {
-            font: { size: 15, weight: 600 as any },
-            padding: 20,
+            font: { size: 13, weight: 600 as any },
+            padding: 15,
             usePointStyle: true,
-            pointStyle: 'rectRounded',
+            pointStyle: 'circle',
             color: COLORS.grayDark,
-            boxWidth: 20,
-            boxHeight: 20,
+            boxWidth: 15,
+            boxHeight: 15,
             generateLabels: (chart: any) => {
               const data = chart.data
               return data.labels.map((label: string, i: number) => ({
@@ -488,9 +490,9 @@ export async function generateInvestmentBreakdownChart(breakdown: {
         title: {
           display: true,
           text: 'Composição do Investimento Total',
-          font: { size: 22, weight: 'bold' },
+          font: { size: 20, weight: 'bold' },
           color: COLORS.grayDark,
-          padding: { bottom: 30, top: 10 }
+          padding: { bottom: 20, top: 5 }
         },
         tooltip: {
           backgroundColor: 'rgba(55, 65, 81, 0.95)',
@@ -513,7 +515,7 @@ export async function generateInvestmentBreakdownChart(breakdown: {
         }
       },
       layout: {
-        padding: { left: 30, right: 30, top: 20, bottom: 20 }
+        padding: { left: 20, right: 20, top: 10, bottom: 10 }
       }
     },
     plugins: [
