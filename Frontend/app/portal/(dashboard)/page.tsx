@@ -100,10 +100,10 @@ export default async function PortalDashboard() {
     : relatorio.dados_json
 
   const dadosRelatorio = {
-    score: relatorio.score,
+    score: Number(relatorio.score) || 0,
     nomeCompleto: dbUser?.nome || user.firstName + ' ' + (user.lastName || ''),
-    custoEstimado: relatorio.custo_estimado || 0,
-    duracaoMeses: relatorio.duracao_meses || 0,
+    custoEstimado: Number(relatorio.custo_estimado) || 0,
+    duracaoMeses: Number(relatorio.duracao_meses) || 0,
     complexidade: relatorio.complexidade || 'Não informada',
     status: relatorio.status || 'novo',
     dataGeracao: relatorio.created_at,

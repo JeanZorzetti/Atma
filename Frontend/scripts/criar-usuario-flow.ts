@@ -1,0 +1,68 @@
+import { query } from '../lib/db'
+
+async function criarUsuarioERelatorio() {
+  const clerkUserId = 'user_36FmMSAVkYCa9YeBcQEUYJ9SFit'
+
+  try {
+    // 1. Criar usuário
+    console.log('Criando usuário...')
+    const resultUsuario: any = await query(
+      `INSERT INTO portal_users (clerk_user_id, nome, email, created_at)
+       VALUES (?, ?, ?, NOW())`,
+      [clerkUserId, 'Flow', 'flow@example.com']
+    )
+
+    const userId = resultUsuario.insertId
+    console.log(`✅ Usuário criado com ID: ${userId}`)
+
+    // 2. Criar relatório
+    const dadosJson = {
+      nomeCompleto: 'Flow',
+      email: 'flow@example.com',
+      telefone: '(11) 99999-9999',
+      idade: 28,
+      problemasPrincipais: ['Dentes tortos', 'Mordida desalinhada'],
+      dentesDesalinhados: 'moderado',
+      mordidaDesalinhada: 'sim',
+      espacosDentes: 'nao',
+      analiseDetalhada: {
+        viabilidadeTecnica: 90,
+        complexidadeClinica: 'Moderada',
+        progressaoEstimada: {
+          mes3: 30,
+          mes6: 60,
+          mes9: 85,
+          mes12: 100,
+        },
+        pontosAtencao: [
+          'Rotação do incisivo central superior direito',
+          'Apinhamento anterior inferior',
+        ],
+      },
+    }
+
+    await query(
+      `INSERT INTO portal_relatorios (
+        user_id, score, custo_estimado, duracao_meses,
+        complexidade, status, is_active, dados_json,
+        expires_at, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 30 DAY), NOW())`,
+      [userId, 85, 8500, 12, 'Moderada', 'novo', true, JSON.stringify(dadosJson)]
+    )
+
+    console.log('\n🎉 Relatório de teste criado com sucesso!')
+    console.log('📊 Score: 85/100')
+    console.log('💰 Custo: R$ 8.500,00')
+    console.log('⏱️  Duração: 12 meses')
+    console.log('🎯 Complexidade: Moderada')
+    console.log('\n✅ Agora recarregue: https://atma.roilabs.com.br/portal')
+    console.log('🎮 O Progress Tracker de gamificação aparecerá!')
+
+    process.exit(0)
+  } catch (error) {
+    console.error('❌ Erro:', error)
+    process.exit(1)
+  }
+}
+
+criarUsuarioERelatorio()
