@@ -222,19 +222,24 @@
 **Modificados:**
 - `app/portal/(dashboard)/page.tsx` - Dashboard com dados reais
 
-### 3.1 Seção: Análise do Caso (`/portal/analise`)
-- [ ] **Score Breakdown**
-  - Gráfico radar interativo (Chart.js no browser, não canvas server-side)
+### 3.1 Seção: Análise do Caso (`/portal/analise`) ✅
+
+- [x] **Score Breakdown** ✅
+  - Gráfico radar interativo com Recharts
   - Tooltips explicativos em cada fator
-  - Cards detalhando cada componente do score
-- [ ] **Análise Detalhada**
-  - Problemas identificados (lista com badges coloridos)
-  - Recomendações personalizadas
-  - Nível de complexidade visual
-- [ ] **Gráficos Interativos**
-  - Usar Recharts (React-native) ao invés de Chart.js server-side
-  - Animações de entrada
-  - Hover states informativos
+  - 6 cards detalhando cada componente do score
+  - Barras de progresso animadas
+  - Badges coloridos por status (Excelente/Bom/Médio/Ruim)
+- [x] **Análise Detalhada** ✅
+  - Lista de problemas identificados com badges de gravidade
+  - Indicadores de tratabilidade (checkmarks verdes)
+  - 3 recomendações numeradas e personalizadas
+  - Nível de complexidade visual com escala (Simples/Moderado/Complexo)
+- [x] **Gráficos Interativos** ✅
+  - Recharts RadarChart implementado
+  - ResponsiveContainer para layout responsivo
+  - Tooltips customizados com estilo
+  - Info box explicativo sobre interpretação
 
 ### 3.2 Seção: Plano Financeiro (`/portal/financeiro`)
 - [ ] **Comparativo de Custos**
