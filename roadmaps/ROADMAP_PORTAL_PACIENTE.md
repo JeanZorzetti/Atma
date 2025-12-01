@@ -175,7 +175,7 @@
 
 ---
 
-## 📊 Fase 3: Seções de Conteúdo + Integração DB ⚙️ 40% COMPLETA
+## 📊 Fase 3: Seções de Conteúdo + Integração DB ⚙️ 60% COMPLETA
 
 ### 3.0 Integração com Banco de Dados ✅
 
@@ -241,20 +241,25 @@
   - Tooltips customizados com estilo
   - Info box explicativo sobre interpretação
 
-### 3.2 Seção: Plano Financeiro (`/portal/financeiro`)
-- [ ] **Comparativo de Custos**
-  - Gráfico de barras interativo
-  - Tabela comparativa (Atma vs concorrentes)
-  - Destacar economia com badge verde
-- [ ] **Calculadora Interativa**
-  - Slider de parcelas (1x até 24x)
-  - Atualização em tempo real
-  - Comparação de juros
-  - Simulação de diferentes cenários
-- [ ] **Composição do Investimento**
-  - Gráfico donut interativo
-  - Breakdown de custos com tooltips
-  - Seção "O que está incluído?"
+### 3.2 Seção: Plano Financeiro (`/portal/financeiro`) ✅
+
+- [x] **Comparativo de Custos** ✅
+  - Gráfico de barras interativo (Recharts)
+  - Comparação Atma vs Tradicional vs Importados
+  - Badge verde destacando economia de até R$ 9.010
+  - Tooltip com formatação em reais
+- [x] **Calculadora Interativa** ✅
+  - Slider de parcelas (1x até 24x) com Shadcn UI
+  - Atualização em tempo real do valor da parcela
+  - Cálculo automático de juros (0% até 12x, 2.5% após)
+  - Badges dinâmicos (verde sem juros, vermelho com juros)
+  - Datas estimadas (primeira e última parcela)
+- [x] **Composição do Investimento** ✅
+  - Gráfico donut/pie chart interativo
+  - 4 categorias com cores distintas
+  - Lista detalhada com valores
+  - Seção "O que está incluído?" com 8 itens
+  - Formas de pagamento aceitas (3 cards)
 
 ### 3.3 Seção: Timeline (`/portal/timeline`)
 - [ ] **Visualização de Cronograma**
