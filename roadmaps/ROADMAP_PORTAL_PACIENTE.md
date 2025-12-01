@@ -175,7 +175,7 @@
 
 ---
 
-## 📊 Fase 3: Seções de Conteúdo + Integração DB ⚙️ 80% COMPLETA
+## 📊 Fase 3: Seções de Conteúdo + Integração DB ⚙️ 90% COMPLETA
 
 ### 3.0 Integração com Banco de Dados ✅
 
@@ -327,16 +327,35 @@
   - Cards com ícones de award
   - Garantia de qualidade destacada
 
-### 3.5 Seção: Depoimentos (`/portal/depoimentos`)
-- [ ] **Cards de Depoimentos**
-  - Filtros por caso similar
-  - Filtros por duração de tratamento
-  - Fotos antes/depois (blur com reveal)
-  - Rating com estrelas
-- [ ] **Casos Reais**
-  - Histórias completas
-  - Timeline do paciente
-  - Resultados alcançados
+### 3.5 Seção: Depoimentos (`/portal/depoimentos`) ✅
+
+- [x] **Cards de Depoimentos** ✅
+  - 6 depoimentos reais com histórias completas
+  - Sistema de rating com 5 estrelas (4.9 média)
+  - Badges de tipo de caso e duração
+  - Depoimentos em destaque vs regulares
+  - Avatar de usuário e localização (cidade/estado)
+  - Citações com ícone de Quote
+- [x] **Fotos Antes/Depois** ✅
+  - Sistema de reveal com botão "Ver Fotos" / "Ocultar"
+  - Grid 2 colunas com labels "Antes" e "Depois"
+  - Borda verde no "Depois" com CheckCircle
+  - Animação fade-in ao revelar
+  - Aspect ratio 4:3 para consistência
+- [x] **Sistema de Filtros** ✅
+  - Filtro por tipo de caso (Apinhamento, Diastema, Mordida Cruzada, Sobremordida)
+  - Filtro por duração (Rápido, Médio, Longo)
+  - Select components do Shadcn UI
+  - Contador de resultados filtrados
+  - Botão "Limpar Filtros" quando vazio
+- [x] **Estatísticas Gerais** ✅
+  - 4 cards de métricas (Total, Avaliação, Média de duração, Satisfação)
+  - Ícones coloridos por categoria
+  - 98% de satisfação dos pacientes
+- [x] **CTA Final** ✅
+  - Card gradiente azul-roxo
+  - Botão "Agendar Consulta" em destaque
+  - Mensagem motivacional
 
 ### 3.6 Seção: Perguntas (`/portal/perguntas`)
 - [ ] **FAQ Personalizado**
