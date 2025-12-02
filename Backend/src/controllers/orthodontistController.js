@@ -699,33 +699,33 @@ const getOrthodontists = async (req, res, next) => {
     let whereConditions = [];
     let queryParams = [];
 
-    // Filtros - seguindo padrão do CRM
+    // Filtros - seguindo padrão do CRM (usando alias 'o' para orthodontists)
     if (status && status !== 'all') {
-      whereConditions.push('status = ?');
+      whereConditions.push('o.status = ?');
       queryParams.push(status);
     } else {
       // Por padrão, buscar apenas ativos como no CRM
-      whereConditions.push('status = ?');
+      whereConditions.push('o.status = ?');
       queryParams.push('ativo');
     }
 
     if (modelo_parceria && modelo_parceria !== 'all') {
-      whereConditions.push('modelo_parceria = ?');
+      whereConditions.push('o.modelo_parceria = ?');
       queryParams.push(modelo_parceria);
     }
 
     if (cidade && cidade !== 'all') {
-      whereConditions.push('cidade = ?');
+      whereConditions.push('o.cidade = ?');
       queryParams.push(cidade);
     }
 
     if (estado && estado !== 'all') {
-      whereConditions.push('estado = ?');
+      whereConditions.push('o.estado = ?');
       queryParams.push(estado);
     }
 
     if (search) {
-      whereConditions.push('(nome LIKE ? OR clinica LIKE ? OR email LIKE ? OR cro LIKE ?)');
+      whereConditions.push('(o.nome LIKE ? OR o.clinica LIKE ? OR o.email LIKE ? OR o.cro LIKE ?)');
       const searchTerm = `%${search}%`;
       queryParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
     }
@@ -745,8 +745,8 @@ const getOrthodontists = async (req, res, next) => {
       LIMIT ${limitNum} OFFSET ${offset}
     `;
 
-    // Query de contagem - padrão CRM
-    const countQuery = `SELECT COUNT(*) as total FROM orthodontists ${whereClause}`;
+    // Query de contagem - padrão CRM (usando alias 'o')
+    const countQuery = `SELECT COUNT(*) as total FROM orthodontists o ${whereClause}`;
 
     const orthodontists = await executeQuery(query, queryParams);
     const countResult = await executeQuery(countQuery, queryParams);
