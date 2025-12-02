@@ -72,6 +72,9 @@ export const metadata: Metadata = {
       }
     ]
   },
+  facebook: {
+    appId: '2108479793316007'
+  },
   twitter: {
     card: 'summary_large_image',
     site: '@atma_aligner',
