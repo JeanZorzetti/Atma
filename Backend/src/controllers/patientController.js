@@ -795,7 +795,7 @@ const assignOrthodontistToPatient = async (req, res, next) => {
     }
 
     // Atribuir ortodontista ao paciente
-    await executeQuery(
+    const updateResult = await executeQuery(
       `UPDATE patient_leads
        SET orthodontist_id = ?, updated_at = NOW()
        WHERE id = ?`,
@@ -819,7 +819,7 @@ const assignOrthodontistToPatient = async (req, res, next) => {
       logger.warn('Não foi possível registrar assignment:', assignmentError.message);
     }
 
-    logDBOperation('UPDATE', 'patient_leads', null, Date.now() - startTime);
+    logDBOperation('UPDATE', 'patient_leads', updateResult, Date.now() - startTime);
 
     logger.info('Ortodontista atribuído ao paciente', {
       patientId: id,
