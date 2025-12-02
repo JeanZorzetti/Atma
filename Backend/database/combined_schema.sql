@@ -10,7 +10,7 @@ CREATE TABLE patient_leads (
     cep VARCHAR(10) NOT NULL,
     consentimento BOOLEAN NOT NULL DEFAULT false,
     status ENUM('novo', 'contatado', 'agendado', 'convertido', 'cancelado', 'excluido') DEFAULT 'novo',
-    ortodontista_id INT NULL, -- Relacionamento com ortodontista que ficará responsável
+    orthodontist_id INT NULL, -- Relacionamento com ortodontista que ficará responsável
     observacoes TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -19,7 +19,8 @@ CREATE TABLE patient_leads (
     INDEX idx_telefone (telefone),
     INDEX idx_cep (cep),
     INDEX idx_status (status),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    INDEX idx_orthodontist_id (orthodontist_id)
 );
 
 -- Tabela para solicitações de parceria de ortodontistas
