@@ -552,13 +552,29 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
       searchParams = [searchTerm, searchTerm, searchTerm];
     }
 
-    // Build query with direct substitution to avoid binding issues
-    let finalQuery = `SELECT pl.id, pl.nome as name, pl.email, pl.telefone as phone, '' as cpf, pl.status, pl.cidade, pl.bairro, pl.observacoes, 'Avaliação Inicial' as treatmentStage, 'Não atribuído' as orthodontist, pl.created_at as registrationDate FROM patient_leads pl`;
+    // Build query with LEFT JOIN to get orthodontist name
+    let finalQuery = `
+      SELECT
+        pl.id,
+        pl.nome as name,
+        pl.email,
+        pl.telefone as phone,
+        '' as cpf,
+        pl.status,
+        pl.cidade,
+        pl.bairro,
+        pl.observacoes,
+        'Avaliação Inicial' as treatmentStage,
+        IFNULL(o.nome, 'Não atribuído') as orthodontist,
+        pl.created_at as registrationDate
+      FROM patient_leads pl
+      LEFT JOIN orthodontists o ON pl.orthodontist_id = o.id
+    `;
     let finalCountQuery = `SELECT COUNT(*) as total FROM patient_leads pl`;
-    
+
     const queryParams = [];
     const countQueryParams = [];
-    
+
     if (search && search.trim()) {
       const searchTerm = `%${search.trim()}%`;
       finalQuery += ` WHERE (pl.nome LIKE ? OR pl.email LIKE ? OR pl.telefone LIKE ?)`;
@@ -566,7 +582,7 @@ const getPatientLeadsForAdmin = async (req, res, next) => {
       queryParams.push(searchTerm, searchTerm, searchTerm);
       countQueryParams.push(searchTerm, searchTerm, searchTerm);
     }
-    
+
     finalQuery += ` ORDER BY pl.created_at DESC LIMIT ${parseInt(limitNum)} OFFSET ${parseInt(offset)}`;
     
     // Execute queries with graceful fallbacks

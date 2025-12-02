@@ -492,29 +492,7 @@ class ApiService {
 
   // Patient methods (corrigido para usar /patients/leads)
   async getPatients(page = 1, limit = 100): Promise<PatientsResponse> {
-    const response = await this.request<any>(`/patients/leads?page=${page}&limit=${limit}`)
-
-    // Mapear a resposta do backend para o formato esperado pelo frontend
-    const patients = response.data?.leads?.map((lead: any) => ({
-      id: lead.id,
-      name: lead.nome,
-      email: lead.email,
-      phone: lead.telefone,
-      cpf: lead.cpf,
-      status: lead.status,
-      treatmentStage: lead.etapa_tratamento || 'Avaliação Inicial',
-      orthodontist: lead.ortodontista_nome || (lead.orthodontist_id ? 'Atribuído' : undefined),
-      registrationDate: lead.created_at,
-      created_at: lead.created_at,
-      cidade: lead.cidade,
-      bairro: lead.bairro,
-      observacoes: lead.observacoes
-    })) || []
-
-    return {
-      patients,
-      total: response.data?.pagination?.total_items || patients.length
-    }
+    return this.request<PatientsResponse>(`/patients/leads?page=${page}&limit=${limit}`)
   }
 
   async getPatient(id: string) {
