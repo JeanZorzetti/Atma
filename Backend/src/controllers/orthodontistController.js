@@ -950,44 +950,70 @@ const updateOrthodontist = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
-    
+
+    logger.info('=== UPDATE ORTHODONTIST DEBUG ===');
+    logger.info('ID:', id);
+    logger.info('Update data recebido:', JSON.stringify(updateData, null, 2));
+    logger.info('Número de campos:', Object.keys(updateData).length);
+
     // Construir query de update dinamicamente
     const fields = Object.keys(updateData).map(field => `${field} = ?`);
     const values = Object.values(updateData);
-    
+
+    logger.info('Fields para update:', fields);
+    logger.info('Values para update:', values);
+
     if (fields.length === 0) {
+      logger.warn('Nenhum campo para atualizar');
       return res.status(400).json({
         success: false,
         error: { message: 'Nenhum campo para atualizar' },
         timestamp: new Date().toISOString()
       });
     }
-    
+
     const query = `
-      UPDATE orthodontists 
+      UPDATE orthodontists
       SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `;
-    
+
+    logger.info('Query UPDATE:', query);
+
     values.push(id);
+
+    logger.info('Values finais (com ID):', values);
+
     const result = await executeQuery(query, values);
-    
+
+    logger.info('Resultado do UPDATE:', {
+      affectedRows: result.affectedRows,
+      changedRows: result.changedRows,
+      info: result.info
+    });
+
     if (result.affectedRows === 0) {
+      logger.warn('Ortodontista não encontrado com ID:', id);
       return res.status(404).json({
         success: false,
         error: { message: 'Ortodontista não encontrado' },
         timestamp: new Date().toISOString()
       });
     }
-    
+
+    logger.info('Ortodontista atualizado com sucesso');
+
     res.json({
       success: true,
       data: { message: 'Ortodontista atualizado com sucesso' },
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
-    logger.error('Erro ao atualizar ortodontista:', error);
+    logger.error('=== ERRO EM UPDATE ORTHODONTIST ===');
+    logger.error('Erro completo:', error);
+    logger.error('Stack trace:', error.stack);
+    logger.error('Mensagem:', error.message);
     next(error);
   }
 };
