@@ -743,6 +743,124 @@ const updatePatientLead = async (req, res, next) => {
   }
 };
 
+// Atribuir ortodontista a um paciente
+const assignOrthodontistToPatient = async (req, res, next) => {
+  const startTime = Date.now();
+
+  try {
+    const { id } = req.params;
+    const { orthodontistId } = req.body;
+
+    // Validar
+    if (!orthodontistId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'orthodontistId é obrigatório'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Verificar se paciente existe
+    const patient = await executeQuery(
+      'SELECT id, nome, email, status FROM patient_leads WHERE id = ?',
+      [id]
+    );
+
+    if (patient.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: 'Paciente não encontrado'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Verificar se ortodontista existe
+    const orthodontist = await executeQuery(
+      'SELECT id, nome, clinica, cidade, estado FROM orthodontists WHERE id = ? AND status = "ativo"',
+      [orthodontistId]
+    );
+
+    if (!orthodontist || orthodontist.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: 'Ortodontista não encontrado'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Atribuir ortodontista ao paciente
+    await executeQuery(
+      `UPDATE patient_leads
+       SET orthodontist_id = ?, updated_at = NOW()
+       WHERE id = ?`,
+      [orthodontistId, id]
+    );
+
+    // Registrar na tabela de assignments se existir
+    try {
+      await executeQuery(
+        `INSERT INTO patient_orthodontist_assignments
+         (patient_lead_id, orthodontist_id, status, data_atribuicao)
+         VALUES (?, ?, 'atribuido', NOW())
+         ON DUPLICATE KEY UPDATE
+         orthodontist_id = VALUES(orthodontist_id),
+         status = 'atribuido',
+         data_atribuicao = NOW()`,
+        [id, orthodontistId]
+      );
+    } catch (assignmentError) {
+      // Tabela pode não existir ainda, continua sem falhar
+      logger.warn('Não foi possível registrar assignment:', assignmentError.message);
+    }
+
+    logDBOperation('UPDATE', 'patient_leads', null, Date.now() - startTime);
+
+    logger.info('Ortodontista atribuído ao paciente', {
+      patientId: id,
+      patientName: patient[0].nome,
+      orthodontistId,
+      orthodontistName: orthodontist[0].nome
+    });
+
+    // Enviar notificação ao ortodontista
+    try {
+      await emailService.sendOrthodontistAssignmentNotification(orthodontist[0], patient[0]);
+    } catch (emailError) {
+      logger.error('Erro ao enviar email de notificação:', emailError.message);
+      // Não falha o processo se o email não for enviado
+    }
+
+    res.json({
+      success: true,
+      data: {
+        message: `Paciente atribuído ao Dr(a). ${orthodontist[0].nome}`,
+        patient: {
+          id: patient[0].id,
+          name: patient[0].nome
+        },
+        orthodontist: {
+          id: orthodontist[0].id,
+          name: orthodontist[0].nome,
+          clinica: orthodontist[0].clinica,
+          cidade: orthodontist[0].cidade,
+          estado: orthodontist[0].estado
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao atribuir ortodontista:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   createPatientLead,
   getPatientLeads,
@@ -752,5 +870,6 @@ module.exports = {
   cancelPatientLead,
   deletePatientLead,
   getPatientStats,
-  getPatientLeadsForAdmin
+  getPatientLeadsForAdmin,
+  assignOrthodontistToPatient
 };

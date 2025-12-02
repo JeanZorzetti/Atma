@@ -22,6 +22,9 @@ router.put('/leads/:id', validateId, patientController.updatePatientLead);
 // PUT /api/patients/leads/:id/cancel - Cancelar paciente
 router.put('/leads/:id/cancel', validateId, patientController.cancelPatientLead);
 
+// POST /api/patients/leads/:id/assign-orthodontist - Atribuir ortodontista
+router.post('/leads/:id/assign-orthodontist', validateId, patientController.assignOrthodontistToPatient);
+
 // DELETE /api/patients/leads/:id - Excluir lead
 router.delete('/leads/:id', validateId, patientController.deletePatientLead);
 

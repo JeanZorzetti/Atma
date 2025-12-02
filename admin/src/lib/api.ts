@@ -535,6 +535,19 @@ class ApiService {
     })
   }
 
+  async assignOrthodontist(patientId: string, orthodontistId: number) {
+    const result = await this.request(`/patients/leads/${patientId}/assign-orthodontist`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orthodontistId }),
+    })
+
+    // Invalidar cache para forçar reload
+    this.invalidateCache('/patients/leads')
+
+    return result
+  }
+
   // Orthodontist methods (corrigido para usar endpoints corretos do backend)
   async getOrthodontists(page = 1, limit = 10): Promise<OrthodontistsResponse> {
     return this.request<OrthodontistsResponse>(`/orthodontists?page=${page}&limit=${limit}`)

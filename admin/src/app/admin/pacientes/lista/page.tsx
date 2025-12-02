@@ -11,9 +11,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import { Search, Plus, Edit, Eye, Filter, Loader2, AlertCircle, Trash2, Ban, X, Calendar } from 'lucide-react'
-import { usePatients } from '@/hooks/useApi'
-import { apiService } from '@/lib/api'
+import { Search, Plus, Edit, Eye, Filter, Loader2, AlertCircle, Trash2, Ban, X, Calendar, UserPlus } from 'lucide-react'
+import { usePatients, useOrthodontists } from '@/hooks/useApi'
+import { apiService, Orthodontist } from '@/lib/api'
 
 
 interface Patient {
@@ -77,8 +77,12 @@ export default function PacientesPage() {
     status: 'novo'
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false)
+  const [orthodontistToAssign, setOrthodontistToAssign] = useState<number | null>(null)
 
   const { data: patientsData, loading, error, refetch } = usePatients()
+  const { data: orthodontistsData } = useOrthodontists()
+  const orthodontists = orthodontistsData?.orthodontists || []
   const { toast } = useToast()
 
   const patients = patientsData?.patients || []
@@ -305,6 +309,51 @@ export default function PacientesPage() {
     setIsDeleteDialogOpen(true)
   }
 
+  // Handle assign orthodontist setup
+  const handleAssignOrthodontistSetup = (patient: Patient) => {
+    setSelectedPatient(patient)
+    setOrthodontistToAssign(null)
+    setIsAssignDialogOpen(true)
+  }
+
+  // Handle assign orthodontist
+  const handleAssignOrthodontist = async () => {
+    if (!selectedPatient || !orthodontistToAssign) {
+      toast({
+        title: "Erro",
+        description: "Selecione um ortodontista",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      await apiService.assignOrthodontist(
+        selectedPatient.id.toString(),
+        orthodontistToAssign
+      )
+
+      toast({
+        title: "Sucesso!",
+        description: "Ortodontista atribuído ao paciente"
+      })
+
+      setIsAssignDialogOpen(false)
+      setSelectedPatient(null)
+      setOrthodontistToAssign(null)
+      refetch()
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: error instanceof Error ? error.message : "Erro ao atribuir ortodontista",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'novo':
@@ -503,13 +552,22 @@ export default function PacientesPage() {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={() => handleEditPatientSetup(patient)}
                           title="Editar paciente"
                         >
                           <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleAssignOrthodontistSetup(patient)}
+                          title="Atribuir ortodontista"
+                          className={!patient.orthodontist ? "text-blue-600 hover:text-blue-800 hover:bg-blue-50" : ""}
+                        >
+                          <UserPlus className="h-4 w-4" />
                         </Button>
                         {patient.status !== 'cancelado' && (
                           <Button 
@@ -854,6 +912,83 @@ export default function PacientesPage() {
                   variant="outline" 
                   className="flex-1"
                   onClick={() => setIsDeleteDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Orthodontist Dialog */}
+      <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Atribuir Ortodontista</DialogTitle>
+            <DialogDescription>
+              Selecione o ortodontista responsável por avaliar {selectedPatient?.name}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedPatient && (
+            <div className="space-y-4">
+              <Card className="border-blue-200 bg-blue-50">
+                <CardContent className="pt-4">
+                  <div className="space-y-2">
+                    <p className="font-medium text-blue-800">{selectedPatient.name}</p>
+                    <p className="text-sm text-blue-600">{selectedPatient.email}</p>
+                    {selectedPatient.orthodontist && (
+                      <p className="text-xs text-blue-600">
+                        Ortodontista atual: {selectedPatient.orthodontist}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="space-y-2">
+                <Label htmlFor="orthodontist-select">Ortodontista</Label>
+                <Select
+                  value={orthodontistToAssign?.toString()}
+                  onValueChange={(value) => setOrthodontistToAssign(parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um ortodontista" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {orthodontists
+                      .filter((o: Orthodontist) => o.status === 'Ativo')
+                      .map((ortho: Orthodontist) => (
+                        <SelectItem key={ortho.id} value={ortho.id.toString()}>
+                          <div className="flex items-center gap-2">
+                            <span>{ortho.name}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {ortho.city}/{ortho.state}
+                            </Badge>
+                            <Badge className="text-xs bg-blue-100 text-blue-800">
+                              {ortho.patientsCount} pacientes
+                            </Badge>
+                          </div>
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  onClick={handleAssignOrthodontist}
+                  disabled={isSubmitting || !orthodontistToAssign}
+                >
+                  {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Atribuir
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setIsAssignDialogOpen(false)}
                   disabled={isSubmitting}
                 >
                   Cancelar
