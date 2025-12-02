@@ -854,6 +854,69 @@ const createOrthodontistFromPartnership = async (partnershipData) => {
   ]);
 };
 
+// Buscar ortodontista específico por ID
+const getOrthodontistById = async (req, res, next) => {
+  const startTime = Date.now();
+
+  try {
+    const { id } = req.params;
+
+    const query = `
+      SELECT
+        o.*,
+        COUNT(DISTINCT pl.id) as patients_count
+      FROM orthodontists o
+      LEFT JOIN patient_leads pl ON pl.orthodontist_id = o.id
+      WHERE o.id = ?
+      GROUP BY o.id
+    `;
+
+    const result = await executeQuery(query, [id]);
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Ortodontista não encontrado' },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const orthodontist = result[0];
+
+    logDBOperation('SELECT', 'orthodontists', result, Date.now() - startTime);
+
+    res.json({
+      success: true,
+      orthodontist: {
+        id: orthodontist.id,
+        name: orthodontist.nome,
+        email: orthodontist.email,
+        phone: orthodontist.telefone || '',
+        cro: orthodontist.cro,
+        specialty: 'Ortodontia',
+        city: orthodontist.cidade || '',
+        state: orthodontist.estado || '',
+        status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
+        patientsCount: parseInt(orthodontist.patients_count) || 0,
+        rating: 4.5,
+        registrationDate: orthodontist.data_inicio || new Date().toISOString().split('T')[0],
+        partnershipModel: orthodontist.modelo_parceria === 'atma-aligner' ? 'Standard' : 'Premium',
+        clinica: orthodontist.clinica,
+        cep: orthodontist.cep,
+        endereco_completo: orthodontist.endereco_completo,
+        tem_scanner: orthodontist.tem_scanner,
+        scanner_marca: orthodontist.scanner_marca,
+        capacidade_mensal: orthodontist.capacidade_mensal
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erro ao buscar ortodontista:', error);
+    next(error);
+  }
+};
+
 // Atualizar ortodontista
 const updateOrthodontist = async (req, res, next) => {
   try {
@@ -953,6 +1016,7 @@ module.exports = {
   searchOrthodontists,
   getOrthodontistStats,
   createOrthodontist,
+  getOrthodontistById,
   updateOrthodontist,
   getOrthodontists,
   deleteOrthodontist

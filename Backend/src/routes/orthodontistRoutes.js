@@ -40,6 +40,9 @@ router.post('/', orthodontistController.createOrthodontist);
 // GET /api/orthodontists - Listar ortodontistas cadastrados (DEVE VIR APÓS POST)
 router.get('/', orthodontistController.getOrthodontists);
 
+// GET /api/orthodontists/:id - Buscar ortodontista específico
+router.get('/:id', validateId, orthodontistController.getOrthodontistById);
+
 // PUT /api/orthodontists/:id - Atualizar ortodontista
 router.put('/:id', validateId, orthodontistController.updateOrthodontist);
 
