@@ -37,10 +37,7 @@ router.get('/stats', orthodontistController.getOrthodontistStats);
 // POST /api/orthodontists - Criar ortodontista parceiro (após aprovação)
 router.post('/', orthodontistController.createOrthodontist);
 
-// GET /api/orthodontists - Listar ortodontistas cadastrados (DEVE VIR APÓS POST)
-router.get('/', orthodontistController.getOrthodontists);
-
-// GET /api/orthodontists/:id - Buscar ortodontista específico
+// GET /api/orthodontists/:id - Buscar ortodontista específico (DEVE VIR ANTES DE GET /)
 router.get('/:id', validateId, orthodontistController.getOrthodontistById);
 
 // PUT /api/orthodontists/:id - Atualizar ortodontista
@@ -48,5 +45,8 @@ router.put('/:id', validateId, orthodontistController.updateOrthodontist);
 
 // DELETE /api/orthodontists/:id - Excluir ortodontista
 router.delete('/:id', validateId, orthodontistController.deleteOrthodontist);
+
+// GET /api/orthodontists - Listar ortodontistas cadastrados (DEVE VIR APÓS ROTAS COM :id)
+router.get('/', orthodontistController.getOrthodontists);
 
 module.exports = router;
