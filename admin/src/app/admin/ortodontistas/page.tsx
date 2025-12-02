@@ -129,25 +129,41 @@ export default function OrtodontistasPage() {
     setIsViewModalOpen(true)
   }
 
-  const handleEditOrthodontist = (orthodontist: Orthodontist) => {
-    setSelectedOrthodontist(orthodontist)
-    setFormData({
-      nome: orthodontist.name,
-      clinica: '',
-      cro: orthodontist.cro,
-      email: orthodontist.email,
-      telefone: orthodontist.phone,
-      celular: '',
-      endereco_completo: '',
-      cep: '',
-      cidade: orthodontist.city,
-      estado: orthodontist.state,
-      modelo_parceria: orthodontist.partnershipModel === 'Premium' ? 'premium' : 'atma-aligner',
-      tem_scanner: false,
-      scanner_marca: '',
-      capacidade_mensal: 10
-    })
-    setIsEditModalOpen(true)
+  const handleEditOrthodontist = async (orthodontist: Orthodontist) => {
+    try {
+      setIsSubmitting(true)
+
+      // Buscar dados completos do ortodontista
+      const response = await apiService.getOrthodontist(orthodontist.id.toString())
+      const fullData = response.orthodontist
+
+      setSelectedOrthodontist(orthodontist)
+      setFormData({
+        nome: fullData.name || orthodontist.name,
+        clinica: fullData.clinica || '',
+        cro: fullData.cro || orthodontist.cro,
+        email: fullData.email || orthodontist.email,
+        telefone: fullData.phone || orthodontist.phone,
+        celular: '',
+        endereco_completo: fullData.endereco_completo || '',
+        cep: fullData.cep || '',
+        cidade: fullData.city || orthodontist.city,
+        estado: fullData.state || orthodontist.state,
+        modelo_parceria: fullData.partnershipModel === 'Premium' ? 'premium' : 'atma-aligner',
+        tem_scanner: fullData.tem_scanner || false,
+        scanner_marca: fullData.scanner_marca || '',
+        capacidade_mensal: fullData.capacidade_mensal || 10
+      })
+      setIsEditModalOpen(true)
+    } catch (error) {
+      toast({
+        title: "Erro ao carregar dados",
+        description: "Não foi possível carregar os dados do ortodontista",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleUpdateOrthodontist = async () => {
