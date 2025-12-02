@@ -124,6 +124,9 @@ export default function RootLayout({
           <meta name="geo.position" content="-28.2620;-52.4080" />
           <meta name="ICBM" content="-28.2620, -52.4080" />
 
+          {/* Facebook Open Graph */}
+          <meta property="fb:app_id" content="2108479793316007" />
+
           <StructuredData />
           <GoogleAnalytics />
         </head>
