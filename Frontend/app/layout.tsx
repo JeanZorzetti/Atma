@@ -64,21 +64,21 @@ export const metadata: Metadata = {
     description: 'Alinhadores invisíveis com tecnologia alemã a partir de R$ 3.990. Parcele em até 12x sem juros. Ortodontistas especializados.',
     images: [
       {
-        url: '/atma-logo-512x512.png',
-        width: 512,
-        height: 512,
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
         alt: 'Atma Aligner - Alinhadores Invisíveis Premium',
         type: 'image/png'
       }
     ]
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     site: '@atma_aligner',
     creator: '@atma_aligner',
     title: 'Alinhadores Invisíveis | Preço 50% Menor | Atma Aligner',
     description: 'Alinhadores invisíveis a partir de R$ 3.990. Parcele em 12x. Tecnologia alemã premium.',
-    images: ['/atma-logo-512x512.png']
+    images: ['/og-image.png']
   },
   robots: {
     index: true,
