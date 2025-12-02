@@ -18,8 +18,8 @@ async function generateOGImage() {
     </svg>`
   );
 
-  const logo = await sharp(path.join(__dirname, '../public/atma-logo-512x512.png'))
-    .resize(400, 400, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  const logo = await sharp(path.join(__dirname, '../public/assets/logos/atma/Atma.png'))
+    .resize(600, 300, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .toBuffer();
 
   await sharp(background)
