@@ -47,7 +47,7 @@ const createPatientLead = async (req, res, next) => {
       if (assignedOrthodontist) {
         // Atribuir ortodontista ao lead
         await executeQuery(
-          'UPDATE patient_leads SET ortodontista_id = ?, status = "atribuido" WHERE id = ?',
+          'UPDATE patient_leads SET orthodontist_id = ?, status = "atribuido" WHERE id = ?',
           [assignedOrthodontist.id, leadId]
         );
         
@@ -90,7 +90,7 @@ const createPatientLead = async (req, res, next) => {
     const createdLead = await executeQuery(
       `SELECT pl.*, o.nome as ortodontista_nome, o.clinica as ortodontista_clinica
        FROM patient_leads pl
-       LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+       LEFT JOIN orthodontists o ON pl.orthodontist_id = o.id
        WHERE pl.id = ?`,
       [leadId]
     );
@@ -99,7 +99,7 @@ const createPatientLead = async (req, res, next) => {
       leadId,
       nome,
       email,
-      ortodontistaAtribuido: !!createdLead[0].ortodontista_id
+      ortodontistaAtribuido: !!createdLead[0].orthodontist_id
     });
     
     res.status(201).json({
@@ -149,7 +149,7 @@ const getPatientLeads = async (req, res, next) => {
       page = 1,
       limit = 20,
       status,
-      ortodontista_id,
+      orthodontist_id,
       data_inicio,
       data_fim,
       search
@@ -165,9 +165,9 @@ const getPatientLeads = async (req, res, next) => {
       queryParams.push(status);
     }
     
-    if (ortodontista_id) {
-      whereConditions.push('pl.ortodontista_id = ?');
-      queryParams.push(ortodontista_id);
+    if (orthodontist_id) {
+      whereConditions.push('pl.orthodontist_id = ?');
+      queryParams.push(orthodontist_id);
     }
     
     if (data_inicio) {
@@ -190,7 +190,7 @@ const getPatientLeads = async (req, res, next) => {
     
     // Query principal
     const query = `
-      SELECT 
+      SELECT
         pl.*,
         o.nome as ortodontista_nome,
         o.clinica as ortodontista_clinica,
@@ -198,18 +198,18 @@ const getPatientLeads = async (req, res, next) => {
         poa.status as atribuicao_status,
         poa.data_atribuicao
       FROM patient_leads pl
-      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      LEFT JOIN orthodontists o ON pl.orthodontist_id = o.id
       LEFT JOIN patient_orthodontist_assignments poa ON pl.id = poa.patient_lead_id
       ${whereClause}
       ORDER BY pl.created_at DESC
       LIMIT ? OFFSET ?
     `;
-    
+
     // Query para contar total
     const countQuery = `
       SELECT COUNT(*) as total
       FROM patient_leads pl
-      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      LEFT JOIN orthodontists o ON pl.orthodontist_id = o.id
       ${whereClause}
     `;
     
@@ -258,7 +258,7 @@ const getPatientLeadById = async (req, res, next) => {
     const { id } = req.params;
     
     const query = `
-      SELECT 
+      SELECT
         pl.*,
         o.nome as ortodontista_nome,
         o.clinica as ortodontista_clinica,
@@ -268,7 +268,7 @@ const getPatientLeadById = async (req, res, next) => {
         poa.data_atribuicao,
         poa.observacoes as atribuicao_observacoes
       FROM patient_leads pl
-      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      LEFT JOIN orthodontists o ON pl.orthodontist_id = o.id
       LEFT JOIN patient_orthodontist_assignments poa ON pl.id = poa.patient_lead_id
       WHERE pl.id = ?
     `;
@@ -332,7 +332,7 @@ const updatePatientLeadStatus = async (req, res, next) => {
     const result = await executeQuery(updateQuery, [status, observacoes || null, id]);
     
     // Se houver atribuição, atualizar também
-    if (existingLead[0].ortodontista_id) {
+    if (existingLead[0].orthodontist_id) {
       await executeQuery(
         'UPDATE patient_orthodontist_assignments SET status = ?, observacoes = ? WHERE patient_lead_id = ?',
         [status, observacoes || null, id]
@@ -476,14 +476,14 @@ const getPatientStats = async (req, res, next) => {
       // Taxa de conversão (leads atribuídos vs total)
       `SELECT 
         COUNT(*) as total,
-        SUM(CASE WHEN ortodontista_id IS NOT NULL THEN 1 ELSE 0 END) as atribuidos
+        SUM(CASE WHEN orthodontist_id IS NOT NULL THEN 1 ELSE 0 END) as atribuidos
        FROM patient_leads WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${periodo} DAY)`,
       
       // Top ortodontistas por leads recebidos
       `SELECT 
         o.nome, o.clinica, COUNT(pl.id) as total_leads
        FROM patient_leads pl
-       JOIN orthodontists o ON pl.ortodontista_id = o.id
+       JOIN orthodontists o ON pl.orthodontist_id = o.id
        WHERE pl.created_at >= DATE_SUB(NOW(), INTERVAL ${periodo} DAY)
        GROUP BY o.id
        ORDER BY total_leads DESC
@@ -724,7 +724,7 @@ const updatePatientLead = async (req, res, next) => {
         IFNULL(o.nome, 'Não atribuído') as orthodontist,
         pl.created_at as registrationDate
       FROM patient_leads pl
-      LEFT JOIN orthodontists o ON pl.ortodontista_id = o.id
+      LEFT JOIN orthodontists o ON pl.orthodontist_id = o.id
       WHERE pl.id = ?
     `, [id]);
     
