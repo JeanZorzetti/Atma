@@ -732,9 +732,19 @@ const getOrthodontists = async (req, res, next) => {
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    // Query principal com todas as colunas - padrão CRM
-    const query = `SELECT * FROM orthodontists ${whereClause} ORDER BY created_at DESC LIMIT ${limitNum} OFFSET ${offset}`;
-    
+    // Query principal com contagem de pacientes via LEFT JOIN
+    const query = `
+      SELECT
+        o.*,
+        COUNT(DISTINCT pl.id) as patients_count
+      FROM orthodontists o
+      LEFT JOIN patient_leads pl ON pl.orthodontist_id = o.id
+      ${whereClause}
+      GROUP BY o.id
+      ORDER BY o.created_at DESC
+      LIMIT ${limitNum} OFFSET ${offset}
+    `;
+
     // Query de contagem - padrão CRM
     const countQuery = `SELECT COUNT(*) as total FROM orthodontists ${whereClause}`;
 
@@ -762,7 +772,7 @@ const getOrthodontists = async (req, res, next) => {
         city: orthodontist.cidade || '',
         state: orthodontist.estado || '',
         status: orthodontist.status === 'ativo' ? 'Ativo' : 'Inativo',
-        patientsCount: 0,
+        patientsCount: parseInt(orthodontist.patients_count) || 0,
         rating: 4.5,
         registrationDate: orthodontist.data_inicio || new Date().toISOString().split('T')[0],
         partnershipModel: orthodontist.modelo_parceria === 'atma-aligner' ? 'Standard' : 'Premium'
