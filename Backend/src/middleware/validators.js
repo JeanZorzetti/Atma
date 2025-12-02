@@ -4,7 +4,19 @@ const { logValidationError } = require('../utils/logger');
 // Middleware para processar resultados de validação
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
+
+  console.log('=== VALIDATION DEBUG ===');
+  console.log('URL:', req.originalUrl);
+  console.log('Method:', req.method);
+  console.log('Params:', req.params);
+  console.log('Query:', req.query);
+  console.log('Body:', req.body);
+  console.log('Validation errors:', errors.array());
+  console.log('Has errors:', !errors.isEmpty());
+
   if (!errors.isEmpty()) {
+    console.log('=== VALIDATION FAILED ===');
+    console.log('Errors:', JSON.stringify(errors.array(), null, 2));
     logValidationError(errors.array(), req.originalUrl);
     return res.status(400).json({
       success: false,
@@ -15,6 +27,8 @@ const handleValidationErrors = (req, res, next) => {
       timestamp: new Date().toISOString()
     });
   }
+
+  console.log('=== VALIDATION PASSED ===');
   next();
 };
 

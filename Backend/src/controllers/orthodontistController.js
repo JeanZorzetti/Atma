@@ -861,6 +861,12 @@ const getOrthodontistById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
+    logger.info('=== GET ORTHODONTIST BY ID DEBUG ===');
+    logger.info('Request params:', req.params);
+    logger.info('Request query:', req.query);
+    logger.info('ID recebido:', id);
+    logger.info('Tipo do ID:', typeof id);
+
     const query = `
       SELECT
         o.*,
@@ -871,9 +877,18 @@ const getOrthodontistById = async (req, res, next) => {
       GROUP BY o.id
     `;
 
+    logger.info('Query a ser executada:', query);
+    logger.info('Parâmetros da query:', [id]);
+
     const result = await executeQuery(query, [id]);
 
+    logger.info('Resultado da query:', {
+      rowCount: result.length,
+      data: result.length > 0 ? result[0] : null
+    });
+
     if (result.length === 0) {
+      logger.warn('Ortodontista não encontrado com ID:', id);
       return res.status(404).json({
         success: false,
         error: { message: 'Ortodontista não encontrado' },
@@ -883,9 +898,15 @@ const getOrthodontistById = async (req, res, next) => {
 
     const orthodontist = result[0];
 
+    logger.info('Dados do ortodontista encontrado:', {
+      id: orthodontist.id,
+      nome: orthodontist.nome,
+      email: orthodontist.email
+    });
+
     logDBOperation('SELECT', 'orthodontists', result, Date.now() - startTime);
 
-    res.json({
+    const response = {
       success: true,
       orthodontist: {
         id: orthodontist.id,
@@ -909,10 +930,17 @@ const getOrthodontistById = async (req, res, next) => {
         capacidade_mensal: orthodontist.capacidade_mensal
       },
       timestamp: new Date().toISOString()
-    });
+    };
+
+    logger.info('Response a ser enviada:', JSON.stringify(response, null, 2));
+
+    res.json(response);
 
   } catch (error) {
-    logger.error('Erro ao buscar ortodontista:', error);
+    logger.error('=== ERRO EM GET ORTHODONTIST BY ID ===');
+    logger.error('Erro completo:', error);
+    logger.error('Stack trace:', error.stack);
+    logger.error('Mensagem:', error.message);
     next(error);
   }
 };
