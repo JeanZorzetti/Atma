@@ -567,7 +567,7 @@ class ApiService {
   }
 
   async getOrthodontist(id: string) {
-    return this.request(`/orthodontists/partnerships/${id}`)
+    return this.request(`/orthodontists/${id}`)
   }
 
   async createPartnershipRequest(data: Record<string, unknown>) {
