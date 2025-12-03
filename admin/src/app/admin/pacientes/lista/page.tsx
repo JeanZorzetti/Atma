@@ -357,12 +357,12 @@ export default function PacientesPage() {
         return <Badge className="bg-blue-100 text-blue-800">Novo</Badge>
       case 'contatado':
         return <Badge className="bg-yellow-100 text-yellow-800">Contatado</Badge>
+      case 'atribuido':
+        return <Badge className="bg-cyan-100 text-cyan-800">Atribuído</Badge>
       case 'agendado':
         return <Badge className="bg-purple-100 text-purple-800">Agendado</Badge>
       case 'avaliacao_inicial':
         return <Badge className="bg-indigo-100 text-indigo-800">Avaliação Inicial</Badge>
-      case 'atribuido':
-        return <Badge className="bg-green-100 text-green-800">Em Tratamento</Badge>
       case 'convertido':
         return <Badge className="bg-emerald-100 text-emerald-800">Convertido</Badge>
       case 'cancelado':
@@ -747,9 +747,9 @@ export default function PacientesPage() {
                 <SelectContent>
                   <SelectItem value="novo">Novo</SelectItem>
                   <SelectItem value="contatado">Contatado</SelectItem>
+                  <SelectItem value="atribuido">Atribuído</SelectItem>
                   <SelectItem value="agendado">Agendado</SelectItem>
                   <SelectItem value="avaliacao_inicial">Avaliação Inicial</SelectItem>
-                  <SelectItem value="atribuido">Em Tratamento</SelectItem>
                   <SelectItem value="convertido">Convertido</SelectItem>
                   <SelectItem value="cancelado">Cancelado</SelectItem>
                 </SelectContent>
