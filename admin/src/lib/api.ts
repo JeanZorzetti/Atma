@@ -46,6 +46,32 @@ export interface OrthodontistsResponse {
   timestamp: string
 }
 
+export interface OrthodontistDetailResponse {
+  success: boolean
+  orthodontist: {
+    id: number
+    name: string
+    email: string
+    phone: string
+    cro: string
+    specialty: string
+    city: string
+    state: string
+    status: string
+    patientsCount: number
+    rating: number
+    registrationDate: string
+    partnershipModel: string
+    clinica?: string
+    cep?: string
+    endereco_completo?: string
+    tem_scanner?: boolean
+    scanner_marca?: string
+    capacidade_mensal?: number
+  }
+  timestamp: string
+}
+
 export interface SystemStatsResponse {
   totalPatients: number
   patientsGrowth: string

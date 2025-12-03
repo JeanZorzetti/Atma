@@ -520,7 +520,7 @@ export default function PacientesPage() {
                   <TableHead>CPF</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Data Cadastro (SP)</TableHead>
-                  <TableHead>Etapa do Tratamento</TableHead>
+                  <TableHead>Cidade</TableHead>
                   <TableHead>Ortodontista</TableHead>
                   <TableHead>Ações</TableHead>
                 </TableRow>
@@ -540,8 +540,8 @@ export default function PacientesPage() {
                       <TableCell>{patient.cpf || 'N/A'}</TableCell>
                       <TableCell>{getStatusBadge(patient.status)}</TableCell>
                       <TableCell className="text-sm text-gray-600">{createdAtSP}</TableCell>
-                      <TableCell>{patient.treatmentStage || 'N/A'}</TableCell>
-                      <TableCell>{patient.orthodontist || 'N/A'}</TableCell>
+                      <TableCell>{patient.cidade || 'N/A'}</TableCell>
+                      <TableCell>{patient.orthodontist || 'Não atribuído'}</TableCell>
                       <TableCell>
                       <div className="flex gap-1">
                         <Button 
@@ -813,8 +813,8 @@ export default function PacientesPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium">Etapa do Tratamento</Label>
-                  <p className="text-sm text-gray-600">{selectedPatient.treatmentStage || 'N/A'}</p>
+                  <Label className="text-sm font-medium">Cidade</Label>
+                  <p className="text-sm text-gray-600">{selectedPatient.cidade || 'N/A'}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Ortodontista</Label>

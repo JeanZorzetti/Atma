@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label'
 import { Search, Plus, Edit, Eye, Filter, MapPin, Star, Loader2, AlertCircle, Trash2 } from 'lucide-react'
 import { useOrthodontists } from '@/hooks/useApi'
-import { Orthodontist, apiService } from '@/lib/api'
+import { Orthodontist, OrthodontistDetailResponse, apiService } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
@@ -134,7 +134,7 @@ export default function OrtodontistasPage() {
       setIsSubmitting(true)
 
       // Buscar dados completos do ortodontista
-      const response = await apiService.getOrthodontist(orthodontist.id.toString()) as { orthodontist: any }
+      const response = await apiService.getOrthodontist(orthodontist.id.toString()) as OrthodontistDetailResponse
       const fullData = response.orthodontist
 
       setSelectedOrthodontist(orthodontist)
