@@ -767,17 +767,6 @@ const assignOrthodontistToPatient = async (req, res, next) => {
     const { id } = req.params;
     const { orthodontistId } = req.body;
 
-    // Validar
-    if (!orthodontistId) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'orthodontistId é obrigatório'
-        },
-        timestamp: new Date().toISOString()
-      });
-    }
-
     // Verificar se paciente existe
     const patient = await executeQuery(
       'SELECT id, nome, email, status FROM patient_leads WHERE id = ?',
@@ -789,6 +778,49 @@ const assignOrthodontistToPatient = async (req, res, next) => {
         success: false,
         error: {
           message: 'Paciente não encontrado'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Se orthodontistId for 0 ou null, remover atribuição
+    if (!orthodontistId || orthodontistId === 0 || orthodontistId === '0') {
+      const updateResult = await executeQuery(
+        `UPDATE patient_leads
+         SET orthodontist_id = NULL, updated_at = NOW()
+         WHERE id = ?`,
+        [id]
+      );
+
+      // Atualizar tabela de assignments se existir
+      try {
+        await executeQuery(
+          `UPDATE patient_orthodontist_assignments
+           SET status = 'removido', data_remocao = NOW()
+           WHERE patient_lead_id = ?`,
+          [id]
+        );
+      } catch (assignmentError) {
+        logger.warn('Não foi possível atualizar assignment:', assignmentError.message);
+      }
+
+      logDBOperation('UPDATE', 'patient_leads', updateResult, Date.now() - startTime);
+
+      logger.info('Atribuição de ortodontista removida', {
+        patientId: id,
+        patientName: patient[0].nome
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: 'Atribuição removida com sucesso',
+          patient: {
+            id: patient[0].id,
+            nome: patient[0].nome,
+            email: patient[0].email,
+            orthodontist: null
+          }
         },
         timestamp: new Date().toISOString()
       });

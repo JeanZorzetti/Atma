@@ -318,12 +318,7 @@ export default function PacientesPage() {
 
   // Handle assign orthodontist
   const handleAssignOrthodontist = async () => {
-    if (!selectedPatient || !orthodontistToAssign) {
-      toast({
-        title: "Erro",
-        description: "Selecione um ortodontista",
-        variant: "destructive"
-      })
+    if (!selectedPatient) {
       return
     }
 
@@ -331,12 +326,14 @@ export default function PacientesPage() {
     try {
       await apiService.assignOrthodontist(
         selectedPatient.id.toString(),
-        orthodontistToAssign
+        orthodontistToAssign || 0
       )
 
       toast({
         title: "Sucesso!",
-        description: "Ortodontista atribuído ao paciente"
+        description: orthodontistToAssign
+          ? "Ortodontista atribuído ao paciente"
+          : "Atribuição removida com sucesso"
       })
 
       setIsAssignDialogOpen(false)
@@ -950,8 +947,8 @@ export default function PacientesPage() {
               <div className="space-y-2">
                 <Label htmlFor="orthodontist-select">Ortodontista</Label>
                 <Select
-                  value={orthodontistToAssign?.toString()}
-                  onValueChange={(value) => setOrthodontistToAssign(parseInt(value))}
+                  value={orthodontistToAssign?.toString() || ""}
+                  onValueChange={(value) => setOrthodontistToAssign(value ? parseInt(value) : null)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um ortodontista" />
@@ -985,6 +982,20 @@ export default function PacientesPage() {
                   {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                   Atribuir
                 </Button>
+                {selectedPatient.orthodontist && selectedPatient.orthodontist !== 'Não atribuído' && (
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={() => {
+                      setOrthodontistToAssign(null)
+                      handleAssignOrthodontist()
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Ban className="h-4 w-4 mr-2" />}
+                    Remover Atribuição
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   className="flex-1"
