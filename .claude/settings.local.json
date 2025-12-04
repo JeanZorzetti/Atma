@@ -14,7 +14,22 @@
       "Bash(ls:*)",
       "Bash(npm run db:migrate:*)",
       "Bash(npm run build:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(npx @vercel/og)",
+      "Bash(node scripts/generate-og-image.js:*)",
+      "Bash(mysql:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(npm run:*)",
+      "Bash(node run-migration-013.js:*)",
+      "Bash(node check-column-data.js:*)",
+      "Bash(node remove-old-column.js:*)",
+      "Bash(node clear-old-column.js:*)",
+      "Bash(node check-fk.js:*)",
+      "Bash(git restore:*)",
+      "Bash(node run-migration-014.js:*)",
+      "Bash(npm info:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
