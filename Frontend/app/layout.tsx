@@ -9,6 +9,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs"
 import { ClientOnlyFABs } from "@/components/client-only-fabs"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 import { ClerkProvider } from '@clerk/nextjs'
+import ClarityScript from "@/components/ClarityScript"
 
 // TEMPORARY: Force dynamic rendering to fix Google indexation issue (Nov 3, 2025)
 // This will force Vercel to bust cache and allow Google to recrawl fresh pages
@@ -134,6 +135,8 @@ export default function RootLayout({
           <GoogleAnalytics />
         </head>
         <body className="min-h-screen flex flex-col">
+          <ClarityScript />
+
           {/* WCAG 2.2 Skip Navigation */}
           <a href="#main-content" className="skip-nav">
             Pular para o conteúdo principal
