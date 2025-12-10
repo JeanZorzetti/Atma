@@ -255,6 +255,10 @@ export default function ParceriaOrtodontistasPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <span className="font-bold">Todo tratamento inclui 2 refinamentos de placas sem custo adicional</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
                     <span>Suporte técnico Atma disponível sempre que precisar</span>
                   </li>
                   <li className="flex items-start gap-2">
