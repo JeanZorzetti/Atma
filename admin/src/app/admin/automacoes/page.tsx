@@ -2,100 +2,87 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Workflow,
-  Play,
-  Pause,
   RefreshCw,
-  Settings,
   Plus,
   Activity,
-  Clock,
-  CheckCircle2,
   AlertCircle,
   Zap,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-interface WorkflowData {
+interface N8nWorkflow {
   id: string
   name: string
-  description: string
-  status: 'active' | 'paused' | 'error'
-  lastRun?: string
-  executions: number
-  successRate: number
+  active: boolean
+  nodes: unknown[]
+  connections: unknown
+  createdAt: string
+  updatedAt: string
+}
+
+interface WorkflowStats {
+  totalWorkflows: number
+  activeWorkflows: number
+  totalExecutions: number
+  avgSuccessRate: number
 }
 
 export default function AutomacoesPage() {
-  const [workflows] = useState<WorkflowData[]>([
-    {
-      id: '1',
-      name: 'Envio de Follow-up Automático',
-      description: 'Envia emails de acompanhamento para leads após 3 dias sem resposta',
-      status: 'active',
-      lastRun: '2 horas atrás',
-      executions: 145,
-      successRate: 98.5
-    },
-    {
-      id: '2',
-      name: 'Notificação de Novo Lead',
-      description: 'Notifica a equipe via WhatsApp quando um novo lead entra no sistema',
-      status: 'active',
-      lastRun: '15 minutos atrás',
-      executions: 89,
-      successRate: 100
-    },
-    {
-      id: '3',
-      name: 'Relatório Semanal',
-      description: 'Gera e envia relatório de conversões toda segunda-feira às 9h',
-      status: 'paused',
-      lastRun: '3 dias atrás',
-      executions: 24,
-      successRate: 95.8
-    }
-  ])
-
-  const [stats] = useState({
-    totalWorkflows: 3,
-    activeWorkflows: 2,
-    totalExecutions: 258,
-    avgSuccessRate: 98.1
+  const [workflows, setWorkflows] = useState<N8nWorkflow[]>([])
+  const [stats, setStats] = useState<WorkflowStats>({
+    totalWorkflows: 0,
+    activeWorkflows: 0,
+    totalExecutions: 0,
+    avgSuccessRate: 0
   })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-500'
-      case 'paused':
-        return 'bg-yellow-500'
-      case 'error':
-        return 'bg-red-500'
-      default:
-        return 'bg-gray-500'
+  const fetchWorkflows = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      // TODO: Implementar API para buscar workflows do n8n
+      // const response = await fetch('/api/n8n/workflows')
+      // const data = await response.json()
+      // setWorkflows(data.workflows)
+
+      // Simulação de loading
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Por enquanto, deixar vazio até implementar a API
+      setWorkflows([])
+
+      // Calcular estatísticas baseadas nos workflows reais
+      const totalWorkflows = workflows.length
+      const activeWorkflows = workflows.filter(w => w.active).length
+
+      setStats({
+        totalWorkflows,
+        activeWorkflows,
+        totalExecutions: 0,
+        avgSuccessRate: 0
+      })
+    } catch (err) {
+      setError('Erro ao carregar workflows')
+      console.error('Erro ao buscar workflows:', err)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Ativo</Badge>
-      case 'paused':
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pausado</Badge>
-      case 'error':
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Erro</Badge>
-      default:
-        return <Badge>Desconhecido</Badge>
-    }
-  }
+  useEffect(() => {
+    fetchWorkflows()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const openN8nEditor = () => {
-    // Abre o n8n em uma nova aba - configure a URL do seu n8n aqui
-    const n8nUrl = process.env.NEXT_PUBLIC_N8N_URL || 'https://n8n.roilabs.com.br'
+    const n8nUrl = process.env.NEXT_PUBLIC_N8N_URL || 'https://ia-n8n.tjmarr.easypanel.host'
     window.open(n8nUrl, '_blank')
   }
 
@@ -111,8 +98,8 @@ export default function AutomacoesPage() {
           <p className="text-gray-600 mt-2">Gerencie workflows e automações do sistema</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button variant="outline" onClick={fetchWorkflows} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
           <Button onClick={openN8nEditor} className="bg-purple-600 hover:bg-purple-700">
@@ -121,6 +108,16 @@ export default function AutomacoesPage() {
           </Button>
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="flex items-center gap-3 py-4">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            <span className="text-red-800">{error}</span>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -132,8 +129,17 @@ export default function AutomacoesPage() {
             <Workflow className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{stats.totalWorkflows}</div>
-            <p className="text-xs text-gray-500 mt-1">Workflows configurados</p>
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Carregando...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-gray-900">{stats.totalWorkflows}</div>
+                <p className="text-xs text-gray-500 mt-1">Workflows configurados</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -145,8 +151,17 @@ export default function AutomacoesPage() {
             <Activity className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{stats.activeWorkflows}</div>
-            <p className="text-xs text-gray-500 mt-1">Em execução agora</p>
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Carregando...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-gray-900">{stats.activeWorkflows}</div>
+                <p className="text-xs text-gray-500 mt-1">Em execução agora</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -155,11 +170,20 @@ export default function AutomacoesPage() {
             <CardTitle className="text-sm font-medium text-gray-600">
               Total de Execuções
             </CardTitle>
-            <Play className="h-4 w-4 text-blue-600" />
+            <Activity className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{stats.totalExecutions}</div>
-            <p className="text-xs text-gray-500 mt-1">Últimos 30 dias</p>
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Carregando...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-gray-900">{stats.totalExecutions}</div>
+                <p className="text-xs text-gray-500 mt-1">Últimos 30 dias</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -168,11 +192,22 @@ export default function AutomacoesPage() {
             <CardTitle className="text-sm font-medium text-gray-600">
               Taxa de Sucesso
             </CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <Activity className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{stats.avgSuccessRate}%</div>
-            <p className="text-xs text-gray-500 mt-1">Média geral</p>
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Carregando...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-gray-900">
+                  {stats.avgSuccessRate > 0 ? `${stats.avgSuccessRate}%` : '-'}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Média geral</p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -191,7 +226,7 @@ export default function AutomacoesPage() {
         <CardContent className="space-y-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-sm text-gray-700">Conexão ativa com n8n</span>
+            <span className="text-sm text-gray-700">Pronto para configurar automações</span>
           </div>
           <p className="text-sm text-gray-600">
             O n8n é uma plataforma de automação de workflows que permite criar integrações complexas
@@ -211,7 +246,7 @@ export default function AutomacoesPage() {
             <div>
               <CardTitle>Workflows Configurados</CardTitle>
               <CardDescription>
-                Automações ativas e configuradas no sistema
+                Automações ativas e configuradas no n8n
               </CardDescription>
             </div>
             <Button onClick={openN8nEditor} size="sm">
@@ -221,64 +256,47 @@ export default function AutomacoesPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {workflows.map((workflow) => (
-              <div
-                key={workflow.id}
-                className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:shadow-sm transition-all"
-              >
-                <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${getStatusColor(workflow.status)}`}></div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-semibold text-gray-900">{workflow.name}</h4>
-                    {getStatusBadge(workflow.status)}
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">{workflow.description}</p>
-
-                  <div className="flex flex-wrap gap-4 text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      <span>Última execução: {workflow.lastRun}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Activity className="h-3 w-3" />
-                      <span>{workflow.executions} execuções</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3" />
-                      <span>{workflow.successRate}% sucesso</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  {workflow.status === 'active' ? (
-                    <Button variant="outline" size="sm">
-                      <Pause className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button variant="outline" size="sm">
-                      <Play className="h-4 w-4" />
-                    </Button>
-                  )}
-                  <Button variant="outline" size="sm" onClick={openN8nEditor}>
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {workflows.length === 0 && (
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+              <span className="ml-3 text-gray-600">Carregando workflows...</span>
+            </div>
+          ) : workflows.length === 0 ? (
             <div className="text-center py-12">
               <Workflow className="h-12 w-12 text-gray-400 mx-auto mb-3" />
               <p className="text-gray-600 mb-2">Nenhum workflow configurado ainda</p>
-              <p className="text-sm text-gray-500 mb-4">Crie seu primeiro workflow no n8n</p>
+              <p className="text-sm text-gray-500 mb-4">Crie seu primeiro workflow no n8n para começar a automatizar processos</p>
               <Button onClick={openN8nEditor}>
                 <Plus className="h-4 w-4 mr-2" />
                 Criar Primeiro Workflow
               </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {workflows.map((workflow) => (
+                <div
+                  key={workflow.id}
+                  className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:shadow-sm transition-all"
+                >
+                  <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${workflow.active ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-semibold text-gray-900">{workflow.name}</h4>
+                      <span className={`px-2 py-0.5 text-xs rounded-full ${workflow.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                        {workflow.active ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {workflow.nodes.length} nós • Atualizado em {new Date(workflow.updatedAt).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
+
+                  <Button variant="outline" size="sm" onClick={openN8nEditor}>
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
@@ -318,7 +336,7 @@ export default function AutomacoesPage() {
               </div>
               <div>
                 <p className="font-medium mb-1">Ative e Monitore</p>
-                <p className="text-gray-600">Ative seus workflows e acompanhe as execuções em tempo real</p>
+                <p className="text-gray-600">Ative seus workflows e acompanhe as execuções em tempo real no n8n</p>
               </div>
             </div>
           </div>
