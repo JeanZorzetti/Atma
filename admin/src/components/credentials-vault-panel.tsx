@@ -608,14 +608,15 @@ export default function CredentialsVaultPanel({ open, onOpenChange }: Credential
 
         {/* Create Modal */}
         {showCreateModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <Card className="w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
-              <CardHeader className="flex-shrink-0">
-                <CardTitle>Nova Credencial</CardTitle>
-                <CardDescription>Armazene credenciais de forma segura e criptografada</CardDescription>
-              </CardHeader>
-              <CardContent className="overflow-y-auto flex-1">
-                <div className="space-y-4">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="w-full max-w-md my-8">
+              <Card className="w-full">
+                <CardHeader>
+                  <CardTitle>Nova Credencial</CardTitle>
+                  <CardDescription>Armazene credenciais de forma segura e criptografada</CardDescription>
+                </CardHeader>
+                <CardContent className="max-h-[60vh] overflow-y-auto">
+                  <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium">Nome</label>
                     <input
@@ -717,6 +718,7 @@ export default function CredentialsVaultPanel({ open, onOpenChange }: Credential
                 </div>
               </CardContent>
             </Card>
+            </div>
           </div>
         )}
       </DialogContent>
