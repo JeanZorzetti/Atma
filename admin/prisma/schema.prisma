@@ -192,3 +192,188 @@ model AlertConfiguration {
   @@index([workflowId])
   @@map("alert_configurations")
 }
+
+// ========================================
+// FASE 2: Sistema de Documentação
+// ========================================
+
+// Metadados dos workflows
+model WorkflowMetadata {
+  id                String   @id @default(uuid())
+  workflowId        String   @unique
+  workflowName      String
+
+  // Informações básicas
+  description       String?  @db.Text
+  purpose           String?  @db.Text
+  category          String?  // integration, automation, analytics, etc
+  tags              Json?    // array de strings
+
+  // Autoria
+  author            String?
+  authorEmail       String?
+  team              String?
+
+  // Versionamento
+  version           String   @default("1.0.0")
+  versionNotes      String?  @db.Text
+
+  // Status
+  status            String   @default("active") // active, deprecated, archived, draft
+  isPublic          Boolean  @default(false)
+  isTemplate        Boolean  @default(false)
+
+  // Métricas
+  complexity        String?  // low, medium, high
+  estimatedDuration Int?     // em minutos
+
+  // Dependências
+  dependencies      Json?    // array de workflow IDs
+  requiredServices  Json?    // array de serviços externos necessários
+
+  // Relacionamentos
+  documentation     WorkflowDocumentation?
+  versions          WorkflowVersion[]
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([category])
+  @@index([status])
+  @@index([isTemplate])
+  @@map("workflow_metadata")
+}
+
+// Documentação dos workflows
+model WorkflowDocumentation {
+  id                String   @id @default(uuid())
+  workflowId        String   @unique
+  metadata          WorkflowMetadata @relation(fields: [workflowId], references: [workflowId], onDelete: Cascade)
+
+  // Conteúdo da documentação
+  overview          String?  @db.Text
+  setupInstructions String?  @db.Text
+  usageExamples     String?  @db.Text
+  troubleshooting   String?  @db.Text
+  notes             String?  @db.Text
+
+  // Diagramas e visualizações
+  flowDiagram       Json?    // dados do diagrama de fluxo
+  architectureDiagram Json?  // dados do diagrama de arquitetura
+
+  // Configurações
+  configExamples    Json?    // exemplos de configuração
+  environmentVars   Json?    // variáveis de ambiente necessárias
+
+  // Inputs e Outputs
+  inputSchema       Json?    // schema dos dados de entrada
+  outputSchema      Json?    // schema dos dados de saída
+  webhookUrl        String?
+
+  // FAQ e Troubleshooting
+  faqItems          Json?    // array de {question, answer}
+  knownIssues       Json?    // array de issues conhecidas
+
+  // Links úteis
+  externalDocs      Json?    // array de {title, url}
+  relatedWorkflows  Json?    // array de workflow IDs relacionados
+
+  // Metadata
+  lastEditedBy      String?
+  lastEditedAt      DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([workflowId])
+  @@map("workflow_documentation")
+}
+
+// Versionamento de workflows
+model WorkflowVersion {
+  id                String   @id @default(uuid())
+  workflowId        String
+  metadata          WorkflowMetadata @relation(fields: [workflowId], references: [workflowId], onDelete: Cascade)
+
+  // Informações da versão
+  version           String
+  versionName       String?  // nome amigável
+  description       String?  @db.Text
+  changeType        String   // major, minor, patch, hotfix
+
+  // Conteúdo do workflow (snapshot)
+  workflowData      Json     // snapshot completo do workflow do n8n
+
+  // Git integration
+  gitCommitHash     String?
+  gitBranch         String?
+  gitTag            String?
+
+  // Autor
+  createdBy         String?
+  createdByEmail    String?
+
+  // Changelog
+  changelog         String?  @db.Text
+  breakingChanges   String?  @db.Text
+
+  // Status
+  isActive          Boolean  @default(false)
+  isStable          Boolean  @default(true)
+
+  // Deployment
+  deployedAt        DateTime?
+  deployedBy        String?
+
+  // Metadata
+  createdAt         DateTime @default(now())
+
+  @@index([workflowId])
+  @@index([version])
+  @@index([isActive])
+  @@index([createdAt])
+  @@unique([workflowId, version])
+  @@map("workflow_versions")
+}
+
+// Templates de workflows
+model WorkflowTemplate {
+  id                String   @id @default(uuid())
+
+  // Informações básicas
+  name              String
+  description       String   @db.Text
+  category          String   // integration, automation, analytics, etc
+  tags              Json?    // array de strings
+
+  // Template data
+  templateData      Json     // estrutura do workflow
+  thumbnailUrl      String?
+
+  // Configuração
+  configSchema      Json?    // schema de configuração necessária
+  requiredServices  Json?    // serviços necessários
+
+  // Métricas de uso
+  useCount          Int      @default(0)
+  rating            Float?
+
+  // Autor
+  createdBy         String?
+  isOfficial        Boolean  @default(false)
+  isPublic          Boolean  @default(true)
+
+  // Status
+  status            String   @default("active") // active, deprecated, draft
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([isPublic])
+  @@index([useCount])
+  @@map("workflow_templates")
+}

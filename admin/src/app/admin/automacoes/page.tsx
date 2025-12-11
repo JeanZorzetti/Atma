@@ -17,9 +17,11 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  BarChart3
+  BarChart3,
+  FileText
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
+import { WorkflowDocumentationModal } from '@/components/workflow-documentation-modal'
 
 interface N8nWorkflow {
   id: string
@@ -83,6 +85,8 @@ export default function AutomacoesPage() {
   const [loadingExecutions, setLoadingExecutions] = useState(false)
   const [loadingAlerts, setLoadingAlerts] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [documentationModalOpen, setDocumentationModalOpen] = useState(false)
+  const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
     setLoading(true)
@@ -459,9 +463,22 @@ export default function AutomacoesPage() {
                         </p>
                       </div>
 
-                      <Button variant="outline" size="sm" onClick={openN8nEditor}>
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedWorkflow({ id: workflow.id, name: workflow.name })
+                            setDocumentationModalOpen(true)
+                          }}
+                          title="Documentar workflow"
+                        >
+                          <FileText className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={openN8nEditor}>
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -691,6 +708,16 @@ export default function AutomacoesPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Documentação */}
+      {selectedWorkflow && (
+        <WorkflowDocumentationModal
+          open={documentationModalOpen}
+          onOpenChange={setDocumentationModalOpen}
+          workflowId={selectedWorkflow.id}
+          workflowName={selectedWorkflow.name}
+        />
+      )}
     </div>
   )
 }
