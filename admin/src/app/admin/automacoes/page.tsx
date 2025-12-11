@@ -12,7 +12,7 @@ import {
   ExternalLink,
   Loader2
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface N8nWorkflow {
   id: string
@@ -42,44 +42,48 @@ export default function AutomacoesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchWorkflows = async () => {
+  const fetchWorkflows = useCallback(async () => {
     setLoading(true)
     setError(null)
 
     try {
-      // TODO: Implementar API para buscar workflows do n8n
-      // const response = await fetch('/api/n8n/workflows')
-      // const data = await response.json()
-      // setWorkflows(data.workflows)
+      const response = await fetch('/api/n8n/workflows')
 
-      // Simulação de loading
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
 
-      // Por enquanto, deixar vazio até implementar a API
-      setWorkflows([])
+      const data = await response.json()
+
+      if (data.error) {
+        throw new Error(data.error)
+      }
+
+      const workflowsData = data.workflows || []
+      setWorkflows(workflowsData)
 
       // Calcular estatísticas baseadas nos workflows reais
-      const totalWorkflows = workflows.length
-      const activeWorkflows = workflows.filter(w => w.active).length
+      const totalWorkflows = workflowsData.length
+      const activeWorkflows = workflowsData.filter((w: N8nWorkflow) => w.active).length
 
       setStats({
         totalWorkflows,
         activeWorkflows,
-        totalExecutions: 0,
-        avgSuccessRate: 0
+        totalExecutions: 0, // TODO: Buscar execuções da API
+        avgSuccessRate: 0 // TODO: Calcular taxa de sucesso
       })
     } catch (err) {
-      setError('Erro ao carregar workflows')
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar workflows'
+      setError(errorMessage)
       console.error('Erro ao buscar workflows:', err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchWorkflows()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [fetchWorkflows])
 
   const openN8nEditor = () => {
     const n8nUrl = process.env.NEXT_PUBLIC_N8N_URL || 'https://ia-n8n.tjmarr.easypanel.host'
