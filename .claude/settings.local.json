@@ -29,7 +29,9 @@
       "Bash(git restore:*)",
       "Bash(node run-migration-014.js:*)",
       "Bash(npm info:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx prisma:*)"
     ],
     "deny": [],
     "ask": []

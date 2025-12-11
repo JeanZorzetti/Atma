@@ -29,6 +29,7 @@ import { WorkflowGitHistory } from '@/components/workflow-git-history'
 import { WorkflowTemplateGallery } from '@/components/workflow-template-gallery'
 import { WorkflowTemplateCreator } from '@/components/workflow-template-creator'
 import { WorkflowEnvironmentSelector } from '@/components/workflow-environment-selector'
+import { WorkflowTestPanel } from '@/components/workflow-test-panel'
 
 interface N8nWorkflow {
   id: string
@@ -96,6 +97,7 @@ export default function AutomacoesPage() {
   const [gitHistoryModalOpen, setGitHistoryModalOpen] = useState(false)
   const [templateGalleryOpen, setTemplateGalleryOpen] = useState(false)
   const [templateCreatorOpen, setTemplateCreatorOpen] = useState(false)
+  const [testPanelOpen, setTestPanelOpen] = useState(false)
   const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string; data?: unknown } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
@@ -509,6 +511,17 @@ export default function AutomacoesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
+                            setSelectedWorkflow({ id: workflow.id, name: workflow.name })
+                            setTestPanelOpen(true)
+                          }}
+                          title="Testes Automatizados"
+                        >
+                          <Activity className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
                             setSelectedWorkflow({ id: workflow.id, name: workflow.name, data: workflow })
                             setTemplateCreatorOpen(true)
                           }}
@@ -772,6 +785,12 @@ export default function AutomacoesPage() {
             workflowName={selectedWorkflow.name}
             workflowData={selectedWorkflow.data}
             onTemplateCreated={fetchWorkflows}
+          />
+          <WorkflowTestPanel
+            open={testPanelOpen}
+            onOpenChange={setTestPanelOpen}
+            workflowId={selectedWorkflow.id}
+            workflowName={selectedWorkflow.name}
           />
         </>
       )}

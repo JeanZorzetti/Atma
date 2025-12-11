@@ -377,3 +377,132 @@ model WorkflowTemplate {
   @@index([useCount])
   @@map("workflow_templates")
 }
+
+// Sistema de Testes Automatizados
+model WorkflowTestScenario {
+  id                String   @id @default(uuid())
+  workflowId        String
+
+  // Informações básicas
+  name              String
+  description       String?  @db.Text
+  type              String   // unit, integration, e2e
+  enabled           Boolean  @default(true)
+
+  // Dados de teste
+  inputData         Json     // dados de entrada para o teste
+  expectedOutput    Json?    // saída esperada (opcional)
+
+  // Configurações
+  timeout           Int?     // timeout em ms
+  retries           Int?     // número de tentativas
+  tags              Json?    // array de tags
+
+  // Assertions
+  assertions        Json?    // array de assertions
+
+  // Suite relacionada
+  suiteId           String?
+  suite             WorkflowTestSuite? @relation(fields: [suiteId], references: [id], onDelete: SetNull)
+
+  // Resultados
+  results           WorkflowTestResult[]
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([type])
+  @@index([enabled])
+  @@map("workflow_test_scenarios")
+}
+
+model WorkflowTestSuite {
+  id                String   @id @default(uuid())
+  workflowId        String
+
+  // Informações básicas
+  name              String
+  description       String?  @db.Text
+
+  // Scenarios
+  scenarios         WorkflowTestScenario[]
+
+  // Test runs
+  runs              WorkflowTestRun[]
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([workflowId])
+  @@map("workflow_test_suites")
+}
+
+model WorkflowTestResult {
+  id                String   @id @default(uuid())
+  scenarioId        String
+  scenario          WorkflowTestScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  runId             String?
+  run               WorkflowTestRun? @relation(fields: [runId], references: [id], onDelete: SetNull)
+
+  // Status e timing
+  status            String   // pending, running, passed, failed, skipped
+  startTime         DateTime
+  endTime           DateTime?
+  duration          Int?     // em milissegundos
+
+  // Logs e erros
+  executionLog      Json?    // array de log entries
+  errors            Json?    // array de errors
+
+  // Assertions
+  assertions        Json?    // array de assertion results
+
+  // Coverage
+  coverage          Json?    // coverage data
+
+  // Metadata
+  createdAt         DateTime @default(now())
+
+  @@index([scenarioId])
+  @@index([runId])
+  @@index([status])
+  @@index([startTime])
+  @@map("workflow_test_results")
+}
+
+model WorkflowTestRun {
+  id                String   @id @default(uuid())
+  suiteId           String
+  suite             WorkflowTestSuite @relation(fields: [suiteId], references: [id], onDelete: Cascade)
+
+  workflowId        String
+  environment       String   // development, staging, production
+
+  // Status e timing
+  status            String   // running, completed, failed
+  startTime         DateTime
+  endTime           DateTime?
+
+  // Estatísticas
+  totalScenarios    Int      @default(0)
+  passed            Int      @default(0)
+  failed            Int      @default(0)
+  skipped           Int      @default(0)
+
+  // Resultados
+  results           WorkflowTestResult[]
+
+  // Metadata
+  createdAt         DateTime @default(now())
+
+  @@index([suiteId])
+  @@index([workflowId])
+  @@index([environment])
+  @@index([status])
+  @@index([startTime])
+  @@map("workflow_test_runs")
+}
