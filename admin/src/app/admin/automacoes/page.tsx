@@ -38,6 +38,7 @@ import { WorkflowDebugPanel } from '@/components/workflow-debug-panel'
 import WorkflowValidationPanel from '@/components/workflow-validation-panel'
 import CredentialsVaultPanel from '@/components/credentials-vault-panel'
 import RBACManagerPanel from '@/components/rbac-manager-panel'
+import CompliancePanel from '@/components/compliance-panel'
 
 interface N8nWorkflow {
   id: string
@@ -110,6 +111,7 @@ export default function AutomacoesPage() {
   const [validationPanelOpen, setValidationPanelOpen] = useState(false)
   const [credentialsVaultOpen, setCredentialsVaultOpen] = useState(false)
   const [rbacManagerOpen, setRbacManagerOpen] = useState(false)
+  const [compliancePanelOpen, setCompliancePanelOpen] = useState(false)
   const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string; data?: unknown } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
@@ -290,6 +292,15 @@ export default function AutomacoesPage() {
           >
             <Users className="h-4 w-4 mr-2 text-orange-600" />
             RBAC
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setCompliancePanelOpen(true)}
+            className="border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+            title="Compliance e LGPD"
+          >
+            <Shield className="h-4 w-4 mr-2 text-purple-600" />
+            Compliance
           </Button>
           <Button
             variant="outline"
@@ -876,6 +887,11 @@ export default function AutomacoesPage() {
       <RBACManagerPanel
         open={rbacManagerOpen}
         onOpenChange={setRbacManagerOpen}
+      />
+
+      <CompliancePanel
+        open={compliancePanelOpen}
+        onOpenChange={setCompliancePanelOpen}
       />
     </div>
   )
