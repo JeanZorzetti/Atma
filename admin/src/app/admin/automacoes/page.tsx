@@ -24,7 +24,8 @@ import {
   Copy,
   Bug,
   FileCheck,
-  Shield
+  Shield,
+  Users
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { WorkflowDocumentationModal } from '@/components/workflow-documentation-modal'
@@ -36,6 +37,7 @@ import { WorkflowTestPanel } from '@/components/workflow-test-panel'
 import { WorkflowDebugPanel } from '@/components/workflow-debug-panel'
 import WorkflowValidationPanel from '@/components/workflow-validation-panel'
 import CredentialsVaultPanel from '@/components/credentials-vault-panel'
+import RBACManagerPanel from '@/components/rbac-manager-panel'
 
 interface N8nWorkflow {
   id: string
@@ -107,6 +109,7 @@ export default function AutomacoesPage() {
   const [debugPanelOpen, setDebugPanelOpen] = useState(false)
   const [validationPanelOpen, setValidationPanelOpen] = useState(false)
   const [credentialsVaultOpen, setCredentialsVaultOpen] = useState(false)
+  const [rbacManagerOpen, setRbacManagerOpen] = useState(false)
   const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string; data?: unknown } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
@@ -278,6 +281,15 @@ export default function AutomacoesPage() {
           >
             <Shield className="h-4 w-4 mr-2 text-green-600" />
             Credenciais
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setRbacManagerOpen(true)}
+            className="border-orange-200 hover:border-orange-300 hover:bg-orange-50"
+            title="Controle de Acesso"
+          >
+            <Users className="h-4 w-4 mr-2 text-orange-600" />
+            RBAC
           </Button>
           <Button
             variant="outline"
@@ -859,6 +871,11 @@ export default function AutomacoesPage() {
       <CredentialsVaultPanel
         open={credentialsVaultOpen}
         onOpenChange={setCredentialsVaultOpen}
+      />
+
+      <RBACManagerPanel
+        open={rbacManagerOpen}
+        onOpenChange={setRbacManagerOpen}
       />
     </div>
   )
