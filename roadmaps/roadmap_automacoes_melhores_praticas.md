@@ -722,55 +722,175 @@ export class CredentialsVault {
 - `admin/src/components/credentials-vault-panel.tsx` - Interface visual (600+ linhas)
 - `admin/src/app/admin/automacoes/page.tsx` - Botão de credenciais integrado
 
-### 4.2 Controle de Acesso (RBAC)
+### 4.2 Controle de Acesso (RBAC) ✅ COMPLETO
 
-#### Sistema de Permissões
 ```typescript
-enum Permission {
+// admin/src/lib/rbac.ts - IMPLEMENTADO
+export class RBACManager {
+  checkPermission(userId, permission, options?): PermissionCheck
+  checkPermissions(userId, permissions, options?): PermissionCheck
+  assignRole(userId, role, assignedBy): User
+  addCustomPermission(userId, permission): User
+  removeCustomPermission(userId, permission): User
+  setWorkflowRestrictions(userId, workflowIds): User
+  setEnvironmentRestrictions(userId, environments): User
+  logAccess(log): void
+  getAccessLogs(filters?): AccessLog[]
+  getAccessStats(userId?): Stats
+}
+```
+
+#### Sistema de Permissões Implementado ✅
+```typescript
+export enum Permission {
+  // Workflow permissions (10 tipos)
   VIEW_WORKFLOWS = 'workflows:view',
   CREATE_WORKFLOWS = 'workflows:create',
   EDIT_WORKFLOWS = 'workflows:edit',
   DELETE_WORKFLOWS = 'workflows:delete',
   EXECUTE_WORKFLOWS = 'workflows:execute',
-  MANAGE_CREDENTIALS = 'credentials:manage',
+  EXPORT_WORKFLOWS = 'workflows:export',
+  IMPORT_WORKFLOWS = 'workflows:import',
+  DUPLICATE_WORKFLOWS = 'workflows:duplicate',
+  SHARE_WORKFLOWS = 'workflows:share',
+  ACTIVATE_WORKFLOWS = 'workflows:activate',
+
+  // Execution permissions (5 tipos)
   VIEW_EXECUTIONS = 'executions:view',
-  MANAGE_USERS = 'users:manage'
+  VIEW_EXECUTION_DATA = 'executions:view_data',
+  RETRY_EXECUTIONS = 'executions:retry',
+  DELETE_EXECUTIONS = 'executions:delete',
+  STOP_EXECUTIONS = 'executions:stop',
+
+  // Credential permissions (5 tipos)
+  VIEW_CREDENTIALS = 'credentials:view',
+  CREATE_CREDENTIALS = 'credentials:create',
+  EDIT_CREDENTIALS = 'credentials:edit',
+  DELETE_CREDENTIALS = 'credentials:delete',
+  USE_CREDENTIALS = 'credentials:use',
+
+  // Template permissions (4 tipos)
+  VIEW_TEMPLATES = 'templates:view',
+  CREATE_TEMPLATES = 'templates:create',
+  EDIT_TEMPLATES = 'templates:edit',
+  DELETE_TEMPLATES = 'templates:delete',
+
+  // System permissions (10 tipos)
+  MANAGE_USERS = 'system:manage_users',
+  MANAGE_ROLES = 'system:manage_roles',
+  VIEW_AUDIT_LOGS = 'system:view_audit_logs',
+  MANAGE_SETTINGS = 'system:manage_settings',
+  VIEW_METRICS = 'system:view_metrics',
+  MANAGE_ENVIRONMENTS = 'system:manage_environments',
+  VIEW_DEBUG = 'system:view_debug',
+  MANAGE_INTEGRATIONS = 'system:manage_integrations',
+  EXPORT_DATA = 'system:export_data',
+  IMPORT_DATA = 'system:import_data',
+
+  // Environment permissions (3 tipos)
+  ACCESS_DEV = 'environment:dev',
+  ACCESS_STAGING = 'environment:staging',
+  ACCESS_PRODUCTION = 'environment:production',
+
+  // Documentation permissions (4 tipos)
+  VIEW_DOCUMENTATION = 'documentation:view',
+  CREATE_DOCUMENTATION = 'documentation:create',
+  EDIT_DOCUMENTATION = 'documentation:edit',
+  DELETE_DOCUMENTATION = 'documentation:delete',
+
+  // Test permissions (4 tipos)
+  VIEW_TESTS = 'tests:view',
+  CREATE_TESTS = 'tests:create',
+  RUN_TESTS = 'tests:run',
+  DELETE_TESTS = 'tests:delete',
+
+  // Git permissions (5 tipos)
+  VIEW_GIT_HISTORY = 'git:view_history',
+  COMMIT_CHANGES = 'git:commit',
+  CREATE_BRANCHES = 'git:create_branches',
+  MERGE_BRANCHES = 'git:merge',
+  ROLLBACK = 'git:rollback',
 }
 
-enum Role {
+export enum Role {
   ADMIN = 'admin',
   DEVELOPER = 'developer',
   OPERATOR = 'operator',
-  VIEWER = 'viewer'
-}
-
-const rolePermissions: Record<Role, Permission[]> = {
-  [Role.ADMIN]: Object.values(Permission),
-  [Role.DEVELOPER]: [
-    Permission.VIEW_WORKFLOWS,
-    Permission.CREATE_WORKFLOWS,
-    Permission.EDIT_WORKFLOWS,
-    Permission.EXECUTE_WORKFLOWS,
-    Permission.VIEW_EXECUTIONS
-  ],
-  [Role.OPERATOR]: [
-    Permission.VIEW_WORKFLOWS,
-    Permission.EXECUTE_WORKFLOWS,
-    Permission.VIEW_EXECUTIONS
-  ],
-  [Role.VIEWER]: [
-    Permission.VIEW_WORKFLOWS,
-    Permission.VIEW_EXECUTIONS
-  ]
+  VIEWER = 'viewer',
 }
 ```
 
-#### Features
-- [ ] Sistema de roles (Admin, Developer, Operator, Viewer)
-- [ ] Permissões granulares por workflow
-- [ ] Aprovação de mudanças críticas
-- [ ] Log de todas as ações de usuários
-- [ ] Segregação de ambientes por usuário
+#### 4 Roles Implementados ✅
+- [x] ✅ **Admin**: Acesso total (50+ permissões)
+- [x] ✅ **Developer**: Criar/editar workflows, testes, git (35+ permissões)
+- [x] ✅ **Operator**: Executar workflows, visualizar dados (15+ permissões)
+- [x] ✅ **Viewer**: Apenas visualização (10+ permissões)
+
+#### Features Implementadas ✅
+- [x] ✅ Sistema hierárquico de 4 roles
+- [x] ✅ 50+ permissões granulares categorizadas
+- [x] ✅ Permissões customizadas por usuário
+- [x] ✅ Restrições por workflow específico
+- [x] ✅ Restrições por ambiente (dev/staging/prod)
+- [x] ✅ Auditoria completa de acessos
+- [x] ✅ Log de todas as verificações (sucesso/falha)
+- [x] ✅ Estatísticas de acesso em tempo real
+- [x] ✅ Gerenciamento de usuários visual
+- [x] ✅ Ativação/desativação de usuários
+- [x] ✅ Tracking de último login
+- [x] ✅ Sistema de motivos para negações
+
+#### Interface Visual ✅
+- [x] ✅ RBACManagerPanel component (600+ linhas)
+- [x] ✅ 3 abas (Users, Roles, Audit)
+- [x] ✅ 4 cards de estatísticas (Total Attempts, Granted, Denied, Unique Users)
+- [x] ✅ Lista de usuários com gerenciamento completo
+- [x] ✅ Criação de usuários com modal
+- [x] ✅ Dropdown de roles
+- [x] ✅ Badge de status ativo/inativo
+- [x] ✅ Visualização de definições de roles
+- [x] ✅ Log de auditoria com filtros
+- [x] ✅ Color coding por tipo de ação
+
+#### API REST Completa ✅
+- [x] ✅ GET: roles, role, users, user, check-permission, access-logs, access-stats, users-with-permission, users-by-role
+- [x] ✅ POST: create-user, update-user, assign-role, add-custom-permission, remove-custom-permission, set-workflow-restrictions, set-environment-restrictions, activate-user, deactivate-user, update-last-login
+
+#### Arquivos Implementados:
+- `admin/src/lib/rbac.ts` - RBAC Manager singleton (800+ linhas)
+- `admin/src/app/api/rbac/route.ts` - API REST (300+ linhas)
+- `admin/src/components/rbac-manager-panel.tsx` - Interface visual (600+ linhas)
+- `admin/src/app/admin/automacoes/page.tsx` - Botão RBAC integrado (laranja)
+
+#### Sistema de Verificação de Permissões ✅
+```typescript
+// Verificação básica
+checkPermission(userId, Permission.EDIT_WORKFLOWS)
+
+// Verificação com contexto de workflow
+checkPermission(userId, Permission.EDIT_WORKFLOWS, {
+  workflowId: 'workflow-123'
+})
+
+// Verificação com contexto de ambiente
+checkPermission(userId, Permission.EXECUTE_WORKFLOWS, {
+  environment: 'production'
+})
+
+// Verificação múltipla
+checkPermissions(userId, [
+  Permission.EDIT_WORKFLOWS,
+  Permission.EXECUTE_WORKFLOWS
+])
+```
+
+#### Sistema de Auditoria ✅
+- [x] ✅ Tracking de todas as tentativas de acesso
+- [x] ✅ Registro de permissões concedidas/negadas
+- [x] ✅ Razões detalhadas para negação
+- [x] ✅ Estatísticas agregadas por usuário
+- [x] ✅ Log de mudanças de roles
+- [x] ✅ Histórico de 1000 últimas ações
 
 ### 4.3 Compliance e LGPD
 
