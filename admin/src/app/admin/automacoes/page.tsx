@@ -23,7 +23,8 @@ import {
   Sparkles,
   Copy,
   Bug,
-  FileCheck
+  FileCheck,
+  Shield
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { WorkflowDocumentationModal } from '@/components/workflow-documentation-modal'
@@ -34,6 +35,7 @@ import { WorkflowEnvironmentSelector } from '@/components/workflow-environment-s
 import { WorkflowTestPanel } from '@/components/workflow-test-panel'
 import { WorkflowDebugPanel } from '@/components/workflow-debug-panel'
 import WorkflowValidationPanel from '@/components/workflow-validation-panel'
+import CredentialsVaultPanel from '@/components/credentials-vault-panel'
 
 interface N8nWorkflow {
   id: string
@@ -104,6 +106,7 @@ export default function AutomacoesPage() {
   const [testPanelOpen, setTestPanelOpen] = useState(false)
   const [debugPanelOpen, setDebugPanelOpen] = useState(false)
   const [validationPanelOpen, setValidationPanelOpen] = useState(false)
+  const [credentialsVaultOpen, setCredentialsVaultOpen] = useState(false)
   const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string; data?: unknown } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
@@ -266,6 +269,15 @@ export default function AutomacoesPage() {
           <Button variant="outline" onClick={fetchWorkflows} disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setCredentialsVaultOpen(true)}
+            className="border-green-200 hover:border-green-300 hover:bg-green-50"
+            title="Vault de Credenciais"
+          >
+            <Shield className="h-4 w-4 mr-2 text-green-600" />
+            Credenciais
           </Button>
           <Button
             variant="outline"
@@ -842,6 +854,11 @@ export default function AutomacoesPage() {
           console.log('Template selecionado:', template)
           // TODO: Implementar criação de workflow a partir do template
         }}
+      />
+
+      <CredentialsVaultPanel
+        open={credentialsVaultOpen}
+        onOpenChange={setCredentialsVaultOpen}
       />
     </div>
   )
