@@ -12,7 +12,8 @@ import {
   PhoneCall,
   Search,
   LineChart,
-  TrendingUp
+  TrendingUp,
+  Zap
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -60,6 +61,11 @@ const sidebarItems = [
     title: 'Benchmark Mercado',
     href: '/admin/benchmark-mercado',
     icon: TrendingUp
+  },
+  {
+    title: 'Automações',
+    href: '/admin/automacoes',
+    icon: Zap
   },
   {
     title: 'Relatórios',
