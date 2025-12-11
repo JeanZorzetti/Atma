@@ -615,7 +615,7 @@ export default function CredentialsVaultPanel({ open, onOpenChange }: Credential
                   <CardTitle>Nova Credencial</CardTitle>
                   <CardDescription>Armazene credenciais de forma segura e criptografada</CardDescription>
                 </CardHeader>
-                <CardContent className="max-h-[60vh] overflow-y-auto">
+                <CardContent>
                   <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium">Nome</label>
