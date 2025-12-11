@@ -58,13 +58,13 @@ export async function POST(request: Request) {
 
     // Calcular métricas
     const totalExecutions = executions.length
-    const successfulRuns = executions.filter(e => e.status === 'success').length
-    const failedRuns = executions.filter(e => e.status === 'error').length
+    const successfulRuns = executions.filter((e: { status: string }) => e.status === 'success').length
+    const failedRuns = executions.filter((e: { status: string }) => e.status === 'error').length
 
     const durations = executions
-      .filter(e => e.duration !== null)
-      .map(e => e.duration as number)
-      .sort((a, b) => a - b)
+      .filter((e: { duration: number | null }) => e.duration !== null)
+      .map((e: { duration: number | null }) => e.duration as number)
+      .sort((a: number, b: number) => a - b)
 
     const averageDuration = durations.length > 0
       ? durations.reduce((sum, d) => sum + d, 0) / durations.length
