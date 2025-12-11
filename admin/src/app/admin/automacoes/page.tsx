@@ -28,6 +28,7 @@ import { WorkflowDocumentationModal } from '@/components/workflow-documentation-
 import { WorkflowGitHistory } from '@/components/workflow-git-history'
 import { WorkflowTemplateGallery } from '@/components/workflow-template-gallery'
 import { WorkflowTemplateCreator } from '@/components/workflow-template-creator'
+import { WorkflowEnvironmentSelector } from '@/components/workflow-environment-selector'
 
 interface N8nWorkflow {
   id: string
@@ -253,6 +254,7 @@ export default function AutomacoesPage() {
           <p className="text-gray-600 mt-2">Gerencie workflows e automações do sistema</p>
         </div>
         <div className="flex gap-2">
+          <WorkflowEnvironmentSelector />
           <Button variant="outline" onClick={fetchWorkflows} disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
