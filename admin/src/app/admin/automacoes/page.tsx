@@ -2,6 +2,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
 import {
   Workflow,
   RefreshCw,
@@ -10,7 +12,12 @@ import {
   AlertCircle,
   Zap,
   ExternalLink,
-  Loader2
+  Loader2,
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  BarChart3
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 
@@ -31,6 +38,37 @@ interface WorkflowStats {
   avgSuccessRate: number
 }
 
+interface WorkflowExecution {
+  id: string
+  workflowId: string
+  workflowName: string
+  status: string
+  startedAt: string
+  finishedAt: string | null
+  duration: number | null
+  nodesExecuted: number
+  errorMessage: string | null
+  logs: WorkflowLog[]
+}
+
+interface WorkflowLog {
+  id: string
+  level: string
+  message: string
+  nodeName: string | null
+  timestamp: string
+}
+
+interface WorkflowAlert {
+  id: string
+  type: string
+  title: string
+  message: string
+  workflowName: string
+  status: string
+  createdAt: string
+}
+
 export default function AutomacoesPage() {
   const [workflows, setWorkflows] = useState<N8nWorkflow[]>([])
   const [stats, setStats] = useState<WorkflowStats>({
@@ -39,7 +77,11 @@ export default function AutomacoesPage() {
     totalExecutions: 0,
     avgSuccessRate: 0
   })
+  const [executions, setExecutions] = useState<WorkflowExecution[]>([])
+  const [alerts, setAlerts] = useState<WorkflowAlert[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingExecutions, setLoadingExecutions] = useState(false)
+  const [loadingAlerts, setLoadingAlerts] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
@@ -66,11 +108,18 @@ export default function AutomacoesPage() {
       const totalWorkflows = workflowsData.length
       const activeWorkflows = workflowsData.filter((w: N8nWorkflow) => w.active).length
 
+      // Buscar execuções para calcular estatísticas
+      const executionsResponse = await fetch('/api/n8n/executions?limit=100')
+      const executionsData = await executionsResponse.json()
+      const totalExecutions = executionsData.total || 0
+      const successfulExecutions = executionsData.executions?.filter((e: WorkflowExecution) => e.status === 'success').length || 0
+      const avgSuccessRate = totalExecutions > 0 ? Math.round((successfulExecutions / totalExecutions) * 100) : 0
+
       setStats({
         totalWorkflows,
         activeWorkflows,
-        totalExecutions: 0, // TODO: Buscar execuções da API
-        avgSuccessRate: 0 // TODO: Calcular taxa de sucesso
+        totalExecutions,
+        avgSuccessRate
       })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar workflows'
@@ -81,13 +130,102 @@ export default function AutomacoesPage() {
     }
   }, [])
 
+  const fetchExecutions = useCallback(async () => {
+    setLoadingExecutions(true)
+    try {
+      const response = await fetch('/api/n8n/executions?limit=20')
+      const data = await response.json()
+      setExecutions(data.executions || [])
+    } catch (err) {
+      console.error('Erro ao buscar execuções:', err)
+    } finally {
+      setLoadingExecutions(false)
+    }
+  }, [])
+
+  const fetchAlerts = useCallback(async () => {
+    setLoadingAlerts(true)
+    try {
+      const response = await fetch('/api/n8n/alerts?status=pending&limit=10')
+      const data = await response.json()
+      setAlerts(data.alerts || [])
+    } catch (err) {
+      console.error('Erro ao buscar alertas:', err)
+    } finally {
+      setLoadingAlerts(false)
+    }
+  }, [])
+
   useEffect(() => {
     fetchWorkflows()
-  }, [fetchWorkflows])
+    fetchExecutions()
+    fetchAlerts()
+  }, [fetchWorkflows, fetchExecutions, fetchAlerts])
+
+  // Auto-refresh a cada 30 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchExecutions()
+      fetchAlerts()
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [fetchExecutions, fetchAlerts])
 
   const openN8nEditor = () => {
     const n8nUrl = process.env.NEXT_PUBLIC_N8N_URL || 'https://ia-n8n.tjmarr.easypanel.host'
     window.open(n8nUrl, '_blank')
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'success':
+        return <CheckCircle2 className="h-4 w-4 text-green-600" />
+      case 'error':
+        return <XCircle className="h-4 w-4 text-red-600" />
+      case 'running':
+        return <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+      default:
+        return <Clock className="h-4 w-4 text-gray-600" />
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, string> = {
+      success: 'bg-green-100 text-green-800',
+      error: 'bg-red-100 text-red-800',
+      running: 'bg-blue-100 text-blue-800',
+      waiting: 'bg-yellow-100 text-yellow-800'
+    }
+    return variants[status] || 'bg-gray-100 text-gray-800'
+  }
+
+  const getAlertIcon = (type: string) => {
+    switch (type) {
+      case 'error':
+      case 'critical':
+        return <XCircle className="h-5 w-5 text-red-600" />
+      case 'warning':
+        return <AlertTriangle className="h-5 w-5 text-yellow-600" />
+      default:
+        return <AlertCircle className="h-5 w-5 text-blue-600" />
+    }
+  }
+
+  const formatDuration = (ms: number | null) => {
+    if (!ms) return '-'
+    if (ms < 1000) return `${ms}ms`
+    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`
+    return `${(ms / 60000).toFixed(1)}min`
+  }
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   return (
@@ -243,68 +381,275 @@ export default function AutomacoesPage() {
         </CardContent>
       </Card>
 
-      {/* Workflows List */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Workflows Configurados</CardTitle>
-              <CardDescription>
-                Automações ativas e configuradas no n8n
-              </CardDescription>
-            </div>
-            <Button onClick={openN8nEditor} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Workflow
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-              <span className="ml-3 text-gray-600">Carregando workflows...</span>
-            </div>
-          ) : workflows.length === 0 ? (
-            <div className="text-center py-12">
-              <Workflow className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600 mb-2">Nenhum workflow configurado ainda</p>
-              <p className="text-sm text-gray-500 mb-4">Crie seu primeiro workflow no n8n para começar a automatizar processos</p>
-              <Button onClick={openN8nEditor}>
-                <Plus className="h-4 w-4 mr-2" />
-                Criar Primeiro Workflow
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {workflows.map((workflow) => (
-                <div
-                  key={workflow.id}
-                  className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:shadow-sm transition-all"
-                >
-                  <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${workflow.active ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+      {/* Tabs com Workflows, Execuções, Logs e Alertas */}
+      <Tabs defaultValue="workflows" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="workflows" className="flex items-center gap-2">
+            <Workflow className="h-4 w-4" />
+            Workflows
+          </TabsTrigger>
+          <TabsTrigger value="executions" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Execuções
+          </TabsTrigger>
+          <TabsTrigger value="alerts" className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            Alertas
+            {alerts.length > 0 && (
+              <Badge className="ml-1 bg-red-500">{alerts.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="metrics" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Métricas
+          </TabsTrigger>
+        </TabsList>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold text-gray-900">{workflow.name}</h4>
-                      <span className={`px-2 py-0.5 text-xs rounded-full ${workflow.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {workflow.active ? 'Ativo' : 'Inativo'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      {workflow.nodes.length} nós • Atualizado em {new Date(workflow.updatedAt).toLocaleDateString('pt-BR')}
-                    </p>
-                  </div>
-
-                  <Button variant="outline" size="sm" onClick={openN8nEditor}>
-                    <ExternalLink className="h-4 w-4" />
+        {/* Tab: Workflows */}
+        <TabsContent value="workflows">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Workflows Configurados</CardTitle>
+                  <CardDescription>
+                    Automações ativas e configuradas no n8n
+                  </CardDescription>
+                </div>
+                <Button onClick={openN8nEditor} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Workflow
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                  <span className="ml-3 text-gray-600">Carregando workflows...</span>
+                </div>
+              ) : workflows.length === 0 ? (
+                <div className="text-center py-12">
+                  <Workflow className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-600 mb-2">Nenhum workflow configurado ainda</p>
+                  <p className="text-sm text-gray-500 mb-4">Crie seu primeiro workflow no n8n para começar a automatizar processos</p>
+                  <Button onClick={openN8nEditor}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Criar Primeiro Workflow
                   </Button>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              ) : (
+                <div className="space-y-4">
+                  {workflows.map((workflow) => (
+                    <div
+                      key={workflow.id}
+                      className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:shadow-sm transition-all"
+                    >
+                      <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${workflow.active ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold text-gray-900">{workflow.name}</h4>
+                          <span className={`px-2 py-0.5 text-xs rounded-full ${workflow.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                            {workflow.active ? 'Ativo' : 'Inativo'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {workflow.nodes.length} nós • Atualizado em {new Date(workflow.updatedAt).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+
+                      <Button variant="outline" size="sm" onClick={openN8nEditor}>
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab: Execuções */}
+        <TabsContent value="executions">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Histórico de Execuções</CardTitle>
+                  <CardDescription>
+                    Últimas execuções de workflows com logs detalhados
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={fetchExecutions} disabled={loadingExecutions}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${loadingExecutions ? 'animate-spin' : ''}`} />
+                  Atualizar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {loadingExecutions ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                  <span className="ml-3 text-gray-600">Carregando execuções...</span>
+                </div>
+              ) : executions.length === 0 ? (
+                <div className="text-center py-12">
+                  <Activity className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-600 mb-2">Nenhuma execução registrada</p>
+                  <p className="text-sm text-gray-500">As execuções de workflows aparecerão aqui</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {executions.map((execution) => (
+                    <div
+                      key={execution.id}
+                      className="border border-gray-200 rounded-lg p-4 space-y-3"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          {getStatusIcon(execution.status)}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold text-gray-900">{execution.workflowName}</h4>
+                              <Badge className={getStatusBadge(execution.status)}>
+                                {execution.status}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {formatDate(execution.startedAt)}
+                              </span>
+                              <span>{formatDuration(execution.duration)}</span>
+                              <span>{execution.nodesExecuted} nós executados</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {execution.errorMessage && (
+                        <div className="bg-red-50 border border-red-200 rounded p-3">
+                          <p className="text-sm text-red-800 font-medium mb-1">Erro:</p>
+                          <p className="text-xs text-red-700">{execution.errorMessage}</p>
+                        </div>
+                      )}
+
+                      {execution.logs && execution.logs.length > 0 && (
+                        <div className="bg-gray-50 rounded p-3 space-y-2">
+                          <p className="text-xs font-medium text-gray-700">Logs:</p>
+                          <div className="space-y-1 max-h-40 overflow-y-auto">
+                            {execution.logs.slice(0, 5).map((log) => (
+                              <div key={log.id} className="flex items-start gap-2 text-xs">
+                                <span className={`font-mono px-1.5 py-0.5 rounded ${
+                                  log.level === 'error' ? 'bg-red-100 text-red-800' :
+                                  log.level === 'warn' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {log.level}
+                                </span>
+                                {log.nodeName && (
+                                  <span className="text-purple-600 font-medium">[{log.nodeName}]</span>
+                                )}
+                                <span className="text-gray-700">{log.message}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab: Alertas */}
+        <TabsContent value="alerts">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Alertas Pendentes</CardTitle>
+                  <CardDescription>
+                    Notificações e alertas que requerem atenção
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={fetchAlerts} disabled={loadingAlerts}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${loadingAlerts ? 'animate-spin' : ''}`} />
+                  Atualizar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {loadingAlerts ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                  <span className="ml-3 text-gray-600">Carregando alertas...</span>
+                </div>
+              ) : alerts.length === 0 ? (
+                <div className="text-center py-12">
+                  <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto mb-3" />
+                  <p className="text-gray-600 mb-2">Nenhum alerta pendente</p>
+                  <p className="text-sm text-gray-500">Todos os workflows estão funcionando corretamente</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {alerts.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className={`border rounded-lg p-4 ${
+                        alert.type === 'critical' || alert.type === 'error'
+                          ? 'border-red-200 bg-red-50'
+                          : alert.type === 'warning'
+                          ? 'border-yellow-200 bg-yellow-50'
+                          : 'border-blue-200 bg-blue-50'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        {getAlertIcon(alert.type)}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-gray-900">{alert.title}</h4>
+                            <Badge className="text-xs">
+                              {alert.type}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-700 mb-2">{alert.message}</p>
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <span>{alert.workflowName}</span>
+                            <span>{formatDate(alert.createdAt)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab: Métricas */}
+        <TabsContent value="metrics">
+          <Card>
+            <CardHeader>
+              <CardTitle>Métricas de Performance</CardTitle>
+              <CardDescription>
+                Análise detalhada de performance e confiabilidade
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600 mb-2">Métricas detalhadas em breve</p>
+                <p className="text-sm text-gray-500">Gráficos de performance, tendências e análises estarão disponíveis aqui</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Quick Guide */}
       <Card>

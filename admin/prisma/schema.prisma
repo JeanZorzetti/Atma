@@ -1,0 +1,194 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Sistema de Logging e Monitoramento para n8n Workflows
+
+model WorkflowExecution {
+  id                String   @id @default(uuid())
+  workflowId        String   // ID do workflow no n8n
+  workflowName      String
+  executionId       String?  // ID da execução no n8n (se disponível)
+  status            String   // success, error, running, waiting
+  startedAt         DateTime @default(now())
+  finishedAt        DateTime?
+  duration          Int?     // Duração em milissegundos
+
+  // Dados de execução
+  mode              String?  // manual, trigger, webhook, etc.
+  triggeredBy       String?  // user, webhook, schedule
+
+  // Métricas
+  nodesExecuted     Int      @default(0)
+  nodesSuccess      Int      @default(0)
+  nodesError        Int      @default(0)
+
+  // Dados e contexto
+  inputData         Json?
+  outputData        Json?
+  errorMessage      String?  @db.Text
+  errorStack        String?  @db.Text
+
+  // Relacionamentos
+  logs              WorkflowLog[]
+  alerts            WorkflowAlert[]
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([status])
+  @@index([startedAt])
+  @@index([executionId])
+  @@map("workflow_executions")
+}
+
+model WorkflowLog {
+  id                String   @id @default(uuid())
+  executionId       String
+  execution         WorkflowExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  // Informações do log
+  level             String   // info, warn, error, debug
+  message           String   @db.Text
+  nodeName          String?
+  nodeType          String?
+
+  // Dados adicionais
+  data              Json?
+
+  // Timestamp
+  timestamp         DateTime @default(now())
+
+  @@index([executionId])
+  @@index([level])
+  @@index([timestamp])
+  @@map("workflow_logs")
+}
+
+model WorkflowAlert {
+  id                String   @id @default(uuid())
+  executionId       String?
+  execution         WorkflowExecution? @relation(fields: [executionId], references: [id], onDelete: SetNull)
+
+  // Informações do alerta
+  type              String   // error, warning, info, critical
+  title             String
+  message           String   @db.Text
+  workflowId        String
+  workflowName      String
+
+  // Status
+  status            String   @default("pending") // pending, sent, failed, acknowledged
+  sentAt            DateTime?
+  acknowledgedAt    DateTime?
+  acknowledgedBy    String?
+
+  // Canais de notificação
+  channels          Json?    // { slack: true, email: true, etc }
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("workflow_alerts")
+}
+
+model WorkflowMetrics {
+  id                String   @id @default(uuid())
+  workflowId        String   @unique
+  workflowName      String
+
+  // Métricas gerais
+  totalExecutions   Int      @default(0)
+  successfulRuns    Int      @default(0)
+  failedRuns        Int      @default(0)
+  averageDuration   Float?   // em milissegundos
+
+  // Disponibilidade
+  uptime            Float?   // porcentagem
+  lastSuccessAt     DateTime?
+  lastFailureAt     DateTime?
+
+  // Performance
+  p50Duration       Float?   // mediana
+  p95Duration       Float?   // 95º percentil
+  p99Duration       Float?   // 99º percentil
+
+  // Período
+  periodStart       DateTime
+  periodEnd         DateTime
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([workflowId])
+  @@map("workflow_metrics")
+}
+
+model WorkflowHealthCheck {
+  id                String   @id @default(uuid())
+  workflowId        String
+  workflowName      String
+
+  // Status do health check
+  status            String   // healthy, degraded, down
+  responseTime      Int?     // em milissegundos
+
+  // Detalhes
+  checks            Json?    // { api: "ok", database: "ok", etc }
+  errorMessage      String?  @db.Text
+
+  // Timestamp
+  checkedAt         DateTime @default(now())
+
+  @@index([workflowId])
+  @@index([status])
+  @@index([checkedAt])
+  @@map("workflow_health_checks")
+}
+
+// Configurações de Alertas
+model AlertConfiguration {
+  id                String   @id @default(uuid())
+  workflowId        String   @unique
+  workflowName      String
+
+  // Configurações
+  enabled           Boolean  @default(true)
+
+  // Canais
+  slackEnabled      Boolean  @default(false)
+  slackWebhook      String?  @db.Text
+  slackChannel      String?
+
+  emailEnabled      Boolean  @default(false)
+  emailRecipients   Json?    // array de emails
+
+  // Regras
+  alertOnError      Boolean  @default(true)
+  alertOnWarning    Boolean  @default(false)
+  alertOnSlowExecution Boolean @default(false)
+  slowExecutionThreshold Int? // em milissegundos
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([workflowId])
+  @@map("alert_configurations")
+}
