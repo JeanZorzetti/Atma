@@ -545,48 +545,109 @@ export class WorkflowTestRunner {
 - [ ] CI/CD pipeline com testes automáticos
 - [ ] Dashboard de coverage avançado
 
-### 3.3 Modo de Debug
+### 3.2 Modo de Debug ✅ COMPLETO
 
-#### Interface de Debug
-```tsx
-<Card className="bg-yellow-50 border-yellow-200">
-  <CardHeader>
-    <CardTitle className="flex items-center gap-2">
-      <Bug className="h-5 w-5" />
-      Modo Debug
-    </CardTitle>
-  </CardHeader>
-  <CardContent>
-    <div className="space-y-4">
-      <Button onClick={() => executeWithDebug(workflowId)}>
-        Executar com Debug
-      </Button>
-
-      {debugOutput && (
-        <div className="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm max-h-96 overflow-y-auto">
-          {debugOutput.nodes.map(node => (
-            <div key={node.id} className="mb-4">
-              <div className="font-bold">📦 {node.name}</div>
-              <div className="ml-4">
-                <div>Input: {JSON.stringify(node.input, null, 2)}</div>
-                <div>Output: {JSON.stringify(node.output, null, 2)}</div>
-                <div>Duration: {node.duration}ms</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  </CardContent>
-</Card>
+```typescript
+// admin/src/lib/workflow-debug.ts - IMPLEMENTADO
+export class WorkflowDebugger {
+  async startDebugSession(workflowId, workflowName, inputData, mode, n8nApiUrl, n8nApiKey): Promise<DebugSession>
+  async continueExecution(sessionId: string): Promise<DebugSession>
+  async stepNext(sessionId: string): Promise<DebugStep | null>
+  addBreakpoint(workflowId, nodeId, nodeName, condition?): Breakpoint
+  removeBreakpoint(workflowId, breakpointId): void
+  addWatchVariable(workflowId, expression): WatchVariable
+}
 ```
 
-#### Features
-- [ ] Executar workflow passo a passo
-- [ ] Inspecionar input/output de cada nó
-- [ ] Breakpoints visuais
-- [ ] Console de logs em tempo real
-- [ ] Replay de execuções anteriores
+#### Features Implementadas ✅
+- [x] ✅ 3 modos de debug (continuous, step-by-step, breakpoint)
+- [x] ✅ Execução passo a passo
+- [x] ✅ Inspeção de input/output de cada nó
+- [x] ✅ Sistema de breakpoints com condições
+- [x] ✅ Watch variables com expressões JavaScript
+- [x] ✅ Polling em tempo real para atualizações
+- [x] ✅ Gerenciamento de sessões de debug
+- [x] ✅ Interface visual interativa (WorkflowDebugPanel)
+- [x] ✅ Integração com sistema de ambientes
+- [x] ✅ API REST completa (/api/n8n/debug)
+
+#### Arquivos Implementados:
+- `admin/src/lib/workflow-debug.ts` - Debugger singleton
+- `admin/src/app/api/n8n/debug/route.ts` - API de debug
+- `admin/src/components/workflow-debug-panel.tsx` - Interface de debug
+- `admin/src/app/admin/automacoes/page.tsx` - Botão de debug integrado
+
+### 3.3 Validação de Workflows ✅ COMPLETO
+
+```typescript
+// admin/src/lib/workflow-validator.ts - IMPLEMENTADO
+export class WorkflowValidator {
+  async validateWorkflow(workflowData: WorkflowData): Promise<ValidationResult>
+  updateConfig(config: Partial<WorkflowValidationConfig>): void
+  getRecommendations(result: ValidationResult): string[]
+}
+```
+
+#### 6 Categorias de Validação Implementadas ✅
+- [x] ✅ **Schema**: Estrutura básica do workflow (nome, nós, IDs)
+- [x] ✅ **Best Practices**: Padrões e organização (triggers, tags, nomenclatura)
+- [x] ✅ **Performance**: Otimização (loops, timeouts, waits, API calls)
+- [x] ✅ **Security**: Segurança (credenciais hardcoded, webhooks sem auth, logs sensíveis)
+- [x] ✅ **Naming**: Convenções de nomenclatura (nomes descritivos, duplicatas)
+- [x] ✅ **Error Handling**: Tratamento de erros (retry, continueOnFail, error workflows)
+
+#### Sistema de Scoring ✅
+- [x] ✅ Score 0-100 baseado em severidade dos problemas
+- [x] ✅ 3 níveis de severidade: error (crítico), warning (importante), info (sugestão)
+- [x] ✅ Score por categoria individual
+- [x] ✅ Recomendações personalizadas baseadas no score
+- [x] ✅ Identificação de nó específico para cada problema
+- [x] ✅ Sugestões de correção para cada issue
+
+#### Validações Específicas Implementadas ✅
+- [x] ✅ Detecção de credenciais hardcoded
+- [x] ✅ Verificação de webhooks sem autenticação
+- [x] ✅ Identificação de loops sem limite
+- [x] ✅ Detecção de HTTP requests sem timeout
+- [x] ✅ Análise de waits muito longos
+- [x] ✅ Verificação de nós sem tratamento de erro
+- [x] ✅ Validação de retry configuration
+- [x] ✅ Detecção de nomes duplicados
+- [x] ✅ Verificação de nomes padrão/genéricos
+- [x] ✅ Análise de workflows muito longos (>20 nós)
+- [x] ✅ Verificação de nós desabilitados
+- [x] ✅ Validação de triggers
+- [x] ✅ Detecção de logs de dados sensíveis
+
+#### Features Implementadas ✅
+- [x] ✅ WorkflowValidationPanel component interativo
+- [x] ✅ 4 abas (Visão Geral, Problemas, Categorias, Configuração)
+- [x] ✅ Cards de resumo (erros, avisos, info)
+- [x] ✅ Lista detalhada de problemas com sugestões de correção
+- [x] ✅ Visualização de score por categoria
+- [x] ✅ Barras de progresso para scores
+- [x] ✅ Sistema de recomendações automático
+- [x] ✅ Configuração granular de validações
+- [x] ✅ Modo estrito opcional
+- [x] ✅ Color coding por severidade
+- [x] ✅ Badges por categoria
+- [x] ✅ API REST completa (/api/n8n/validate)
+- [x] ✅ Validação direta do n8n (fetch automático)
+- [x] ✅ Integração com sistema de ambientes
+
+#### Arquivos Implementados:
+- `admin/src/lib/workflow-validator.ts` - Validador singleton (900+ linhas)
+- `admin/src/app/api/n8n/validate/route.ts` - API de validação
+- `admin/src/components/workflow-validation-panel.tsx` - Interface de validação (600+ linhas)
+- `admin/src/app/admin/automacoes/page.tsx` - Botão de validação integrado
+
+#### Códigos de Erro (20+ tipos):
+- SCHEMA_*: Problemas de estrutura
+- BP_*: Best practices
+- PERF_*: Performance
+- SEC_*: Segurança
+- NAMING_*: Nomenclatura
+- ERROR_*: Error handling
 
 ---
 

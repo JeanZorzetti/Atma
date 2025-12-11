@@ -22,7 +22,8 @@ import {
   GitBranch,
   Sparkles,
   Copy,
-  Bug
+  Bug,
+  FileCheck
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { WorkflowDocumentationModal } from '@/components/workflow-documentation-modal'
@@ -32,6 +33,7 @@ import { WorkflowTemplateCreator } from '@/components/workflow-template-creator'
 import { WorkflowEnvironmentSelector } from '@/components/workflow-environment-selector'
 import { WorkflowTestPanel } from '@/components/workflow-test-panel'
 import { WorkflowDebugPanel } from '@/components/workflow-debug-panel'
+import WorkflowValidationPanel from '@/components/workflow-validation-panel'
 
 interface N8nWorkflow {
   id: string
@@ -101,6 +103,7 @@ export default function AutomacoesPage() {
   const [templateCreatorOpen, setTemplateCreatorOpen] = useState(false)
   const [testPanelOpen, setTestPanelOpen] = useState(false)
   const [debugPanelOpen, setDebugPanelOpen] = useState(false)
+  const [validationPanelOpen, setValidationPanelOpen] = useState(false)
   const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string; data?: unknown } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
@@ -536,6 +539,17 @@ export default function AutomacoesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
+                            setSelectedWorkflow({ id: workflow.id, name: workflow.name })
+                            setValidationPanelOpen(true)
+                          }}
+                          title="Validar Workflow"
+                        >
+                          <FileCheck className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
                             setSelectedWorkflow({ id: workflow.id, name: workflow.name, data: workflow })
                             setTemplateCreatorOpen(true)
                           }}
@@ -809,6 +823,12 @@ export default function AutomacoesPage() {
           <WorkflowDebugPanel
             open={debugPanelOpen}
             onOpenChange={setDebugPanelOpen}
+            workflowId={selectedWorkflow.id}
+            workflowName={selectedWorkflow.name}
+          />
+          <WorkflowValidationPanel
+            open={validationPanelOpen}
+            onOpenChange={setValidationPanelOpen}
             workflowId={selectedWorkflow.id}
             workflowName={selectedWorkflow.name}
           />
