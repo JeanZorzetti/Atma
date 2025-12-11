@@ -21,7 +21,8 @@ import {
   FileText,
   GitBranch,
   Sparkles,
-  Copy
+  Copy,
+  Bug
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { WorkflowDocumentationModal } from '@/components/workflow-documentation-modal'
@@ -30,6 +31,7 @@ import { WorkflowTemplateGallery } from '@/components/workflow-template-gallery'
 import { WorkflowTemplateCreator } from '@/components/workflow-template-creator'
 import { WorkflowEnvironmentSelector } from '@/components/workflow-environment-selector'
 import { WorkflowTestPanel } from '@/components/workflow-test-panel'
+import { WorkflowDebugPanel } from '@/components/workflow-debug-panel'
 
 interface N8nWorkflow {
   id: string
@@ -98,6 +100,7 @@ export default function AutomacoesPage() {
   const [templateGalleryOpen, setTemplateGalleryOpen] = useState(false)
   const [templateCreatorOpen, setTemplateCreatorOpen] = useState(false)
   const [testPanelOpen, setTestPanelOpen] = useState(false)
+  const [debugPanelOpen, setDebugPanelOpen] = useState(false)
   const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string; data?: unknown } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
@@ -522,6 +525,17 @@ export default function AutomacoesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
+                            setSelectedWorkflow({ id: workflow.id, name: workflow.name })
+                            setDebugPanelOpen(true)
+                          }}
+                          title="Modo Debug"
+                        >
+                          <Bug className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
                             setSelectedWorkflow({ id: workflow.id, name: workflow.name, data: workflow })
                             setTemplateCreatorOpen(true)
                           }}
@@ -789,6 +803,12 @@ export default function AutomacoesPage() {
           <WorkflowTestPanel
             open={testPanelOpen}
             onOpenChange={setTestPanelOpen}
+            workflowId={selectedWorkflow.id}
+            workflowName={selectedWorkflow.name}
+          />
+          <WorkflowDebugPanel
+            open={debugPanelOpen}
+            onOpenChange={setDebugPanelOpen}
             workflowId={selectedWorkflow.id}
             workflowName={selectedWorkflow.name}
           />
