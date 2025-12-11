@@ -18,10 +18,12 @@ import {
   CheckCircle2,
   XCircle,
   BarChart3,
-  FileText
+  FileText,
+  GitBranch
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { WorkflowDocumentationModal } from '@/components/workflow-documentation-modal'
+import { WorkflowGitHistory } from '@/components/workflow-git-history'
 
 interface N8nWorkflow {
   id: string
@@ -86,6 +88,7 @@ export default function AutomacoesPage() {
   const [loadingAlerts, setLoadingAlerts] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [documentationModalOpen, setDocumentationModalOpen] = useState(false)
+  const [gitHistoryModalOpen, setGitHistoryModalOpen] = useState(false)
   const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
@@ -475,6 +478,17 @@ export default function AutomacoesPage() {
                         >
                           <FileText className="h-4 w-4" />
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedWorkflow({ id: workflow.id, name: workflow.name })
+                            setGitHistoryModalOpen(true)
+                          }}
+                          title="Histórico Git"
+                        >
+                          <GitBranch className="h-4 w-4" />
+                        </Button>
                         <Button variant="outline" size="sm" onClick={openN8nEditor}>
                           <ExternalLink className="h-4 w-4" />
                         </Button>
@@ -711,12 +725,20 @@ export default function AutomacoesPage() {
 
       {/* Modal de Documentação */}
       {selectedWorkflow && (
-        <WorkflowDocumentationModal
-          open={documentationModalOpen}
-          onOpenChange={setDocumentationModalOpen}
-          workflowId={selectedWorkflow.id}
-          workflowName={selectedWorkflow.name}
-        />
+        <>
+          <WorkflowDocumentationModal
+            open={documentationModalOpen}
+            onOpenChange={setDocumentationModalOpen}
+            workflowId={selectedWorkflow.id}
+            workflowName={selectedWorkflow.name}
+          />
+          <WorkflowGitHistory
+            open={gitHistoryModalOpen}
+            onOpenChange={setGitHistoryModalOpen}
+            workflowId={selectedWorkflow.id}
+            workflowName={selectedWorkflow.name}
+          />
+        </>
       )}
     </div>
   )
