@@ -86,8 +86,8 @@ export async function POST(request: Request) {
       ? (successfulRuns / totalExecutions) * 100
       : null
 
-    const lastSuccess = executions.find(e => e.status === 'success')
-    const lastFailure = executions.find(e => e.status === 'error')
+    const lastSuccess = executions.find((e: { status: string }) => e.status === 'success')
+    const lastFailure = executions.find((e: { status: string }) => e.status === 'error')
 
     const periodStart = executions[executions.length - 1].startedAt
     const periodEnd = executions[0].startedAt
