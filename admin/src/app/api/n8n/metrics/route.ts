@@ -67,7 +67,7 @@ export async function POST(request: Request) {
       .sort((a: number, b: number) => a - b)
 
     const averageDuration = durations.length > 0
-      ? durations.reduce((sum, d) => sum + d, 0) / durations.length
+      ? durations.reduce((sum: number, d: number) => sum + d, 0) / durations.length
       : null
 
     const p50Duration = durations.length > 0
