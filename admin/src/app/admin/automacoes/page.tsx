@@ -19,11 +19,15 @@ import {
   XCircle,
   BarChart3,
   FileText,
-  GitBranch
+  GitBranch,
+  Sparkles,
+  Copy
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { WorkflowDocumentationModal } from '@/components/workflow-documentation-modal'
 import { WorkflowGitHistory } from '@/components/workflow-git-history'
+import { WorkflowTemplateGallery } from '@/components/workflow-template-gallery'
+import { WorkflowTemplateCreator } from '@/components/workflow-template-creator'
 
 interface N8nWorkflow {
   id: string
@@ -89,7 +93,9 @@ export default function AutomacoesPage() {
   const [error, setError] = useState<string | null>(null)
   const [documentationModalOpen, setDocumentationModalOpen] = useState(false)
   const [gitHistoryModalOpen, setGitHistoryModalOpen] = useState(false)
-  const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string } | null>(null)
+  const [templateGalleryOpen, setTemplateGalleryOpen] = useState(false)
+  const [templateCreatorOpen, setTemplateCreatorOpen] = useState(false)
+  const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string; data?: unknown } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
     setLoading(true)
@@ -250,6 +256,14 @@ export default function AutomacoesPage() {
           <Button variant="outline" onClick={fetchWorkflows} disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setTemplateGalleryOpen(true)}
+            className="border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+          >
+            <Sparkles className="h-4 w-4 mr-2 text-purple-600" />
+            Templates
           </Button>
           <Button onClick={openN8nEditor} className="bg-purple-600 hover:bg-purple-700">
             <ExternalLink className="h-4 w-4 mr-2" />
@@ -489,6 +503,17 @@ export default function AutomacoesPage() {
                         >
                           <GitBranch className="h-4 w-4" />
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedWorkflow({ id: workflow.id, name: workflow.name, data: workflow })
+                            setTemplateCreatorOpen(true)
+                          }}
+                          title="Criar Template"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
                         <Button variant="outline" size="sm" onClick={openN8nEditor}>
                           <ExternalLink className="h-4 w-4" />
                         </Button>
@@ -723,7 +748,7 @@ export default function AutomacoesPage() {
         </CardContent>
       </Card>
 
-      {/* Modal de Documentação */}
+      {/* Modais */}
       {selectedWorkflow && (
         <>
           <WorkflowDocumentationModal
@@ -738,8 +763,25 @@ export default function AutomacoesPage() {
             workflowId={selectedWorkflow.id}
             workflowName={selectedWorkflow.name}
           />
+          <WorkflowTemplateCreator
+            open={templateCreatorOpen}
+            onOpenChange={setTemplateCreatorOpen}
+            workflowId={selectedWorkflow.id}
+            workflowName={selectedWorkflow.name}
+            workflowData={selectedWorkflow.data}
+            onTemplateCreated={fetchWorkflows}
+          />
         </>
       )}
+
+      <WorkflowTemplateGallery
+        open={templateGalleryOpen}
+        onOpenChange={setTemplateGalleryOpen}
+        onSelectTemplate={(template) => {
+          console.log('Template selecionado:', template)
+          // TODO: Implementar criação de workflow a partir do template
+        }}
+      />
     </div>
   )
 }
