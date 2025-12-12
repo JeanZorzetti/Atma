@@ -39,6 +39,7 @@ import WorkflowValidationPanel from '@/components/workflow-validation-panel'
 import CredentialsVaultPanel from '@/components/credentials-vault-panel'
 import RBACManagerPanel from '@/components/rbac-manager-panel'
 import CompliancePanel from '@/components/compliance-panel'
+import WorkflowAnalyticsPanel from '@/components/workflow-analytics-panel'
 
 interface N8nWorkflow {
   id: string
@@ -112,6 +113,7 @@ export default function AutomacoesPage() {
   const [credentialsVaultOpen, setCredentialsVaultOpen] = useState(false)
   const [rbacManagerOpen, setRbacManagerOpen] = useState(false)
   const [compliancePanelOpen, setCompliancePanelOpen] = useState(false)
+  const [analyticsPanelOpen, setAnalyticsPanelOpen] = useState(false)
   const [selectedWorkflow, setSelectedWorkflow] = useState<{ id: string; name: string; data?: unknown } | null>(null)
 
   const fetchWorkflows = useCallback(async () => {
@@ -301,6 +303,15 @@ export default function AutomacoesPage() {
           >
             <Shield className="h-4 w-4 mr-2 text-purple-600" />
             Compliance
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setAnalyticsPanelOpen(true)}
+            className="border-cyan-200 hover:border-cyan-300 hover:bg-cyan-50"
+            title="Analytics e Otimização"
+          >
+            <BarChart3 className="h-4 w-4 mr-2 text-cyan-600" />
+            Analytics
           </Button>
           <Button
             variant="outline"
@@ -892,6 +903,13 @@ export default function AutomacoesPage() {
       <CompliancePanel
         open={compliancePanelOpen}
         onOpenChange={setCompliancePanelOpen}
+      />
+
+      <WorkflowAnalyticsPanel
+        open={analyticsPanelOpen}
+        onOpenChange={setAnalyticsPanelOpen}
+        workflowId={selectedWorkflow?.id}
+        workflowName={selectedWorkflow?.name}
       />
     </div>
   )
