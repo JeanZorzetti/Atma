@@ -1,948 +1,645 @@
-"use client"
-
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { DateRange } from 'react-day-picker'
-import { subDays } from 'date-fns'
+import { Metadata } from 'next'
+import { Suspense } from 'react'
+import {
+  getSEOMetrics,
+  getSEOByCountry,
+  getSEOByDevice,
+  getSearchAppearances,
+  getKeywordOpportunities,
+} from '@/lib/google-search-console'
+import { generateForecast, combineDataForChart } from '@/lib/seo-forecasting'
+import { getCrUXMetricsBoth } from '@/lib/crux-report'
+import { getPageSpeedMetricsBatch } from '@/lib/pagespeed-insights'
+import { compareKeywords, getRelatedQueries, getTrendingSearches } from '@/lib/google-trends'
+import {
+  inspectURLsBatch,
+  extractErrors,
+  generateCoverageSummary,
+  type URLInspectionResult,
+  type InspectionError,
+  type CoverageSummary,
+} from '@/lib/url-inspection'
+import { SEOMetricsChart } from '@/components/admin/seo-chart'
+import { DateRangePicker } from '@/components/admin/date-range-picker'
+import { SeoAssistant } from '@/components/admin/seo-assistant'
+import { SEODeviceBreakdown } from '@/components/admin/seo-device-breakdown'
+import { SEOCountryTable } from '@/components/admin/seo-country-table'
+import { SEOSearchAppearances } from '@/components/admin/seo-appearances'
+import { SEOKeywordOpportunities } from '@/components/admin/seo-opportunities'
+import { SEOWebVitals } from '@/components/admin/seo-web-vitals'
+import { SEOCriticalPages } from '@/components/admin/seo-critical-pages'
+import { SEOTrendsChart } from '@/components/admin/seo-trends-chart'
+import { SEOTrendingKeywords } from '@/components/admin/seo-trending-keywords'
+import { SEOCoverageDashboard } from '@/components/admin/seo-coverage-dashboard'
+import { SEOIndexationErrors } from '@/components/admin/seo-indexation-errors'
+import { SEOAnomalyAlerts } from '@/components/admin/seo-anomaly-alerts'
+import { PeriodComparator } from '@/components/admin/period-comparator'
+import { SEORankingPredictions } from '@/components/admin/seo-ranking-predictions'
+import { SEOTopicClusters } from '@/components/admin/seo-topic-clusters'
+import { SEOContentCalendar } from '@/components/admin/seo-content-calendar'
+import {
+  detectAllAnomalies,
+  type DetectAnomaliesResponse,
+} from '@/lib/ml/anomaly-detection'
+import {
+  predictRankingOpportunities,
+  type RankingPredictionResponse,
+} from '@/lib/ml/ranking-prediction'
+import {
+  clusterKeywords,
+  type KeywordClusteringResponse,
+} from '@/lib/ml/keyword-clustering'
+import {
+  predictContentDecay,
+  type ContentDecayResponse,
+} from '@/lib/ml/content-decay'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { DateRangePicker } from '@/components/ui/date-range-picker'
-import {
-  TrendingUp,
-  Eye,
-  MousePointerClick,
-  Target,
-  Search,
-  FileText,
-  AlertTriangle,
-  CheckCircle2,
-  RefreshCw,
-  Loader2,
-  ExternalLink,
-  Lock,
-  Unlock
-} from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
-import {
-  useSearchConsoleAuth,
-  useSearchConsoleMetrics,
-  useSearchConsoleKeywords,
-  useSearchConsolePages,
-  useSearchConsoleAlerts,
-  useSearchConsoleValidation
-} from '@/hooks/useSearchConsole'
+import { Search, MousePointer, Eye, TrendingUp, AlertCircle, Loader2, Sparkles, TrendingDown, Minus, Target } from 'lucide-react'
 
-function SEODashboardContent() {
-  const searchParams = useSearchParams()
-  const { toast } = useToast()
-  const [syncing, setSyncing] = useState(false)
+export const metadata: Metadata = {
+  title: 'SEO Command Center - Admin | Atma',
+}
 
-  // Date range state (default: last 7 days, accounting for GSC delay)
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 9), // 9 days ago
-    to: subDays(new Date(), 3),   // 3 days ago (accounting for GSC delay)
-  })
+export const dynamic = 'force-dynamic'
 
-  // Authentication hook
-  const { authStatus, loading: authLoading, getAuthUrl, revokeAuth } = useSearchConsoleAuth()
+interface SEOPageProps {
+  searchParams: Promise<{ from?: string; to?: string }>
+}
 
-  // Convert dateRange to strings for API
-  const startDateStr = dateRange?.from?.toISOString().split('T')[0]
-  const endDateStr = dateRange?.to?.toISOString().split('T')[0]
-
-  // Data hooks (only active if authenticated) - pass date range
-  const { summary, loading: metricsLoading, syncMetrics } = useSearchConsoleMetrics(30, startDateStr, endDateStr)
-  const { keywords, loading: keywordsLoading } = useSearchConsoleKeywords(undefined, 10)
-  const { pages, loading: pagesLoading } = useSearchConsolePages(undefined, 10)
-  const { alerts, loading: alertsLoading, resolveAlert } = useSearchConsoleAlerts(true)
-  const { validation, loading: validationLoading, resyncPeriod: resyncPeriodHook } = useSearchConsoleValidation(startDateStr, endDateStr)
-
-  // Check for OAuth callback
-  useEffect(() => {
-    const authParam = searchParams.get('auth')
-    if (authParam === 'success') {
-      toast({
-        title: "Autenticação realizada!",
-        description: "Google Search Console conectado com sucesso.",
-      })
-    } else if (authParam === 'error') {
-      const message = searchParams.get('message') || 'Erro desconhecido'
-      toast({
-        title: "Erro na autenticação",
-        description: message,
-        variant: "destructive"
-      })
-    }
-  }, [searchParams, toast])
-
-  const handleAuthorize = async () => {
-    try {
-      const authUrl = await getAuthUrl()
-      window.location.href = authUrl
-    } catch (error) {
-      toast({
-        title: "Erro ao autorizar",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleRevoke = async () => {
-    if (!confirm('Tem certeza que deseja desconectar o Google Search Console?')) return
-
-    try {
-      await revokeAuth()
-      toast({
-        title: "Autorização revogada",
-        description: "Google Search Console desconectado com sucesso.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erro ao revogar",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleSync = async () => {
-    if (!dateRange?.from || !dateRange?.to) {
-      toast({
-        title: "Selecione um período",
-        description: "Por favor, selecione as datas de início e fim para sincronizar.",
-        variant: "destructive"
-      })
-      return
-    }
-
-    setSyncing(true)
-    try {
-      const startDateStr = dateRange.from.toISOString().split('T')[0]
-      const endDateStr = dateRange.to.toISOString().split('T')[0]
-
-      await syncMetrics({ startDate: startDateStr, endDate: endDateStr })
-
-      toast({
-        title: "Sincronização concluída!",
-        description: `Dados sincronizados de ${startDateStr} até ${endDateStr}`,
-      })
-    } catch (error) {
-      toast({
-        title: "Erro na sincronização",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
-        variant: "destructive"
-      })
-    } finally {
-      setSyncing(false)
-    }
-  }
-
-  const handleSync90Days = async () => {
-    setSyncing(true)
-    try {
-      const endDate = subDays(new Date(), 3) // 3 days ago (GSC delay)
-      const startDate = subDays(new Date(), 93) // 90 days before that
-
-      const startDateStr = startDate.toISOString().split('T')[0]
-      const endDateStr = endDate.toISOString().split('T')[0]
-
-      // Update date range picker to show what we're syncing
-      setDateRange({ from: startDate, to: endDate })
-
-      toast({
-        title: "Sincronizando últimos 90 dias...",
-        description: "Isso pode levar ~2 minutos. Aguarde...",
-      })
-
-      await syncMetrics({ startDate: startDateStr, endDate: endDateStr })
-
-      toast({
-        title: "Sincronização completa!",
-        description: `90 dias de dados importados com sucesso (${startDateStr} a ${endDateStr})`,
-      })
-    } catch (error) {
-      toast({
-        title: "Erro na sincronização",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
-        variant: "destructive"
-      })
-    } finally {
-      setSyncing(false)
-    }
-  }
-
-  const handleResolveAlert = async (alertId: number) => {
-    try {
-      await resolveAlert(alertId)
-      toast({
-        title: "Alerta resolvido",
-        description: "O alerta foi marcado como resolvido.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erro ao resolver alerta",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleResyncPeriod = async () => {
-    if (!dateRange?.from || !dateRange?.to) {
-      toast({
-        title: "Selecione um período",
-        description: "Por favor, selecione as datas de início e fim para ressincronizar.",
-        variant: "destructive"
-      })
-      return
-    }
-
-    if (!validation || validation.missingDays === 0) {
-      toast({
-        title: "Nenhum dado faltando",
-        description: "O período selecionado já possui todos os dados.",
-      })
-      return
-    }
-
-    setSyncing(true)
-    try {
-      const startDateStr = dateRange.from.toISOString().split('T')[0]
-      const endDateStr = dateRange.to.toISOString().split('T')[0]
-
-      toast({
-        title: "Ressincronizando dados faltantes...",
-        description: `Importando ${validation.missingDays} dias de dados. Isso pode levar alguns minutos...`,
-      })
-
-      const result = await resyncPeriodHook(startDateStr, endDateStr)
-
-      toast({
-        title: "Ressincronização concluída!",
-        description: `${result.successful} de ${result.totalMissingDates} datas sincronizadas com sucesso.`,
-      })
-    } catch (error) {
-      toast({
-        title: "Erro na ressincronização",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
-        variant: "destructive"
-      })
-    } finally {
-      setSyncing(false)
-    }
-  }
-
-  // Loading state
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Verificando autenticação...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Not authenticated state
-  if (!authStatus?.authenticated) {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard SEO</h1>
-            <p className="text-gray-600 mt-2">Métricas do Google Search Console</p>
-          </div>
-        </div>
-
-        <Card className="border-blue-200 bg-blue-50">
-          <CardHeader>
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-lg bg-blue-100">
-                <Lock className="h-6 w-6 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <CardTitle className="text-xl">Conectar ao Google Search Console</CardTitle>
-                <CardDescription className="mt-2">
-                  Para visualizar métricas de SEO, você precisa conectar sua conta do Google Search Console.
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="bg-white p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">O que você terá acesso:</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    Impressões, cliques, CTR e posição média
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    Top 20 palavras-chave com melhor desempenho
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    Páginas com maior tráfego orgânico
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    Alertas automáticos para quedas de performance
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    Histórico de até 90 dias de métricas
-                  </li>
-                </ul>
-              </div>
-
-              <Button onClick={handleAuthorize} className="w-full bg-blue-600 hover:bg-blue-700">
-                <Unlock className="mr-2 h-4 w-4" />
-                Conectar ao Google Search Console
-              </Button>
-
-              <p className="text-xs text-gray-500 text-center">
-                Você será redirecionado para autorizar o acesso somente leitura ao Search Console
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Authenticated - show dashboard
+function LoadingState() {
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard SEO</h1>
-          <p className="text-gray-600 mt-2">Google Search Console</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSync}
-            disabled={syncing}
-          >
-            {syncing ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
-            Sincronizar
-          </Button>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleSync90Days}
-            disabled={syncing}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            {syncing ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
-            Sincronizar 90 dias
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRevoke}
-            disabled={syncing}
-          >
-            Desconectar
-          </Button>
-        </div>
-      </div>
-
-      {/* Date Range Picker */}
-      <div className="flex items-center gap-4">
-        <DateRangePicker
-          date={dateRange}
-          onDateChange={setDateRange}
-          disabled={syncing}
-        />
-        <p className="text-sm text-gray-500">
-          Selecione o período para sincronizar ou visualizar métricas
-        </p>
-      </div>
-
-      {/* Alerts */}
-      {alerts && alerts.length > 0 && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            <div className="flex justify-between items-center">
-              <span className="font-semibold">
-                {alerts.length} {alerts.length === 1 ? 'alerta ativo' : 'alertas ativos'} detectados
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  // Scroll to alerts tab
-                  document.getElementById('alerts-tab')?.click()
-                }}
-              >
-                Ver alertas
-              </Button>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Data Coverage Alert */}
-      {validation && parseFloat(validation.coverage) < 90 && (
-        <Alert className="border-orange-200 bg-orange-50">
-          <AlertTriangle className="h-4 w-4 text-orange-600" />
-          <AlertDescription>
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="font-semibold text-orange-900">
-                  Cobertura de dados: {validation.coverage} ({validation.daysWithData}/{validation.expectedDays} dias)
-                </span>
-                <p className="text-sm text-orange-700 mt-1">
-                  {validation.missingDays} {validation.missingDays === 1 ? 'dia está faltando' : 'dias estão faltando'}.
-                  Isso pode afetar a precisão das métricas exibidas.
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleResyncPeriod}
-                disabled={syncing || validationLoading}
-                className="bg-orange-100 hover:bg-orange-200 text-orange-900 border-orange-300"
-              >
-                {syncing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Ressincronizando...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Ressincronizar {validation.missingDays} {validation.missingDays === 1 ? 'dia' : 'dias'}
-                  </>
-                )}
-              </Button>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Data Coverage OK */}
-      {validation && parseFloat(validation.coverage) >= 90 && (
-        <Alert className="border-green-200 bg-green-50">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertDescription>
-            <span className="font-semibold text-green-900">
-              Cobertura de dados: {validation.coverage} ({validation.daysWithData}/{validation.expectedDays} dias)
-            </span>
-            <span className="text-sm text-green-700 ml-2">
-              - {validation.recommendation}
-            </span>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Data Validation & Sync Status Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-blue-600" />
-            Validação de Dados e Sincronização
-          </CardTitle>
-          <CardDescription>
-            Compare os dados do dashboard com o Google Search Console e veja o status da sincronização
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left: Dashboard Metrics */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                Dashboard Atma
-              </h3>
-              <div className="bg-blue-50 p-4 rounded-lg space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Impressões:</span>
-                  <span className="font-bold text-lg">
-                    {summary?.totalImpressions?.toLocaleString('pt-BR') || '0'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Cliques:</span>
-                  <span className="font-bold text-lg">
-                    {summary?.totalClicks?.toLocaleString('pt-BR') || '0'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">CTR:</span>
-                  <span className="font-bold text-lg">{summary?.avgCtr || '0.00'}%</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Posição:</span>
-                  <span className="font-bold text-lg">{summary?.avgPosition || '0.00'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Data Coverage & Sync Status */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                Status de Sincronização
-              </h3>
-              <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                {validation ? (
-                  <>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Cobertura:</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-lg">{validation.coverage}</span>
-                        {parseFloat(validation.coverage) >= 90 ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        ) : (
-                          <AlertTriangle className="h-4 w-4 text-orange-600" />
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Dias com dados:</span>
-                      <span className="font-bold text-lg">
-                        {validation.daysWithData}/{validation.expectedDays}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Dias faltando:</span>
-                      <span className={`font-bold text-lg ${validation.missingDays === 0 ? 'text-green-600' : 'text-orange-600'}`}>
-                        {validation.missingDays}
-                      </span>
-                    </div>
-                    <div className="pt-2 border-t">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">Período selecionado:</span>
-                        <span className="text-xs font-medium">
-                          {validation.period.startDate} → {validation.period.endDate}
-                        </span>
-                      </div>
-                    </div>
-                  </>
-                ) : validationLoading ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 text-center py-4">
-                    Selecione um período para validar
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Sync Actions */}
-          <div className="mt-4 pt-4 border-t flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              {syncing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                  <span>Sincronizando dados...</span>
-                </>
-              ) : validation && validation.missingDays > 0 ? (
-                <>
-                  <AlertTriangle className="h-4 w-4 text-orange-600" />
-                  <span>Dados incompletos detectados</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <span>Dados atualizados e completos</span>
-                </>
-              )}
-            </div>
-            <div className="flex gap-2">
-              {validation && validation.missingDays > 0 && (
-                <Button
-                  size="sm"
-                  onClick={handleResyncPeriod}
-                  disabled={syncing}
-                  className="bg-orange-600 hover:bg-orange-700"
-                >
-                  {syncing ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                  )}
-                  Ressincronizar Período
-                </Button>
-              )}
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => window.open('https://search.google.com/search-console', '_blank')}
-              >
-                <ExternalLink className="mr-2 h-4 w-4" />
-                Abrir GSC
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Impressões Totais</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {metricsLoading ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">
-                  {summary?.totalImpressions?.toLocaleString('pt-BR') || '0'}
-                </div>
-                <p className="text-xs text-muted-foreground">Últimos {summary?.days || 30} dias</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cliques Totais</CardTitle>
-            <MousePointerClick className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {metricsLoading ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">
-                  {summary?.totalClicks?.toLocaleString('pt-BR') || '0'}
-                </div>
-                <p className="text-xs text-muted-foreground">Últimos {summary?.days || 30} dias</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">CTR Médio</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {metricsLoading ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{summary?.avgCtr || '0.00'}%</div>
-                <p className="text-xs text-muted-foreground">Taxa de cliques</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Posição Média</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {metricsLoading ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{summary?.avgPosition || '0.00'}</div>
-                <p className="text-xs text-muted-foreground">Nos resultados do Google</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Data Coverage Chart */}
-      {validation && validation.expectedDays > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Cobertura de Dados por Dia</CardTitle>
-            <CardDescription>
-              Visualização diária da disponibilidade de dados no período selecionado
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Visual bar chart */}
-              <div className="flex gap-1 h-12 items-end">
-                {Array.from({ length: validation.expectedDays }, (_, i) => {
-                  const hasData = i < validation.daysWithData
-                  return (
-                    <div
-                      key={i}
-                      className={`flex-1 rounded-t transition-all ${
-                        hasData ? 'bg-green-500' : 'bg-red-400'
-                      }`}
-                      style={{ height: hasData ? '100%' : '30%' }}
-                      title={hasData ? `Dia ${i + 1}: Dados disponíveis` : `Dia ${i + 1}: Dados faltando`}
-                    />
-                  )
-                })}
-              </div>
-
-              {/* Legend */}
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-green-500 rounded"></div>
-                    <span className="text-gray-600">Dados disponíveis ({validation.daysWithData})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-red-400 rounded"></div>
-                    <span className="text-gray-600">Dados faltando ({validation.missingDays})</span>
-                  </div>
-                </div>
-                <span className="text-gray-500">
-                  Total: {validation.expectedDays} dias
-                </span>
-              </div>
-
-              {/* Summary Stats */}
-              <div className="grid grid-cols-3 gap-4 pt-4 border-t">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {validation.coverage}
-                  </div>
-                  <div className="text-xs text-gray-500">Cobertura</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {validation.daysWithData}
-                  </div>
-                  <div className="text-xs text-gray-500">Dias com dados</div>
-                </div>
-                <div className="text-center">
-                  <div className={`text-2xl font-bold ${validation.missingDays === 0 ? 'text-green-600' : 'text-orange-600'}`}>
-                    {validation.missingDays}
-                  </div>
-                  <div className="text-xs text-gray-500">Dias faltando</div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Tabs */}
-      <Tabs defaultValue="keywords" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="keywords">
-            <Search className="mr-2 h-4 w-4" />
-            Palavras-chave
-          </TabsTrigger>
-          <TabsTrigger value="pages">
-            <FileText className="mr-2 h-4 w-4" />
-            Páginas
-          </TabsTrigger>
-          <TabsTrigger value="alerts" id="alerts-tab">
-            <AlertTriangle className="mr-2 h-4 w-4" />
-            Alertas {alerts && alerts.length > 0 && `(${alerts.length})`}
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Keywords Tab */}
-        <TabsContent value="keywords" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top 10 Palavras-chave</CardTitle>
-              <CardDescription>Palavras-chave com melhor desempenho</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {keywordsLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </div>
-              ) : keywords && keywords.length > 0 ? (
-                <div className="space-y-2">
-                  {keywords.map((keyword, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 border"
-                    >
-                      <div className="flex-1">
-                        <p className="font-medium">{keyword?.query}</p>
-                        <div className="flex gap-4 text-sm text-gray-600 mt-1">
-                          <span>{keyword?.impressions?.toLocaleString('pt-BR')} impressões</span>
-                          <span>{keyword?.clicks?.toLocaleString('pt-BR')} cliques</span>
-                          <span>CTR: {(keyword?.ctr * 100).toFixed(2)}%</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-blue-600">
-                          {keyword?.position?.toFixed(1)}
-                        </div>
-                        <p className="text-xs text-gray-500">posição</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-gray-500 py-8">Nenhum dado disponível</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Pages Tab */}
-        <TabsContent value="pages" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top 10 Páginas</CardTitle>
-              <CardDescription>Páginas com maior tráfego orgânico</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {pagesLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </div>
-              ) : pages && pages.length > 0 ? (
-                <div className="space-y-2">
-                  {pages.map((page, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 border"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm truncate max-w-[500px]">
-                            {page?.page}
-                          </p>
-                          <a
-                            href={page?.page}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        </div>
-                        <div className="flex gap-4 text-sm text-gray-600 mt-1">
-                          <span>{page?.impressions?.toLocaleString('pt-BR')} impressões</span>
-                          <span>{page?.clicks?.toLocaleString('pt-BR')} cliques</span>
-                          <span>CTR: {(page?.ctr * 100).toFixed(2)}%</span>
-                          <span>Pos: {page?.position?.toFixed(1)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-gray-500 py-8">Nenhum dado disponível</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Alerts Tab */}
-        <TabsContent value="alerts" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Alertas Ativos</CardTitle>
-              <CardDescription>Quedas significativas de performance detectadas</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {alertsLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </div>
-              ) : alerts && alerts.length > 0 ? (
-                <div className="space-y-2">
-                  {alerts.map((alert) => (
-                    <div
-                      key={alert.id}
-                      className={`p-4 rounded-lg border ${
-                        alert.severity === 'critical'
-                          ? 'bg-red-50 border-red-200'
-                          : 'bg-yellow-50 border-yellow-200'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <AlertTriangle
-                              className={`h-4 w-4 ${
-                                alert.severity === 'critical' ? 'text-red-600' : 'text-yellow-600'
-                              }`}
-                            />
-                            <span className="font-semibold">{alert.message}</span>
-                          </div>
-                          <div className="mt-2 text-sm text-gray-600 space-y-1">
-                            <p>
-                              Métrica: <strong>{alert.metric_name}</strong>
-                            </p>
-                            <p>
-                              Valor atual: <strong>{alert.metric_value}</strong> (anterior:{' '}
-                              {alert.previous_value})
-                            </p>
-                            <p>
-                              Mudança: <strong>{typeof alert.change_percentage === 'number' ? alert.change_percentage.toFixed(1) : alert.change_percentage || '0.0'}%</strong>
-                            </p>
-                            <p className="text-xs">
-                              Data: {new Date(alert.date).toLocaleDateString('pt-BR')}
-                            </p>
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleResolveAlert(alert.id)}
-                        >
-                          <CheckCircle2 className="mr-2 h-4 w-4" />
-                          Resolver
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-2" />
-                  <p className="text-gray-600">Nenhum alerta ativo</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Todas as métricas estão estáveis
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+    <div className="flex items-center justify-center h-64">
+      <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
     </div>
   )
 }
 
-// Export with Suspense boundary (required for useSearchParams in Next.js 15)
-export default function SEODashboard() {
+async function SEOContent({ searchParams }: { searchParams: { from?: string; to?: string } }) {
+  let metrics
+  let countries
+  let devices
+  let appearances
+  let opportunities
+  let cruxData
+  let pageSpeedPages
+  let trendsData
+  let relatedQueriesData
+  let trendingSearches
+  let inspectionResults: URLInspectionResult[] = []
+  let inspectionErrors: InspectionError[] = []
+  let coverageSummary: CoverageSummary | null = null
+  let anomalyResults: DetectAnomaliesResponse | null = null
+  let rankingPredictions: RankingPredictionResponse | null = null
+  let keywordClusters: KeywordClusteringResponse | null = null
+  let contentDecay: ContentDecayResponse | null = null
+  let error: string | null = null
+
+  try {
+    // Site URL for Core Web Vitals
+    const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE_URL || 'https://atmaadmin.roilabs.com.br/'
+
+    // Keywords to track in Google Trends (nicho odontológico)
+    const trackingKeywords = ['aparelho ortodontico', 'alinhador invisivel', 'implante dentario']
+
+      // Fetch all metrics in parallel
+      ;[metrics, countries, devices, appearances, opportunities, cruxData, pageSpeedPages, trendsData, relatedQueriesData, trendingSearches] = await Promise.all([
+        getSEOMetrics({
+          startDate: searchParams.from,
+          endDate: searchParams.to,
+        }),
+        getSEOByCountry({
+          startDate: searchParams.from,
+          endDate: searchParams.to,
+        }),
+        getSEOByDevice({
+          startDate: searchParams.from,
+          endDate: searchParams.to,
+        }),
+        getSearchAppearances({
+          startDate: searchParams.from,
+          endDate: searchParams.to,
+        }),
+        getKeywordOpportunities({
+          startDate: searchParams.from,
+          endDate: searchParams.to,
+        }),
+        // Core Web Vitals: CrUX data (real users)
+        getCrUXMetricsBoth(siteUrl),
+        // PageSpeed Insights: Analyze top pages
+        getSEOMetrics({
+          startDate: searchParams.from,
+          endDate: searchParams.to,
+        }).then(async (metricsData) => {
+          const topPages = metricsData.pages.slice(0, 5).map(p => p.page)
+          return getPageSpeedMetricsBatch(topPages, 'mobile')
+        }),
+        // Google Trends: Interest over time
+        compareKeywords(trackingKeywords, { geo: 'BR', timeRange: 'today 12-m' }),
+        // Google Trends: Related queries
+        Promise.all(trackingKeywords.map(kw => getRelatedQueries(kw, { geo: 'BR' }))),
+        // Google Trends: Trending searches
+        getTrendingSearches('BR'),
+      ])
+
+    // URL Inspection: Inspect top 10 pages (rate limiting)
+    if (metrics && metrics.pages.length > 0) {
+      try {
+        const topPages = metrics.pages.slice(0, 10).map(p => {
+          return p.page.startsWith('http') ? p.page : `${siteUrl}${p.page}`
+        })
+
+        inspectionResults = await inspectURLsBatch(topPages, 2000)
+
+        if (inspectionResults.length > 0) {
+          inspectionErrors = extractErrors(inspectionResults)
+          coverageSummary = generateCoverageSummary(inspectionResults)
+        }
+      } catch (inspectionError) {
+        console.error('Error inspecting URLs:', inspectionError)
+      }
+    }
+
+    // Anomaly Detection (TypeScript nativo)
+    if (metrics && metrics.history.length > 0) {
+      try {
+        anomalyResults = detectAllAnomalies(
+          metrics.history,
+          countries || undefined,
+          devices || undefined
+        )
+      } catch (anomalyError) {
+        console.error('Error detecting anomalies:', anomalyError)
+      }
+    }
+
+    // Ranking Predictions (TypeScript nativo)
+    if (metrics && metrics.keywords.length > 0) {
+      try {
+        rankingPredictions = predictRankingOpportunities(metrics.keywords)
+      } catch (rankingError) {
+        console.error('Error predicting rankings:', rankingError)
+      }
+    }
+
+    // Keyword Clustering (TypeScript nativo)
+    if (metrics && metrics.keywords.length > 0 && metrics.pages.length > 0) {
+      try {
+        keywordClusters = clusterKeywords(metrics.keywords, metrics.pages)
+      } catch (clusterError) {
+        console.error('Error clustering keywords:', clusterError)
+      }
+    }
+
+    // Content Decay (TypeScript nativo)
+    if (metrics && metrics.pages.length > 0) {
+      try {
+        contentDecay = predictContentDecay(metrics.pages, metrics.history)
+      } catch (decayError) {
+        console.error('Error predicting content decay:', decayError)
+      }
+    }
+  } catch (e) {
+    console.error('Error fetching SEO metrics:', e)
+    error = e instanceof Error ? e.message : 'Failed to fetch SEO data'
+  }
+
+  if (error || !metrics) {
+    return (
+      <Card className="border-red-200 bg-red-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-red-700">
+            <AlertCircle className="h-5 w-5" />
+            Erro de Configuracao
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-slate-700">
+          <p className="mb-4">Nao foi possivel conectar ao Google Search Console.</p>
+          <p className="text-sm text-slate-500 mb-2">Erro: {error}</p>
+          <div className="text-sm text-slate-600 space-y-1">
+            <p>Verifique se:</p>
+            <ul className="list-disc list-inside ml-2 space-y-1">
+              <li>As variaveis de ambiente estao configuradas corretamente</li>
+              <li>A Service Account tem acesso ao Search Console</li>
+              <li>O site foi verificado no Google Search Console</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Generate ML forecast
+  const forecast = generateForecast(metrics.history, 30)
+  const chartData = combineDataForChart(metrics.history, forecast)
+
+  // Determine trend colors and icons
+  const trendConfig = {
+    Alta: {
+      color: 'text-green-700',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
+      icon: TrendingUp,
+      iconColor: 'text-green-600',
+    },
+    Baixa: {
+      color: 'text-red-700',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200',
+      icon: TrendingDown,
+      iconColor: 'text-red-600',
+    },
+    Estavel: {
+      color: 'text-slate-700',
+      bgColor: 'bg-slate-50',
+      borderColor: 'border-slate-200',
+      icon: Minus,
+      iconColor: 'text-slate-600',
+    },
+  }
+
+  const clicksTrendConfig = trendConfig[forecast.trends.clicks]
+  const impressionsTrendConfig = trendConfig[forecast.trends.impressions]
+  const ClicksTrendIcon = clicksTrendConfig.icon
+  const ImpressionsTrendIcon = impressionsTrendConfig.icon
+
+  // Detect dangerous divergence
+  const hasDangerousDivergence =
+    forecast.trends.clicks === 'Alta' && forecast.trends.impressions === 'Baixa'
+
   return (
-    <Suspense fallback={
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <p className="text-gray-600 ml-2 mt-4">Carregando dashboard SEO...</p>
+    <>
+      {/* Header with Date Picker and AI Assistant */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">SEO Command Center</h1>
+          <p className="text-slate-500 mt-1">
+            Dados do Google Search Console
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Suspense fallback={null}>
+            <DateRangePicker
+              currentStartDate={metrics.dateRange.startDate}
+              currentEndDate={metrics.dateRange.endDate}
+            />
+          </Suspense>
+          <SeoAssistant metrics={metrics} forecast={forecast} />
+        </div>
       </div>
-    }>
-      <SEODashboardContent />
-    </Suspense>
+
+      {/* Period Comparator ML */}
+      <PeriodComparator historyData={metrics.history} />
+
+      {/* AI Insight Card */}
+      <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50 shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-600" />
+              <CardTitle className="text-lg text-slate-900">Insight de IA - Previsao ML (30 dias)</CardTitle>
+            </div>
+            {hasDangerousDivergence && (
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-100 border border-yellow-300">
+                <AlertCircle className="h-4 w-4 text-yellow-700" />
+                <span className="text-xs font-medium text-yellow-800">Alerta: Visibilidade em Queda</span>
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Trends Section */}
+          <div className="grid gap-3 sm:grid-cols-2 mb-4">
+            {/* Clicks Trend */}
+            <div className={`p-4 rounded-lg border-2 ${clicksTrendConfig.borderColor} ${clicksTrendConfig.bgColor}`}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className={`p-2 rounded-lg ${clicksTrendConfig.bgColor}`}>
+                  <ClicksTrendIcon className={`h-5 w-5 ${clicksTrendConfig.iconColor}`} />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-slate-600">Tendencia de Trafego (Cliques)</p>
+                  <p className={`text-xl font-bold ${clicksTrendConfig.color}`}>
+                    {forecast.trends.clicks} 🟢
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs text-slate-600">
+                <p><span className="font-medium">ML Direta:</span> {forecast.predictedTotal.clicks.toLocaleString('pt-BR')} cliques</p>
+                <p><span className="font-medium">Via Eficiencia:</span> <span className="text-amber-600 font-semibold">{forecast.predictedTotal.clicksFromEfficiency.toLocaleString('pt-BR')}</span> cliques</p>
+                <p><span className="font-medium">Velocidade:</span> {forecast.velocity.clicks > 0 ? '+' : ''}{forecast.velocity.clicks}/dia</p>
+                <p><span className="font-medium">Confianca:</span> {forecast.confidence.clicks}%</p>
+              </div>
+            </div>
+
+            {/* Impressions Trend */}
+            <div className={`p-4 rounded-lg border-2 ${impressionsTrendConfig.borderColor} ${impressionsTrendConfig.bgColor}`}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className={`p-2 rounded-lg ${impressionsTrendConfig.bgColor}`}>
+                  <ImpressionsTrendIcon className={`h-5 w-5 ${impressionsTrendConfig.iconColor}`} />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-slate-600">Tendencia de Visibilidade (Impressoes)</p>
+                  <p className={`text-xl font-bold ${impressionsTrendConfig.color}`}>
+                    {forecast.trends.impressions} 🔵
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs text-slate-600">
+                <p><span className="font-medium">Previsao:</span> {forecast.predictedTotal.impressions.toLocaleString('pt-BR')} imp</p>
+                <p><span className="font-medium">Velocidade:</span> {forecast.velocity.impressions > 0 ? '+' : ''}{forecast.velocity.impressions}/dia</p>
+                <p><span className="font-medium">Confianca:</span> {forecast.confidence.impressions}%</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Warning Message */}
+          {hasDangerousDivergence && (
+            <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+              <p className="text-xs text-yellow-800">
+                <span className="font-bold">⚠️ Atencao:</span> O CTR esta segurando o trafego, mas a visibilidade esta caindo.
+                Isso pode indicar perda futura de cliques se nao houver acao imediata no SEO.
+              </p>
+            </div>
+          )}
+
+          {/* Model Info */}
+          <div className="mt-3 pt-3 border-t border-purple-200">
+            <p className="text-xs text-slate-600">
+              <span className="font-medium">Modelo:</span> Regressao Linear
+              <span className="ml-3 text-slate-500">
+                (Baseado em {metrics.history.length} dias de dados)
+              </span>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* KPI Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-slate-200 bg-white shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-600">Total de Cliques</CardTitle>
+            <MousePointer className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-900">
+              {metrics.totals.clicks.toLocaleString('pt-BR')}
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Visitantes organicos
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200 bg-white shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-600">Total de Impressoes</CardTitle>
+            <Eye className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-900">
+              {metrics.totals.impressions.toLocaleString('pt-BR')}
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Aparicoes no Google
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200 bg-white shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-600">CTR Medio</CardTitle>
+            <TrendingUp className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-900">
+              {metrics.totals.ctr.toFixed(2)}%
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Taxa de cliques
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className={`border-2 shadow-sm ${forecast.efficiency.trend === 'Melhorando'
+            ? 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50'
+            : forecast.efficiency.trend === 'Piorando'
+              ? 'border-red-200 bg-gradient-to-br from-red-50 to-orange-50'
+              : 'border-slate-200 bg-white'
+          }`}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-600">Custo de Visibilidade</CardTitle>
+            <Target className={`h-4 w-4 ${forecast.efficiency.trend === 'Melhorando'
+                ? 'text-green-600'
+                : forecast.efficiency.trend === 'Piorando'
+                  ? 'text-red-600'
+                  : 'text-slate-600'
+              }`} />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${forecast.efficiency.trend === 'Melhorando'
+                ? 'text-green-700'
+                : forecast.efficiency.trend === 'Piorando'
+                  ? 'text-red-700'
+                  : 'text-slate-900'
+              }`}>
+              {forecast.efficiency.currentRatio}
+            </div>
+            <p className={`text-xs mt-1 font-medium ${forecast.efficiency.trend === 'Melhorando'
+                ? 'text-green-600'
+                : forecast.efficiency.trend === 'Piorando'
+                  ? 'text-red-600'
+                  : 'text-slate-500'
+              }`}>
+              {forecast.efficiency.trend === 'Melhorando' && (
+                <>▼ Eficiencia aumentando (CTR subindo)</>
+              )}
+              {forecast.efficiency.trend === 'Piorando' && (
+                <>▲ Alerta: Snippets menos atrativos</>
+              )}
+              {forecast.efficiency.trend === 'Estavel' && (
+                <>Impressoes p/ 1 clique (estavel)</>
+              )}
+            </p>
+            <p className="text-xs text-slate-500 mt-1">
+              Prev. 30d: {forecast.efficiency.forecastNext30d}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Chart with Forecast */}
+      <Card className="border-slate-200 bg-white shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-slate-900">Performance e Previsao Dupla</CardTitle>
+          <CardDescription className="text-slate-500">
+            Historico (solida), ML Direta (cinza pontilhada) e ML via Eficiencia (laranja pontilhada)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SEOMetricsChart data={chartData} showForecast={true} />
+        </CardContent>
+      </Card>
+
+      {/* Anomaly Detection Alerts (ML) */}
+      <SEOAnomalyAlerts results={anomalyResults} />
+
+      {/* Ranking Predictions (ML) */}
+      <SEORankingPredictions results={rankingPredictions} />
+
+      {/* Topic Clusters (ML) */}
+      <SEOTopicClusters results={keywordClusters} />
+
+      {/* Content Decay Calendar (ML) */}
+      <SEOContentCalendar results={contentDecay} />
+
+      {/* Device Breakdown */}
+      {devices && devices.length > 0 && (
+        <SEODeviceBreakdown devices={devices} />
+      )}
+
+      {/* Country Breakdown */}
+      {countries && countries.length > 0 && (
+        <SEOCountryTable countries={countries} />
+      )}
+
+      {/* Search Appearances */}
+      {appearances && (
+        <SEOSearchAppearances appearances={appearances} />
+      )}
+
+      {/* Keyword Opportunities */}
+      {opportunities && (
+        <SEOKeywordOpportunities opportunities={opportunities} />
+      )}
+
+      {/* Core Web Vitals */}
+      {cruxData && (
+        <SEOWebVitals
+          mobile={cruxData.mobile}
+          desktop={cruxData.desktop}
+        />
+      )}
+
+      {/* Critical Pages */}
+      {pageSpeedPages && pageSpeedPages.length > 0 && (
+        <SEOCriticalPages pages={pageSpeedPages} />
+      )}
+
+      {/* URL Coverage Dashboard */}
+      <SEOCoverageDashboard summary={coverageSummary} />
+
+      {/* Indexation Errors */}
+      {inspectionErrors.length > 0 && (
+        <SEOIndexationErrors errors={inspectionErrors} />
+      )}
+
+      {/* Google Trends Chart */}
+      {trendsData && trendsData.length > 0 && (
+        <SEOTrendsChart trendsData={trendsData} />
+      )}
+
+      {/* Trending Keywords & Related Queries */}
+      {relatedQueriesData && relatedQueriesData.length > 0 && (
+        <SEOTrendingKeywords
+          relatedQueries={relatedQueriesData.filter((r): r is import('@/lib/google-trends').RelatedQueriesData => !('error' in r))}
+          trendingSearches={trendingSearches && 'error' in trendingSearches ? null : trendingSearches}
+        />
+      )}
+
+      {/* Tables Side by Side */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Top Keywords */}
+        <Card className="border-slate-200 bg-white shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-slate-900">
+              <Search className="h-5 w-5 text-green-600" />
+              Top Buscas
+            </CardTitle>
+            <CardDescription className="text-slate-500">
+              Termos que mais trazem trafego
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {metrics.keywords.length === 0 ? (
+                <p className="text-slate-500 text-sm">Nenhum dado disponivel</p>
+              ) : (
+                metrics.keywords.map((keyword, index) => (
+                  <div
+                    key={keyword.query}
+                    className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-slate-400 w-6">
+                        #{index + 1}
+                      </span>
+                      <span className="text-sm text-slate-700 truncate max-w-[180px]" title={keyword.query}>
+                        {keyword.query}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs">
+                      <span className="text-green-600 font-medium">{keyword.clicks} cliques</span>
+                      <span className="text-slate-400">{keyword.impressions.toLocaleString('pt-BR')} imp</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Top Pages */}
+        <Card className="border-slate-200 bg-white shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-slate-900">
+              <TrendingUp className="h-5 w-5 text-purple-600" />
+              Paginas com Melhor Performance
+            </CardTitle>
+            <CardDescription className="text-slate-500">
+              Paginas que mais recebem trafego organico
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {metrics.pages.length === 0 ? (
+                <p className="text-slate-500 text-sm">Nenhuma pagina encontrada</p>
+              ) : (
+                metrics.pages.map((page, index) => (
+                  <div
+                    key={page.page}
+                    className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-slate-400 w-6">
+                        #{index + 1}
+                      </span>
+                      <span className="text-sm text-slate-700 truncate max-w-[180px]" title={page.slug}>
+                        {page.slug || '/'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs">
+                      <span className="text-green-600 font-medium">{page.clicks} cliques</span>
+                      <span className="text-purple-600">{page.ctr.toFixed(1)}% CTR</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  )
+}
+
+export default async function SEOPage({ searchParams }: SEOPageProps) {
+  const params = await searchParams
+
+  return (
+    <div className="space-y-6">
+      <Suspense fallback={<LoadingState />}>
+        <SEOContent searchParams={params} />
+      </Suspense>
+    </div>
   )
 }
