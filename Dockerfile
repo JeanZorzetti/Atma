@@ -1,7 +1,7 @@
 # ============================================================
 # Stage 1: Build Next.js frontend
 # ============================================================
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 
 WORKDIR /build/frontend
 
@@ -34,7 +34,7 @@ RUN npm run build
 # ============================================================
 # Stage 2: Runtime — Node + Nginx + Supervisor
 # ============================================================
-FROM node:18-alpine AS runtime
+FROM node:20-alpine AS runtime
 
 # Install nginx and supervisor
 RUN apk add --no-cache nginx supervisor dumb-init && \

@@ -1,77 +1,71 @@
-/**
- * Cliente MySQL para CRM Atma
- * Fase 5.1: CRM Integration
- */
+import { Pool } from 'pg'
 
-import mysql from 'mysql2/promise'
+// Lazy singleton — not instantiated at build time
+let _pool: Pool | null = null
 
-// Configuração do pool de conexões
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || '31.97.23.166',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  user: process.env.DB_USER || 'atmadb',
-  password: process.env.DB_PASSWORD || 'PAzo18**',
-  database: process.env.DB_NAME || 'atmadb',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-})
+function getPool(): Pool {
+  if (!_pool) {
+    _pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 10,
+      idleTimeoutMillis: 300000,
+      connectionTimeoutMillis: 10000,
+    })
+  }
+  return _pool
+}
 
-/**
- * Executa uma query no banco de dados
- */
+// Convert MySQL ? placeholders to PostgreSQL $1, $2, ...
+function convertPlaceholders(sql: string): string {
+  let i = 0
+  return sql.replace(/\?/g, () => `$${++i}`)
+}
+
 export async function query<T = any>(sql: string, params?: any[]): Promise<T[]> {
   try {
-    const [rows] = await pool.execute(sql, params)
-    return rows as T[]
+    const result = await getPool().query(convertPlaceholders(sql), params)
+    return result.rows as T[]
   } catch (error) {
     console.error('❌ Erro ao executar query:', error)
     throw error
   }
 }
 
-/**
- * Executa uma query e retorna apenas a primeira linha
- */
+// Alias used by some routes
+export const queryMany = query
+
 export async function queryOne<T = any>(sql: string, params?: any[]): Promise<T | null> {
   const rows = await query<T>(sql, params)
   return rows.length > 0 ? rows[0] : null
 }
 
-/**
- * Insere um registro e retorna o ID inserido
- */
 export async function insert(sql: string, params?: any[]): Promise<number> {
   try {
-    const [result] = await pool.execute(sql, params)
-    return (result as any).insertId
+    const pgSql = convertPlaceholders(sql) + ' RETURNING id'
+    const result = await getPool().query(pgSql, params)
+    return result.rows[0]?.id ?? 0
   } catch (error) {
     console.error('❌ Erro ao inserir registro:', error)
     throw error
   }
 }
 
-/**
- * Testa a conexão com o banco
- */
 export async function testConnection(): Promise<boolean> {
   try {
-    await pool.query('SELECT 1')
-    console.log('✅ Conexão com MySQL estabelecida')
+    await getPool().query('SELECT 1')
+    console.log('✅ Conexão com PostgreSQL estabelecida')
     return true
   } catch (error) {
-    console.error('❌ Erro ao conectar ao MySQL:', error)
+    console.error('❌ Erro ao conectar ao PostgreSQL:', error)
     return false
   }
 }
 
-/**
- * Fecha o pool de conexões
- */
 export async function closePool(): Promise<void> {
-  await pool.end()
+  if (_pool) {
+    await _pool.end()
+    _pool = null
+  }
 }
 
-export default pool
+export default { query, queryMany, queryOne, insert, testConnection, closePool }
