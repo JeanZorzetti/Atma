@@ -6,7 +6,7 @@ FROM node:18-alpine AS frontend-builder
 WORKDIR /build/frontend
 
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 COPY frontend/ ./
 
@@ -55,7 +55,7 @@ COPY --from=frontend-builder /build/frontend/package.json ./frontend/package.jso
 COPY --from=frontend-builder /build/frontend/package-lock.json ./frontend/package-lock.json
 COPY --from=frontend-builder /build/frontend/next.config.js ./frontend/next.config.js
 
-RUN cd frontend && npm ci --omit=dev && npm cache clean --force
+RUN cd frontend && npm ci --omit=dev --legacy-peer-deps && npm cache clean --force
 
 # --- Nginx config ---
 COPY nginx.conf /etc/nginx/nginx.conf
