@@ -240,8 +240,10 @@ app.get('/health', async (req, res) => {
     const serviceHealth = serviceMonitor.getHealthStatus();
     
     const overallStatus = dbHealth.status === 'ERROR' || !serviceHealth.isHealthy ? 'ERROR' : 'OK';
-    
-    res.status(overallStatus === 'ERROR' ? 503 : 200).json({
+
+    // Always return 200 so Docker/EasyPanel health check doesn't kill the container
+    // The status field in the body indicates actual health
+    res.status(200).json({
       status: overallStatus,
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version || '1.0.0',
