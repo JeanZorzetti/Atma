@@ -343,38 +343,28 @@ const runMaintenance = async (req, res, next) => {
       
       const fs = require('fs');
       const path = require('path');
-      const mysql = require('mysql2/promise');
-      
+      const { Client } = require('pg');
+
       try {
-        const dbConfig = {
-          host: process.env.DB_HOST || 'localhost',
-          user: process.env.DB_USER || 'root', 
-          password: process.env.DB_PASSWORD || '',
-          database: process.env.DB_NAME || 'atma_aligner',
-          port: process.env.DB_PORT || 3306,
-          charset: 'utf8mb4',
-          timezone: '+00:00'
-        };
-        
-        // Conectar e executar schema
-        const connection = await mysql.createConnection(dbConfig);
+        const client = new Client({ connectionString: process.env.DATABASE_URL });
+        await client.connect();
         const schemaPath = path.join(__dirname, '../../database/schema.sql');
         const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
-        
+
         // Executar statements SQL
         const statements = schemaSQL.split(';').filter(stmt => stmt.trim().length > 0);
-        
+
         for (let statement of statements) {
           try {
-            await connection.execute(statement);
+            await client.query(statement);
           } catch (err) {
             if (!err.message.includes('already exists')) {
               throw err;
             }
           }
         }
-        
-        await connection.end();
+
+        await client.end();
         
         results.migrate = {
           success: true,
