@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import mysql from 'mysql2/promise'
+import { query } from '@/lib/db'
 import { gerarPDFRelatorioV6 } from '@/lib/pdf-generator-v6'
 import { enviarRelatorio } from '@/lib/email'
 import { atualizarStatusRelatorio } from '@/lib/repositories/relatorio-repository'
-
-// Configuração do banco de dados
-const dbConfig = {
-  host: process.env.DB_HOST || '31.97.23.166',
-  user: process.env.DB_USER || 'atmadb',
-  password: process.env.DB_PASSWORD || 'atma2024',
-  database: process.env.DB_NAME || 'atmadb',
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,32 +19,16 @@ export async function POST(request: NextRequest) {
 
     console.log('📄 Gerando PDF via webhook:', { relatorioId, clienteId, paymentId })
 
-    // Conectar ao banco de dados
-    const connection = await mysql.createConnection(dbConfig)
-
     try {
-      // Buscar dados do cliente e relatório
-      const [rows]: any = await connection.query(`
+      const rows = await query<any>(`
         SELECT
-          c.nome,
-          c.email,
-          c.idade,
-          c.cidade,
-          c.estado,
-          c.telefone,
-          c.profissao,
-          r.problemas_atuais,
-          r.problema_principal,
-          r.ja_usou_aparelho,
-          r.problemas_saude,
-          r.expectativa_resultado,
-          r.urgencia_tratamento,
-          r.orcamento_recebido,
-          r.disponibilidade_uso,
-          r.pdf_enviado
+          c.nome, c.email, c.idade, c.cidade, c.estado, c.telefone, c.profissao,
+          r.problemas_atuais, r.problema_principal, r.ja_usou_aparelho,
+          r.problemas_saude, r.expectativa_resultado, r.urgencia_tratamento,
+          r.orcamento_recebido, r.disponibilidade_uso, r.pdf_enviado
         FROM clientes c
         INNER JOIN relatorios r ON c.id = r.cliente_id
-        WHERE c.id = ? AND r.id = ?
+        WHERE c.id = $1 AND r.id = $2
       `, [clienteId, relatorioId])
 
       if (rows.length === 0) {
@@ -175,8 +151,8 @@ export async function POST(request: NextRequest) {
         }
       })
 
-    } finally {
-      await connection.end()
+    } catch (innerError) {
+      throw innerError
     }
 
   } catch (error) {
